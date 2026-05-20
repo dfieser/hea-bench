@@ -47,6 +47,13 @@ desktop.ini
 
 # Working scratch
 .data-scratch/
+_scratch/
+data/raw/_scratch/
+data/raw/*/*.csv
+data/raw/*/*.xlsx
+data/raw/*/*.pdf
+# (raw CSVs are pulled by per-source fetch.py scripts at user request;
+#  see data/raw/README.md for the redistribution policy)
 
 # Built docs
 docs/_build/
