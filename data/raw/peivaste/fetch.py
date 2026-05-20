@@ -29,7 +29,7 @@ def main() -> int:
         return 0
 
     print(f"downloading {UPSTREAM_URL}")
-    print(f"          → {TARGET}")
+    print(f"          -> {TARGET}")
     try:
         urllib.request.urlretrieve(UPSTREAM_URL, TARGET)
     except Exception as e:

@@ -10,6 +10,7 @@
 - **Default branch:** `main`
 - **Companion paper:** Peivaste, I. *et al.* — "Machine learning-based prediction of phases in high-entropy alloys: A data article." See the upstream repo README for the published article DOI.
 - **Acquired by `hea-bench` on:** 2026-05-20 (rev: top of `main` at time of acquisition).
+- **Snapshot of primary CSV:** `dataset11252_79.csv` is 6,424,704 bytes, SHA-256 `655a43e521003f5c8973050b5f7c0a5d4b9ab902ca4ecc9c8a7d9813b2b0ba10`. Upstream is unversioned (snapshot of `main` at a given moment), so this hash is a snapshot identifier, not a guarantee that subsequent fetches will match.
 
 ## License status
 
