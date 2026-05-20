@@ -23,9 +23,8 @@ has:
 | Subfolder | Source | License | Status |
 |---|---|---|---|
 | (TBD) `borg2020/` | Borg *et al.* 2020 (*Sci. Data* 7, 430) | CC-BY-4.0 | Mirror — to be copied from legacy `thermo-descriptor-calculator/validation/data/MPEA_dataset.csv` during Phase 1 consolidation |
-| [`peivaste/`](peivaste/) | Iman-Peivaste/ML_HEAs_Phase_Dataset (GitHub) | **none declared** | Pointer-only; `fetch.py` provided |
+| [`peivaste/`](peivaste/) | Iman-Peivaste/ML_HEAs_Phase_Dataset (GitHub) + companion Sci. Rep. 13, 22556 (2023) by same authors | **none declared on data** (paper is CC-BY but the data is on GitHub without a license file) | Pointer-only; `fetch.py` provided |
+| [`pei2020/`](pei2020/) | Pei *et al.* 2020 (*npj Comput. Mater.* 6, 50) | **CC-BY-4.0** (Crossref-confirmed) | ✓ **Mirrored 2026-05-20.** 1,252 alloys × 4 phase labels (bcc/fcc/hcp/multi-phase). |
 | [`couzinie2018/`](couzinie2018/) | Couzinié *et al.* 2018 (*Data in Brief* 21, 1622) | CC-BY-4.0 | Acquisition stalled — Elsevier CDN supplementary files are mis-attributed; mostly subsumed by Borg anyway. **Deprioritized.** See README for log. |
 | (planned) `miracle_senkov2017/` | Miracle & Senkov 2017 (*Acta Mater.* 122, 448) | Elsevier — TBD | Not yet attempted |
-| (planned) `pei2020/` | Pei *et al.* 2020 (*npj Comput. Mater.* 6, 50) | Check supplementary | Not yet attempted |
-| (planned) `yan2023/` | Yan *et al.* 2023 (*Sci. Rep.* 13, 22556) | CC-BY-4.0 | Not yet attempted |
 | (planned) `witman/` | mwitman1/HEAphaseML (GitHub) | TBD | Not yet attempted |

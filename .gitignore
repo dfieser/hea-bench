@@ -49,11 +49,15 @@ desktop.ini
 .data-scratch/
 _scratch/
 data/raw/_scratch/
-data/raw/*/*.csv
-data/raw/*/*.xlsx
-data/raw/*/*.pdf
-# (raw CSVs are pulled by per-source fetch.py scripts at user request;
-#  see data/raw/README.md for the redistribution policy)
+
+# Per-source gitignores (only block sources whose upstream license forbids
+# redistribution — see data/raw/README.md). Sources released under CC-BY,
+# MIT, Apache, etc. are mirrored directly; not listed here.
+#
+# Peivaste (Iman-Peivaste/ML_HEAs_Phase_Dataset) — no upstream license declared
+data/raw/peivaste/*.csv
+data/raw/peivaste/*.xlsx
+data/raw/peivaste/*.ipynb
 
 # Built docs
 docs/_build/
