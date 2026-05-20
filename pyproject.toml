@@ -1,0 +1,65 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hea-bench"
+version = "0.0.1"
+description = "An open benchmark suite and reference baselines for high-entropy alloy phase prediction."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [
+    { name = "David Fieser", email = "dfieser9@gmail.com" },
+]
+keywords = [
+    "high-entropy alloys",
+    "phase prediction",
+    "materials informatics",
+    "benchmark",
+    "Miedema model",
+    "thermodynamic descriptors",
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Chemistry",
+]
+# Intentionally dependency-free at the core. Heavier extras (pandas, sklearn,
+# matplotlib) belong under optional-dependencies, not the base install.
+dependencies = []
+
+[project.optional-dependencies]
+data = ["pandas>=2.0"]
+plot = ["matplotlib>=3.7"]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.4",
+]
+
+[project.scripts]
+hea-bench = "hea_bench.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/USERNAME/hea-bench"
+Repository = "https://github.com/USERNAME/hea-bench"
+Issues = "https://github.com/USERNAME/hea-bench/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hea_bench"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

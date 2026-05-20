@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+title: "hea-bench: An open benchmark suite for high-entropy alloy phase prediction"
+message: >-
+  If you use this software, please cite it using the metadata from this file.
+type: software
+authors:
+  - given-names: David
+    family-names: Fieser
+    # orcid: 'https://orcid.org/0000-0000-0000-0000'  # add when available
+abstract: >-
+  hea-bench is a standardized, reproducible benchmark suite for high-entropy
+  alloy phase prediction. It consolidates published open HEA phase-label
+  datasets into a single curated benchmark, provides reference baseline
+  implementations of the canonical empirical descriptors and phase-prediction
+  rules treated as diagnostic classifiers, and ships a standardized evaluation
+  harness so any user-supplied model can be scored against the same dataset
+  and metrics.
+keywords:
+  - high-entropy alloys
+  - phase prediction
+  - materials informatics
+  - benchmark
+  - Miedema model
+  - thermodynamic descriptors
+license: MIT
+repository-code: 'https://github.com/USERNAME/hea-bench'
+# version: 0.1.0           # set on first tagged release
+# date-released: 2026-MM-DD
+# doi: 10.5281/zenodo.xxx  # filled in by Zenodo after the first release
