@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>hea-bench — Pyodide prototype</title>
+  <style>
+    :root {
+      --bg: #faf8f3;
+      --surface: #ffffff;
+      --text: #1b1b18;
+      --text-muted: #5a5a52;
+      --border: #d9d6cc;
+      --accent: #8b3a2f;
+      --serif: "Charter", "Iowan Old Style", "Cambria", Georgia, serif;
+      --sans: "Inter", -apple-system, "Segoe UI", system-ui, sans-serif;
+      --mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #14140f;
+        --surface: #1c1c17;
+        --text: #e6e3da;
+        --text-muted: #a09d92;
+        --border: #33322c;
+        --accent: #d97757;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    main {
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 40px 22px 80px;
+    }
+    h1 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 28px;
+      margin: 0 0 6px;
+      letter-spacing: -0.01em;
+    }
+    .eyebrow {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      margin: 0 0 18px;
+    }
+    p.lede {
+      color: var(--text-muted);
+      max-width: 64ch;
+    }
+    code, kbd { font-family: var(--mono); font-size: 90%; }
+    label { display: block; margin: 18px 0 6px; font-weight: 500; }
+    input[type="text"] {
+      width: 100%;
+      max-width: 420px;
+      padding: 9px 11px;
+      font-family: var(--mono);
+      font-size: 14px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: var(--surface);
+      color: var(--text);
+    }
+    button {
+      margin-left: 8px;
+      padding: 9px 16px;
+      font-family: inherit;
+      font-size: 14px;
+      background: var(--accent);
+      color: #fff;
+      border: 0;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #status {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      margin: 8px 0 16px;
+    }
+    #out {
+      margin-top: 18px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      font-family: var(--mono);
+      font-size: 13px;
+      white-space: pre-wrap;
+      min-height: 1em;
+    }
+    .meta {
+      margin-top: 36px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .meta a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">Phase 0.5 prototype · 2026-05-20</p>
+    <h1>hea-bench — Pyodide prototype</h1>
+    <p class="lede">
+      This page runs <em>the actual <code>hea_bench</code> Python library</em>
+      inside your browser tab via Pyodide / WebAssembly. There is no server.
+      Your composition is parsed and the descriptor is computed locally,
+      using the same library code anyone would <code>pip install</code>.
+    </p>
+
+    <p id="status">Loading Pyodide… (~10 MB on first visit, cached after).</p>
+
+    <div id="ui" hidden>
+      <label for="formula">
+        Composition <span style="color: var(--text-muted); font-weight: 400;">
+        — e.g. <code>Co1 Cr1 Fe1 Mn1 Ni1</code> or
+        <code>Al0.3 Co1 Cr1 Fe1 Ni1</code></span>
+      </label>
+      <input id="formula" type="text" value="Co1 Cr1 Fe1 Mn1 Ni1" autocomplete="off">
+      <button id="go">Compute ΔS<sub>mix</sub></button>
+      <div id="out" aria-live="polite"></div>
+    </div>
+
+    <div class="meta">
+      <p>
+        <strong>What this proves.</strong> The architecture works: one
+        Python implementation, run identically in scripts (<code>pip install
+        hea-bench</code>) and in a browser tab (this page). No JavaScript
+        re-implementation of any descriptor. No server. The wheel loaded
+        here is the same wheel a user would install with pip.
+      </p>
+      <p>
+        Phase 0.5 ships only ΔS<sub>mix</sub> as proof-of-architecture.
+        The full descriptor set (δ, VEC, Ω, Miedema ΔH<sub>mix</sub>)
+        lands in Phase 2; the consolidated benchmark dataset in Phase 1.
+        See <code>../../PROJECT_PLAN.md</code> for the full roadmap.
+      </p>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.0/full/pyodide.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    async function bootstrap() {
+      const status = $("status");
+      const ui = $("ui");
+      const out = $("out");
+      const goBtn = $("go");
+
+      try {
+        status.textContent = "Loading Pyodide runtime…";
+        const pyodide = await loadPyodide();
+
+        status.textContent = "Installing hea_bench wheel…";
+        await pyodide.loadPackage("micropip");
+        await pyodide.runPythonAsync(`
+import micropip
+await micropip.install("./dist/hea_bench-0.0.1-py3-none-any.whl")
+import hea_bench
+__pkg_version__ = hea_bench.__version__
+        `);
+        const version = pyodide.globals.get("__pkg_version__");
+        status.textContent = `Ready. hea_bench ${version} loaded in this tab.`;
+        ui.hidden = false;
+
+        // Pre-define the compute helper inside the Pyodide runtime so each
+        // button click is a tiny, synchronous call.
+        pyodide.runPython(`
+import re
+from hea_bench.descriptors.entropy import smix
+from hea_bench.constants import R
+
+_token = re.compile(r"([A-Z][a-z]?)([0-9]*\\.?[0-9]*)")
+
+def compute(raw: str) -> str:
+    comp = {}
+    for el, coef in _token.findall(raw):
+        if not el:
+            continue
+        comp[el] = comp.get(el, 0.0) + (float(coef) if coef else 1.0)
+    if not comp:
+        return "No elements parsed from input."
+    s = smix(comp)
+    total = sum(comp.values())
+    norm = {k: round(v / total, 4) for k, v in comp.items()}
+    return (
+        f"parsed composition (normalized):\\n  {norm}\\n\\n"
+        f"\\u0394S_mix = {s:.4f} J/(mol\\u00B7K)\\n"
+        f"        = {s / R:.4f} \\u00B7 R\\n\\n"
+        f"Yeh (2004) threshold for HEA classification: \\u0394S_mix > 1.5 R = {1.5 * R:.4f} J/(mol\\u00B7K)\\n"
+        f"  this alloy: {'HEA' if s > 1.5 * R else ('MEA' if s >= R else 'dilute')}"
+    )
+        `);
+
+        goBtn.addEventListener("click", () => {
+          const raw = $("formula").value;
+          try {
+            pyodide.globals.set("__raw", raw);
+            out.textContent = pyodide.runPython("compute(__raw)");
+          } catch (err) {
+            out.textContent = "Error: " + err.message;
+          }
+        });
+        // Allow Enter in the input to trigger compute.
+        $("formula").addEventListener("keydown", (e) => {
+          if (e.key === "Enter") { e.preventDefault(); goBtn.click(); }
+        });
+      } catch (err) {
+        status.textContent = "Failed to initialize: " + err.message;
+        status.style.color = "#962d24";
+      }
+    }
+    bootstrap();
+  </script>
+</body>
+</html>
