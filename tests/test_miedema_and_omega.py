@@ -15,14 +15,28 @@ _MO_NB      = {"Mo": 0.5,  "Nb": 0.5}
 
 
 # ---- ΔH_mix (Miedema multi-component) ----
+#
+# Honesty note: the values pinned below are computed by our standard
+# Miedema formula (ΔH_mix = Σ_{i<j} 4 c_i c_j ΔH^pair_{ij}) applied to
+# the matminer-vendored Takeuchi-Inoue 2005 pair-enthalpy table. They
+# are NOT the only published values for these alloys — different
+# methods (e.g. Gao et al.'s sub-regular solution model on the same
+# Takeuchi-Inoue base) yield slightly different aggregate values
+# (e.g. Cantor at -3.75 vs our -4.16). These are method differences,
+# not bugs. The tests pin the value our code actually produces; the
+# value is consistent with the standard 4-c_i-c_j-prefactor convention
+# in widespread HEA-literature use.
 
-def test_hmix_cantor_matches_yang_zhang_2012() -> None:
-    """Cantor ΔH_mix = -4.16 kJ/mol is the canonical literature value."""
+def test_hmix_cantor_canonical_value() -> None:
+    """Cantor ΔH_mix from our Miedema formula on matminer Takeuchi-Inoue
+    pair enthalpies. Independently verified by pair-by-pair walkthrough."""
     assert mixing_enthalpy(_CANTOR) == pytest.approx(-4.16, abs=0.01)
 
 
-def test_hmix_refractory_monbtaw_matches_senkov_2010() -> None:
-    """MoNbTaW refractory HEA: -6.5 kJ/mol is the canonical Senkov value."""
+def test_hmix_refractory_monbtaw_canonical_value() -> None:
+    """MoNbTaW refractory HEA via our Miedema formula on the same pair
+    table. Cited as -6.5 kJ/mol in multiple HEA reviews; matches what
+    our code produces."""
     assert mixing_enthalpy(_MO_NB_TA_W) == pytest.approx(-6.5, abs=0.01)
 
 

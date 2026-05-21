@@ -32,20 +32,30 @@ This is the same primary source that Takeuchi & Inoue 2005
 
 ### Cross-verification against Takeuchi-Inoue 2005
 
-Spot-checks of the vendored matminer values against the Takeuchi-Inoue
-PDF (Table 1, page 2818) at acquisition time (2026-05-20):
+Pairs from Takeuchi-Inoue 2005 Table 1 that I read directly from the
+PDF during acquisition (2026-05-20) and confirmed match matminer's
+vendored values:
 
-| Pair | matminer value | Takeuchi-Inoue 2005 | Match |
+| Pair | matminer | Takeuchi-Inoue 2005 Table 1 | Match |
 |---|---:|---:|---|
 | Al-Ni | -22 kJ/mol | -22 kJ/mol | ✓ |
 | Al-Fe | -11 kJ/mol | -11 kJ/mol | ✓ |
-| Cr-Fe | -1 kJ/mol  | -1 kJ/mol  | ✓ |
-| Co-Fe | -1 kJ/mol  | -1 kJ/mol  | ✓ |
-| Cu-Ni | +4 kJ/mol  | +4 kJ/mol  | ✓ |
-| Ni-Fe | -2 kJ/mol  | -2 kJ/mol  | ✓ |
+| Cu-Ni |  +4 kJ/mol |  +4 kJ/mol | ✓ |
+| Ti-Ni | -35 kJ/mol | -35 kJ/mol | ✓ |
 
-Values agree, confirming matminer's vendored table is consistent with
-the Takeuchi-Inoue tabulation.
+Other pair values used in our test suite (Cr-Fe, Co-Fe, Co-Cr,
+Mn-Ni, etc.) were *computationally* spot-checked — the per-pair
+values are what matminer ships, and our tests assert exactly those
+values. We did **not** independently re-verify every test pair
+against the PDF, only the four above. Both matminer and Takeuchi-
+Inoue derive from the same primary source (de Boer *et al.* 1988),
+so wholesale agreement is the expected outcome; the four
+hand-confirmed cases are the evidence for that expectation.
+
+If reviewers ask for fuller verification, the matminer maintainers
+maintain the source-of-truth file at
+[`hackingmaterials/matminer/.../MiedemaLiquidDeltaHf.tsv`](https://github.com/hackingmaterials/matminer/blob/main/src/matminer/utils/data_files/MiedemaLiquidDeltaHf.tsv)
+and document its provenance in their package.
 
 ### Coverage vs. our 24-element ELEMENTAL_DATA
 
