@@ -11,11 +11,11 @@ SoftwareX submission draft for `hea-bench`.
 
 ## Build
 
-PDFLaTeX only. From this directory:
+PDFLaTeX + biber. From this directory:
 
 ```bash
 pdflatex main
-bibtex   main
+biber    main
 pdflatex main
 pdflatex main
 ```
@@ -23,8 +23,13 @@ pdflatex main
 Or with `latexmk`:
 
 ```bash
-latexmk -pdf main
+latexmk -pdf -bibtex- -biber main
 ```
+
+The bibliography uses `biblatex-apa` for APA-style reference
+formatting with numeric in-text citations, which requires the
+`biber` backend rather than the traditional `bibtex`. Both are
+shipped with TeX Live and MiKTeX.
 
 ## What's in the draft (v0.1.0)
 
