@@ -33,7 +33,7 @@
 \usepackage[backend=biber,
             style=apa,
             citestyle=numeric-comp,
-            sorting=nyt]{biblatex}
+            sorting=none]{biblatex}
 \DeclareLanguageMapping{american}{american-apa}
 \addbibresource{refs.bib}
 
@@ -60,11 +60,12 @@
 }
 
 \author[1]{David Fieser\corref{cor1}}
-\ead{dfieser9@gmail.com}
+\ead{davjfies@gmail.com}
 \cortext[cor1]{Corresponding author.}
 
-\address[1]{Independent researcher. ORCID
-\href{https://orcid.org/0009-0007-5754-4331}{0009-0007-5754-4331}}
+\address[1]{Department of Mechanical and Aerospace, University of
+Tennessee Knoxville, 1512 Middle Drive, Knoxville, TN 37996, USA.
+ORCID \href{https://orcid.org/0009-0007-5754-4331}{0009-0007-5754-4331}}
 
 \begin{abstract}
 Empirical phase-prediction rules for high-entropy alloys are widely
@@ -139,7 +140,7 @@ C7 Compilation requirements, operating environments, and dependencies
   data handling, plotting, and testing. \\
 C8 If available, link to developer documentation or manual &
   Repository readme file \\
-C9 Support email for questions & \texttt{dfieser9@gmail.com} \\
+C9 Support email for questions & \texttt{davjfies@gmail.com} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -334,37 +335,36 @@ implementations, the vendored pair-enthalpy table, or the rule
 thresholds will perturb these values and will also break the
 build.
 
-\begin{table*}[ht]
+\begin{table}[ht]
 \centering
-\caption{Reference baselines for the four canonical empirical
-high-entropy alloy phase-prediction rules, evaluated as diagnostic
-classifiers against the v0.1.0 benchmark. The quantity $n$ is the
-number of compositions scorable by each rule's required descriptor
-stack. The two binary rules return Youden's $J$ values close to
-zero, indicating that they collapse to a
-predict-single-phase-almost-always regime. The rule of Guo and Liu
-\cite{guo2011} shows a strong face-centred-cubic bias when
-restricted to observations classified as single-phase.}
+\caption{Binary-classifier baselines on the v0.1.0 benchmark.}
 \label{tab:rule-baselines}
 \begin{tabular}{lrrrrr}
 \toprule
-Rule & $n$ & Accuracy & Sensitivity & Specificity & Youden's $J$ \\
+Rule & $n$ & Accuracy & Sens. & Spec. & $J$ \\
 \midrule
-Zhang and colleagues \cite{zhang2008}, $\delta < \SI{6.5}{\percent}$
-  & \num{6651}
-  & \SI{56.7}{\percent} [\SI{55.5}{\percent}, \SI{57.9}{\percent}]
-  & \SI{99.0}{\percent} & \SI{8.5}{\percent} & 0.075 \\
-Yang and Zhang \cite{yang2012}, $\Omegaparam > 1.1$
-  & \num{6651}
-  & \SI{54.4}{\percent} [\SI{53.2}{\percent}, \SI{55.6}{\percent}]
-  & \SI{95.8}{\percent} & \SI{7.4}{\percent} & 0.032 \\
-Guo and Liu \cite{guo2011}, VEC (FCC$|$BCC observations only)
-  & \num{3463}
-  & \SI{66.9}{\percent}
-  & \SI{92.3}{\percent} FCC, \SI{48.3}{\percent} BCC & n/a & n/a \\
+$\delta < \SI{6.5}{\percent}$ \cite{zhang2008} & \num{6651} & \SI{56.7}{\percent} & \SI{99.0}{\percent} & \SI{8.5}{\percent} & 0.075 \\
+$\Omegaparam > 1.1$ \cite{yang2012}            & \num{6651} & \SI{54.4}{\percent} & \SI{95.8}{\percent} & \SI{7.4}{\percent} & 0.032 \\
 \bottomrule
 \end{tabular}
-\end{table*}
+\end{table}
+
+The Wilson 95\% confidence interval on the Zhang $\delta$ accuracy
+is $[\SI{55.5}{\percent}, \SI{57.9}{\percent}]$, and on the Yang
+$\Omegaparam$ accuracy is $[\SI{53.2}{\percent}, \SI{55.6}{\percent}]$.
+The two binary rules return Youden's $J$ values close to zero,
+which indicates that on the consolidated benchmark they collapse
+to a regime of predicting single-phase almost always.
+
+The VEC rule of Guo and Liu \cite{guo2011} predicts crystal
+structure rather than single-phase formation, and is therefore
+evaluated by restricting observations to those labelled
+face-centred-cubic or body-centred-cubic. On the \num{3463}
+single-phase observations in the benchmark, the rule attains an
+accuracy of \SI{66.9}{\percent}. The per-class breakdown shows a
+strong asymmetry, with \SI{92.3}{\percent} of observed
+face-centred-cubic alloys predicted correctly but only
+\SI{48.3}{\percent} of observed body-centred-cubic alloys.
 
 The Yeh and colleagues \cite{yeh2004} $\Smix$ criterion is
 descriptive rather than predictive. On the consolidated benchmark,
@@ -384,12 +384,8 @@ summarized in Table~\ref{tab:roc-zhang}.
 
 \begin{table}[h]
 \centering
-\caption{Receiver-operating-characteristic sweep of the
-\cite{zhang2008} $\delta$ rule on the v0.1.0 benchmark.
-The canonical threshold of \SI{6.5}{\percent} produces a Youden's
-$J$ of 0.075. The dataset-optimal $J$ is 0.113 and occurs at
-$\delta < \SI{2.5}{\percent}$, approximately 2.6 times tighter
-than the canonical value.}
+\caption{Receiver-operating-characteristic sweep of the Zhang
+$\delta$ rule on the v0.1.0 benchmark.}
 \label{tab:roc-zhang}
 \begin{tabular}{lrrr}
 \toprule
@@ -456,9 +452,9 @@ drawn from three primary open sources with explicit cross-source
 provenance and conflict tracking. It provides reference-baseline
 diagnostic-classifier evaluations of the four canonical empirical
 rules. It reports a receiver-operating-characteristic recalibration
-finding for the Zhang \cite{zhang2008} $\delta$ rule, with a
-dataset-optimal threshold of $\delta < \SI{2.5}{\percent}$ rather
-than the canonical $\delta < \SI{6.5}{\percent}$. It includes an
+finding for the Zhang $\delta$ rule, with a dataset-optimal
+threshold of $\delta < \SI{2.5}{\percent}$ rather than the
+canonical $\delta < \SI{6.5}{\percent}$. It includes an
 in-browser Pyodide front end that runs the same release wheel as a
 local package-manager install. The package is released under the
 MIT License and is covered by 151 tests, including pinned
@@ -483,11 +479,10 @@ interests.
 
 \section*{Acknowledgements}
 
-The author thanks the matminer maintainers \cite{ward2018} for the
-open Miedema pair-enthalpy table, vendored under BSD-3-Clause, the
-Pyodide project \cite{pyodide} for the browser-side Python runtime,
-and the authors of the three primary source datasets
-\cite{borg2020,pei2020,peivaste2023} for releasing data under
+The author thanks the matminer maintainers for the open Miedema
+pair-enthalpy table, vendored under BSD-3-Clause, the Pyodide
+project for the browser-side Python runtime, and the authors of
+the three primary source datasets for releasing data under
 reusable terms. This manuscript was prepared with computer-assisted
 text generation. All numerical parameters, formulae, threshold
 values, and benchmark results were independently verified against
