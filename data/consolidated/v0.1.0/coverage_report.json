@@ -1,0 +1,317 @@
+{
+  "csv_path": "D:\\Documents\\Visual studio\\HTMLs\\hea-bench\\data\\consolidated\\v0.1.0\\consolidated.csv",
+  "total": 7784,
+  "in_basic": 6750,
+  "in_miedema": 7752,
+  "in_both": 6750,
+  "in_neither": 32,
+  "missing_from_basic": {
+    "La": 39,
+    "Au": 56,
+    "Mg": 133,
+    "Zn": 97,
+    "Gd": 31,
+    "Cd": 26,
+    "Ga": 24,
+    "As": 9,
+    "Be": 53,
+    "Ge": 22,
+    "Pb": 23,
+    "Re": 66,
+    "Sb": 24,
+    "Sn": 73,
+    "Li": 55,
+    "In": 31,
+    "B": 94,
+    "C": 98,
+    "Sc": 40,
+    "Ce": 37,
+    "Pr": 19,
+    "N": 30,
+    "Nd": 24,
+    "Sr": 28,
+    "Ca": 53,
+    "Dy": 15,
+    "Ho": 10,
+    "Er": 22,
+    "Tm": 8,
+    "Tb": 20,
+    "Ba": 21,
+    "Bi": 3,
+    "Se": 5,
+    "Yb": 20,
+    "Sm": 15,
+    "Te": 7,
+    "Th": 26,
+    "P": 6,
+    "Eu": 11,
+    "Lu": 10,
+    "Na": 10,
+    "Rb": 14,
+    "Tl": 10,
+    "Pu": 20,
+    "U": 15,
+    "Cs": 16,
+    "Tc": 14,
+    "K": 10,
+    "Pa": 1,
+    "Pm": 3
+  },
+  "missing_from_miedema": {
+    "Se": 5,
+    "Te": 7,
+    "Pu": 20
+  },
+  "next_best_adds": [
+    [
+      "Mg",
+      133,
+      true
+    ],
+    [
+      "C",
+      98,
+      true
+    ],
+    [
+      "Zn",
+      97,
+      true
+    ],
+    [
+      "B",
+      94,
+      true
+    ],
+    [
+      "Sn",
+      73,
+      true
+    ],
+    [
+      "Re",
+      66,
+      true
+    ],
+    [
+      "Au",
+      56,
+      true
+    ],
+    [
+      "Li",
+      55,
+      true
+    ],
+    [
+      "Be",
+      53,
+      true
+    ],
+    [
+      "Ca",
+      53,
+      true
+    ],
+    [
+      "Sc",
+      40,
+      true
+    ],
+    [
+      "La",
+      39,
+      true
+    ],
+    [
+      "Ce",
+      37,
+      true
+    ],
+    [
+      "Gd",
+      31,
+      true
+    ],
+    [
+      "In",
+      31,
+      true
+    ],
+    [
+      "N",
+      30,
+      true
+    ],
+    [
+      "Sr",
+      28,
+      true
+    ],
+    [
+      "Cd",
+      26,
+      true
+    ],
+    [
+      "Th",
+      26,
+      true
+    ],
+    [
+      "Ga",
+      24,
+      true
+    ],
+    [
+      "Sb",
+      24,
+      true
+    ],
+    [
+      "Nd",
+      24,
+      true
+    ],
+    [
+      "Pb",
+      23,
+      true
+    ],
+    [
+      "Ge",
+      22,
+      true
+    ],
+    [
+      "Er",
+      22,
+      true
+    ],
+    [
+      "Ba",
+      21,
+      true
+    ],
+    [
+      "Tb",
+      20,
+      true
+    ],
+    [
+      "Yb",
+      20,
+      true
+    ],
+    [
+      "Pu",
+      20,
+      false
+    ],
+    [
+      "Pr",
+      19,
+      true
+    ],
+    [
+      "Cs",
+      16,
+      true
+    ],
+    [
+      "Dy",
+      15,
+      true
+    ],
+    [
+      "Sm",
+      15,
+      true
+    ],
+    [
+      "U",
+      15,
+      true
+    ],
+    [
+      "Rb",
+      14,
+      true
+    ],
+    [
+      "Tc",
+      14,
+      true
+    ],
+    [
+      "Eu",
+      11,
+      true
+    ],
+    [
+      "Ho",
+      10,
+      true
+    ],
+    [
+      "Lu",
+      10,
+      true
+    ],
+    [
+      "Na",
+      10,
+      true
+    ],
+    [
+      "Tl",
+      10,
+      true
+    ],
+    [
+      "K",
+      10,
+      true
+    ],
+    [
+      "As",
+      9,
+      true
+    ],
+    [
+      "Tm",
+      8,
+      true
+    ],
+    [
+      "Te",
+      7,
+      false
+    ],
+    [
+      "P",
+      6,
+      true
+    ],
+    [
+      "Se",
+      5,
+      false
+    ],
+    [
+      "Bi",
+      3,
+      true
+    ],
+    [
+      "Pm",
+      3,
+      true
+    ],
+    [
+      "Pa",
+      1,
+      true
+    ]
+  ]
+}
