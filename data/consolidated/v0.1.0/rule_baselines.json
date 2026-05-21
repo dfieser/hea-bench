@@ -1,0 +1,81 @@
+{
+  "csv_path": "D:\\Documents\\Visual studio\\HTMLs\\hea-bench\\data\\consolidated\\v0.1.0\\consolidated.csv",
+  "n_rows_loaded": 7684,
+  "rules": {
+    "zhang_delta_6_5": {
+      "n": 6651,
+      "n_positive_observed": 3539,
+      "n_negative_observed": 3112,
+      "true_positive": 3504,
+      "false_positive": 2847,
+      "true_negative": 265,
+      "false_negative": 35,
+      "accuracy": 0.5666817019996992,
+      "sensitivity": 0.9901102006216446,
+      "specificity": 0.08515424164524421,
+      "youden_j": 0.07526444226688866,
+      "accuracy_ci95": [
+        0.5547372992323486,
+        0.5785491188846504
+      ],
+      "positive_label": "single-phase",
+      "confusion": {
+        "single-phase->single-phase": 3504,
+        "multi-phase->multi-phase": 265,
+        "single-phase->multi-phase": 2847,
+        "multi-phase->single-phase": 35
+      }
+    },
+    "yang_omega_1_1": {
+      "n": 6651,
+      "n_positive_observed": 3539,
+      "n_negative_observed": 3112,
+      "true_positive": 3391,
+      "false_positive": 2883,
+      "true_negative": 229,
+      "false_negative": 148,
+      "accuracy": 0.5442790557810856,
+      "sensitivity": 0.9581802769143826,
+      "specificity": 0.07358611825192803,
+      "youden_j": 0.031766395166310524,
+      "accuracy_ci95": [
+        0.5322875086373858,
+        0.5562194815214784
+      ],
+      "positive_label": "single-phase",
+      "confusion": {
+        "single-phase->single-phase": 3391,
+        "multi-phase->single-phase": 148,
+        "multi-phase->multi-phase": 229,
+        "single-phase->multi-phase": 2883
+      }
+    },
+    "guo_vec_stratified": {
+      "n_eval": 3463,
+      "accuracy": 0.66907305804216,
+      "fcc_sensitivity": 0.9233926128590971,
+      "bcc_sensitivity": 0.4832583708145927,
+      "n_fcc_observed": 1462,
+      "n_bcc_observed": 2001,
+      "confusion": {
+        "FCC->FCC": 1350,
+        "BCC->BCC": 967,
+        "FCC->BCC": 391,
+        "mixed->FCC": 110,
+        "mixed->BCC": 643,
+        "BCC->FCC": 2
+      }
+    },
+    "yeh_smix_descriptive": {
+      "n": 7684,
+      "fraction_HEA": 0.4699375325351379,
+      "fraction_MEA": 0.36907860489328476,
+      "fraction_dilute": 0.1609838625715773,
+      "bins": {
+        "MEA": 2836,
+        "dilute": 1237,
+        "HEA": 3611
+      }
+    }
+  }
+}
