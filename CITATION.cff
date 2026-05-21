@@ -6,7 +6,7 @@ type: software
 authors:
   - given-names: David
     family-names: Fieser
-    # orcid: 'https://orcid.org/0000-0000-0000-0000'  # add when available
+    orcid: 'https://orcid.org/0009-0007-5754-4331'
 abstract: >-
   hea-bench is a standardized, reproducible benchmark suite for high-entropy
   alloy phase prediction. It consolidates published open HEA phase-label

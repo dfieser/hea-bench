@@ -12,6 +12,7 @@ license-files = ["LICENSE"]
 requires-python = ">=3.10"
 authors = [
     { name = "David Fieser", email = "dfieser9@gmail.com" },
+    # ORCID: https://orcid.org/0009-0007-5754-4331
 ]
 keywords = [
     "high-entropy alloys",
