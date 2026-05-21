@@ -1,0 +1,18 @@
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.spl
+*.nav
+*.snm
+*.vrb
+
+# But DO commit the PDF once we want to ship a built draft to coauthors / reviewers.
+# Comment the next line out to keep PDFs out of git instead.
+# *.pdf

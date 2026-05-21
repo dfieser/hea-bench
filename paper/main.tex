@@ -1,0 +1,474 @@
+% ===========================================================
+%  hea-bench: An open benchmark suite and reference baselines
+%  for high-entropy alloy phase prediction
+%
+%  Drafted for SoftwareX (Elsevier). Build with pdfLaTeX:
+%      pdflatex main && bibtex main && pdflatex main && pdflatex main
+% ===========================================================
+
+\documentclass[5p,times]{elsarticle}
+
+% --- Encoding / fonts: pdfLaTeX-compatible only ---
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{textcomp}     % for special characters: \texttimes, \textmu, etc.
+\usepackage{textgreek}    % \textDelta, \textOmega, etc. without math-mode
+
+% --- Math / units ---
+\usepackage{amsmath, amssymb}
+\usepackage{siunitx}
+\sisetup{detect-all, range-phrase = --, range-units = single}
+
+% --- Tables / figures ---
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{multirow}
+
+% --- Misc ---
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{url}
+\usepackage{microtype}
+
+% Convenient macros for compositions and descriptors.
+% Use \ensuremath so they work in both text and math contexts.
+\newcommand{\Smix}{\ensuremath{\Delta S_{\mathrm{mix}}}}
+\newcommand{\Hmix}{\ensuremath{\Delta H_{\mathrm{mix}}}}
+\newcommand{\Tm}{\ensuremath{T_{\mathrm{m}}}}
+\newcommand{\Omegaparam}{\ensuremath{\Omega}}
+\newcommand{\hea}{\texttt{hea-bench}\xspace}
+
+\usepackage{xspace}
+
+\journal{SoftwareX}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{%
+  hea-bench: An open benchmark suite and reference baselines for high-entropy
+  alloy phase prediction
+}
+
+\author[1]{David~Fieser\corref{cor1}}
+\ead{dfieser9@gmail.com}
+\cortext[cor1]{Corresponding author.}
+
+\address[1]{Independent researcher; ORCID \href{https://orcid.org/0009-0007-5754-4331}{0009-0007-5754-4331}}
+
+\begin{abstract}
+Empirical phase-prediction rules for high-entropy alloys (HEAs) ---
+the entropy criterion of Yeh, the atomic-size mismatch criterion of
+Zhang, the valence-electron-concentration criterion of Guo and Liu,
+and the \Omegaparam{}-parameter criterion of Yang and Zhang --- are
+widely used as fast pre-screens for candidate compositions. Their
+quoted accuracies, however, come from heterogeneous, mutually
+incompatible datasets, and no published artifact treats them as
+proper diagnostic classifiers on a common open benchmark. We present
+\hea{}, a Python library and reproducible benchmark suite that
+(i)~consolidates three primary open HEA-phase datasets (Borg
+et~al. 2020; Pei et~al. 2020; Peivaste et~al. 2023) into a single
+\num{7784}-composition resource with explicit per-row source
+provenance and cross-source label-conflict tracking,
+(ii)~implements all four canonical empirical rules as binary or
+multi-class diagnostic classifiers with full diagnostic statistics
+(accuracy, sensitivity, specificity, Wilson 95\% intervals,
+receiver-operating-characteristic curves, Youden's $J$), and
+(iii)~ships in two interchangeable user surfaces: a standard
+\texttt{pip}-installable Python package and an in-browser frontend
+that runs the same wheel via Pyodide / WebAssembly, requiring no
+local install. On the consolidated benchmark, both binary rules
+collapse to ``predict single-phase almost always'' (Youden's $J$ of
+0.075 and 0.032 respectively), and a receiver-operating-characteristic
+sweep of the Zhang $\delta$ threshold finds an optimum at
+$\delta < 2.5\%$ rather than the canonical $\delta < 6.5\%$. We
+release \hea{} 0.0.1 with 151 tests, including pinned regression
+tests on every headline benchmark number, under the MIT License.
+\end{abstract}
+
+\begin{keyword}
+high-entropy alloys \sep
+multi-principal element alloys \sep
+phase prediction \sep
+benchmark suite \sep
+empirical descriptors \sep
+Miedema model \sep
+Pyodide \sep
+open data \sep
+diagnostic classifiers
+\end{keyword}
+
+\end{frontmatter}
+
+% ---------------------------------------------------------------------
+% Required SoftwareX metadata block
+% ---------------------------------------------------------------------
+
+\section*{Required Metadata}
+
+\begin{table}[h]
+\caption{Code metadata.}
+\centering
+\begin{tabular}{p{0.39\linewidth} p{0.55\linewidth}}
+\toprule
+\textbf{Nr.} & \textbf{Code metadata description} \\
+\midrule
+C1 Current code version & 0.0.1 \\
+C2 Permanent link to code/repository & to be assigned via Zenodo on first tagged release \\
+C3 Permanent link to reproducible capsule & N/A (the package is dependency-free in its core; reproducible via \texttt{pip install hea-bench}) \\
+C4 Legal code license & MIT \\
+C5 Code versioning system used & git \\
+C6 Software code languages, tools, and services used & Python ($\geq$3.10), Pyodide (browser deployment) \\
+C7 Compilation requirements, operating environments \& dependencies & Pure Python, dependency-free core; optional extras: \texttt{pandas}, \texttt{matplotlib}, \texttt{pytest} \\
+C8 If available, link to developer documentation/manual & \texttt{README.md} in the repository \\
+C9 Support email for questions & \texttt{dfieser9@gmail.com} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =====================================================================
+\section{Motivation and significance}
+% =====================================================================
+
+High-entropy alloys (HEAs), introduced independently by Cantor
+et~al.~\cite{cantor2004} and Yeh et~al.~\cite{yeh2004} in 2004, are
+multi-component alloys (typically five or more principal elements
+near equiatomic composition) in which the configurational mixing
+entropy is large enough to stabilize disordered solid solutions
+over the intermetallic compounds predicted by classical
+Hume-Rothery rules. The compositional space is vast --- combinatorially
+larger than that of conventional alloys --- which makes
+\emph{pre-screening} a practical necessity before any expensive
+density-functional-theory, CALPHAD, or experimental campaign.
+
+Four empirical phase-prediction rules dominate the literature:
+the configurational mixing entropy criterion of Yeh
+($\Smix > 1.5 R$~\cite{yeh2004}); the atomic-size mismatch criterion
+of Zhang ($\delta < 6.5\%$~\cite{zhang2008}); the valence-electron
+concentration criterion of Guo and Liu (FCC favored at $\mathrm{VEC}
+\geq 8.0$, BCC at $\mathrm{VEC} < 6.87$~\cite{guo2011}); and the
+$\Omegaparam$-parameter criterion of Yang and Zhang
+($\Omegaparam = \Tm \cdot \Smix / |\Hmix| > 1.1$~\cite{yang2012}).
+Each is supported in its original publication by classification
+rates of roughly $80\%$ on the dataset available at the time.
+
+Three gaps in the open literature motivate this work.
+\textbf{First,} every published evaluation of these rules uses a
+different dataset, with different preprocessing, dedup, and phase
+labeling. Head-to-head comparison is therefore impossible. To our
+knowledge there is no published, open, MatBench-style benchmark
+suite~\cite{dunn2020matbench} for HEA phase classification.
+\textbf{Second,} the rules are typically reported as ``accuracies''
+of the form $X / N$, without the diagnostic-classifier machinery
+(sensitivity, specificity, Wilson intervals, ROC analysis,
+Youden's~$J$) that would expose where they actually generalize.
+\textbf{Third,} the only field-standard interactive tool for
+Miedema-style enthalpy calculations is the Windows-only,
+registration-gated MiedCalc~\cite{zhang2016miedema}; no
+zero-install open analogue exists.
+
+\hea{} addresses all three. We consolidate three primary open
+HEA-phase datasets into a single $\num{7784}$-composition resource
+with full provenance, implement the four canonical rules as proper
+diagnostic classifiers, and ship the result in two equivalent
+surfaces: a standard Python library and an in-browser frontend that
+runs the same wheel via Pyodide.
+
+% =====================================================================
+\section{Software description}
+% =====================================================================
+
+\subsection{Software architecture}
+
+\hea{} is organized into four orthogonal sub-packages plus a thin
+command-line interface:
+
+\begin{itemize}
+  \item \texttt{hea\_bench.composition} --- formula parsing and
+    composition normalization. A single regular-expression-based
+    parser handles all three source formula conventions (Borg's
+    space-separated proportional amounts, Pei's compact form,
+    Peivaste's bare element strings).
+
+  \item \texttt{hea\_bench.descriptors} --- the six empirical
+    descriptors used by the rule set: $\Smix$, $\delta$, VEC,
+    $\Tm$, $\Hmix$ (Miedema, multi-component~\cite{miedema1973,miedema1980}),
+    and $\Omegaparam$~\cite{yang2012}. Per-element parameters live
+    in \texttt{descriptors/data/elemental.py} (24 elements);
+    binary mixing-enthalpy pairs are loaded from a vendored copy of
+    matminer's~\cite{ward2018} Miedema pair table (BSD-3-Clause,
+    license preserved alongside the data file), which itself
+    derives from the de Boer parameter set~\cite{deboer1988} and
+    is consistent with Takeuchi and Inoue's open
+    tabulation~\cite{takeuchi2005}.
+
+  \item \texttt{hea\_bench.rules} --- the four canonical empirical
+    rules wrapped as classifiers, each in its own module
+    (\texttt{yeh\_smix}, \texttt{zhang\_delta}, \texttt{guo\_vec},
+    \texttt{yang\_omega}) with a tunable threshold where the
+    literature value is the default.
+
+  \item \texttt{hea\_bench.classifiers.diagnostic\_stats} --- pure
+    stdlib implementations of Wilson score intervals~\cite{wilson1927},
+    confusion matrices, binary classifier statistics, and ROC
+    sweeps with Youden's~$J$~\cite{youden1950}.
+
+  \item \texttt{hea\_bench.benchmark} --- per-source loaders (Borg,
+    Pei, Peivaste), the cross-source consolidator, and a coverage
+    analysis that quantifies which fraction of the consolidated
+    dataset is scorable by the current elemental data tables.
+
+  \item \texttt{hea\_bench.evaluate} --- the orchestrator that runs
+    each rule against the consolidated benchmark and writes
+    \texttt{rule\_baselines.json} alongside the consolidated CSV.
+\end{itemize}
+
+Two end-user surfaces consume this library. The Python surface is
+a standard \texttt{pip}-installable package
+(\texttt{pip install hea-bench}). The browser surface is a single
+HTML page that loads Pyodide~\cite{pyodide} and invokes
+\texttt{micropip.install()} on the same wheel that
+\texttt{pip} would deliver; descriptor and rule calls happen
+client-side in the user's browser tab, with no server-side
+component. \emph{The library has one canonical implementation;
+both surfaces run it identically.}
+
+\subsection{Software functionalities}
+
+\begin{enumerate}
+  \item Parse arbitrary composition formulas, normalize to mole
+    fractions, and report the six standard descriptors.
+  \item Apply each of the four canonical empirical rules and obtain
+    a predicted phase classification.
+  \item Score a user-supplied rule (or composition set) against the
+    consolidated v0.1.0 benchmark with full diagnostic statistics.
+  \item Sweep a rule threshold and report the receiver-operating-
+    characteristic curve, optimal accuracy threshold, and optimal
+    Youden's-$J$ threshold.
+  \item Analyse element coverage of an alloy set against the
+    descriptor data tables and report next-best-add elements.
+  \item Re-consolidate the per-source data via the bundled loaders
+    and dedupe / conflict-detection logic.
+\end{enumerate}
+
+\subsection{The consolidated benchmark}
+
+\hea{} v0.1.0 ships a single canonical benchmark at
+\texttt{data/consolidated/v0.1.0/consolidated.csv}
+($\num{7784}$ unique compositions). It is built by running the
+per-source loaders on three open datasets:
+
+\begin{itemize}
+  \item Borg et~al.~\cite{borg2020} ($\num{740}$ unique
+    \texttt{(formula, processing)} alloys; CC-BY-4.0; mirrored
+    verbatim with SHA-256 stamp);
+  \item Pei et~al.~\cite{pei2020} ($\num{1209}$ unique
+    formulas; CC-BY-4.0; mirrored);
+  \item Peivaste et~al.~\cite{peivaste2023} ($\num{7747}$ unique
+    formulas after dedup of an upstream-generated combinatorial
+    sweep; the upstream data repository declares no license and is
+    therefore pointer-only, fetched on user request).
+\end{itemize}
+
+Compositions are merged on a 4-decimal-precision composition
+key. Borg's processing column is preserved as a side-channel rather
+than included in the join key. When two sources assign different
+canonical labels to the same composition, the row is flagged
+($\texttt{has\_conflict} = 1$) and the per-source labels are
+preserved verbatim. The v0.1.0 release contains \num{100} such
+cross-source conflicts (\num{1.3}\% of the benchmark), which are
+themselves a useful artifact: they enumerate compositions on
+which the open HEA literature does not agree.
+
+The canonical phase taxonomy is deliberately coarse for v0.1.0 ---
+$\{\mathrm{BCC},\, \mathrm{FCC},\, \mathrm{HCP},\,
+\mathrm{multi\text{-}phase}\}$ --- so that all three sources map
+into it without lossy guessing. Finer per-source labels (Borg's
+microstructure column with $30+$ sublabels, Peivaste's 12-category
+column distinguishing intermetallics and amorphous alloys) are
+preserved as side-channel columns.
+
+% =====================================================================
+\section{Illustrative examples}
+% =====================================================================
+
+\subsection{Cantor alloy, end to end}
+
+The canonical equimolar CoCrFeMnNi alloy serves as the field's
+reference HEA and as our regression sanity check. With \hea{}:
+
+\begin{verbatim}
+import hea_bench
+cantor = hea_bench.parse_formula("CoCrFeMnNi")
+
+hea_bench.smix(cantor)               # 13.381 J/(mol K)  = R ln 5
+hea_bench.delta(cantor)              # 3.164  %
+hea_bench.vec(cantor)                # 8.000
+hea_bench.mixing_enthalpy(cantor)    # -4.16  kJ/mol
+hea_bench.omega(cantor)              # 5.794
+\end{verbatim}
+
+All four canonical rules classify Cantor as HEA-class,
+single-phase, FCC --- consistent with the original experimental
+characterization~\cite{cantor2004}. Every value above is pinned in
+the regression test suite.
+
+\subsection{Reference rule baselines on the consolidated benchmark}
+
+The orchestrator \texttt{python -m hea\_bench.evaluate} produces
+the headline numbers in Table~\ref{tab:rule-baselines}. These are
+the reference values our test suite pins; any future drift in
+dataset, descriptor code, vendored pair-enthalpy table, or rule
+thresholds also breaks the build.
+
+\begin{table*}[t]
+\centering
+\caption{Reference baselines for the four canonical empirical HEA
+phase-prediction rules, evaluated as diagnostic classifiers against
+the \hea{}~v0.1.0 consolidated benchmark.
+$n$ is the number of compositions in the benchmark scorable by the
+rule's required descriptor stack (the smaller numbers for the
+binary rules reflect compositions fully covered by both
+$\mathrm{ELEMENTAL\_DATA}$ and the Miedema pair table; the Guo--Liu
+rule is stratified to single-phase observations only, as discussed
+in the text). Wilson 95\% intervals are reported for accuracy.
+The two binary rules have Youden's $J$ close to zero, indicating
+that they collapse to ``predict single-phase almost always'' on
+this benchmark; the Guo--Liu rule shows a strong FCC bias.}
+\label{tab:rule-baselines}
+\begin{tabular}{lrrrrr}
+\toprule
+Rule & $n$ & Accuracy & Sensitivity & Specificity & Youden's $J$ \\
+\midrule
+Zhang $\delta < \SI{6.5}{\percent}$ & \num{6651} & \SI{56.7}{\percent} [\SI{55.5}{\percent}, \SI{57.9}{\percent}] & \SI{99.0}{\percent} & \SI{8.5}{\percent}  & 0.075 \\
+Yang  $\Omegaparam > 1.1$           & \num{6651} & \SI{54.4}{\percent} [\SI{53.2}{\percent}, \SI{55.6}{\percent}] & \SI{95.8}{\percent} & \SI{7.4}{\percent}  & 0.032 \\
+Guo--Liu VEC (stratified to FCC$|$BCC observed) & \num{3463} & \SI{66.9}{\percent} & \SI{92.3}{\percent} (FCC) / \SI{48.3}{\percent} (BCC) & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The Yeh $\Smix$ rule is descriptive rather than predictive;
+$47.0\%$ of the benchmark passes the $\Smix > 1.5 R$ HEA-class
+threshold, $36.9\%$ falls in the MEA range ($R \leq \Smix
+\leq 1.5R$), and $16.1\%$ is dilute.
+
+\subsection{ROC recalibration of the Zhang $\delta$ rule}
+
+Treating the rules as proper classifiers admits a question the
+canonical literature does not address: \emph{what threshold would
+maximize Youden's $J$ on this benchmark?} Sweeping the Zhang
+$\delta$ threshold from \SI{1}{\percent} to \SI{12}{\percent} in
+\SI{0.1}{\percent} steps yields the result in
+Table~\ref{tab:roc-zhang}.
+
+\begin{table}[h]
+\centering
+\caption{ROC sweep of the Zhang $\delta$ rule on the \hea{}~v0.1.0
+benchmark. The canonical \SI{6.5}{\percent} threshold yields
+Youden's $J = 0.075$; the dataset-optimal $J$ is \num{0.113} at
+$\delta < \SI{2.5}{\percent}$, $\sim$2.6$\times$ tighter.}
+\label{tab:roc-zhang}
+\begin{tabular}{lrrr}
+\toprule
+Threshold      & Sens. & Spec. & Youden's $J$ \\
+\midrule
+\SI{6.5}{\percent} (canonical) & \SI{99.0}{\percent} & \SI{8.5}{\percent}  & 0.075 \\
+\SI{6.6}{\percent} (max acc.)  & \SI{99.5}{\percent} & \SI{8.2}{\percent}  & 0.075 \\
+\SI{2.5}{\percent} (max $J$)   & \SI{23.6}{\percent} & \SI{87.7}{\percent} & \textbf{0.113} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The canonical \SI{6.5}{\percent} threshold is heavily skewed
+toward sensitivity at the expense of specificity. The
+balanced-optimal threshold on the consolidated benchmark is
+$\sim$2.6$\times$ tighter. Whether $J = 0.113$ constitutes a
+``useful'' classifier is a separate question --- it does not ---
+but the recalibration finding itself is a direct, defensible
+output of treating the rule as a diagnostic classifier rather than
+a fixed cutoff.
+
+% =====================================================================
+\section{Impact}
+% =====================================================================
+
+\hea{} consolidates an open benchmark that previously did not exist
+in unified form, and supplies the diagnostic-classifier machinery
+that previously was not applied to the canonical HEA empirical
+rules in the open literature. We expect three classes of impact.
+
+\textbf{First, calibration of expectations.} The collapse of both
+binary rules to near-zero Youden's $J$ on the consolidated
+benchmark is a quantitative caveat for downstream users of those
+rules. The widely-quoted ``80\% accuracy'' figures in the original
+papers reflect different, smaller datasets and a different choice
+of evaluation metric; on a consolidated open dataset the rules
+behave very differently.
+
+\textbf{Second, a substrate for future methods work.} Any
+candidate ML model, CALPHAD-derived classifier, or new empirical
+descriptor can now be scored against the same dataset and the
+same diagnostic-stats vocabulary as the four canonical rules.
+The result is a head-to-head comparison rather than incommensurable
+single-paper accuracies.
+
+\textbf{Third, accessibility.} The Pyodide front-end lets any
+researcher or student type a composition into a browser tab and
+see the same numbers the published library would produce on a
+local install --- with the wheel itself loaded into the
+browser, not a re-implementation. This removes the install-friction
+barrier without sacrificing the library-as-canonical-implementation
+guarantee.
+
+% =====================================================================
+\section{Conclusions}
+% =====================================================================
+
+We have presented \hea{} 0.0.1, an open Python library and
+benchmark suite for high-entropy alloy phase prediction.
+It ships a $\num{7784}$-composition consolidated benchmark drawn
+from three primary open sources with explicit cross-source
+provenance and conflict tracking; reference-baseline diagnostic-
+classifier evaluations of the four canonical empirical rules; a
+ROC-based recalibration finding for the Zhang $\delta$ rule
+showing a dataset-optimal threshold of $\delta < \SI{2.5}{\percent}$
+rather than the canonical $\SI{6.5}{\percent}$; and an in-browser
+Pyodide front-end that runs the same Python wheel a local
+\texttt{pip install} would deliver. The package is MIT-licensed,
+covered by $151$ tests including pinned regression tests on every
+headline benchmark number, and intended to serve as the substrate
+on which subsequent ML and CALPHAD methods for HEA phase
+prediction can be compared.
+
+Planned future work includes expanding the elemental-property
+table to lift benchmark coverage from \SI{86.7}{\percent} to
+$\sim$95\% (the additions are low-effort because the corresponding
+pair-enthalpy entries are already present in the vendored Miedema
+table), and a v0.2.0 release that exposes the cross-source label
+conflicts as a structured side-dataset for downstream
+disagreement-resolution work.
+
+% ---------------------------------------------------------------------
+\section*{Conflict of interest}
+The author declares no competing financial or non-financial
+interests.
+
+\section*{Acknowledgements}
+We thank the matminer maintainers~\cite{ward2018} for the open
+Miedema pair-enthalpy table vendored under BSD-3-Clause; the
+Pyodide project~\cite{pyodide} for the browser-side Python runtime;
+and the authors of the three primary source datasets~\cite{borg2020,
+pei2020, peivaste2023} for releasing data under reusable terms.
+Code scaffolding and documentation drafts were prepared with the
+assistance of large language models (Anthropic Claude); all
+numerical parameters, formulae, threshold values, and benchmark
+results were independently verified against the cited primary
+sources or computed from documented inputs by the author.
+
+% ---------------------------------------------------------------------
+\bibliographystyle{elsarticle-num}
+\bibliography{refs}
+
+\end{document}
