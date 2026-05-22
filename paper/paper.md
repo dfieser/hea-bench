@@ -102,13 +102,20 @@ test suite that pins every reported benchmark statistic.
 
 The consolidated benchmark draws on the datasets of @borg2020,
 @pei2020, and @peivaste2023, merged on a composition key with
-cross-source label-conflict tracking. Evaluated against this
-benchmark, the two binary rules return Youden's index values near
-zero, which shows that on a consolidated open dataset they reduce to
-predicting a single-phase solid solution almost always. A
-receiver-operating-characteristic sweep of the @zhang2008 atomic-size
-rule places the balance-optimal threshold well below the canonical
-value (\autoref{fig:roc}), which demonstrates the kind of
+cross-source label-conflict tracking (\autoref{fig:benchmark}).
+Evaluated against this benchmark, the two binary rules return
+Youden's index values near zero, which shows that on a consolidated
+open dataset they reduce to predicting a single-phase solid solution
+almost always.
+
+![Composition of the v0.1.0 consolidated benchmark. Panel (a) is the
+canonical phase-class distribution over all 7,784 compositions. Panel
+(b) is the cross-source overlap, the number of source datasets that
+independently report each composition.\label{fig:benchmark}](figures/benchmark_overview.png){ width=85% }
+
+A receiver-operating-characteristic sweep of the @zhang2008
+atomic-size rule places the balance-optimal threshold well below the
+canonical value (\autoref{fig:roc}), which demonstrates the kind of
 recalibration analysis the package is designed to support. The
 reference numbers are reported in full in the package documentation
 and are pinned in the test suite.
