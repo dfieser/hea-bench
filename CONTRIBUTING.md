@@ -16,7 +16,7 @@ improvements.
 ## Development setup
 
 ```bash
-git clone https://github.com/USERNAME/hea-bench
+git clone https://github.com/dfieser/hea-bench
 cd hea-bench
 pip install -e ".[dev,data]"
 python -m pytest tests/ -q

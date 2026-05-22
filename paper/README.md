@@ -4,9 +4,9 @@ SoftwareX submission draft for `hea-bench`.
 
 ## Files
 
-- `main.tex` — the paper (Elsevier `elsarticle` class, single-column 5p layout)
-- `refs.bib` — BibTeX bibliography
-- `figures/` — placeholder; no figures in v0.1.0 draft (only tables)
+- `main.tex` — the paper (Elsevier `elsarticle` class, `review` manuscript layout, 1-inch margins)
+- `refs.bib` — bibliography (biblatex/biber, APA style)
+- `figures/` — two figures plus the scripts that regenerate them from the committed CSV (`benchmark_overview.png` / `make_benchmark_figure.py`, `roc_zhang_delta.png` / `make_roc_figure.py`)
 - `.gitignore` — LaTeX build artifacts
 
 ## Build
@@ -35,13 +35,13 @@ shipped with TeX Live and MiKTeX.
 
 | Section | Content |
 |---|---|
-| Required Metadata | SoftwareX-required code-metadata table (version, license, repo link placeholder, languages, contact) |
+| Required Metadata | SoftwareX-required code-metadata table (version, license, repository link, languages, contact) |
 | 1. Motivation and significance | The three gaps in the open HEA literature `hea-bench` addresses |
 | 2. Software description | Architecture (six sub-packages); functionalities (numbered list); consolidated benchmark provenance |
-| 3. Illustrative examples | Cantor alloy end-to-end; reference rule-baseline table; Zhang δ ROC recalibration table |
+| 3. Illustrative examples | Cantor alloy end-to-end; reference rule-baseline table; Zhang δ ROC recalibration (table + curve figure) |
 | 4. Impact | Three classes of impact (calibration, substrate, accessibility) |
 | 5. Conclusions | Summary + planned v0.2.0 work |
-| Acknowledgements | matminer, Pyodide, source-dataset authors; AI-assistance disclosure |
+| Acknowledgements | matminer, Pyodide, source-dataset authors |
 | References | 17 entries: Cantor 2004, Yeh 2004, Zhang 2008, Guo 2011, Yang 2012, Borg 2020, Pei 2020, Peivaste 2023, Miedema 1973/1980, de Boer 1988, Takeuchi 2005, Zhang 2016 MiedCalc, Senkov 2010, matminer (Ward 2018), MatBench (Dunn 2020), Wilson 1927, Youden 1950, Pyodide |
 
 ## Open items before submission

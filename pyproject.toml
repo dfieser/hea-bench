@@ -51,9 +51,9 @@ dev = [
 hea-bench = "hea_bench.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/USERNAME/hea-bench"
-Repository = "https://github.com/USERNAME/hea-bench"
-Issues = "https://github.com/USERNAME/hea-bench/issues"
+Homepage = "https://github.com/dfieser/hea-bench"
+Repository = "https://github.com/dfieser/hea-bench"
+Issues = "https://github.com/dfieser/hea-bench/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/hea_bench"]
