@@ -45,7 +45,7 @@ observations (BCC|FCC only):
 
 | Rule | n_eval | Accuracy | FCC sensitivity | BCC sensitivity |
 |---|---:|---:|---:|---:|
-| **Guo–Liu VEC** (FCC if VEC ≥ 8.0, BCC if VEC < 6.87) | 3,463 | 66.9% | 92.3% | **48.3%** |
+| **Guo–Liu VEC** (FCC if VEC ≥ 8.0, BCC if VEC < 6.87) | 3,463 | 66.9% | 92.4% | **48.3%** |
 
 Yeh ΔS<sub>mix</sub> is descriptive (no phase-prediction claim
 attached) — 47% of the consolidated benchmark passes the 1.5R

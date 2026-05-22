@@ -34,7 +34,13 @@ def predict(composition: Composition) -> str:
     >>> predict({"Co": 0.2, "Cr": 0.2, "Fe": 0.2, "Mn": 0.2, "Ni": 0.2})
     'FCC'
     """
-    v = vec(composition)
+    # Round to 6 decimals before the boundary test. Many benchmark
+    # compositions have an exact-integer VEC (e.g. equiatomic CrFeNi is
+    # (6+8+10)/3 = 8.0), but float summation yields 7.999999999999999 on
+    # some CPython versions and exactly 8.0 on others. Rounding well below
+    # any meaningful VEC precision makes the FCC/BCC/mixed call
+    # deterministic across platforms and Python versions.
+    v = round(vec(composition), 6)
     if v >= FCC_THRESHOLD:
         return "FCC"
     if v < BCC_THRESHOLD:

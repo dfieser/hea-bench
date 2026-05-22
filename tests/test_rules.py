@@ -64,6 +64,15 @@ def test_guo_mid_range_predicts_mixed() -> None:
     assert guo_vec.predict({"Co": 1, "Cr": 1, "Fe": 1}) == "mixed"
 
 
+def test_guo_boundary_vec_is_platform_deterministic() -> None:
+    """Equiatomic CrFeNi has an exact VEC of (6+8+10)/3 = 8.0, but float
+    summation renders it as 7.999999999999999 on some CPython versions and
+    exactly 8.0 on others. The rule rounds before the >= 8.0 test, so it
+    must classify CrFeNi as FCC everywhere. Regression for a CI failure
+    where Python 3.12 disagreed with 3.10/3.11 on this one composition."""
+    assert guo_vec.predict({"Cr": 1, "Fe": 1, "Ni": 1}) == "FCC"
+
+
 # ---- Yang-Zhang Ω rule (binary) ----
 
 def test_yang_cantor_is_single_phase() -> None:

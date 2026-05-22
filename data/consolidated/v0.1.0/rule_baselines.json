@@ -52,16 +52,16 @@
     },
     "guo_vec_stratified": {
       "n_eval": 3463,
-      "accuracy": 0.66907305804216,
-      "fcc_sensitivity": 0.9233926128590971,
+      "accuracy": 0.6693618250072192,
+      "fcc_sensitivity": 0.9240766073871409,
       "bcc_sensitivity": 0.4832583708145927,
       "n_fcc_observed": 1462,
       "n_bcc_observed": 2001,
       "confusion": {
-        "FCC->FCC": 1350,
+        "FCC->FCC": 1351,
         "BCC->BCC": 967,
         "FCC->BCC": 391,
-        "mixed->FCC": 110,
+        "mixed->FCC": 109,
         "mixed->BCC": 643,
         "BCC->FCC": 2
       }

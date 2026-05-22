@@ -105,7 +105,7 @@ def test_guo_vec_fcc_strong_bcc_weak(report):
     """VEC rule is much better at identifying FCC than BCC on the
     consolidated benchmark — another publishable observation."""
     g = report["rules"]["guo_vec_stratified"]
-    assert g["fcc_sensitivity"] > 0.90  # ~92.3%
+    assert g["fcc_sensitivity"] > 0.90  # ~92.4%
     assert g["bcc_sensitivity"] < 0.55  # ~48.3%
 
 
