@@ -108,10 +108,15 @@ zero, which shows that on a consolidated open dataset they reduce to
 predicting a single-phase solid solution almost always. A
 receiver-operating-characteristic sweep of the @zhang2008 atomic-size
 rule places the balance-optimal threshold well below the canonical
-value, which demonstrates the kind of recalibration analysis the
-package is designed to support. The reference numbers are reported
-in full in the package documentation and are pinned in the test
-suite.
+value (\autoref{fig:roc}), which demonstrates the kind of
+recalibration analysis the package is designed to support. The
+reference numbers are reported in full in the package documentation
+and are pinned in the test suite.
+
+![Receiver-operating-characteristic curve for the @zhang2008
+atomic-size rule on the v0.1.0 benchmark. The curve lies close to
+the no-skill diagonal. The canonical and balance-optimal operating
+points are marked.\label{fig:roc}](figures/roc_zhang_delta.png){ width=70% }
 
 # AI usage disclosure
 
