@@ -277,7 +277,8 @@ bundled loaders and the deduplication and conflict-detection logic.
 \subsection{The consolidated benchmark}
 
 Version 0.1.0 of the package ships a single canonical benchmark
-containing \num{7784} unique compositions. It is built by running
+containing \num{7784} unique compositions (Figure~\ref{fig:benchmark}).
+It is built by running
 the per-source loaders on three open datasets. The dataset of Borg
 and colleagues \cite{borg2020} contributes \num{740} unique
 (formula, processing) alloys, licensed under CC-BY-4.0 and
@@ -311,6 +312,13 @@ columns. These include the microstructure column from the Borg
 dataset, which carries more than thirty sublabels, and the
 twelve-category column from the Peivaste dataset, which
 distinguishes intermetallic and amorphous phases.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.95\linewidth]{figures/benchmark_overview.png}
+\caption{Composition of the v0.1.0 consolidated benchmark.}
+\label{fig:benchmark}
+\end{figure}
 
 % ====================================================================
 \section{Illustrative examples}
@@ -411,7 +419,17 @@ approximately 2.6 times tighter. Whether $J = 0.113$ constitutes a
 useful classifier is a separate question, and quantitatively it
 does not. The recalibration finding itself is, however, a direct
 and defensible output of treating the empirical rule as a
-diagnostic classifier rather than as a fixed cutoff.
+diagnostic classifier rather than as a fixed cutoff. The full
+threshold sweep is shown in Figure~\ref{fig:roc}, where the curve
+lies close to the no-skill diagonal.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.7\linewidth]{figures/roc_zhang_delta.png}
+\caption{Receiver-operating-characteristic curve for the Zhang
+$\delta$ rule on the v0.1.0 benchmark.}
+\label{fig:roc}
+\end{figure}
 
 % ====================================================================
 \section{Impact}
