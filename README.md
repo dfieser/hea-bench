@@ -22,6 +22,11 @@ An open, reproducible benchmark suite and reference baselines for
   Pyodide/WebAssembly — no install, no server, no JavaScript
   re-implementation.
 
+> **Using an AI coding agent to integrate this?** See
+> [AGENTS.md](./AGENTS.md) for a machine-oriented guide to the API,
+> exact return types and units, the fastest path to each task, and
+> the mistakes to avoid.
+
 ## Headline benchmark numbers (v0.1.0)
 
 Running the four canonical rules against the consolidated benchmark
