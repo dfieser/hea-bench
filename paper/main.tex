@@ -86,10 +86,10 @@ provenance and cross-source label-conflict tracking, implements
 the four rules as binary or multi-class diagnostic classifiers with
 full statistics (accuracy, sensitivity, specificity, Wilson 95\%
 confidence intervals, receiver-operating-characteristic curves, and
-Youden's $J$), and ships in two equivalent user surfaces. The first
-is a standard installable Python package. The second is an
-in-browser frontend that runs the same release wheel through
-Pyodide on WebAssembly, requiring no local installation. On the
+Youden's $J$), and is distributed in two equivalent forms: a standard installable
+Python package and an in-browser frontend that runs the same
+release wheel through Pyodide on WebAssembly, requiring no local
+installation. On the
 consolidated benchmark, both binary rules collapse to a
 ``predict-single-phase-almost-always'' regime with Youden's $J$
 values of 0.075 and 0.032, and a sweep of the
@@ -159,7 +159,7 @@ compounds predicted by classical Hume--Rothery rules. The
 compositional space is combinatorially larger than that of
 conventional alloys, which makes pre-screening a practical
 necessity before any expensive density-functional-theory, CALPHAD,
-or experimental campaign. The practical importance of robust
+or experimental campaign. The practical importance of effective
 pre-screening is illustrated by recent work on the thermodynamic
 stability of femtosecond laser-ablated
 CuCoMn$_{1.75}$NiFe$_{0.25}$ nanoparticles
@@ -202,14 +202,13 @@ calculations is the registration-gated, Windows-only MiedCalc
 program of Zhang and colleagues \cite{zhang2016miedema}. No
 zero-install open analogue is currently available.
 
-The contribution of this work addresses all three. It consolidates
-three primary open phase-label datasets into a single resource
-with full provenance. It implements the four canonical rules as
-diagnostic classifiers and reports their statistics on the
-consolidated benchmark. It distributes the result in two
-equivalent surfaces, namely a standard Python library and an
-in-browser front end that executes the same release wheel through
-the Pyodide runtime.
+This work addresses all three. It consolidates three primary open
+phase-label datasets into a single resource with full provenance.
+It implements the four canonical rules as diagnostic classifiers
+and reports their statistics on the consolidated benchmark. It is
+distributed as both a standard Python library and an in-browser
+front end that runs the same release wheel through the Pyodide
+runtime.
 
 % ====================================================================
 \section{Software description}
@@ -252,7 +251,7 @@ writes the resulting statistics as a structured release artifact.
 Two end-user surfaces consume the library. The Python surface is a
 standard package-manager-installable distribution. The browser
 surface is a single HTML page that loads the Pyodide runtime
-\cite{pyodide} and, in turn, installs the same release wheel that
+\cite{pyodide} and installs the same release wheel that
 the package manager would deliver. Descriptor and rule calls then
 execute client-side in the user's browser tab, with no server-side
 component. The library has one canonical implementation, and both
@@ -296,19 +295,18 @@ tabulated pair value.
 
 \subsection{Software functionalities}
 
-The package supports six primary workflows. A user can parse an
-arbitrary composition formula, normalize it to mole fractions, and
-compute the six standard descriptors. A user can apply each of the
-four canonical empirical rules and obtain a predicted phase
-classification. A user can score a user-supplied rule or
-composition set against the v0.1.0 benchmark with full diagnostic
-statistics. A user can sweep a rule threshold and obtain the
-receiver-operating-characteristic curve, the
-optimal-accuracy threshold, and the optimal Youden's-$J$ threshold.
-A user can analyse element coverage of an alloy set against the
-descriptor data tables and inspect a ranking of next-best-add
-elements. A user can re-consolidate the per-source data through the
-bundled loaders and the deduplication and conflict-detection logic.
+The package supports six primary workflows. Composition formulas
+can be parsed, normalized to mole fractions, and the six standard
+descriptors computed. Each of the four canonical empirical rules
+can be applied to obtain a predicted phase classification. A
+rule or composition set can be scored against the v0.1.0 benchmark
+with full diagnostic statistics. Rule thresholds can be swept to
+produce receiver-operating-characteristic curves and to identify
+both the accuracy-optimal and Youden's-$J$-optimal thresholds.
+Element coverage of an alloy set can be analysed against the
+descriptor data tables, with a ranking of next-best-add elements.
+The per-source data can be re-consolidated through the bundled
+loaders and the conflict-detection logic.
 
 \subsection{The consolidated benchmark}
 
@@ -329,7 +327,7 @@ package, but is fetched on user request at build time.
 
 Compositions are merged on a four-decimal-precision composition
 key. The processing column from the Borg dataset is preserved as a
-side-channel rather than included in the join key, in order to keep
+side-channel rather than included in the join key, to keep
 the canonical taxonomy composition-only. When two sources assign
 different canonical labels to the same composition, the row is
 flagged and the per-source labels are preserved verbatim. The
@@ -471,35 +469,31 @@ $\delta$ rule on the v0.1.0 benchmark.}
 \section{Impact}
 % ====================================================================
 
-The contribution consolidates an open benchmark that was not
-previously available in unified form, and supplies the diagnostic-
-classifier statistics that were not previously applied to the
-canonical high-entropy alloy rules in the open literature. Three
-classes of impact are anticipated.
+This work consolidates an open benchmark that was not previously
+available in unified form, and supplies the diagnostic-classifier
+statistics that were not previously applied to the canonical
+high-entropy alloy rules in the open literature.
 
-The first is the calibration of expectations. The collapse of both
-binary rules to near-zero Youden's $J$ on the consolidated
-benchmark serves as a quantitative caveat for downstream users of
-those rules. The \SI{80}{\percent}-accuracy figures quoted in the
-original papers reflect smaller, different datasets and a different
-choice of evaluation metric. On a consolidated open dataset, the
-rules behave very differently.
+The collapse of both binary rules to near-zero Youden's $J$ on the
+consolidated benchmark provides a quantitative caveat for downstream
+users of those rules. The \SI{80}{\percent}-accuracy figures quoted
+in the original papers reflect smaller, different datasets and a
+different choice of evaluation metric. On a consolidated open
+dataset, the rules perform very differently.
 
-The second is the provision of a substrate for subsequent
-methodological work. A candidate model, a CALPHAD-derived
-classifier, or a new empirical descriptor can now be scored
-against the same dataset and reported with the same statistical
-vocabulary as the four canonical rules. The result is a
-head-to-head comparison rather than incommensurable
-single-publication accuracies.
+The consolidated dataset also provides a reference point for
+subsequent methodological work. A candidate model, a CALPHAD-derived
+classifier, or a new empirical descriptor can be scored against the
+same dataset and reported with the same statistical vocabulary as the
+four canonical rules, giving a direct head-to-head comparison rather
+than incommensurable single-publication accuracies.
 
-The third is accessibility. The Pyodide front end allows a
-researcher or student to enter a composition into a browser tab
-and to obtain the same numerical outputs as a local install of the
-Python package, with the release wheel itself loaded into the
-browser rather than a separate JavaScript reimplementation. This
-removes the local-install barrier without compromising the
-library-as-canonical-implementation guarantee.
+Through the Pyodide front end, a researcher or student can enter a
+composition into a browser tab and obtain the same numerical outputs
+as a local install of the Python package, with the release wheel
+loaded into the browser rather than a separate JavaScript
+reimplementation. This removes the local-install barrier without
+compromising the library-as-canonical-implementation guarantee.
 
 % ====================================================================
 \section{Limitations}
@@ -535,7 +529,7 @@ physical correctness.
 
 The article has presented \hea{} 0.0.1, an open Python library and
 benchmark suite for high-entropy alloy phase prediction. The
-package ships a \num{7784}-composition consolidated benchmark
+package contains a \num{7784}-composition consolidated benchmark
 drawn from three primary open sources with explicit cross-source
 provenance and conflict tracking. It provides reference-baseline
 diagnostic-classifier evaluations of the four canonical empirical
@@ -546,18 +540,17 @@ canonical $\delta < \SI{6.5}{\percent}$. It includes an
 in-browser Pyodide front end that runs the same release wheel as a
 local package-manager install. The package is released under the
 MIT License and is covered by more than 150 tests, including
-pinned regression tests on every reported benchmark statistic. The intent
-is for the artifact to serve as the substrate on which subsequent
-methods for high-entropy alloy phase prediction can be compared.
+pinned regression tests on every reported benchmark statistic. The
+artifact is intended as a common reference against which subsequent
+methods for high-entropy alloy phase prediction can be evaluated.
 
-Planned future work has two strands. The first is an expansion of
-the elemental-property table to lift benchmark coverage from
-\SI{86.7}{\percent} to approximately \SI{95}{\percent}. The
-required additions are mechanical, because the corresponding
-pair-enthalpy entries are already present in the vendored Miedema
-table. The second is a v0.2.0 data release that exposes the
-cross-source label conflicts as a structured side-dataset for
-downstream disagreement-resolution work.
+Two extensions are planned for future releases. The elemental-property
+table will be expanded to lift benchmark coverage from
+\SI{86.7}{\percent} to approximately \SI{95}{\percent}, an addition
+that is straightforward because the corresponding pair-enthalpy
+entries are already present in the vendored Miedema table. A v0.2.0
+data release will expose the cross-source label conflicts as a
+structured side-dataset for downstream disagreement-resolution work.
 
 %=====================================================================
 \section*{Conflict of interest}
@@ -571,11 +564,7 @@ The author thanks the matminer maintainers for the open Miedema
 pair-enthalpy table, vendored under BSD-3-Clause, the Pyodide
 project for the browser-side Python runtime, and the authors of
 the three primary source datasets for releasing data under
-reusable terms. This manuscript was prepared with computer-assisted
-text generation. All numerical parameters, formulae, threshold
-values, and benchmark results were independently verified against
-the cited primary sources or computed from documented inputs by
-the author.
+reusable terms.
 
 %=====================================================================
 \printbibliography
