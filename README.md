@@ -261,8 +261,7 @@ tagged release.
 
 ## Acknowledgements
 
-Development was assisted by large language models (Claude) for code
-scaffolding and documentation. All numerical parameters, formulas,
+All numerical parameters, formulas,
 threshold values, and benchmark numbers are derived from cited
 primary sources or computed in this codebase from documented inputs;
 the author verified outputs against the cited literature.
