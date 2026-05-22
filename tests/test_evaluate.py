@@ -119,3 +119,53 @@ def test_yeh_descriptive_fractions(report):
     assert 0.45 < s["fraction_HEA"] < 0.50
     assert 0.35 < s["fraction_MEA"] < 0.40
     assert 0.15 < s["fraction_dilute"] < 0.18
+
+
+def _zhang_roc_points():
+    """Reproduce the Zhang delta ROC sweep used by the paper figure:
+    extract delta and binary observations from the benchmark, sweep
+    1.0% to 12.0% in 0.1% steps. Shared by the tests below."""
+    import csv
+
+    from hea_bench.classifiers.diagnostic_stats import roc_sweep
+    from hea_bench.composition import parse_formula
+    from hea_bench.descriptors.data.elemental import covered_elements
+    from hea_bench.descriptors.size import delta
+    from hea_bench.evaluate import _binary_observed
+
+    elemental = covered_elements()
+    deltas, obs = [], []
+    with V010.open(newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            canonical = (row.get("canonical_phase") or "").strip()
+            if not canonical:
+                continue
+            comp = parse_formula(row["composition_key"])
+            if not set(comp).issubset(elemental):
+                continue
+            deltas.append(delta(comp))
+            obs.append(_binary_observed(canonical))
+    thresholds = [t / 10.0 for t in range(10, 121)]
+    return roc_sweep(deltas, obs, thresholds, "single-phase",
+                     positive_below_threshold=True)
+
+
+def test_zhang_roc_recalibration_finding(report):
+    """Pin the headline recalibration result reported in the paper and
+    the figure: on the v0.1.0 benchmark, the balance-optimal Zhang
+    delta threshold is 2.5% with Youden's J = 0.113, far tighter than
+    the canonical 6.5% (J = 0.075). This is the most-cited claim of
+    the paper and was previously not regression-guarded against the
+    real data."""
+    points = _zhang_roc_points()
+    canonical = min(points, key=lambda p: abs(p.threshold - 6.5))
+    best_j = max(points, key=lambda p: p.youden_j)
+
+    assert canonical.threshold == pytest.approx(6.5, abs=1e-9)
+    assert canonical.youden_j == pytest.approx(0.075, abs=0.001)
+
+    assert best_j.threshold == pytest.approx(2.5, abs=1e-9)
+    assert best_j.youden_j == pytest.approx(0.113, abs=0.001)
+    # The optimum trades sensitivity for specificity relative to canonical.
+    assert best_j.sensitivity == pytest.approx(0.236, abs=0.005)
+    assert best_j.specificity == pytest.approx(0.877, abs=0.005)
