@@ -258,6 +258,42 @@ execute client-side in the user's browser tab, with no server-side
 component. The library has one canonical implementation, and both
 surfaces invoke it identically.
 
+\subsection{Descriptor definitions}
+
+For a composition with mole fractions $c_i$, the six descriptors are
+defined as follows. The configurational mixing entropy is
+\begin{equation}
+\Smix = -R \sum_i c_i \ln c_i ,
+\end{equation}
+the atomic-size mismatch, reported as a percentage, is
+\begin{equation}
+\delta = 100 \sqrt{ \sum_i c_i \left( 1 - \frac{r_i}{\bar r} \right)^{2} } ,
+\qquad \bar r = \sum_i c_i\, r_i ,
+\end{equation}
+the valence electron concentration and the average melting
+temperature are the linear means
+\begin{equation}
+\mathrm{VEC} = \sum_i c_i\, V_i ,
+\qquad
+\Tm = \sum_i c_i\, T_{\mathrm{m},i} ,
+\end{equation}
+the Miedema mixing enthalpy sums the equiatomic binary pair
+enthalpies $\Delta H^{\mathrm{pair}}_{ij}$ over all element pairs
+\begin{equation}
+\Hmix = \sum_{i<j} 4\, c_i c_j\, \Delta H^{\mathrm{pair}}_{ij} ,
+\end{equation}
+and the Yang and Zhang parameter combines the entropy, melting
+temperature, and enthalpy as
+\begin{equation}
+\Omegaparam = \frac{ \Tm \, \Smix }{ \lvert \Hmix \rvert } .
+\end{equation}
+Here $r_i$, $V_i$, and $T_{\mathrm{m},i}$ are the atomic radius,
+valence electron count, and melting temperature of element $i$, and
+$R$ is the gas constant. The factor of $4 c_i c_j$ in the mixing
+enthalpy normalizes the tabulated equiatomic binary value to
+arbitrary composition, so that an equiatomic binary recovers the
+tabulated pair value.
+
 \subsection{Software functionalities}
 
 The package supports six primary workflows. A user can parse an
@@ -464,6 +500,34 @@ Python package, with the release wheel itself loaded into the
 browser rather than a separate JavaScript reimplementation. This
 removes the local-install barrier without compromising the
 library-as-canonical-implementation guarantee.
+
+% ====================================================================
+\section{Limitations}
+% ====================================================================
+
+Several limitations bound the scope of the present release. The
+elemental data table covers 24 elements, so \SI{86.7}{\percent} of
+the benchmark is scorable by every descriptor and the remainder
+contains elements outside the table. The canonical phase taxonomy
+is coarse. The multi-phase class groups dual-phase solid solutions,
+intermetallics, and amorphous alloys together, so the binary
+single-phase-versus-multi-phase evaluation does not distinguish
+among these outcomes, although the finer per-source labels are
+retained as side-channel columns for users who need them. The
+Miedema mixing enthalpy is a semi-empirical estimate with known
+systematic error for some element pairs, and the vendored pair
+table is one of several published parameterizations. Other
+conventions, such as the sub-regular-solution treatment, yield
+slightly different aggregate values, so the absolute enthalpies
+should be read as model estimates rather than measured quantities.
+Finally, the benchmark is composition-only. The same composition
+can form different phases depending on processing history, an effect
+the canonical taxonomy does not capture, although the Borg
+processing route is preserved as a side-channel column. The
+empirical rules evaluated here are pre-screens rather than
+first-principles predictors, and the diagnostic statistics
+characterize their behavior as classifiers rather than their
+physical correctness.
 
 % ====================================================================
 \section{Conclusions}
