@@ -73,7 +73,7 @@ target-version = "py310"
 # figure script sets the matplotlib backend before importing pyplot. Both
 # legitimately violate import-ordering rules and are not library code, so
 # they are excluded from linting. The CI workflow lints only src and tests.
-extend-exclude = ["examples", "paper"]
+extend-exclude = ["examples"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
