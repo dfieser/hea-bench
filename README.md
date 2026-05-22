@@ -3,8 +3,9 @@
 An open, reproducible benchmark suite and reference baselines for
 **high-entropy alloy (HEA) phase prediction**.
 
+[![DOI](https://zenodo.org/badge/1246292321.svg)](https://doi.org/10.5281/zenodo.20346287)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-![tests: 155](https://img.shields.io/badge/tests-155%20passing-success)
+![tests: 156](https://img.shields.io/badge/tests-156%20passing-success)
 ![coverage: 86.7%](https://img.shields.io/badge/v0.1.0%20coverage-86.7%25-success)
 
 ## TL;DR
@@ -261,8 +262,10 @@ hea-bench, please also cite the original source datasets (Borg, Pei,
 Peivaste) and matminer — see `data/raw/<source>/README.md` for each
 source's preferred citation.
 
-A DOI for hea-bench itself will be minted via Zenodo on the first
-tagged release.
+hea-bench is archived on Zenodo. The concept DOI
+[10.5281/zenodo.20346287](https://doi.org/10.5281/zenodo.20346287)
+always resolves to the latest version; v0.1.0 specifically is
+[10.5281/zenodo.20346288](https://doi.org/10.5281/zenodo.20346288).
 
 ## Acknowledgements
 

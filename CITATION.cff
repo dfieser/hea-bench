@@ -25,5 +25,12 @@ keywords:
 license: MIT
 repository-code: 'https://github.com/dfieser/hea-bench'
 version: 0.1.0
-# date-released: 2026-MM-DD  # set when the first release is tagged
-# doi: 10.5281/zenodo.xxx    # filled in by Zenodo after the first release
+date-released: '2026-05-22'
+doi: 10.5281/zenodo.20346288
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.20346287
+    description: Concept DOI (resolves to all versions of hea-bench)
+  - type: doi
+    value: 10.5281/zenodo.20346288
+    description: Version DOI (this release, v0.1.0)
