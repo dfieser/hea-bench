@@ -19,7 +19,7 @@ from .descriptors.omega import omega
 from .descriptors.size import delta
 from .descriptors.vec import vec
 
-__version__ = "0.0.1"
+__version__ = "0.1.0"
 
 __all__ = [
     "__version__",

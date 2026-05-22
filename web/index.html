@@ -169,7 +169,7 @@
         await pyodide.loadPackage("micropip");
         await pyodide.runPythonAsync(`
 import micropip
-await micropip.install("./dist/hea_bench-0.0.1-py3-none-any.whl")
+await micropip.install("./dist/hea_bench-0.1.0-py3-none-any.whl")
 import hea_bench
 __pkg_version__ = hea_bench.__version__
         `);

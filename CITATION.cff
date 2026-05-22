@@ -24,6 +24,6 @@ keywords:
   - thermodynamic descriptors
 license: MIT
 repository-code: 'https://github.com/dfieser/hea-bench'
-# version: 0.1.0           # set on first tagged release
-# date-released: 2026-MM-DD
-# doi: 10.5281/zenodo.xxx  # filled in by Zenodo after the first release
+version: 0.1.0
+# date-released: 2026-MM-DD  # set when the first release is tagged
+# doi: 10.5281/zenodo.xxx    # filled in by Zenodo after the first release
