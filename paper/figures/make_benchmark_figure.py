@@ -1,4 +1,4 @@
-"""Generate the benchmark-overview figure for the JOSS paper.
+"""Generate the benchmark-overview figure for the hea-bench manuscript.
 
 Two panels, both computed live from the committed v0.1.0
 consolidated CSV so the figure cannot drift from the data:

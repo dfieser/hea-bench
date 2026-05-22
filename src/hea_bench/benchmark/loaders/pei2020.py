@@ -6,9 +6,11 @@ mirrored verbatim from Springer's CDN — see
 
 Upstream schema is minimal: two columns (``Alloy``, ``Phase``), 1,252
 rows, four lower-case phase labels (``bcc``, ``fcc``, ``hcp``,
-``multi-phase``). A handful of rows (~7) repeat the same formula; per
+``multi-phase``). 43 of those rows repeat a formula already seen; per
 the design decision in this loader those are deduplicated on first
-occurrence to match the Borg loader's behaviour.
+occurrence to match the Borg loader's behaviour, leaving 1,209 unique
+formulas. No row is dropped for an unparseable formula or an
+unrecognised label; the only attrition is duplicate formulas.
 
 Pei has no processing column and no per-row DOI; both AlloyRecord
 fields are left ``None``. The whole dataset shares one DOI

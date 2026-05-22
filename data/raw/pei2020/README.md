@@ -67,9 +67,10 @@ Two columns, 1,252 data rows + 1 header.
   in Peivaste.
 - **Lower-case labels.** Pei uses `bcc`/`fcc`/`hcp` (lower-case). Other
   sources use `BCC`/`FCC`/`HCP`. Normalize to upper-case on load.
-- **Some formula duplicates** (~7 cases observed: Ti-Zr binaries,
-  Tb-Y-Th systems). Dedup by normalized composition during consolidation;
-  flag label conflicts.
+- **Formula duplicates.** 43 rows repeat a formula already seen earlier
+  in the file. The loader dedups by raw formula string (first occurrence
+  wins), leaving 1,209 unique formulas; consolidation then re-dedups by
+  normalized composition across sources and flags label conflicts.
 - **No processing metadata.** Like Peivaste, this is composition-only.
   All entries are nominally "as-reported."
 

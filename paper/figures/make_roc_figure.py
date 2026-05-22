@@ -1,4 +1,4 @@
-"""Generate the ROC-curve figure for the JOSS paper.
+"""Generate the ROC-curve figure for the hea-bench manuscript.
 
 Reproducible figure generation, same philosophy as the example
 notebooks: every point comes from running the library against the
