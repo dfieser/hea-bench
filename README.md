@@ -233,6 +233,15 @@ Pyodide wheel:
 python -m pip wheel . --no-deps -w web/dist
 ```
 
+## Contributing and support
+
+Contributions, bug reports, and dataset additions are welcome. See
+[CONTRIBUTING.md](./CONTRIBUTING.md) for development setup, the
+testing convention, and the data-provenance policy. To report a bug
+or ask a question, open a GitHub issue; for direct contact, email
+the maintainer at `davjfies@gmail.com`. Participation is governed by
+the [Code of Conduct](./CODE_OF_CONDUCT.md).
+
 ## License
 
 [MIT](./LICENSE). The vendored

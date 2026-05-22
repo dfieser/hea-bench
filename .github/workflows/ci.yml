@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install package with dev extras
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,data]"
+
+      - name: Lint with ruff
+        run: ruff check src tests
+
+      - name: Run test suite
+        run: pytest tests/ -q
+        # Tests that depend on the pointer-only Peivaste dataset skip
+        # automatically when that file is absent (it is not committed
+        # because the upstream repository declares no license). The
+        # Borg and Pei datasets are committed, so their loader tests
+        # and all benchmark-level tests run in CI.
