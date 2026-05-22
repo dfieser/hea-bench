@@ -1,6 +1,5 @@
 """Tests for the four canonical empirical phase-prediction rules."""
 
-import pytest
 
 from hea_bench.rules import guo_vec, yang_omega, yeh_smix, zhang_delta
 

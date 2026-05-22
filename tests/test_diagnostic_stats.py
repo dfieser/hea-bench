@@ -3,8 +3,6 @@
 import pytest
 
 from hea_bench.classifiers.diagnostic_stats import (
-    BinaryStats,
-    ROCPoint,
     confusion_matrix,
     evaluate_binary,
     roc_sweep,

@@ -123,25 +123,27 @@ def format_report(report: dict) -> str:
     """Render `analyze()` output as a human-readable text report."""
     out: list[str] = []
     total = report["total"]
-    pct = lambda n: f"{n/total*100:.1f}%" if total else "0.0%"
+
+    def pct(n: int) -> str:
+        return f"{n / total * 100:.1f}%" if total else "0.0%"
 
     out.append(f"=== Coverage report: {report['csv_path']} ===")
-    out.append(f"")
+    out.append("")
     out.append(f"total compositions:       {total:>5}")
-    out.append(f"")
-    out.append(f"Coverage by descriptor data table:")
+    out.append("")
+    out.append("Coverage by descriptor data table:")
     out.append(f"  ELEMENTAL_DATA (δ/VEC/T_m):  {report['in_basic']:>5} / {total}  ({pct(report['in_basic'])})")
     out.append(f"  Miedema pair table (ΔH/Ω):   {report['in_miedema']:>5} / {total}  ({pct(report['in_miedema'])})")
     out.append(f"  both (all 6 descriptors):    {report['in_both']:>5} / {total}  ({pct(report['in_both'])})")
     out.append(f"  neither (cannot score):      {report['in_neither']:>5} / {total}  ({pct(report['in_neither'])})")
-    out.append(f"")
-    out.append(f"Top 15 elements missing from ELEMENTAL_DATA (basic descriptors):")
+    out.append("")
+    out.append("Top 15 elements missing from ELEMENTAL_DATA (basic descriptors):")
     items = sorted(report["missing_from_basic"].items(), key=lambda kv: -kv[1])[:15]
     for el, cnt in items:
         out.append(f"  {el:>3}  appears in {cnt:>5} alloys  ({pct(cnt)})")
-    out.append(f"")
-    out.append(f"Next-best-add ranking (elements outside ELEMENTAL_DATA, by alloy count):")
-    out.append(f"  symbol  alloys-unlocked  already-in-pair-table")
+    out.append("")
+    out.append("Next-best-add ranking (elements outside ELEMENTAL_DATA, by alloy count):")
+    out.append("  symbol  alloys-unlocked  already-in-pair-table")
     for el, cnt, in_pair in report["next_best_adds"][:15]:
         flag = "YES (low-effort win)" if in_pair else "no  (needs full sourcing)"
         out.append(f"  {el:>3}     {cnt:>5}            {flag}")

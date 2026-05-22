@@ -209,7 +209,7 @@ def format_report(report: dict) -> str:
     out.append("")
 
     z = report["rules"]["zhang_delta_6_5"]
-    out.append(f"--- Zhang δ < 6.5% (binary single vs multi) ---")
+    out.append("--- Zhang δ < 6.5% (binary single vs multi) ---")
     out.append(f"  n_evaluated = {z['n']}   accuracy = {z['accuracy']:.1%}  "
                f"[95% CI {z['accuracy_ci95'][0]:.1%}, {z['accuracy_ci95'][1]:.1%}]")
     out.append(f"  sensitivity (single-phase) = {z['sensitivity']:.1%}")
@@ -218,7 +218,7 @@ def format_report(report: dict) -> str:
     out.append("")
 
     y = report["rules"]["yang_omega_1_1"]
-    out.append(f"--- Yang Ω > 1.1 (binary single vs multi) ---")
+    out.append("--- Yang Ω > 1.1 (binary single vs multi) ---")
     out.append(f"  n_evaluated = {y['n']}   accuracy = {y['accuracy']:.1%}  "
                f"[95% CI {y['accuracy_ci95'][0]:.1%}, {y['accuracy_ci95'][1]:.1%}]")
     out.append(f"  sensitivity (single-phase) = {y['sensitivity']:.1%}")
@@ -227,7 +227,7 @@ def format_report(report: dict) -> str:
     out.append("")
 
     g = report["rules"]["guo_vec_stratified"]
-    out.append(f"--- Guo–Liu VEC (stratified to FCC|BCC observed) ---")
+    out.append("--- Guo–Liu VEC (stratified to FCC|BCC observed) ---")
     out.append(f"  n_evaluated = {g['n_eval']}   accuracy = {g['accuracy']:.1%}")
     out.append(f"  FCC sensitivity (n={g['n_fcc_observed']}): {g['fcc_sensitivity']:.1%}")
     out.append(f"  BCC sensitivity (n={g['n_bcc_observed']}): {g['bcc_sensitivity']:.1%}")
