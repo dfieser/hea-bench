@@ -4,7 +4,7 @@ An open, reproducible benchmark suite and reference baselines for
 **high-entropy alloy (HEA) phase prediction**.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-![tests: 151](https://img.shields.io/badge/tests-151%20passing-success)
+![tests: 154](https://img.shields.io/badge/tests-154%20passing-success)
 ![coverage: 86.7%](https://img.shields.io/badge/v0.1.0%20coverage-86.7%25-success)
 
 ## TL;DR
@@ -212,7 +212,7 @@ hea-bench/
 │   ├── constants.py     R = 8.314
 │   ├── evaluate.py      orchestrator: rules vs benchmark → headline stats
 │   └── cli.py           command-line entry point
-├── tests/               151 tests, all passing
+├── tests/               154 tests, all passing
 ├── web/                 Pyodide browser frontend
 └── pyproject.toml
 ```
