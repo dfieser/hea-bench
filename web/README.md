@@ -14,11 +14,28 @@ Two equivalent paths:
   in your browser and runs immediately. Everything it needs is in
   this folder.
 
+## What it does
+
+For any composition you enter, the page reports:
+
+- **Descriptors** — mixing entropy ΔS_mix, atomic-size mismatch δ,
+  mean melting temperature T_m, mixing enthalpy ΔH_mix,
+  valence-electron concentration VEC, and the Yang-Zhang Ω parameter.
+- **Phase-prediction rules** — for the same composition, the verdict
+  of each of the four canonical empirical rules side by side
+  (Yeh entropy, Zhang size-mismatch, Guo-Liu VEC, Yang-Zhang Ω). The
+  rule logic mirrors the Python library exactly, including the
+  six-decimal VEC rounding that handles the equiatomic-CrFeNi
+  boundary case.
+- **Miedema-model formation enthalpies** — compound enthalpy and the
+  solid-solution and amorphous enthalpies decomposed into chemical,
+  elastic, structural, and topological contributions.
+
 ## What's here
 
 - `index.html` — the calculator. Contains the descriptor implementations,
-  the elemental-property table, the Miedema pair-enthalpy table, and the
-  UI all inlined.
+  the rule-prediction logic, the elemental-property table, the Miedema
+  pair-enthalpy table, and the UI all inlined.
 - `mathjax/` — bundled MathJax build for math notation rendering.
   Vendored so the page works fully offline.
 - `.nojekyll` — marks the directory so GitHub Pages serves files as-is.

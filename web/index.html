@@ -4999,6 +4999,12 @@ font-family: 'Source Sans Pro'
           </div></div>
       </section>
 
+      <section class="panel" id="rules-panel">
+        <h2>Phase-prediction rules</h2>
+        <p class="small-note" style="margin: -4px 0 12px;">What each canonical empirical rule predicts for this composition, applied to the descriptor values above.</p>
+        <div id="rule-predictions" class="results results-compact"></div>
+      </section>
+
       <section class="panel panel-secondary" id="miedema-panel">
         <h2>Miedema-model formation enthalpies</h2>
         <p class="small-note" style="margin: -4px 0 12px;">Auxiliary outputs. Compound, solid-solution, and amorphous formation enthalpies and their decompositions.</p>
@@ -6195,8 +6201,12 @@ font-family: 'Source Sans Pro'
       function renderResults(payload) {
         resultsEl.innerHTML = "";
         miedemaResultsEl.innerHTML = "";
+        const rulesPanelEl = document.getElementById("rules-panel");
+        const rulesEl = document.getElementById("rule-predictions");
+        rulesEl.innerHTML = "";
         if (!payload) {
           miedemaPanelEl.classList.add("hidden");
+          rulesPanelEl.classList.add("hidden");
           return;
         }
 
@@ -6354,6 +6364,88 @@ font-family: 'Source Sans Pro'
             miedemaResultsEl.appendChild(div);
           });
         }
+
+        // Apply the four canonical phase-prediction rules to the
+        // composition's descriptor values. Verdicts mirror the Python
+        // library exactly: a missing descriptor yields a "—" verdict
+        // rather than a guess.
+        const R_GAS = 8.314;  // J/(mol K)
+        const isNum = (v) => typeof v === "number" && Number.isFinite(v);
+        const ruleCards = [];
+
+        // Yeh entropy rule: HEA if ΔS_mix > 1.5R, MEA if R ≤ ΔS_mix ≤ 1.5R,
+        // else dilute (Yeh et al. 2004).
+        let yehVerdict = "—";
+        if (isNum(descriptors.Smix)) {
+          if (descriptors.Smix > 1.5 * R_GAS) yehVerdict = "HEA (high-entropy)";
+          else if (descriptors.Smix >= R_GAS) yehVerdict = "MEA (medium-entropy)";
+          else yehVerdict = "dilute";
+        }
+        ruleCards.push({
+          title: "Yeh entropy rule",
+          symbol: "ΔS mix vs 1.5R, R",
+          units: isNum(descriptors.Smix) ? `ΔS mix = ${formatNumber(descriptors.Smix)} J/mol·K` : "—",
+          value: yehVerdict,
+        });
+
+        // Zhang size-mismatch rule: single-phase solid solution if
+        // δ < 6.5 % (Zhang et al. 2008).
+        let zhangVerdict = "—";
+        if (isNum(descriptors.delta)) {
+          zhangVerdict = descriptors.delta < 6.5 ? "single-phase" : "multi-phase";
+        }
+        ruleCards.push({
+          title: "Zhang size-mismatch rule",
+          symbol: "δ < 6.5 % → single-phase",
+          units: isNum(descriptors.delta) ? `δ = ${formatNumber(descriptors.delta)} %` : "—",
+          value: zhangVerdict,
+        });
+
+        // Guo–Liu valence-electron rule: FCC if VEC ≥ 8.0, BCC if
+        // VEC < 6.87, mixed otherwise (Guo & Liu 2011). The VEC is
+        // rounded to 6 decimals before the boundary test so that
+        // exact-integer cases like equiatomic CrFeNi (VEC = 8.0) are
+        // not flipped by float-summation noise. Matches the Python
+        // library's guo_vec.predict implementation exactly.
+        let guoVerdict = "—";
+        if (isNum(descriptors.VEC)) {
+          const vec = Math.round(descriptors.VEC * 1e6) / 1e6;
+          if (vec >= 8.0) guoVerdict = "FCC";
+          else if (vec < 6.87) guoVerdict = "BCC";
+          else guoVerdict = "mixed (FCC + BCC)";
+        }
+        ruleCards.push({
+          title: "Guo–Liu VEC rule",
+          symbol: "VEC bounds 6.87, 8.0",
+          units: isNum(descriptors.VEC) ? `VEC = ${formatNumber(descriptors.VEC)}` : "—",
+          value: guoVerdict,
+        });
+
+        // Yang–Zhang Ω rule: single-phase solid solution if Ω > 1.1
+        // (Yang & Zhang 2012).
+        let yangVerdict = "—";
+        if (isNum(descriptors.Omega)) {
+          yangVerdict = descriptors.Omega > 1.1 ? "single-phase" : "multi-phase";
+        }
+        ruleCards.push({
+          title: "Yang–Zhang Ω rule",
+          symbol: "Ω > 1.1 → single-phase",
+          units: isNum(descriptors.Omega) ? `Ω = ${formatNumber(descriptors.Omega)}` : "—",
+          value: yangVerdict,
+        });
+
+        rulesPanelEl.classList.remove("hidden");
+        ruleCards.forEach((card) => {
+          const div = document.createElement("div");
+          div.className = "result-card result-card-compact";
+          div.innerHTML = `
+            <h3>${card.title}</h3>
+            <div class="symbol">${card.symbol || ""}</div>
+            <p>${card.value}</p>
+            <div class="units">${card.units || ""}</div>
+          `;
+          rulesEl.appendChild(div);
+        });
       }
 
       function renderWarnings(warnings) {
