@@ -55,6 +55,19 @@ def test_parse_rejects_no_elements() -> None:
         parse_formula("12345")
 
 
+def test_parse_rejects_invalid_element_symbol() -> None:
+    """Tokens that look like elements but are not real periodic-table
+    symbols must raise rather than silently produce a phantom element."""
+    with pytest.raises(ValueError, match="unrecognised element symbol"):
+        parse_formula("Al0.5Xy0.5")
+    with pytest.raises(ValueError, match="unrecognised element symbol"):
+        parse_formula("Qq")
+    # Sanity check: a real element next to a bogus one still surfaces the
+    # bogus one rather than half-silently parsing.
+    with pytest.raises(ValueError, match="Zz"):
+        parse_formula("FeZz")
+
+
 def test_normalize_skips_zero_elements() -> None:
     got = normalize({"Fe": 1.0, "Co": 0.0, "Ni": 1.0})
     assert got == {"Fe": 0.5, "Ni": 0.5}

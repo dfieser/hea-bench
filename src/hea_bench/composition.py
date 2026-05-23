@@ -36,6 +36,32 @@ lower)."""
 # Coefficient may be integer or decimal; if absent, default to 1.
 _ELEMENT_TOKEN = re.compile(r"([A-Z][a-z]?)([0-9]*\.?[0-9]*)")
 
+# The 118 IUPAC-recognised element symbols. parse_formula validates each
+# matched token against this set so that an input like "Al0.5Xy0.5" is
+# rejected with a clear error rather than silently treated as containing
+# a phantom element.
+_VALID_ELEMENTS = frozenset({
+    "H",  "He",
+    "Li", "Be", "B",  "C",  "N",  "O",  "F",  "Ne",
+    "Na", "Mg", "Al", "Si", "P",  "S",  "Cl", "Ar",
+    "K",  "Ca",
+    "Sc", "Ti", "V",  "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn",
+    "Ga", "Ge", "As", "Se", "Br", "Kr",
+    "Rb", "Sr",
+    "Y",  "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd",
+    "In", "Sn", "Sb", "Te", "I",  "Xe",
+    "Cs", "Ba",
+    "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd",
+    "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu",
+    "Hf", "Ta", "W",  "Re", "Os", "Ir", "Pt", "Au", "Hg",
+    "Tl", "Pb", "Bi", "Po", "At", "Rn",
+    "Fr", "Ra",
+    "Ac", "Th", "Pa", "U",  "Np", "Pu", "Am", "Cm",
+    "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr",
+    "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn",
+    "Nh", "Fl", "Mc", "Lv", "Ts", "Og",
+})
+
 
 def parse_formula(formula: str) -> Composition:
     """Parse an HEA composition formula into a normalized mole-fraction dict.
@@ -74,12 +100,21 @@ def parse_formula(formula: str) -> Composition:
     {'Al': 0.15, 'Cr': 0.85}
     """
     raw: dict[str, float] = {}
+    bad: list[str] = []
     for el, coef in _ELEMENT_TOKEN.findall(formula):
         if not el:
+            continue
+        if el not in _VALID_ELEMENTS:
+            bad.append(el)
             continue
         amount = float(coef) if coef else 1.0
         raw[el] = raw.get(el, 0.0) + amount
 
+    if bad:
+        raise ValueError(
+            f"unrecognised element symbol(s) {sorted(set(bad))!r} "
+            f"in formula {formula!r}"
+        )
     if not raw:
         raise ValueError(f"no elements parsed from formula {formula!r}")
 

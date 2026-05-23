@@ -14,7 +14,14 @@ V010_CSV = REPO_ROOT / "data" / "consolidated" / "v0.1.0" / "consolidated.csv"
 
 def test_analyze_on_synthetic_csv(tmp_path: pathlib.Path) -> None:
     """Three compositions: one fully covered, one missing from
-    ELEMENTAL_DATA but in pair table, one missing from both."""
+    ELEMENTAL_DATA but in pair table, one missing from both.
+
+    He and Ne are used for the third row because they are valid
+    periodic-table symbols (so the formula parser accepts them) but
+    are absent from both the elemental data table and the metallic
+    Miedema pair table, which is exactly the case the coverage
+    analyser must classify as ``in_neither``.
+    """
     csv_path = tmp_path / "synthetic.csv"
     csv_path.write_text(
         "composition_key,n_elements,sources,canonical_phase,has_conflict,"
@@ -22,7 +29,7 @@ def test_analyze_on_synthetic_csv(tmp_path: pathlib.Path) -> None:
         "peivaste_raw_label,borg_processing,borg_doi,source_row_ids\n"
         "Co0.2000Cr0.2000Fe0.2000Mn0.2000Ni0.2000,5,test,FCC,0,,,,,,,,,test:1\n"
         "Mg0.5000Zn0.5000,2,test,multi-phase,0,,,,,,,,,test:2\n"
-        "Xx0.5000Yy0.5000,2,test,multi-phase,0,,,,,,,,,test:3\n",
+        "He0.5000Ne0.5000,2,test,multi-phase,0,,,,,,,,,test:3\n",
         encoding="utf-8",
     )
     r = coverage.analyze(csv_path)
@@ -30,7 +37,7 @@ def test_analyze_on_synthetic_csv(tmp_path: pathlib.Path) -> None:
     assert r["in_basic"] == 1      # only Cantor
     assert r["in_miedema"] == 2    # Cantor and Mg-Zn (both in matminer pair table)
     assert r["in_both"] == 1       # just Cantor
-    assert r["in_neither"] == 1    # Xx-Yy (Xx, Yy not in anything)
+    assert r["in_neither"] == 1    # He-Ne (real elements, in neither HEA table)
 
 
 # ---- Integration test against the v0.1.0 release ----
