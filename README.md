@@ -5,7 +5,7 @@ An open, reproducible benchmark suite and reference baselines for
 
 [![DOI](https://zenodo.org/badge/1246292321.svg)](https://doi.org/10.5281/zenodo.20346287)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-![tests: 156](https://img.shields.io/badge/tests-156%20passing-success)
+![tests: 157](https://img.shields.io/badge/tests-157%20passing-success)
 ![coverage: 86.7%](https://img.shields.io/badge/v0.1.0%20coverage-86.7%25-success)
 
 ## TL;DR
@@ -19,9 +19,10 @@ An open, reproducible benchmark suite and reference baselines for
   Guo-Liu VEC, Yang-Zhang Ω), wrapped as proper diagnostic
   classifiers with sensitivity / specificity / Wilson 95% CIs.
 - **A clean, dependency-free Python API** (`pip install hea-bench`)
-  *and* an in-browser frontend that runs the same library via
-  Pyodide/WebAssembly — no install, no server, no JavaScript
-  re-implementation.
+  *and* a self-contained HTML calculator that runs entirely
+  client-side, computes all six descriptors plus the Miedema
+  decompositions, and applies the four phase-prediction rules to the
+  entered composition — open by URL or just double-click the file.
 
 > **Using an AI coding agent to integrate this?** See
 > [AGENTS.md](./AGENTS.md) for a machine-oriented guide to the API,
@@ -97,16 +98,18 @@ python -m hea_bench.benchmark.coverage # coverage analysis on v0.1.0
 
 ## Quick start (browser, no install)
 
-The same Python library runs in a browser tab via Pyodide. Just open:
+A self-contained HTML calculator computes the descriptors, applies
+the four phase-prediction rules, and runs the Miedema decompositions
+entirely client-side. Two equivalent paths:
 
-**https://dfieser.github.io/hea-bench/**
+- Open the hosted page: **https://dfieser.github.io/hea-bench/**
+- Or download / clone the repo and double-click `web/index.html`. No
+  install, no terminal, no server.
 
-No install, no terminal, no server. The page is deployed automatically
-from the `web/` folder on every push to `main`.
-
-First load downloads the Pyodide runtime (~10 MB, cached after) and
-the `hea_bench` wheel. Then the in-page UI computes descriptors
-locally — same code, same numerics, no server.
+The page reports each rule's verdict (Yeh HEA/MEA/dilute, Zhang
+single/multi, Guo–Liu FCC/BCC/mixed, Yang–Zhang single/multi)
+alongside the computed descriptor values. Logic matches the Python
+library, including the six-decimal VEC-boundary rounding.
 
 ## Architecture
 
@@ -136,12 +139,14 @@ locally — same code, same numerics, no server.
                               │  - evaluate.py                │
                               └──────────────┬────────────────┘
                                              │
-                                             │ also runs in
+                                             │ independent
+                                             │ implementation
                                              ▼
                               ┌──────────────────────────────┐
-                              │  web/   (Pyodide front-end)  │
+                              │  web/   (standalone HTML +   │
+                              │          JavaScript)         │
                               │  - index.html                │
-                              │  - dist/hea_bench-*.whl      │
+                              │  - mathjax/   (vendored)     │
                               └──────────────────────────────┘
 ```
 
@@ -217,8 +222,8 @@ hea-bench/
 │   ├── constants.py     R = 8.314
 │   ├── evaluate.py      orchestrator: rules vs benchmark → headline stats
 │   └── cli.py           command-line entry point
-├── tests/               155 tests, all passing
-├── web/                 Pyodide browser frontend
+├── tests/               157 tests, all passing
+├── web/                 self-contained HTML calculator (pure JS, no server)
 └── pyproject.toml
 ```
 
@@ -231,12 +236,11 @@ pip install -e ".[dev,data]"
 python -m pytest tests/ -q
 ```
 
-After modifying any descriptor code or vendored data, rebuild the
-Pyodide wheel:
-
-```bash
-python -m pip wheel . --no-deps -w web/dist
-```
+The HTML calculator (`web/index.html`) is an independent
+JavaScript implementation of the same descriptors and rules. When you
+modify Python descriptor code, sanity-check the calculator against
+the same composition (e.g. the Cantor alloy values) so the two
+surfaces don't drift.
 
 ## Contributing and support
 
