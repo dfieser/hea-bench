@@ -97,13 +97,12 @@ python -m hea_bench.benchmark.coverage # coverage analysis on v0.1.0
 
 ## Quick start (browser, no install)
 
-The same Python library runs in a browser tab via Pyodide. After
-cloning:
+The same Python library runs in a browser tab via Pyodide. Just open:
 
-```bash
-python -m http.server 8000 --directory web
-# open http://localhost:8000
-```
+**https://dfieser.github.io/hea-bench/**
+
+No install, no terminal, no server. The page is deployed automatically
+from the `web/` folder on every push to `main`.
 
 First load downloads the Pyodide runtime (~10 MB, cached after) and
 the `hea_bench` wheel. Then the in-page UI computes descriptors
