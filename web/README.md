@@ -1,61 +1,34 @@
-# web/ — Pyodide browser frontend
+# web/ — self-contained browser calculator
 
-The browser frontend for `hea-bench`. There is **no JavaScript
-re-implementation** of any descriptor — this page loads the same Python
-wheel that gets installed by `pip install hea-bench`, runs it inside a
-WebAssembly Python runtime (Pyodide), and exposes a thin UI over it.
+A single self-contained HTML page that computes the high-entropy
+alloy phase descriptors and applies the canonical empirical rules
+entirely client-side. No server, no install, no Python runtime in the
+browser.
 
-## Architecture
+## How to use it
 
-```
-                    ┌────────────────────────────────────────┐
-                    │  user's browser tab                    │
-                    │                                        │
-   index.html ──────► Pyodide (Python 3.12 in WASM)          │
-                    │      └── micropip.install(             │
-                    │              "./dist/hea_bench-…whl")  │
-                    │            └── from hea_bench…         │
-                    │                  import smix(...)      │
-                    └────────────────────────────────────────┘
-```
+Two equivalent paths:
 
-One implementation. No server.
-
-## Running locally
-
-```bash
-# from the hea-bench/ project root
-python -m pip wheel . --no-deps -w web/dist   # rebuild after Python changes
-cd web
-python -m http.server 8000
-# open http://localhost:8000
-```
-
-First load downloads the Pyodide runtime (~10 MB compressed) from
-jsdelivr. Subsequent visits are cached.
+- **Online:** open <https://dfieser.github.io/hea-bench/>.
+- **Offline / from a local copy:** double-click `index.html`. It opens
+  in your browser and runs immediately. Everything it needs is in
+  this folder.
 
 ## What's here
 
-- `index.html` — the page. Loads Pyodide from CDN, installs the local
-  wheel via `micropip`, and exposes a single demo descriptor
-  (ΔS<sub>mix</sub>) as proof of the architecture.
-- `dist/hea_bench-<version>-py3-none-any.whl` — the same wheel `pip`
-  would install, served from a relative URL so the browser can fetch it.
+- `index.html` — the calculator. Contains the descriptor implementations,
+  the elemental-property table, the Miedema pair-enthalpy table, and the
+  UI all inlined.
+- `mathjax/` — bundled MathJax build for math notation rendering.
+  Vendored so the page works fully offline.
+- `.nojekyll` — marks the directory so GitHub Pages serves files as-is.
 
-## What's not here yet
+## Updating the calculator
 
-Full descriptor set (δ, VEC, Ω, Miedema ΔH<sub>mix</sub>) — lands in
-Phase 2. Consolidated benchmark dataset — lands in Phase 1. See
-`../../PROJECT_PLAN.md`.
-
-## Updating the wheel
-
-Anytime the Python library changes:
-
-```bash
-python -m pip wheel . --no-deps -w web/dist
-# delete older wheels in web/dist/ if you want a clean directory
-```
-
-The HTML page hard-codes the wheel filename, so bump the version in
-`pyproject.toml` and update the filename in `index.html` for any release.
+The HTML page is the source of truth. Edit `index.html` directly. The
+Python library and the calculator are independent implementations.
+This keeps the offline experience truly stand-alone at the cost of a
+small risk of numerical drift between the two; the test suite pins
+the Python numbers, and the calculator's results should be sanity-checked
+against the Cantor alloy values listed in `../README.md` after any
+non-cosmetic change.
