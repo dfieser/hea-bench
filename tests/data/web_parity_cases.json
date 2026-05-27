@@ -1,0 +1,43 @@
+[
+  {
+    "name": "cantor_default",
+    "composition": {"Co": 1.0, "Cr": 1.0, "Fe": 1.0, "Mn": 1.0, "Ni": 1.0}
+  },
+  {
+    "name": "cantor_1000k",
+    "composition": {"Co": 1.0, "Cr": 1.0, "Fe": 1.0, "Mn": 1.0, "Ni": 1.0},
+    "king_temperature": 1000.0
+  },
+  {
+    "name": "cocrfeni_default",
+    "composition": {"Co": 1.0, "Cr": 1.0, "Fe": 1.0, "Ni": 1.0}
+  },
+  {
+    "name": "alcocrfeni_default",
+    "composition": {"Al": 1.0, "Co": 1.0, "Cr": 1.0, "Fe": 1.0, "Ni": 1.0}
+  },
+  {
+    "name": "al03_cocrfeni",
+    "composition": {"Al": 0.3, "Co": 1.0, "Cr": 1.0, "Fe": 1.0, "Ni": 1.0}
+  },
+  {
+    "name": "cucomn175nife025",
+    "composition": {"Cu": 1.0, "Co": 1.0, "Mn": 1.75, "Ni": 1.0, "Fe": 0.25}
+  },
+  {
+    "name": "monbtaw",
+    "composition": {"Mo": 1.0, "Nb": 1.0, "Ta": 1.0, "W": 1.0}
+  },
+  {
+    "name": "hfnbtatizr",
+    "composition": {"Hf": 1.0, "Nb": 1.0, "Ta": 1.0, "Ti": 1.0, "Zr": 1.0}
+  },
+  {
+    "name": "alcocrcufeni",
+    "composition": {"Al": 1.0, "Co": 1.0, "Cr": 1.0, "Cu": 1.0, "Fe": 1.0, "Ni": 1.0}
+  },
+  {
+    "name": "cocrcufeni",
+    "composition": {"Co": 1.0, "Cr": 1.0, "Cu": 1.0, "Fe": 1.0, "Ni": 1.0}
+  }
+]
