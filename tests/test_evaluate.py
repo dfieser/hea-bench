@@ -11,11 +11,13 @@ output of the project. Any future drift in:
 will surface as a failing test here.
 """
 
+import json
+
 import pathlib
 
 import pytest
 
-from hea_bench.evaluate import build_report
+from hea_bench.evaluate import build_evaluation_report, build_report, main
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 V010 = REPO_ROOT / "data" / "consolidated" / "v0.1.0" / "consolidated.csv"
@@ -26,6 +28,16 @@ pytestmark = pytest.mark.skipif(not V010.exists(), reason=f"v0.1.0 CSV not at {V
 @pytest.fixture(scope="module")
 def report():
     return build_report(V010)
+
+
+@pytest.fixture(scope="module")
+def evaluation_report_phi():
+    return build_evaluation_report(V010, include_phi=True)
+
+
+@pytest.fixture(scope="module")
+def evaluation_report_single_split_phi():
+    return build_evaluation_report(V010, include_phi=True, holdout_mode="single_split", seed=0)
 
 
 # ---- Top-level loading ----
@@ -119,6 +131,60 @@ def test_yeh_descriptive_fractions(report):
     assert 0.45 < s["fraction_HEA"] < 0.50
     assert 0.35 < s["fraction_MEA"] < 0.40
     assert 0.15 < s["fraction_dilute"] < 0.18
+
+
+def test_build_evaluation_report_adds_heldout_sections(evaluation_report_phi) -> None:
+    assert evaluation_report_phi["holdout_mode"] == "kfold"
+    assert evaluation_report_phi["in_sample"]["n_rows_loaded"] == 7684
+    assert evaluation_report_phi["holdout_strict_consensus_fixed"]["protocol"] == "strict_consensus_kfold"
+    assert evaluation_report_phi["holdout_double_scored_fixed"]["protocol"] == "double_scored_kfold"
+    assert evaluation_report_phi["holdout_strict_consensus_tuned"]["protocol"] == "strict_consensus_kfold_tuned"
+    assert "king_phi_1_0" in evaluation_report_phi["holdout_strict_consensus_fixed"]["rules"]
+    assert "ye_phi_tuned" in evaluation_report_phi["holdout_strict_consensus_tuned"]["rules"]
+
+
+def test_build_evaluation_report_single_split_uses_documented_seed(evaluation_report_single_split_phi) -> None:
+    assert evaluation_report_single_split_phi["holdout_mode"] == "single_split"
+    assert evaluation_report_single_split_phi["seed"] == 0
+    assert evaluation_report_single_split_phi["test_fraction"] == pytest.approx(0.3)
+    assert (
+        evaluation_report_single_split_phi["holdout_strict_consensus_fixed"]["protocol"]
+        == "strict_consensus_single_split"
+    )
+    assert (
+        evaluation_report_single_split_phi["holdout_double_scored_fixed"]["protocol"]
+        == "double_scored_single_split"
+    )
+    assert (
+        evaluation_report_single_split_phi["holdout_strict_consensus_tuned"]["protocol"]
+        == "strict_consensus_single_split_tuned"
+    )
+
+
+def test_main_default_writes_combined_report(tmp_path: pathlib.Path, capsys: pytest.CaptureFixture[str]) -> None:
+    output = tmp_path / "evaluation-report.json"
+    code = main(["--include-phi", "--single-split", "--output", str(output)])
+    captured = capsys.readouterr()
+
+    assert code == 0
+    assert "Held-out strict-consensus fixed thresholds" in captured.out
+    data = json.loads(output.read_text(encoding="utf-8"))
+    assert "in_sample" in data
+    assert "holdout_strict_consensus_fixed" in data
+    assert "holdout_double_scored_fixed" in data
+    assert "holdout_strict_consensus_tuned" in data
+
+
+def test_main_in_sample_only_preserves_legacy_shape(tmp_path: pathlib.Path, capsys: pytest.CaptureFixture[str]) -> None:
+    output = tmp_path / "rule-baselines.json"
+    code = main(["--in-sample-only", "--output", str(output)])
+    captured = capsys.readouterr()
+
+    assert code == 0
+    assert "Held-out strict-consensus fixed thresholds" not in captured.out
+    data = json.loads(output.read_text(encoding="utf-8"))
+    assert "rules" in data
+    assert "in_sample" not in data
 
 
 def _zhang_roc_points():

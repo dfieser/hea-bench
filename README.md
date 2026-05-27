@@ -5,7 +5,7 @@ An open, reproducible benchmark suite and reference baselines for
 
 [![DOI](https://zenodo.org/badge/1246292321.svg)](https://doi.org/10.5281/zenodo.20346287)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-![tests: 157](https://img.shields.io/badge/tests-157%20passing-success)
+![tests: 216](https://img.shields.io/badge/tests-216%20passing-success)
 ![coverage: 86.7%](https://img.shields.io/badge/v0.1.0%20coverage-86.7%25-success)
 
 ## TL;DR
@@ -15,14 +15,15 @@ An open, reproducible benchmark suite and reference baselines for
   primary sources (Borg 2020, Pei 2020, Peivaste 2023) with
   per-row source provenance.
 - **Reference baseline implementations** of the four canonical
-  empirical phase-prediction rules (Yeh ΔS<sub>mix</sub>, Zhang δ,
-  Guo-Liu VEC, Yang-Zhang Ω), wrapped as proper diagnostic
-  classifiers with sensitivity / specificity / Wilson 95% CIs.
+  v0.1.0 empirical rules plus the v1.1 phi-family thermodynamic
+  extension (`S_E`, `DeltaG_ss`, `DeltaG_max`, King `Phi`, Ye `phi`),
+  all exposed as test-guarded descriptor and rule APIs.
 - **A clean, dependency-free Python API** (`pip install hea-bench`)
   *and* a self-contained HTML calculator that runs entirely
-  client-side, computes all six descriptors plus the Miedema
-  decompositions, and applies the four phase-prediction rules to the
-  entered composition — open by URL or just double-click the file.
+  client-side, computes the full v1.1 browser descriptor set plus the
+  Miedema decompositions, and applies all six shipped rule outputs to
+  the entered composition. The browser core is parity-tested against
+  Python on canonical alloys.
 
 > **Using an AI coding agent to integrate this?** See
 > [AGENTS.md](./AGENTS.md) for a machine-oriented guide to the API,
@@ -75,12 +76,16 @@ hea_bench.delta(cantor)              # 3.164 % atomic-size mismatch
 hea_bench.vec(cantor)                # 8.0 valence electrons
 hea_bench.mixing_enthalpy(cantor)    # -4.16 kJ/mol  (Miedema)
 hea_bench.omega(cantor)              # 5.79  (Yang-Zhang)
+hea_bench.phi_king(cantor)           # 22.08 (King 2016 proxy)
+hea_bench.phi_ye(cantor)             # 34.82 (Ye 2015 proxy)
 
 # Apply the canonical rules
-from hea_bench.rules import zhang_delta, yang_omega, guo_vec
+from hea_bench.rules import guo_vec, king_phi, yang_omega, ye_phi, zhang_delta
 zhang_delta.predict(cantor)          # 'single-phase'
 yang_omega.predict(cantor)           # 'single-phase'
 guo_vec.predict(cantor)              # 'FCC'
+king_phi.predict(cantor)             # 'solid_solution'
+ye_phi.predict(cantor)               # 'solid_solution'
 
 # Run the full rule benchmark against the consolidated v0.1.0 dataset
 from hea_bench.evaluate import build_report
@@ -88,18 +93,27 @@ report = build_report()
 print(report["rules"]["zhang_delta_6_5"]["accuracy"])  # 0.5670
 ```
 
+Need the exact HTML calculator `Hmix` / `Omega` path from Python?
+Use `hea_bench.browser_mixing_enthalpy(...)` and
+`hea_bench.browser_omega(...)`. The benchmark-default
+`mixing_enthalpy(...)` / `omega(...)` APIs remain the pair-table
+definitions used by the pinned evaluation artifacts.
+
 ## Quick start (CLI)
 
 ```bash
 hea-bench --version
-python -m hea_bench.evaluate           # run all 4 rules on v0.1.0
+python -m hea_bench.evaluate           # in-sample + held-out summary on v0.1.0
+python -m hea_bench.evaluate --include-phi  # add King/Ye phi rules to the report
+python -m hea_bench.evaluate --single-split  # quick 70/30 held-out reproduction (seed 0)
+python -m hea_bench.evaluate --in-sample-only --include-phi  # legacy v1.1 in-sample artifact
 python -m hea_bench.benchmark.coverage # coverage analysis on v0.1.0
 ```
 
 ## Quick start (browser, no install)
 
-A self-contained HTML calculator computes the descriptors, applies
-the four phase-prediction rules, and runs the Miedema decompositions
+A self-contained HTML calculator computes the v1.1 browser descriptors,
+applies all six shipped rules, and runs the Miedema decompositions
 entirely client-side. Two equivalent paths:
 
 - Open the hosted page: **https://dfieser.github.io/hea-bench/**
@@ -107,9 +121,14 @@ entirely client-side. Two equivalent paths:
   install, no terminal, no server.
 
 The page reports each rule's verdict (Yeh HEA/MEA/dilute, Zhang
-single/multi, Guo–Liu FCC/BCC/mixed, Yang–Zhang single/multi)
-alongside the computed descriptor values. Logic matches the Python
-library, including the six-decimal VEC-boundary rounding.
+single/multi, Guo–Liu FCC/BCC/mixed, Yang–Zhang single/multi,
+King `Phi` solid-solution/intermetallic, Ye `phi`
+solid-solution/intermetallic) alongside the computed descriptor values.
+The parity-critical math lives in `web/hea-calculator-core.js` and is
+regression-checked against Python by `tests/test_web_parity.py`.
+The calculator's displayed `Hmix` / `Omega` path is also exposed from
+Python as `hea_bench.browser_mixing_enthalpy(...)` and
+`hea_bench.browser_omega(...)`.
 
 ## Architecture
 
@@ -139,13 +158,14 @@ library, including the six-decimal VEC-boundary rounding.
                               │  - evaluate.py                │
                               └──────────────┬────────────────┘
                                              │
-                                             │ independent
-                                             │ implementation
+                                             │ parity-tested
+                                             │ shared formulas
                                              ▼
                               ┌──────────────────────────────┐
                               │  web/   (standalone HTML +   │
-                              │          JavaScript)         │
+                              │          shared JS core)     │
                               │  - index.html                │
+                              │  - hea-calculator-core.js    │
                               │  - mathjax/   (vendored)     │
                               └──────────────────────────────┘
 ```
@@ -216,13 +236,13 @@ hea-bench/
 ├── src/hea_bench/
 │   ├── benchmark/       loaders, consolidator, coverage analysis
 │   ├── descriptors/     ΔS_mix, δ, VEC, T_m, ΔH_mix, Ω + data tables
-│   ├── rules/           four canonical empirical rules as classifiers
+│   ├── rules/           canonical rules + v1.1 King/Ye phi rules
 │   ├── classifiers/     diagnostic-stats machinery
 │   ├── composition.py   formula parser, normalizer
 │   ├── constants.py     R = 8.314
 │   ├── evaluate.py      orchestrator: rules vs benchmark → headline stats
 │   └── cli.py           command-line entry point
-├── tests/               157 tests, all passing
+├── tests/               216 tests, all passing
 ├── web/                 self-contained HTML calculator (pure JS, no server)
 └── pyproject.toml
 ```

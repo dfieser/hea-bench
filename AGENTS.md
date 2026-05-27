@@ -12,9 +12,10 @@ code.
 `hea-bench` does two separate things:
 
 1. **Descriptors + rules** — pure functions that compute the six
-   canonical high-entropy-alloy (HEA) phase descriptors for a
-   composition, and the four canonical empirical phase-prediction
-   rules wrapped as classifiers.
+  v0.1.0 canonical high-entropy-alloy (HEA) phase descriptors plus
+  the v1.1 thermodynamic extension (`S_E`, `DeltaG_ss`, `DeltaG_max`,
+  King `Phi`, Ye `phi`) for a composition, and the corresponding
+  empirical phase-prediction rules wrapped as classifiers.
 2. **A benchmark** — a versioned, deduplicated dataset of 7,784
    experimentally characterized compositions with per-row provenance,
    plus the machinery to score any rule or model against it with
@@ -58,6 +59,11 @@ return a float.
 | `hb.melting_temperature(comp)` | average melting point | K | rule-of-mixtures |
 | `hb.mixing_enthalpy(comp)` | Miedema mixing enthalpy | **kJ/mol** | semi-empirical estimate |
 | `hb.omega(comp)` | Yang-Zhang Ω | dimensionless | `Tm·ΔS / |ΔH|` |
+| `hb.s_excess(comp)` | Mansoori excess entropy | J/(mol·K) | Ye 2015 packing/size term |
+| `hb.delta_g_ss(comp, temperature=None)` | solid-solution Gibbs proxy | kJ/mol | defaults to `T = Tm` |
+| `hb.delta_g_max(comp)` | most-stable binary-subsystem proxy | kJ/mol | min over `4 cᵢ cⱼ ΔHᵢⱼ` |
+| `hb.phi_king(comp, temperature=None)` | King capital `Phi` | dimensionless | defaults to `T = Tm` |
+| `hb.phi_ye(comp)` | Ye lowercase `phi` | dimensionless | uses `s_excess(comp)` |
 
 ```python
 cantor = {"Co": 0.2, "Cr": 0.2, "Fe": 0.2, "Mn": 0.2, "Ni": 0.2}
@@ -67,9 +73,14 @@ hb.vec(cantor)               # 8.0
 hb.melting_temperature(cantor)  # 1801.2 (K)
 hb.mixing_enthalpy(cantor)   # -4.16   (kJ/mol)
 hb.omega(cantor)             # 5.794
+hb.s_excess(cantor)          # 0.318   (J/(mol·K))
+hb.delta_g_ss(cantor)        # -28.262 (kJ/mol)
+hb.delta_g_max(cantor)       # -1.280  (kJ/mol)
+hb.phi_king(cantor)          # 22.079
+hb.phi_ye(cantor)            # 34.822
 ```
 
-These six values for the Cantor alloy are pinned in the regression
+These values for the Cantor alloy are pinned in the regression
 suite; treat them as the canonical sanity check.
 
 ## Parsing formula strings
@@ -87,7 +98,7 @@ hb.smix(comp)                           # descriptors accept it directly
 ## Rules (classifiers)
 
 ```python
-from hea_bench.rules import yeh_smix, zhang_delta, guo_vec, yang_omega
+from hea_bench.rules import guo_vec, king_phi, yang_omega, ye_phi, yeh_smix, zhang_delta
 ```
 
 Each module exposes `predict(composition, ...)`, a `DESCRIPTION`
@@ -100,11 +111,15 @@ values are strings:
 | Zhang δ | `zhang_delta.predict(comp, threshold=6.5)` | `"single-phase"` / `"multi-phase"` | percent, default 6.5 |
 | Yang Ω | `yang_omega.predict(comp, threshold=1.1)` | `"single-phase"` / `"multi-phase"` | default 1.1 |
 | Guo-Liu VEC | `guo_vec.predict(comp)` | `"FCC"` / `"BCC"` / `"mixed"` | fixed bounds 8.0 / 6.87 |
+| King `Phi` | `king_phi.predict(comp, temperature_policy=None, threshold=1.0)` | `"solid_solution"` / `"intermetallic"` | defaults to `T = Tm` |
+| Ye `phi` | `ye_phi.predict(comp, threshold=20.0)` | `"solid_solution"` / `"intermetallic"` | default 20.0 |
 
 ```python
 zhang_delta.predict(cantor)   # 'single-phase'
 guo_vec.predict(cantor)       # 'FCC'
 yeh_smix.predict(cantor)      # 'HEA'
+king_phi.predict(cantor)      # 'solid_solution'
+ye_phi.predict(cantor)        # 'solid_solution'
 ```
 
 **Important:** these rules are weak classifiers. On the consolidated
@@ -153,7 +168,8 @@ rather than hard-coding it.
 
 ```bash
 hea-bench --version
-python -m hea_bench.evaluate            # all four rules vs v0.1.0 benchmark
+python -m hea_bench.evaluate            # fixed-threshold + held-out reports on v0.1.0 rules
+python -m hea_bench.evaluate --include-phi  # add the v1.1 phi rules to those reports
 python -m hea_bench.benchmark.coverage  # element-coverage analysis
 ```
 
@@ -200,6 +216,6 @@ fully evaluable.
 ## Verifying your integration
 
 After wiring this in, confirm the Cantor sanity values
-(`smix=13.381`, `delta=3.164`, `vec=8.0`, `omega=5.794`) and run the
-test suite (`python -m pytest -q`, 155 tests). If those match, your
+(`smix=13.381`, `delta=3.164`, `vec=8.0`, `omega=5.794`, `phi_king=22.079`, `phi_ye=34.822`) and run the
+test suite (`python -m pytest -q`, 216 tests). If those match, your
 environment is using the canonical implementation correctly.
