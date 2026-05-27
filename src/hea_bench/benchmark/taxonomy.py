@@ -84,3 +84,35 @@ PEIVASTE_MAP: dict[str, PhaseClass] = {
     "BCC+AM":      PhaseClass.MULTI,
     "BCC+FCC+AM":  PhaseClass.MULTI,
 }
+
+# Set of canonical labels that count as single-phase / solid solution
+# under the v1.1 evaluator. The three crystalline single-phase classes
+# all collapse to "single-phase" for the four binary textbook rules and
+# to "solid_solution" for the two phi-family rules; "multi-phase"
+# becomes the negative class in both vocabularies.
+SINGLE_PHASE_CLASSES = frozenset({"BCC", "FCC", "HCP"})
+
+
+def binary_observed(canonical_phase: str) -> str | None:
+    """Project a canonical 4-class label to the textbook binary vocabulary.
+
+    Returns ``"single-phase"`` for BCC/FCC/HCP, ``"multi-phase"`` for
+    ``multi-phase``, and ``None`` for an empty / conflict label so the
+    caller can skip the row.
+    """
+    if not canonical_phase:
+        return None
+    return "single-phase" if canonical_phase in SINGLE_PHASE_CLASSES else "multi-phase"
+
+
+def phi_observed(canonical_phase: str) -> str | None:
+    """Project a canonical 4-class label to the phi-family binary vocabulary.
+
+    The two phi-family rules (``king_phi``, ``ye_phi``) emit
+    ``solid_solution`` or ``intermetallic`` natively. When scored against
+    the consolidated benchmark, ``multi-phase`` rows act as the negative
+    (intermetallic) class. Returns ``None`` for an empty / conflict label.
+    """
+    if not canonical_phase:
+        return None
+    return "solid_solution" if canonical_phase in SINGLE_PHASE_CLASSES else "intermetallic"

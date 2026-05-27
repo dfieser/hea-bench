@@ -16,6 +16,8 @@ from collections import defaultdict
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 
+from ..benchmark.taxonomy import binary_observed as _binary_observed
+from ..benchmark.taxonomy import phi_observed as _phi_observed
 from ..classifiers.diagnostic_stats import BinaryStats, evaluate_binary, wilson_ci
 from ..composition import parse_formula
 from ..descriptors.data.elemental import covered_elements as _elemental_covered
@@ -24,7 +26,6 @@ from ..rules import king_phi, yang_omega, ye_phi, zhang_delta
 
 _REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 _DEFAULT_CSV = _REPO_ROOT / "data" / "consolidated" / "v0.1.0" / "consolidated.csv"
-_SINGLE_PHASE_CLASSES = frozenset({"BCC", "FCC", "HCP"})
 _SOURCE_LABEL_COLUMNS = ("borg_label", "pei_label", "peivaste_label")
 _ZHANG_THRESHOLD_GRID = tuple(value / 10.0 for value in range(10, 121))
 _YANG_THRESHOLD_GRID = tuple(value / 20.0 for value in range(1, 301))
@@ -289,18 +290,6 @@ def load_holdout_rows(csv_path: pathlib.Path = _DEFAULT_CSV) -> list[dict]:
             item["_composition"] = comp
             out.append(item)
     return out
-
-
-def _binary_observed(canonical_phase: str) -> str | None:
-    if not canonical_phase:
-        return None
-    return "single-phase" if canonical_phase in _SINGLE_PHASE_CLASSES else "multi-phase"
-
-
-def _phi_observed(canonical_phase: str) -> str | None:
-    if not canonical_phase:
-        return None
-    return "solid_solution" if canonical_phase in _SINGLE_PHASE_CLASSES else "intermetallic"
 
 
 def _source_observed_label_set(

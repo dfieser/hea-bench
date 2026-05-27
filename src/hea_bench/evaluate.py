@@ -39,6 +39,8 @@ import sys
 from collections import Counter
 from collections.abc import Iterable
 
+from .benchmark.taxonomy import binary_observed as _binary_observed
+from .benchmark.taxonomy import phi_observed as _phi_observed
 from .classifiers.diagnostic_stats import BinaryStats, evaluate_binary
 from .composition import parse_formula
 from .descriptors.data.elemental import covered_elements as _elemental_covered
@@ -62,31 +64,6 @@ _DEFAULT_EVALUATION_V11_JSON = _DEFAULT_CSV.parent / "evaluation_report_v1.1.jso
 _DEFAULT_HOLDOUT_MODE = "kfold"
 _DEFAULT_HOLDOUT_SEED = 0
 _DEFAULT_SINGLE_SPLIT_TEST_FRACTION = 0.3
-
-# Ground-truth mapping from canonical 4-class taxonomy to binary
-# {single-phase, multi-phase} for the δ and Ω rules.
-_SINGLE_PHASE_CLASSES = frozenset({"BCC", "FCC", "HCP"})
-
-
-def _binary_observed(canonical_phase: str) -> str | None:
-    """Map canonical 4-class label to binary single/multi. Returns
-    ``None`` for conflict rows (canonical_phase blank)."""
-    if not canonical_phase:
-        return None
-    return "single-phase" if canonical_phase in _SINGLE_PHASE_CLASSES else "multi-phase"
-
-
-def _phi_observed(canonical_phase: str) -> str | None:
-    """Map canonical 4-class labels to the phi-rule vocabulary.
-
-    The phi rules natively emit ``solid_solution`` or ``intermetallic``.
-    When evaluated on the current coarse benchmark, ``multi-phase`` rows
-    act as the negative class.
-    """
-    if not canonical_phase:
-        return None
-    return "solid_solution" if canonical_phase in _SINGLE_PHASE_CLASSES else "intermetallic"
-
 
 def _load_benchmark(csv_path: pathlib.Path) -> list[dict]:
     """Load each consolidated row and parse its composition. Drops
