@@ -38,6 +38,11 @@ are preserved so downstream consumers can resolve however they want.
   14 columns. See "CSV schema" below.
 - ``manifest.json`` — machine-readable provenance: source row counts,
   upstream SHA-256s, consolidation rules, totals.
+- ``rule_baselines.json`` — the frozen v0.1.0 four-rule in-sample
+  baseline artifact.
+- ``rule_baselines_v1.1.json`` — the extended in-sample baseline on the
+  same v0.1.0 benchmark, adding King Φ and Ye φ. Regenerate with
+  ``python -m hea_bench.evaluate --in-sample-only --include-phi``.
 
 ## CSV schema
 
