@@ -12,10 +12,12 @@ Quick start::
 """
 
 from .composition import Composition, normalize, parse_formula
+from .descriptors.browser_compat import browser_mixing_enthalpy, browser_omega
 from .descriptors.entropy import smix
 from .descriptors.melting import melting_temperature
 from .descriptors.miedema import mixing_enthalpy
 from .descriptors.omega import omega
+from .descriptors.phi import delta_g_max, delta_g_ss, delta_h_ss, phi_king, phi_ye, s_excess
 from .descriptors.size import delta
 from .descriptors.vec import vec
 
@@ -33,5 +35,13 @@ __all__ = [
     "vec",
     "melting_temperature",
     "mixing_enthalpy",
+    "browser_mixing_enthalpy",
     "omega",
+    "browser_omega",
+    "delta_h_ss",
+    "delta_g_ss",
+    "delta_g_max",
+    "s_excess",
+    "phi_king",
+    "phi_ye",
 ]
