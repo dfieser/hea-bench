@@ -5,8 +5,8 @@ An open, reproducible benchmark suite and reference baselines for
 
 [![DOI](https://zenodo.org/badge/1246292321.svg)](https://doi.org/10.5281/zenodo.20346287)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-![tests: 234](https://img.shields.io/badge/tests-234%20passing-success)
-![coverage: 86.7%](https://img.shields.io/badge/v0.1.0%20coverage-86.7%25-success)
+![tests: 236](https://img.shields.io/badge/tests-236%20passing-success)
+![coverage: 90.2%](https://img.shields.io/badge/v0.1.0%20coverage-90.2%25-success)
 
 ## TL;DR
 
@@ -39,8 +39,8 @@ a test failure.**
 
 | Rule | n_eval | Accuracy | Sens (single-phase) | Spec (multi-phase) | Youden's J |
 |---|---:|---:|---:|---:|---:|
-| **Zhang δ < 6.5%** | 6,651 | 56.7% | **99.0%** | **8.5%** | 0.075 |
-| **Yang Ω > 1.1**   | 6,651 | 54.4% | 95.8% | 7.4% | 0.032 |
+| **Zhang δ < 6.5%** | 6,922 | 57.1% | **98.9%** | **10.5%** | 0.094 |
+| **Yang Ω > 1.1**   | 6,922 | 54.2% | 95.0% | 8.6% | 0.036 |
 
 The Guo–Liu VEC rule predicts crystal structure rather than
 single-vs-multi, so it's evaluated stratified to single-phase
@@ -48,7 +48,7 @@ observations (BCC|FCC only):
 
 | Rule | n_eval | Accuracy | FCC sensitivity | BCC sensitivity |
 |---|---:|---:|---:|---:|
-| **Guo–Liu VEC** (FCC if VEC ≥ 8.0, BCC if VEC < 6.87) | 3,463 | 66.9% | 92.4% | **48.3%** |
+| **Guo–Liu VEC** (FCC if VEC ≥ 8.0, BCC if VEC < 6.87) | 3,556 | 67.4% | 91.9% | **49.1%** |
 
 Yeh ΔS<sub>mix</sub> is descriptive (no phase-prediction claim
 attached) — 47% of the consolidated benchmark passes the 1.5R
@@ -56,7 +56,7 @@ HEA-class threshold, 37% sits in the MEA bin, 16% is dilute.
 
 **The publishable observation:** on a consolidated benchmark drawn
 from three independent open sources, both binary rules collapse to
-"predict single-phase almost always" (Youden's J ~ 0.03–0.08), and
+"predict single-phase almost always" (Youden's J ~ 0.04–0.09), and
 the VEC rule misses about half of observed BCC alloys despite
 catching 92% of FCC alloys. The canonical rules generalize poorly.
 
@@ -92,7 +92,7 @@ ye_phi.predict(cantor)               # 'solid_solution'
 # Run the full rule benchmark against the consolidated v0.1.0 dataset
 from hea_bench.evaluate import build_report, build_evaluation_report
 report = build_report()
-print(report["rules"]["zhang_delta_6_5"]["accuracy"])  # 0.5670
+print(report["rules"]["zhang_delta_6_5"]["accuracy"])  # 0.5711
 
 # Held-out 5-fold cross-validation (v1.1) — every rule under
 # stratified phase x source folds with optional per-fold threshold
@@ -107,7 +107,7 @@ heldout["holdout_strict_consensus_tuned"]["rules"]["zhang_delta_tuned"]["youden_
 # were actually designed to make.
 from hea_bench.evaluate import build_intermetallic_subbench_report
 sub = build_intermetallic_subbench_report()
-sub["in_sample"]["ye_phi_20_0"]["youden_j"]  # 0.172 (vs -0.031 on the coarse main benchmark)
+sub["in_sample"]["ye_phi_20_0"]["youden_j"]  # 0.191 (vs -0.012 on the coarse main benchmark)
 ```
 
 Need the exact HTML calculator `Hmix` / `Omega` path from Python?
@@ -215,14 +215,15 @@ SHA-256s.
 
 ## What's covered
 
-- **86.7%** of the 7,784 compositions are scorable by every descriptor
-  (δ, VEC, T_m, ΔS_mix, ΔH_mix, Ω) with the current 24-element
+- **90.2%** of the 7,784 compositions are scorable by every descriptor
+  (δ, VEC, T_m, ΔS_mix, ΔH_mix, Ω) with the current 30-element
   `ELEMENTAL_DATA` table
 - **99.6%** are scorable for Miedema-based descriptors only
   (the vendored matminer pair table covers 75 elements)
-- Top elements whose addition would lift coverage to ~95%: Mg, C, Zn,
-  B, Sn, Re (all already in the matminer pair table — pending v0.2.0
-  data release)
+- Remaining uncovered alloys are dominated by C, B, Be, Ca, Sc, La;
+  carbon and boron are deliberately held out (no metallic radius, and
+  no 1-atm melting point for carbon), so further coverage gains come
+  from the metals among the rest
 
 Re-run the coverage analysis on your own version of the dataset with:
 
@@ -259,7 +260,7 @@ hea-bench/
 │   ├── constants.py     R = 8.314
 │   ├── evaluate.py      orchestrator: rules vs benchmark → headline stats
 │   └── cli.py           command-line entry point
-├── tests/               234 tests, all passing
+├── tests/               236 tests, all passing
 ├── web/                 self-contained HTML calculator (pure JS, no server)
 └── pyproject.toml
 ```

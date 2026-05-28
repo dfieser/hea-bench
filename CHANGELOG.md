@@ -11,9 +11,47 @@ library gains features that do not change the underlying dataset.
 The format is loosely based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased] — v1.1
+## [Unreleased] — v1.2.0
 
-`v1.1-phi` branch, scheduled to merge into `main` and tag as `v1.1.0`.
+`v1.2-coverage` branch, stacked on `v1.1-phi`. Targets tag `v1.2.0`.
+
+### Changed
+
+- **Elemental coverage expanded 24 → 30 elements.** Added Mg, Zn, Sn,
+  Re, Au, Li to `ELEMENTAL_DATA` with cross-verified Goldschmidt
+  12-coordinate metallic radii, CRC melting points, and s+d /
+  group-number valences. Scorable coverage of the consolidated
+  benchmark rose from 86.7% (6,750 alloys) to 90.2% (7,021 alloys);
+  the binary scored set grew 6,651 → 6,922. The consolidated CSV is
+  unchanged — only `coverage_report.json`, `rule_baselines.json`, and
+  `rule_baselines_v1.1.json` were regenerated.
+- **Boron and carbon deliberately excluded.** Boron is a metalloid
+  with no metallic radius; carbon has no 1-atm melting point (it
+  sublimes) and no metallic radius. Adding either would mix radius
+  conventions in the δ calculation and, for carbon, require inventing
+  a rule-of-mixtures melting temperature. Even adding both would only
+  reach ~91.5% coverage.
+- **All headline numbers re-pinned** to the 30-element table: Zhang δ
+  accuracy 57.1% (Youden's J 0.094), Yang Ω 54.2% (J 0.036), Guo–Liu
+  VEC 67.4% on 3,556 single-phase alloys, King Φ 48.9%, Ye φ 49.1%.
+  Held-out CV and sub-benchmark numbers re-pinned to match. The
+  qualitative findings are unchanged.
+- **Intermetallic sub-benchmark strengthened**: Ye φ Youden's J rose
+  to +0.19 (from +0.17) on the wider scorable set (5,685 scorable, up
+  from 5,481).
+- Package `__version__` → `1.2.0`.
+
+### Added
+
+- Per-element pinned-value tests for the six v1.2 additions
+  (`test_table_has_30_elements`, `test_v12_additions_present_bc_absent`,
+  `test_v12_added_element_values_pinned`). Test count 234 → 236, ruff
+  clean.
+
+## [1.1.0] — phi family (unreleased)
+
+`v1.1-phi` branch, the phi-family + held-out increment that v1.2.0
+builds on.
 
 ### Added
 

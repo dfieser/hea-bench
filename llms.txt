@@ -11,7 +11,7 @@
 Use it to (1) compute HEA descriptors as features for downstream
 models, (2) screen candidate alloys with the published empirical
 rules, or (3) score a new phase-prediction method against a fixed
-shared reference. Currently shipping version 1.1.0 under MIT.
+shared reference. Currently shipping version 1.2.0 under MIT.
 
 ## For AI agents reading this first
 
@@ -96,10 +96,10 @@ is regression-checked against the JS implementation in CI.
 ## Citing
 
 ```bibtex
-@software{hea_bench_1_1_0,
+@software{hea_bench_1_2_0,
   author  = {Fieser, David and Hu, Anming},
   title   = {hea-bench: An open benchmark suite and reference baselines for high-entropy alloy phase prediction},
-  version = {1.1.0},
+  version = {1.2.0},
   license = {MIT},
   url     = {https://github.com/dfieser/hea-bench},
 }
