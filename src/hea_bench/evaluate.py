@@ -40,6 +40,9 @@ from collections import Counter
 from collections.abc import Iterable
 
 from .benchmark.taxonomy import binary_observed as _binary_observed
+from .benchmark.taxonomy import (
+    peivaste_intermetallic_label as _peivaste_intermetallic_label,
+)
 from .benchmark.taxonomy import phi_observed as _phi_observed
 from .classifiers.diagnostic_stats import BinaryStats, evaluate_binary
 from .composition import parse_formula
@@ -52,6 +55,14 @@ from .evaluation import (
     build_double_scored_binary_single_split_report,
     build_tuned_binary_holdout_report,
     build_tuned_binary_single_split_report,
+)
+from .evaluation.holdout import (
+    binary_summary_to_dict,
+    evaluate_king_phi_intermetallic_holdout,
+    evaluate_king_phi_intermetallic_holdout_tuned,
+    evaluate_ye_phi_intermetallic_holdout,
+    evaluate_ye_phi_intermetallic_holdout_tuned,
+    tuned_binary_summary_to_dict,
 )
 from .rules import guo_vec, king_phi, yang_omega, ye_phi, yeh_smix, zhang_delta
 
@@ -147,6 +158,126 @@ def evaluate_ye_phi(
         preds.append(ye_phi.predict(comp, threshold=threshold))
         obs.append(_phi_observed(r["canonical_phase"]))
     return evaluate_binary(preds, obs, positive_label="solid_solution")
+
+
+def _load_intermetallic_subbench(csv_path: pathlib.Path) -> list[dict]:
+    """Load the intermetallic-aware sub-benchmark.
+
+    Returns the subset of consolidated rows that carry a Peivaste 12-class
+    label projecting unambiguously to either ``solid_solution`` (BCC, FCC,
+    HCP, BCC+FCC) or ``intermetallic`` (IM, FCC+IM, BCC+IM, BCC+FCC+IM).
+    Amorphous-containing labels and any other Peivaste row that does not
+    project are dropped. Conflict rows in the main benchmark are still
+    included if their Peivaste label is usable, because the sub-benchmark
+    uses the Peivaste label directly as ground truth rather than the
+    cross-source consensus.
+
+    The loader overwrites ``canonical_phase`` on each returned row with
+    the projected sub-benchmark ground truth so that the existing
+    stratified k-fold split primitives (which stratify by phase x source)
+    balance the folds against the sub-benchmark's binary outcome rather
+    than the main benchmark's four-class taxonomy.
+    """
+    out: list[dict] = []
+    with csv_path.open(newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            observed = _peivaste_intermetallic_label(row.get("peivaste_raw_label", ""))
+            if observed is None:
+                continue
+            try:
+                comp = parse_formula(row["composition_key"])
+            except (KeyError, ValueError):
+                continue
+            row["_composition"] = comp
+            row["_intermetallic_observed"] = observed
+            row["canonical_phase"] = observed
+            out.append(row)
+    return out
+
+
+def evaluate_king_phi_intermetallic(
+    rows: list[dict],
+    threshold: float = king_phi.DEFAULT_THRESHOLD,
+    temperature_policy: float | None = None,
+) -> BinaryStats:
+    """Score King Phi against Peivaste's intermetallic-aware ground truth."""
+    needed = _elemental_covered() & _pair_covered()
+    preds: list[str] = []
+    obs: list[str] = []
+    for r in rows:
+        comp = r["_composition"]
+        if not set(comp).issubset(needed):
+            continue
+        preds.append(
+            king_phi.predict(
+                comp,
+                threshold=threshold,
+                temperature_policy=temperature_policy,
+            )
+        )
+        obs.append(r["_intermetallic_observed"])
+    return evaluate_binary(preds, obs, positive_label="solid_solution")
+
+
+def evaluate_ye_phi_intermetallic(
+    rows: list[dict],
+    threshold: float = ye_phi.DEFAULT_THRESHOLD,
+) -> BinaryStats:
+    """Score Ye phi against Peivaste's intermetallic-aware ground truth."""
+    needed = _elemental_covered() & _pair_covered()
+    preds: list[str] = []
+    obs: list[str] = []
+    for r in rows:
+        comp = r["_composition"]
+        if not set(comp).issubset(needed):
+            continue
+        preds.append(ye_phi.predict(comp, threshold=threshold))
+        obs.append(r["_intermetallic_observed"])
+    return evaluate_binary(preds, obs, positive_label="solid_solution")
+
+
+def build_intermetallic_subbench_report(csv_path: pathlib.Path = _DEFAULT_CSV) -> dict:
+    """Build the intermetallic-aware sub-benchmark report for the phi rules.
+
+    Returns three views of the same Peivaste-only solid_solution vs
+    intermetallic comparison:
+    - in_sample: phi rules at their published thresholds on the full
+      sub-benchmark
+    - holdout_fixed: stratified 5-fold cross-validation with the
+      published thresholds, balanced by Peivaste's SS / IM label and
+      by source signature
+    - holdout_tuned: same folds but with per-fold tuned thresholds
+      selected by argmax Youden's J on the training folds only
+    """
+    rows = _load_intermetallic_subbench(csv_path)
+    in_sample = {
+        "king_phi_1_0": _binary_stats_to_dict(evaluate_king_phi_intermetallic(rows)),
+        "ye_phi_20_0":  _binary_stats_to_dict(evaluate_ye_phi_intermetallic(rows)),
+    }
+    holdout_fixed = {
+        "king_phi_1_0": binary_summary_to_dict(
+            evaluate_king_phi_intermetallic_holdout(rows)
+        ),
+        "ye_phi_20_0":  binary_summary_to_dict(
+            evaluate_ye_phi_intermetallic_holdout(rows)
+        ),
+    }
+    holdout_tuned = {
+        "king_phi_tuned": tuned_binary_summary_to_dict(
+            evaluate_king_phi_intermetallic_holdout_tuned(rows)
+        ),
+        "ye_phi_tuned": tuned_binary_summary_to_dict(
+            evaluate_ye_phi_intermetallic_holdout_tuned(rows)
+        ),
+    }
+    return {
+        "csv_path": str(csv_path),
+        "n_rows_loaded": len(rows),
+        "ground_truth": "peivaste_intermetallic",
+        "in_sample": in_sample,
+        "holdout_fixed": holdout_fixed,
+        "holdout_tuned": holdout_tuned,
+    }
 
 
 def evaluate_guo_vec_stratified(rows: list[dict]) -> dict:
@@ -297,7 +428,7 @@ def build_evaluation_report(
             seed=seed,
         )
 
-    return {
+    report = {
         "csv_path": str(csv_path),
         "holdout_mode": holdout_mode,
         "seed": seed,
@@ -307,6 +438,9 @@ def build_evaluation_report(
         "holdout_double_scored_fixed": holdout_double_scored,
         "holdout_strict_consensus_tuned": holdout_tuned,
     }
+    if include_phi and holdout_mode == "kfold":
+        report["intermetallic_subbench"] = build_intermetallic_subbench_report(csv_path)
+    return report
 
 
 def _rule_title(rule_key: str) -> str:
@@ -430,6 +564,31 @@ def format_report(report: dict) -> str:
     return "\n".join(out)
 
 
+def _append_intermetallic_subbench_section(out: list[str], report: dict) -> None:
+    """Append the intermetallic-aware sub-benchmark section to the text report."""
+    n = report["n_rows_loaded"]
+    out.append(f"=== Intermetallic-aware sub-benchmark (Peivaste ground truth, n = {n}) ===")
+    for rule_key, stats in report["in_sample"].items():
+        out.append(
+            f"  {_rule_title(rule_key)} in-sample: accuracy = {stats['accuracy']:.1%}"
+            f"  sensitivity = {stats['sensitivity']:.1%}"
+            f"  specificity = {stats['specificity']:.1%}"
+            f"  Youden's J = {stats['youden_j']:.3f}"
+        )
+    for rule_key, summary in report["holdout_fixed"].items():
+        out.append(
+            f"  {_rule_title(rule_key)} held-out (fixed): accuracy = {summary['accuracy_mean']:.1%}"
+            f"  Youden's J = {summary['youden_j_mean']:.3f}"
+        )
+    for rule_key, summary in report["holdout_tuned"].items():
+        out.append(
+            f"  {_rule_title(rule_key)} held-out (tuned): accuracy = {summary['accuracy_mean']:.1%}"
+            f"  Youden's J = {summary['youden_j_mean']:.3f}"
+            f"  threshold mean = {summary['threshold_mean']:.3f}"
+        )
+    out.append("")
+
+
 def format_evaluation_report(report: dict) -> str:
     out = [format_report(report["in_sample"]), ""]
     _append_holdout_binary_section(
@@ -444,6 +603,8 @@ def format_evaluation_report(report: dict) -> str:
         report["holdout_strict_consensus_tuned"],
         tuned=True,
     )
+    if "intermetallic_subbench" in report:
+        _append_intermetallic_subbench_section(out, report["intermetallic_subbench"])
     return "\n".join(out).rstrip()
 
 

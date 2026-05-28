@@ -116,3 +116,40 @@ def phi_observed(canonical_phase: str) -> str | None:
     if not canonical_phase:
         return None
     return "solid_solution" if canonical_phase in SINGLE_PHASE_CLASSES else "intermetallic"
+
+
+# Peivaste 12-class labels that signal explicit intermetallic content.
+# These are the rows on which an intermetallic-aware phi evaluation
+# has direct ground truth: each label names at least one ordered
+# intermetallic phase coexisting in the alloy.
+PEIVASTE_INTERMETALLIC_LABELS = frozenset({"IM", "FCC+IM", "BCC+IM", "BCC+FCC+IM"})
+
+# Peivaste 12-class labels that are unambiguously solid solution
+# (single-phase BCC / FCC / HCP or a two-phase mixture of solid
+# solutions). These are paired with the intermetallic labels above to
+# form the binary ground truth of the intermetallic sub-benchmark.
+PEIVASTE_SOLID_SOLUTION_LABELS = frozenset({"BCC", "FCC", "HCP", "BCC+FCC"})
+
+
+def peivaste_intermetallic_label(peivaste_raw_label: str) -> str | None:
+    """Project a raw Peivaste 12-class label to the intermetallic sub-benchmark.
+
+    The intermetallic sub-benchmark scores the phi-family rules
+    (``king_phi``, ``ye_phi``) against ground truth that explicitly
+    separates intermetallic content from solid-solution-only alloys.
+    Returns ``"solid_solution"`` for BCC/FCC/HCP/BCC+FCC labels,
+    ``"intermetallic"`` for IM-containing labels, and ``None`` for any
+    AM-containing (amorphous) label or an empty label. AM alloys are
+    neither solid solution nor intermetallic in the crystallographic
+    sense and the phi rules do not claim to predict their formation,
+    so they are excluded from this sub-benchmark.
+    """
+    label = (peivaste_raw_label or "").strip()
+    if not label:
+        return None
+    if label in PEIVASTE_SOLID_SOLUTION_LABELS:
+        return "solid_solution"
+    if label in PEIVASTE_INTERMETALLIC_LABELS:
+        return "intermetallic"
+    # AM, FCC+AM, BCC+AM, BCC+FCC+AM and any unknown label
+    return None

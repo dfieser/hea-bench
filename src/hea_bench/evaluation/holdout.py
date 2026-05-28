@@ -887,6 +887,110 @@ def evaluate_ye_phi_holdout(
     )
 
 
+def evaluate_king_phi_intermetallic_holdout(
+    rows: Sequence[Mapping[str, object]],
+    *,
+    threshold: float = king_phi.DEFAULT_THRESHOLD,
+    temperature_policy: float | None = None,
+    k: int = 5,
+    seed: int = 0,
+) -> BinaryCVSummary:
+    """Held-out King Phi on the intermetallic-aware sub-benchmark.
+
+    The rows passed here come from the sub-benchmark loader, which sets
+    ``canonical_phase`` to either ``solid_solution`` or ``intermetallic``
+    so the existing phase x source stratifier balances folds against the
+    sub-benchmark ground truth.
+    """
+    needed = _elemental_covered() & _pair_covered()
+    return evaluate_binary_kfold(
+        rows,
+        predict_row=lambda row: king_phi.predict(
+            row["_composition"],
+            threshold=threshold,
+            temperature_policy=temperature_policy,
+        ),
+        observed_label=lambda row: str(row["_intermetallic_observed"]),
+        row_is_scorable=lambda row: set(row["_composition"]).issubset(needed),
+        positive_label="solid_solution",
+        k=k,
+        seed=seed,
+    )
+
+
+def evaluate_ye_phi_intermetallic_holdout(
+    rows: Sequence[Mapping[str, object]],
+    *,
+    threshold: float = ye_phi.DEFAULT_THRESHOLD,
+    k: int = 5,
+    seed: int = 0,
+) -> BinaryCVSummary:
+    """Held-out Ye phi on the intermetallic-aware sub-benchmark."""
+    needed = _elemental_covered() & _pair_covered()
+    return evaluate_binary_kfold(
+        rows,
+        predict_row=lambda row: ye_phi.predict(row["_composition"], threshold=threshold),
+        observed_label=lambda row: str(row["_intermetallic_observed"]),
+        row_is_scorable=lambda row: set(row["_composition"]).issubset(needed),
+        positive_label="solid_solution",
+        k=k,
+        seed=seed,
+    )
+
+
+def evaluate_king_phi_intermetallic_holdout_tuned(
+    rows: Sequence[Mapping[str, object]],
+    *,
+    thresholds: Sequence[float] = _KING_THRESHOLD_GRID,
+    default_threshold: float = king_phi.DEFAULT_THRESHOLD,
+    temperature_policy: float | None = None,
+    k: int = 5,
+    seed: int = 0,
+) -> TunedBinaryCVSummary:
+    """King Phi held-out on the sub-benchmark with per-fold tuned thresholds."""
+    from ..descriptors.phi import phi_king
+
+    needed = _elemental_covered() & _pair_covered()
+    return evaluate_binary_kfold_tuned(
+        rows,
+        descriptor_row=lambda row: phi_king(row["_composition"], temperature=temperature_policy),
+        predict_from_value=lambda value, threshold: "solid_solution" if value > threshold else "intermetallic",
+        observed_label=lambda row: str(row["_intermetallic_observed"]),
+        row_is_scorable=lambda row: set(row["_composition"]).issubset(needed),
+        positive_label="solid_solution",
+        thresholds=thresholds,
+        default_threshold=default_threshold,
+        k=k,
+        seed=seed,
+    )
+
+
+def evaluate_ye_phi_intermetallic_holdout_tuned(
+    rows: Sequence[Mapping[str, object]],
+    *,
+    thresholds: Sequence[float] = _YE_THRESHOLD_GRID,
+    default_threshold: float = ye_phi.DEFAULT_THRESHOLD,
+    k: int = 5,
+    seed: int = 0,
+) -> TunedBinaryCVSummary:
+    """Ye phi held-out on the sub-benchmark with per-fold tuned thresholds."""
+    from ..descriptors.phi import phi_ye
+
+    needed = _elemental_covered() & _pair_covered()
+    return evaluate_binary_kfold_tuned(
+        rows,
+        descriptor_row=lambda row: phi_ye(row["_composition"]),
+        predict_from_value=lambda value, threshold: "solid_solution" if value > threshold else "intermetallic",
+        observed_label=lambda row: str(row["_intermetallic_observed"]),
+        row_is_scorable=lambda row: set(row["_composition"]).issubset(needed),
+        positive_label="solid_solution",
+        thresholds=thresholds,
+        default_threshold=default_threshold,
+        k=k,
+        seed=seed,
+    )
+
+
 def evaluate_zhang_delta_holdout_tuned(
     rows: Sequence[Mapping[str, object]],
     *,
