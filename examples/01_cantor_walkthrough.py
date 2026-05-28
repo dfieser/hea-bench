@@ -6,9 +6,11 @@
 # (Cantor) alloy. By the end you will have:
 #
 # 1. Parsed a composition formula
-# 2. Computed all six descriptors (ΔS_mix, δ, VEC, T_m, ΔH_mix, Ω)
-# 3. Applied the four canonical phase-prediction rules
-# 4. Compared the predictions to the experimental observation
+# 2. Computed the six v0.1.0 descriptors (ΔS_mix, δ, VEC, T_m, ΔH_mix, Ω)
+# 3. Computed the v1.1 phi-family descriptors (S_E, ΔG_ss, ΔG_max,
+#    King Φ, Ye φ)
+# 4. Applied all six canonical phase-prediction rules
+# 5. Compared the predictions to the experimental observation
 #
 # Cantor is the field's standard reference HEA, so every value below
 # is also pinned in the test suite as ground truth.
@@ -48,7 +50,7 @@ c = hea_bench.parse_formula("Co5Cr5Fe5Mn5Ni5")              # equimolar, any sca
 print("a == b == c:", a == b == c)
 
 # %% [markdown]
-# ## Computing the six descriptors
+# ## Computing the six v0.1.0 descriptors
 
 # %%
 print(f"  Cantor descriptors")
@@ -61,10 +63,30 @@ print(f"  ΔH_mix  =  {hea_bench.mixing_enthalpy(cantor):7.4f}  kJ/mol   Miedema
 print(f"  Ω       =  {hea_bench.omega(cantor):7.4f}     T_m·ΔS_mix / |ΔH_mix|")
 
 # %% [markdown]
-# ## Applying the four canonical phase-prediction rules
+# ## Computing the v1.1 phi-family descriptors
+#
+# v1.1 adds two phase-prediction descriptors that compare different
+# thermodynamic terms. King capital Φ asks whether the disordered
+# solid solution beats the most stable competing binary
+# intermetallic. Ye lowercase φ asks whether the configurational
+# entropy beats the enthalpic-plus-mismatch penalty, where the
+# mismatch term is the Mansoori hard-sphere excess entropy `S_E`.
+
+# %%
+print(f"  Cantor phi-family descriptors")
+print(f"  --------------------------------------------")
+print(f"  S_E       =  {hea_bench.s_excess(cantor):8.4f}  J/(mol·K)  Mansoori excess entropy")
+print(f"  ΔG_ss     =  {hea_bench.delta_g_ss(cantor):8.4f}  kJ/mol     Gibbs energy of disordered SS at T_m")
+print(f"  ΔG_max    =  {hea_bench.delta_g_max(cantor):8.4f}  kJ/mol     most-negative binary pair enthalpy")
+print(f"  Φ (King)  =  {hea_bench.phi_king(cantor):8.4f}              ΔG_ss / -|ΔG_max|")
+print(f"  φ (Ye)    =  {hea_bench.phi_ye(cantor):8.4f}              (ΔS_mix - |ΔH_mix|/T_m) / |S_E|")
+
+# %% [markdown]
+# ## Applying the six canonical phase-prediction rules
 
 # %%
 from hea_bench.rules import yeh_smix, zhang_delta, guo_vec, yang_omega
+from hea_bench.rules import king_phi, ye_phi
 
 print(f"  Cantor — empirical rule predictions")
 print(f"  --------------------------------------------")
@@ -72,19 +94,22 @@ print(f"  Yeh ΔS_mix bin     :  {yeh_smix.predict(cantor)}")
 print(f"  Zhang δ < 6.5%     :  {zhang_delta.predict(cantor)}")
 print(f"  Guo–Liu VEC        :  {guo_vec.predict(cantor)}")
 print(f"  Yang Ω > 1.1       :  {yang_omega.predict(cantor)}")
+print(f"  King Φ > 1.0       :  {king_phi.predict(cantor)}")
+print(f"  Ye φ > 20.0        :  {ye_phi.predict(cantor)}")
 
 # %% [markdown]
 # ## What the rules actually predict
 #
-# All four rules agree: Cantor is **HEA-class, single-phase, FCC**.
-# Experimentally, CoCrFeMnNi is indeed a single-phase FCC solid
-# solution at high temperature — this is the famous original
+# All six rules agree: Cantor is **HEA-class, single-phase, FCC,
+# solid-solution**. Experimentally, CoCrFeMnNi is indeed a single-phase
+# FCC solid solution at high temperature — this is the famous original
 # observation by Cantor *et al.* (2004) and Yeh *et al.* (2004) that
-# launched the field. So all four rules score correctly on this one.
+# launched the field. So all six rules score correctly on this one.
 #
 # That perfect-on-Cantor result is **not** representative of the
 # rules' performance across the full benchmark; example 2 shows the
-# headline numbers (Zhang δ ~ 57% accuracy, Yang Ω ~ 54%, etc.).
+# headline numbers (Zhang δ ~ 57% accuracy, Yang Ω ~ 54%, King Φ and
+# Ye φ slightly below the trivial baseline at their published cutoffs).
 #
 # ## A composition the rules disagree on
 #

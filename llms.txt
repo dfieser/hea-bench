@@ -1,0 +1,106 @@
+# hea-bench
+
+> Open Python library and benchmark suite for high-entropy alloy
+> phase prediction. Computes six thermodynamic descriptors and runs
+> six empirical phase-prediction rules against a consolidated
+> 7,784-composition benchmark merged from three open source
+> datasets, with stratified held-out cross-validation and an
+> intermetallic-aware sub-benchmark.
+
+`hea-bench` is composition-only and dependency-free in its core.
+Use it to (1) compute HEA descriptors as features for downstream
+models, (2) screen candidate alloys with the published empirical
+rules, or (3) score a new phase-prediction method against a fixed
+shared reference. Currently shipping version 1.1.0 under MIT.
+
+## For AI agents reading this first
+
+Read [AGENTS.md](AGENTS.md) for the full machine-oriented API
+guide. It defines the public surface, exact return units, and the
+copy-pasteable jumpstart that verifies your install against the
+canonical Cantor-alloy sanity values.
+
+## Mental model
+
+A composition is a plain `dict` mapping element symbol to amount.
+Amounts do not need to sum to 1; they are normalised internally.
+
+```python
+import hea_bench as hb
+cantor = {"Co": 0.2, "Cr": 0.2, "Fe": 0.2, "Mn": 0.2, "Ni": 0.2}
+hb.smix(cantor)        # 13.381 J/(mol·K)
+hb.phi_king(cantor)    # 3.533  (King 2016 proxy)
+hb.phi_ye(cantor)      # 34.822 (Ye 2015 proxy)
+```
+
+## Descriptors
+
+| Descriptor | Function | Unit |
+|---|---|---|
+| Mixing entropy ΔS_mix | `hb.smix(comp)` | J/(mol·K) |
+| Atomic-size mismatch δ | `hb.delta(comp)` | percent |
+| Valence electron concentration | `hb.vec(comp)` | electrons |
+| Melting temperature T_m | `hb.melting_temperature(comp)` | K |
+| Mixing enthalpy ΔH_mix | `hb.mixing_enthalpy(comp)` | kJ/mol |
+| Yang-Zhang Ω | `hb.omega(comp)` | dimensionless |
+| Mansoori excess entropy S_E | `hb.s_excess(comp)` | J/(mol·K) |
+| Disordered SS Gibbs energy ΔG_ss | `hb.delta_g_ss(comp)` | kJ/mol |
+| Most-negative pair enthalpy ΔG_max | `hb.delta_g_max(comp)` | kJ/mol |
+| King capital Φ | `hb.phi_king(comp)` | dimensionless |
+| Ye lowercase φ | `hb.phi_ye(comp)` | dimensionless |
+
+## Rules
+
+| Rule | Predicts | Default cutoff |
+|---|---|---|
+| `rules.yeh_smix` | HEA / MEA / dilute | descriptive |
+| `rules.zhang_delta` | single-phase / multi-phase | δ < 6.5% |
+| `rules.guo_vec` | FCC / BCC / mixed | VEC ≥ 8.0 / < 6.87 |
+| `rules.yang_omega` | single-phase / multi-phase | Ω > 1.1 |
+| `rules.king_phi` | solid_solution / intermetallic | Φ > 1.0 |
+| `rules.ye_phi` | solid_solution / intermetallic | φ > 20.0 |
+
+## Benchmark + evaluators
+
+| Call | Returns |
+|---|---|
+| `evaluate.build_report(include_phi=True)` | In-sample stats for every rule on the 7,784-alloy benchmark |
+| `evaluate.build_evaluation_report(include_phi=True)` | In-sample + stratified 5-fold CV (fixed + tuned thresholds + double-scored conflict rows) |
+| `evaluate.build_intermetallic_subbench_report()` | Peivaste 12-class projection to solid_solution / intermetallic, with in-sample + held-out fixed + held-out tuned |
+
+## Browser
+
+A self-contained HTML calculator computes the same descriptors and
+rules in client-side JavaScript with no install. Hosted at
+<https://dfieser.github.io/hea-bench/>. The Python implementation
+is regression-checked against the JS implementation in CI.
+
+## Reference papers
+
+- Yeh et al. 2004, *Adv. Eng. Mater.* 6, 299 — ΔS_mix rule.
+- Cantor et al. 2004, *Mater. Sci. Eng. A* 375-377, 213 — Cantor alloy.
+- Zhang et al. 2008, *Adv. Eng. Mater.* 10, 534 — δ rule.
+- Guo & Liu 2011, *Prog. Nat. Sci.* 21, 433 — VEC rule.
+- Yang & Zhang 2012, *Mater. Chem. Phys.* 132, 233 — Ω rule.
+- King et al. 2016, *Acta Mater.* 104, 172 — Φ rule.
+- Ye et al. 2015, *Scripta Mater.* 104, 53 — φ rule.
+- Takeuchi & Inoue 2000, *Mater. Trans. JIM* 41, 1372 — Mansoori excess entropy.
+- Mansoori et al. 1971, *J. Chem. Phys.* 54, 1523 — original hard-sphere derivation.
+
+## Data sources (consolidated)
+
+- Borg et al. 2020, *Sci. Data* 7, 430 — 740 alloys, CC-BY-4.0.
+- Pei et al. 2020, *npj Comput. Mater.* 6, 50 — 1,209 alloys, CC-BY-4.0.
+- Peivaste 2023, *Sci. Rep.* 13, 22556 — 7,057 alloys, no license declared (pointer-only).
+
+## Citing
+
+```bibtex
+@software{hea_bench_1_1_0,
+  author  = {Fieser, David and Hu, Anming},
+  title   = {hea-bench: An open benchmark suite and reference baselines for high-entropy alloy phase prediction},
+  version = {1.1.0},
+  license = {MIT},
+  url     = {https://github.com/dfieser/hea-bench},
+}
+```

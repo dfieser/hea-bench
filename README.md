@@ -5,7 +5,7 @@ An open, reproducible benchmark suite and reference baselines for
 
 [![DOI](https://zenodo.org/badge/1246292321.svg)](https://doi.org/10.5281/zenodo.20346287)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-![tests: 216](https://img.shields.io/badge/tests-216%20passing-success)
+![tests: 234](https://img.shields.io/badge/tests-234%20passing-success)
 ![coverage: 86.7%](https://img.shields.io/badge/v0.1.0%20coverage-86.7%25-success)
 
 ## TL;DR
@@ -76,7 +76,9 @@ hea_bench.delta(cantor)              # 3.164 % atomic-size mismatch
 hea_bench.vec(cantor)                # 8.0 valence electrons
 hea_bench.mixing_enthalpy(cantor)    # -4.16 kJ/mol  (Miedema)
 hea_bench.omega(cantor)              # 5.79  (Yang-Zhang)
-hea_bench.phi_king(cantor)           # 22.08 (King 2016 proxy)
+hea_bench.s_excess(cantor)           # 0.318 J/(mol·K)  (Mansoori excess entropy)
+hea_bench.delta_g_max(cantor)        # -8.00 kJ/mol  (most-negative Miedema pair)
+hea_bench.phi_king(cantor)           # 3.533 (King 2016 proxy)
 hea_bench.phi_ye(cantor)             # 34.82 (Ye 2015 proxy)
 
 # Apply the canonical rules
@@ -88,9 +90,24 @@ king_phi.predict(cantor)             # 'solid_solution'
 ye_phi.predict(cantor)               # 'solid_solution'
 
 # Run the full rule benchmark against the consolidated v0.1.0 dataset
-from hea_bench.evaluate import build_report
+from hea_bench.evaluate import build_report, build_evaluation_report
 report = build_report()
 print(report["rules"]["zhang_delta_6_5"]["accuracy"])  # 0.5670
+
+# Held-out 5-fold cross-validation (v1.1) — every rule under
+# stratified phase x source folds with optional per-fold threshold
+# tuning, so the optimism gap is visible separately from the
+# in-sample sweep.
+heldout = build_evaluation_report(include_phi=True)
+heldout["holdout_strict_consensus_tuned"]["rules"]["zhang_delta_tuned"]["youden_j_mean"]
+
+# Intermetallic-aware sub-benchmark (v1.1) — King Phi and Ye phi
+# scored against Peivaste's 12-class side-channel labels projected
+# to solid_solution vs intermetallic, the distinction the phi rules
+# were actually designed to make.
+from hea_bench.evaluate import build_intermetallic_subbench_report
+sub = build_intermetallic_subbench_report()
+sub["in_sample"]["ye_phi_20_0"]["youden_j"]  # 0.172 (vs -0.031 on the coarse main benchmark)
 ```
 
 Need the exact HTML calculator `Hmix` / `Omega` path from Python?
@@ -242,7 +259,7 @@ hea-bench/
 │   ├── constants.py     R = 8.314
 │   ├── evaluate.py      orchestrator: rules vs benchmark → headline stats
 │   └── cli.py           command-line entry point
-├── tests/               216 tests, all passing
+├── tests/               234 tests, all passing
 ├── web/                 self-contained HTML calculator (pure JS, no server)
 └── pyproject.toml
 ```
