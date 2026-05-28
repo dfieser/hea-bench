@@ -1,15 +1,12 @@
 {
   "csv_path": "D:\\Documents\\Visual studio\\HTMLs\\hea-bench\\data\\consolidated\\v0.1.0\\consolidated.csv",
   "total": 7784,
-  "in_basic": 6750,
+  "in_basic": 7021,
   "in_miedema": 7752,
-  "in_both": 6750,
+  "in_both": 7021,
   "in_neither": 32,
   "missing_from_basic": {
     "La": 39,
-    "Au": 56,
-    "Mg": 133,
-    "Zn": 97,
     "Gd": 31,
     "Cd": 26,
     "Ga": 24,
@@ -17,10 +14,7 @@
     "Be": 53,
     "Ge": 22,
     "Pb": 23,
-    "Re": 66,
     "Sb": 24,
-    "Sn": 73,
-    "Li": 55,
     "In": 31,
     "B": 94,
     "C": 98,
@@ -31,9 +25,9 @@
     "Nd": 24,
     "Sr": 28,
     "Ca": 53,
+    "Er": 22,
     "Ho": 10,
     "Dy": 15,
-    "Er": 22,
     "Tm": 8,
     "Tb": 20,
     "Ba": 21,
@@ -64,43 +58,13 @@
   },
   "next_best_adds": [
     [
-      "Mg",
-      133,
-      true
-    ],
-    [
       "C",
       98,
       true
     ],
     [
-      "Zn",
-      97,
-      true
-    ],
-    [
       "B",
       94,
-      true
-    ],
-    [
-      "Sn",
-      73,
-      true
-    ],
-    [
-      "Re",
-      66,
-      true
-    ],
-    [
-      "Au",
-      56,
-      true
-    ],
-    [
-      "Li",
-      55,
       true
     ],
     [

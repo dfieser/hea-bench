@@ -3,67 +3,67 @@
   "n_rows_loaded": 7684,
   "rules": {
     "zhang_delta_6_5": {
-      "n": 6651,
-      "n_positive_observed": 3539,
-      "n_negative_observed": 3112,
-      "true_positive": 3504,
-      "false_positive": 2847,
-      "true_negative": 265,
-      "false_negative": 35,
-      "accuracy": 0.5666817019996992,
-      "sensitivity": 0.9901102006216446,
-      "specificity": 0.08515424164524421,
-      "youden_j": 0.07526444226688866,
+      "n": 6922,
+      "n_positive_observed": 3650,
+      "n_negative_observed": 3272,
+      "true_positive": 3609,
+      "false_positive": 2928,
+      "true_negative": 344,
+      "false_negative": 41,
+      "accuracy": 0.5710777232013868,
+      "sensitivity": 0.9887671232876712,
+      "specificity": 0.10513447432762836,
+      "youden_j": 0.0939015976152997,
       "accuracy_ci95": [
-        0.5547372992323486,
-        0.5785491188846504
+        0.5593820390634807,
+        0.5826945570862203
       ],
       "positive_label": "single-phase",
       "confusion": {
-        "single-phase->single-phase": 3504,
-        "multi-phase->multi-phase": 265,
-        "single-phase->multi-phase": 2847,
-        "multi-phase->single-phase": 35
+        "multi-phase->multi-phase": 344,
+        "single-phase->single-phase": 3609,
+        "single-phase->multi-phase": 2928,
+        "multi-phase->single-phase": 41
       }
     },
     "yang_omega_1_1": {
-      "n": 6651,
-      "n_positive_observed": 3539,
-      "n_negative_observed": 3112,
-      "true_positive": 3391,
-      "false_positive": 2883,
-      "true_negative": 229,
-      "false_negative": 148,
-      "accuracy": 0.5442790557810856,
-      "sensitivity": 0.9581802769143826,
-      "specificity": 0.07358611825192803,
-      "youden_j": 0.031766395166310524,
+      "n": 6922,
+      "n_positive_observed": 3650,
+      "n_negative_observed": 3272,
+      "true_positive": 3467,
+      "false_positive": 2990,
+      "true_negative": 282,
+      "false_negative": 183,
+      "accuracy": 0.541606472117885,
+      "sensitivity": 0.9498630136986301,
+      "specificity": 0.08618581907090464,
+      "youden_j": 0.036048832769534744,
       "accuracy_ci95": [
-        0.5322875086373858,
-        0.5562194815214784
+        0.5298484290885892,
+        0.5533183589014798
       ],
       "positive_label": "single-phase",
       "confusion": {
-        "single-phase->single-phase": 3391,
-        "multi-phase->single-phase": 148,
-        "multi-phase->multi-phase": 229,
-        "single-phase->multi-phase": 2883
+        "multi-phase->multi-phase": 282,
+        "single-phase->multi-phase": 2990,
+        "single-phase->single-phase": 3467,
+        "multi-phase->single-phase": 183
       }
     },
     "guo_vec_stratified": {
-      "n_eval": 3463,
-      "accuracy": 0.6693618250072192,
-      "fcc_sensitivity": 0.9240766073871409,
-      "bcc_sensitivity": 0.4832583708145927,
-      "n_fcc_observed": 1462,
-      "n_bcc_observed": 2001,
+      "n_eval": 3556,
+      "accuracy": 0.6737907761529809,
+      "fcc_sensitivity": 0.9190789473684211,
+      "bcc_sensitivity": 0.4906679764243615,
+      "n_fcc_observed": 1520,
+      "n_bcc_observed": 2036,
       "confusion": {
-        "FCC->FCC": 1351,
-        "BCC->BCC": 967,
-        "FCC->BCC": 391,
-        "mixed->FCC": 109,
-        "mixed->BCC": 643,
-        "BCC->FCC": 2
+        "FCC->FCC": 1397,
+        "BCC->BCC": 999,
+        "FCC->BCC": 393,
+        "mixed->FCC": 111,
+        "BCC->FCC": 12,
+        "mixed->BCC": 644
       }
     },
     "yeh_smix_descriptive": {
@@ -78,51 +78,51 @@
       }
     },
     "king_phi_1_0": {
-      "n": 6651,
-      "n_positive_observed": 3539,
-      "n_negative_observed": 3112,
-      "true_positive": 2945,
-      "false_positive": 2816,
-      "true_negative": 296,
-      "false_negative": 594,
-      "accuracy": 0.4872951435874305,
-      "sensitivity": 0.8321559762644815,
-      "specificity": 0.09511568123393316,
-      "youden_j": -0.07272834250158544,
+      "n": 6922,
+      "n_positive_observed": 3650,
+      "n_negative_observed": 3272,
+      "true_positive": 3019,
+      "false_positive": 2907,
+      "true_negative": 365,
+      "false_negative": 631,
+      "accuracy": 0.4888760473851488,
+      "sensitivity": 0.8271232876712329,
+      "specificity": 0.11155256723716381,
+      "youden_j": -0.06132414509160333,
       "accuracy_ci95": [
-        0.47529319549996857,
-        0.4993117597855186
+        0.4771093475294999,
+        0.5006550876259328
       ],
       "positive_label": "solid_solution",
       "confusion": {
-        "intermetallic->solid_solution": 594,
-        "intermetallic->intermetallic": 296,
-        "solid_solution->solid_solution": 2945,
-        "solid_solution->intermetallic": 2816
+        "solid_solution->intermetallic": 2907,
+        "intermetallic->intermetallic": 365,
+        "intermetallic->solid_solution": 631,
+        "solid_solution->solid_solution": 3019
       }
     },
     "ye_phi_20_0": {
-      "n": 6651,
-      "n_positive_observed": 3539,
-      "n_negative_observed": 3112,
-      "true_positive": 1568,
-      "false_positive": 1474,
-      "true_negative": 1638,
-      "false_negative": 1971,
-      "accuracy": 0.4820327770260111,
-      "sensitivity": 0.44306301215032495,
-      "specificity": 0.5263496143958869,
-      "youden_j": -0.030587373453788147,
+      "n": 6922,
+      "n_positive_observed": 3650,
+      "n_negative_observed": 3272,
+      "true_positive": 1614,
+      "false_positive": 1486,
+      "true_negative": 1786,
+      "false_negative": 2036,
+      "accuracy": 0.49118751805836464,
+      "sensitivity": 0.4421917808219178,
+      "specificity": 0.5458435207823961,
+      "youden_j": -0.011964698395686146,
       "accuracy_ci95": [
-        0.4700377443846434,
-        0.4940485533267852
+        0.47941845115369897,
+        0.5029663611122933
       ],
       "positive_label": "solid_solution",
       "confusion": {
-        "intermetallic->solid_solution": 1971,
-        "intermetallic->intermetallic": 1638,
-        "solid_solution->intermetallic": 1474,
-        "solid_solution->solid_solution": 1568
+        "intermetallic->intermetallic": 1786,
+        "intermetallic->solid_solution": 2036,
+        "solid_solution->intermetallic": 1486,
+        "solid_solution->solid_solution": 1614
       }
     }
   }

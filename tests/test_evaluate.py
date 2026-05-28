@@ -51,12 +51,12 @@ def test_loads_expected_non_conflict_rows(report):
 # ---- Zhang δ < 6.5% (binary single vs multi) ----
 
 def test_zhang_delta_accuracy_pinned(report):
-    """Pinned 2026-05-20: accuracy 56.7% on 6,651 alloys with full
-    ELEMENTAL_DATA coverage. This is the headline 'δ rule on the
-    consolidated open benchmark' number."""
+    """Pinned for the v1.2 30-element table: accuracy 57.1% on 6,922
+    alloys with full ELEMENTAL_DATA coverage. This is the headline
+    'δ rule on the consolidated open benchmark' number."""
     z = report["rules"]["zhang_delta_6_5"]
-    assert z["n"] == 6651
-    assert z["accuracy"] == pytest.approx(0.5670, abs=0.0005)
+    assert z["n"] == 6922
+    assert z["accuracy"] == pytest.approx(0.5711, abs=0.0005)
 
 
 def test_zhang_delta_sensitivity_high(report):
@@ -70,24 +70,24 @@ def test_zhang_delta_specificity_low(report):
     """δ rule almost never correctly identifies multi-phase alloys —
     low specificity is the rule's documented weakness on modern data."""
     z = report["rules"]["zhang_delta_6_5"]
-    assert z["specificity"] < 0.10
+    assert z["specificity"] < 0.12
 
 
 def test_zhang_delta_weak_youden_j(report):
     """Youden's J = sens + spec - 1; well below 1.0 means weak
     classifier overall. Pinned for paper."""
     z = report["rules"]["zhang_delta_6_5"]
-    assert z["youden_j"] == pytest.approx(0.0750, abs=0.001)
+    assert z["youden_j"] == pytest.approx(0.0939, abs=0.001)
 
 
 # ---- Yang Ω > 1.1 (binary single vs multi) ----
 
 def test_yang_omega_accuracy_pinned(report):
-    """Pinned 2026-05-20: accuracy 54.4% on 6,651 alloys with all 6
-    descriptors covered."""
+    """Pinned for the v1.2 30-element table: accuracy 54.2% on 6,922
+    alloys with all six descriptors covered."""
     y = report["rules"]["yang_omega_1_1"]
-    assert y["n"] == 6651
-    assert y["accuracy"] == pytest.approx(0.5443, abs=0.0005)
+    assert y["n"] == 6922
+    assert y["accuracy"] == pytest.approx(0.5416, abs=0.0005)
 
 
 def test_yang_omega_high_sensitivity_low_specificity(report):
@@ -102,15 +102,16 @@ def test_yang_omega_high_sensitivity_low_specificity(report):
 
 def test_guo_vec_stratified_accuracy(report):
     """VEC rule restricted to single-phase observed (BCC|FCC). Pinned
-    2026-05-20: 66.9% on the 3,463 single-phase alloys.
+    for the v1.2 30-element table: 67.4% on the 3,556 single-phase
+    alloys.
 
     Note: this is lower than the 78.5% legacy validator reported on
     Borg alone, because the consolidated benchmark includes Pei +
     Peivaste, which contain many BCC compositions the canonical VEC
     bounds don't catch."""
     g = report["rules"]["guo_vec_stratified"]
-    assert g["n_eval"] == 3463
-    assert g["accuracy"] == pytest.approx(0.669, abs=0.001)
+    assert g["n_eval"] == 3556
+    assert g["accuracy"] == pytest.approx(0.674, abs=0.001)
 
 
 def test_guo_vec_fcc_strong_bcc_weak(report):
@@ -218,20 +219,22 @@ def _zhang_roc_points():
 
 def test_zhang_roc_recalibration_finding(report):
     """Pin the headline recalibration result reported in the paper and
-    the figure: on the v0.1.0 benchmark, the balance-optimal Zhang
-    delta threshold is 2.5% with Youden's J = 0.113, far tighter than
-    the canonical 6.5% (J = 0.075). This is the most-cited claim of
-    the paper and was previously not regression-guarded against the
-    real data."""
+    the figure. On the consolidated benchmark with the v1.2
+    30-element table, the balance-optimal Zhang delta threshold is
+    2.6% with Youden's J = 0.123, far tighter than the canonical 6.5%
+    (J = 0.094). The qualitative finding (the dataset-optimal cutoff
+    is ~2.5x tighter than the textbook value) is unchanged from
+    v0.1.0; only the exact numbers shift with the wider element
+    coverage."""
     points = _zhang_roc_points()
     canonical = min(points, key=lambda p: abs(p.threshold - 6.5))
     best_j = max(points, key=lambda p: p.youden_j)
 
     assert canonical.threshold == pytest.approx(6.5, abs=1e-9)
-    assert canonical.youden_j == pytest.approx(0.075, abs=0.001)
+    assert canonical.youden_j == pytest.approx(0.094, abs=0.001)
 
-    assert best_j.threshold == pytest.approx(2.5, abs=1e-9)
-    assert best_j.youden_j == pytest.approx(0.113, abs=0.001)
+    assert best_j.threshold == pytest.approx(2.6, abs=1e-9)
+    assert best_j.youden_j == pytest.approx(0.123, abs=0.001)
     # The optimum trades sensitivity for specificity relative to canonical.
-    assert best_j.sensitivity == pytest.approx(0.236, abs=0.005)
-    assert best_j.specificity == pytest.approx(0.877, abs=0.005)
+    assert best_j.sensitivity == pytest.approx(0.260, abs=0.005)
+    assert best_j.specificity == pytest.approx(0.863, abs=0.005)

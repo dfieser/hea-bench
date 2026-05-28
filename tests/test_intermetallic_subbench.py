@@ -84,21 +84,21 @@ def test_subbench_loader_overwrites_canonical_phase_for_stratification() -> None
 def test_king_phi_intermetallic_in_sample_pinned() -> None:
     rows = _load_intermetallic_subbench(V010)
     stats = evaluate_king_phi_intermetallic(rows)
-    assert stats.n == 5481
-    assert stats.accuracy == pytest.approx(0.7375, abs=0.0005)
-    assert stats.sensitivity == pytest.approx(0.8456, abs=0.0005)
-    assert stats.specificity == pytest.approx(0.1147, abs=0.0005)
-    assert stats.youden_j == pytest.approx(-0.0397, abs=0.0005)
+    assert stats.n == 5685
+    assert stats.accuracy == pytest.approx(0.7312, abs=0.0005)
+    assert stats.sensitivity == pytest.approx(0.8423, abs=0.0005)
+    assert stats.specificity == pytest.approx(0.1429, abs=0.0005)
+    assert stats.youden_j == pytest.approx(-0.0148, abs=0.0005)
 
 
 def test_ye_phi_intermetallic_in_sample_pinned() -> None:
     rows = _load_intermetallic_subbench(V010)
     stats = evaluate_ye_phi_intermetallic(rows)
-    assert stats.n == 5481
-    assert stats.accuracy == pytest.approx(0.4862, abs=0.0005)
-    assert stats.sensitivity == pytest.approx(0.4443, abs=0.0005)
-    assert stats.specificity == pytest.approx(0.7275, abs=0.0005)
-    assert stats.youden_j == pytest.approx(0.1718, abs=0.0005)
+    assert stats.n == 5685
+    assert stats.accuracy == pytest.approx(0.4915, abs=0.0005)
+    assert stats.sensitivity == pytest.approx(0.4431, abs=0.0005)
+    assert stats.specificity == pytest.approx(0.7475, abs=0.0005)
+    assert stats.youden_j == pytest.approx(0.1906, abs=0.0005)
 
 
 # ---- Combined report (in-sample + held-out fixed + held-out tuned) ----
@@ -117,23 +117,23 @@ def test_build_intermetallic_subbench_holdout_fixed_pinned() -> None:
     report = build_intermetallic_subbench_report(V010)
 
     king = report["holdout_fixed"]["king_phi_1_0"]
-    assert king["accuracy_mean"] == pytest.approx(0.7375, abs=0.0005)
-    assert king["youden_j_mean"] == pytest.approx(-0.0397, abs=0.0005)
+    assert king["accuracy_mean"] == pytest.approx(0.7312, abs=0.0005)
+    assert king["youden_j_mean"] == pytest.approx(-0.0148, abs=0.0005)
 
     ye = report["holdout_fixed"]["ye_phi_20_0"]
-    assert ye["accuracy_mean"] == pytest.approx(0.4862, abs=0.0005)
-    assert ye["youden_j_mean"] == pytest.approx(0.1718, abs=0.0005)
+    assert ye["accuracy_mean"] == pytest.approx(0.4915, abs=0.0005)
+    assert ye["youden_j_mean"] == pytest.approx(0.1906, abs=0.0005)
 
 
 def test_build_intermetallic_subbench_holdout_tuned_pinned() -> None:
     report = build_intermetallic_subbench_report(V010)
 
     king = report["holdout_tuned"]["king_phi_tuned"]
-    assert king["accuracy_mean"] == pytest.approx(0.3215, abs=0.0005)
-    assert king["youden_j_mean"] == pytest.approx(0.0119, abs=0.0005)
-    assert king["threshold_mean"] == pytest.approx(2.696, abs=0.0005)
+    assert king["accuracy_mean"] == pytest.approx(0.2626, abs=0.0005)
+    assert king["youden_j_mean"] == pytest.approx(0.0189, abs=0.0005)
+    assert king["threshold_mean"] == pytest.approx(3.620, abs=0.0005)
 
     ye = report["holdout_tuned"]["ye_phi_tuned"]
-    assert ye["accuracy_mean"] == pytest.approx(0.6497, abs=0.0005)
-    assert ye["youden_j_mean"] == pytest.approx(0.1812, abs=0.0005)
-    assert ye["threshold_mean"] == pytest.approx(10.900, abs=0.0005)
+    assert ye["accuracy_mean"] == pytest.approx(0.6257, abs=0.0005)
+    assert ye["youden_j_mean"] == pytest.approx(0.2064, abs=0.0005)
+    assert ye["threshold_mean"] == pytest.approx(12.000, abs=0.0005)

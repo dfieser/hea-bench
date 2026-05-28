@@ -286,7 +286,7 @@ def test_real_benchmark_binary_kfold_summary_is_deterministic() -> None:
     )
 
     assert summary_a == summary_b
-    assert summary_a.n_rows_scored == 6651
+    assert summary_a.n_rows_scored == 6922
     assert 0.0 <= summary_a.accuracy_mean <= 1.0
 
 
@@ -303,7 +303,7 @@ def test_rule_specific_holdout_summary_matches_generic_shape() -> None:
     summary = evaluate_zhang_delta_holdout(rows, k=5, seed=0)
     assert summary.n_folds == 5
     assert summary.n_rows_total == 7784
-    assert summary.n_rows_scored == 6651
+    assert summary.n_rows_scored == 6922
     assert 0.0 <= summary.accuracy_mean <= 1.0
 
 
@@ -340,20 +340,20 @@ def test_build_binary_holdout_report_pinned_metrics() -> None:
     report = build_binary_holdout_report(V010, include_phi=True, k=5, seed=0)
 
     z = report["rules"]["zhang_delta_6_5"]
-    assert z["accuracy_mean"] == pytest.approx(0.56668, abs=0.0005)
-    assert z["youden_j_mean"] == pytest.approx(0.07526, abs=0.0005)
+    assert z["accuracy_mean"] == pytest.approx(0.57108, abs=0.0005)
+    assert z["youden_j_mean"] == pytest.approx(0.09389, abs=0.0005)
 
     y = report["rules"]["yang_omega_1_1"]
-    assert y["accuracy_mean"] == pytest.approx(0.54428, abs=0.0005)
-    assert y["youden_j_mean"] == pytest.approx(0.03176, abs=0.0005)
+    assert y["accuracy_mean"] == pytest.approx(0.54161, abs=0.0005)
+    assert y["youden_j_mean"] == pytest.approx(0.03605, abs=0.0005)
 
     k = report["rules"]["king_phi_1_0"]
-    assert k["accuracy_mean"] == pytest.approx(0.48730, abs=0.0005)
-    assert k["youden_j_mean"] == pytest.approx(-0.07272, abs=0.0005)
+    assert k["accuracy_mean"] == pytest.approx(0.48888, abs=0.0005)
+    assert k["youden_j_mean"] == pytest.approx(-0.06132, abs=0.0005)
 
     p = report["rules"]["ye_phi_20_0"]
-    assert p["accuracy_mean"] == pytest.approx(0.48203, abs=0.0005)
-    assert p["youden_j_mean"] == pytest.approx(-0.03059, abs=0.0005)
+    assert p["accuracy_mean"] == pytest.approx(0.49119, abs=0.0005)
+    assert p["youden_j_mean"] == pytest.approx(-0.01197, abs=0.0005)
 
 
 @pytestmark_v010
@@ -386,7 +386,7 @@ def test_rule_specific_double_scored_summary_has_expected_bounds() -> None:
     rows = load_holdout_rows(V010)
     summary = evaluate_zhang_delta_holdout_double_scored(rows, k=5, seed=0)
     assert summary.n_rows_total == 7784
-    assert summary.n_rows_scored >= 6651
+    assert summary.n_rows_scored >= 6922
     assert summary.any_match.accuracy_mean >= summary.all_match.accuracy_mean
 
 
@@ -395,20 +395,20 @@ def test_build_double_scored_holdout_report_pinned_metrics() -> None:
     report = build_double_scored_binary_holdout_report(V010, include_phi=True, k=5, seed=0)
 
     z = report["rules"]["zhang_delta_6_5"]
-    assert z["any_match"]["accuracy_mean"] == pytest.approx(0.57304, abs=0.0005)
-    assert z["all_match"]["accuracy_mean"] == pytest.approx(0.55837, abs=0.0005)
+    assert z["any_match"]["accuracy_mean"] == pytest.approx(0.57713, abs=0.0005)
+    assert z["all_match"]["accuracy_mean"] == pytest.approx(0.56303, abs=0.0005)
 
     y = report["rules"]["yang_omega_1_1"]
-    assert y["any_match"]["accuracy_mean"] == pytest.approx(0.55096, abs=0.0005)
-    assert y["all_match"]["accuracy_mean"] == pytest.approx(0.53630, abs=0.0005)
+    assert y["any_match"]["accuracy_mean"] == pytest.approx(0.54807, abs=0.0005)
+    assert y["all_match"]["accuracy_mean"] == pytest.approx(0.53397, abs=0.0005)
 
     k = report["rules"]["king_phi_1_0"]
-    assert k["any_match"]["accuracy_mean"] == pytest.approx(0.49481, abs=0.0005)
-    assert k["all_match"]["accuracy_mean"] == pytest.approx(0.48015, abs=0.0005)
+    assert k["any_match"]["accuracy_mean"] == pytest.approx(0.49608, abs=0.0005)
+    assert k["all_match"]["accuracy_mean"] == pytest.approx(0.48198, abs=0.0005)
 
     p = report["rules"]["ye_phi_20_0"]
-    assert p["any_match"]["accuracy_mean"] == pytest.approx(0.48963, abs=0.0005)
-    assert p["all_match"]["accuracy_mean"] == pytest.approx(0.47496, abs=0.0005)
+    assert p["any_match"]["accuracy_mean"] == pytest.approx(0.49836, abs=0.0005)
+    assert p["all_match"]["accuracy_mean"] == pytest.approx(0.48426, abs=0.0005)
 
 
 @pytestmark_v010
@@ -417,7 +417,7 @@ def test_rule_specific_tuned_summary_has_expected_shape() -> None:
     summary = evaluate_zhang_delta_holdout_tuned(rows, k=5, seed=0)
     assert summary.n_folds == 5
     assert summary.n_rows_total == 7784
-    assert summary.n_rows_scored == 6651
+    assert summary.n_rows_scored == 6922
     assert len(summary.folds) == 5
     assert all(isinstance(fold.tuned_threshold, float) for fold in summary.folds)
 
@@ -452,21 +452,21 @@ def test_build_tuned_binary_holdout_report_pinned_metrics() -> None:
     report = build_tuned_binary_holdout_report(V010, include_phi=True, k=5, seed=0)
 
     z = report["rules"]["zhang_delta_tuned"]
-    assert z["accuracy_mean"] == pytest.approx(0.53361, abs=0.0005)
+    assert z["accuracy_mean"] == pytest.approx(0.54320, abs=0.0005)
     assert z["threshold_mean"] == pytest.approx(2.58, abs=0.0005)
-    assert z["fold_thresholds"] == pytest.approx([2.6, 2.5, 2.6, 2.5, 2.7])
+    assert z["fold_thresholds"] == pytest.approx([2.5, 2.6, 2.5, 2.6, 2.7])
 
     y = report["rules"]["yang_omega_tuned"]
-    assert y["accuracy_mean"] == pytest.approx(0.52594, abs=0.0005)
-    assert y["threshold_mean"] == pytest.approx(10.09, abs=0.0005)
-    assert y["fold_thresholds"] == pytest.approx([10.1, 10.05, 10.1, 10.1, 10.1])
+    assert y["accuracy_mean"] == pytest.approx(0.52716, abs=0.0005)
+    assert y["threshold_mean"] == pytest.approx(9.64, abs=0.0005)
+    assert y["fold_thresholds"] == pytest.approx([10.1, 10.05, 7.95, 10.1, 10.0])
 
     k = report["rules"]["king_phi_tuned"]
-    assert k["accuracy_mean"] == pytest.approx(0.50774, abs=0.0005)
+    assert k["accuracy_mean"] == pytest.approx(0.51344, abs=0.0005)
     assert k["threshold_mean"] == pytest.approx(4.196, abs=0.0005)
-    assert k["fold_thresholds"] == pytest.approx([4.14, 4.18, 4.24, 4.18, 4.24])
+    assert k["fold_thresholds"] == pytest.approx([4.24, 4.24, 4.18, 4.14, 4.18])
 
     p = report["rules"]["ye_phi_tuned"]
-    assert p["accuracy_mean"] == pytest.approx(0.51015, abs=0.0005)
-    assert p["threshold_mean"] == pytest.approx(59.8, abs=0.0005)
-    assert p["fold_thresholds"] == pytest.approx([53.5, 57.5, 82.0, 56.5, 49.5])
+    assert p["accuracy_mean"] == pytest.approx(0.52138, abs=0.0005)
+    assert p["threshold_mean"] == pytest.approx(51.6, abs=0.0005)
+    assert p["fold_thresholds"] == pytest.approx([49.5, 49.5, 56.0, 53.5, 49.5])

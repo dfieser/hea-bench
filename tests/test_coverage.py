@@ -21,6 +21,11 @@ def test_analyze_on_synthetic_csv(tmp_path: pathlib.Path) -> None:
     are absent from both the elemental data table and the metallic
     Miedema pair table, which is exactly the case the coverage
     analyser must classify as ``in_neither``.
+
+    Be-Ca is the in-pair-table-but-not-in-ELEMENTAL_DATA row: both are
+    in the matminer Miedema pair table but neither is in the
+    30-element property table (Be and Ca are candidate future
+    additions).
     """
     csv_path = tmp_path / "synthetic.csv"
     csv_path.write_text(
@@ -28,14 +33,14 @@ def test_analyze_on_synthetic_csv(tmp_path: pathlib.Path) -> None:
         "borg_label,pei_label,peivaste_label,borg_raw_label,pei_raw_label,"
         "peivaste_raw_label,borg_processing,borg_doi,source_row_ids\n"
         "Co0.2000Cr0.2000Fe0.2000Mn0.2000Ni0.2000,5,test,FCC,0,,,,,,,,,test:1\n"
-        "Mg0.5000Zn0.5000,2,test,multi-phase,0,,,,,,,,,test:2\n"
+        "Be0.5000Ca0.5000,2,test,multi-phase,0,,,,,,,,,test:2\n"
         "He0.5000Ne0.5000,2,test,multi-phase,0,,,,,,,,,test:3\n",
         encoding="utf-8",
     )
     r = coverage.analyze(csv_path)
     assert r["total"] == 3
     assert r["in_basic"] == 1      # only Cantor
-    assert r["in_miedema"] == 2    # Cantor and Mg-Zn (both in matminer pair table)
+    assert r["in_miedema"] == 2    # Cantor and Be-Ca (both in matminer pair table)
     assert r["in_both"] == 1       # just Cantor
     assert r["in_neither"] == 1    # He-Ne (real elements, in neither HEA table)
 
@@ -50,26 +55,28 @@ pytestmark_v010 = pytest.mark.skipif(
 
 @pytestmark_v010
 def test_v010_overall_coverage_pinned() -> None:
-    """Headline coverage numbers for the paper. Pinned 2026-05-20 to
-    catch any drift in either ELEMENTAL_DATA or the vendored Miedema
-    pair table."""
+    """Headline coverage numbers for the paper. Pinned for the v1.2
+    30-element table (Mg, Zn, Sn, Re, Au, Li added to the original 24)
+    to catch any drift in either ELEMENTAL_DATA or the vendored
+    Miedema pair table."""
     r = coverage.analyze(V010_CSV)
     assert r["total"] == 7784
-    assert r["in_basic"] == 6750       # 86.7% with 24-element table
+    assert r["in_basic"] == 7021       # 90.2% with the 30-element table
     assert r["in_miedema"] == 7752     # 99.6% with vendored pair table
-    assert r["in_both"] == 6750
+    assert r["in_both"] == 7021
     assert r["in_neither"] == 32       # 0.4% completely unscorable
 
 
 @pytestmark_v010
-def test_v010_top_missing_element_is_magnesium() -> None:
-    """Largest single coverage gap is Mg (133 alloys). All of the top
-    missing elements happen to be in the pair table already, so
-    expanding ELEMENTAL_DATA is a 'low-effort win' (Phase 2e+
-    candidate, but not blocking Phase 2d)."""
+def test_v010_top_missing_element_is_carbon() -> None:
+    """With Mg now in the table, the largest remaining single coverage
+    gap is carbon (98 alloys). C is deliberately not added: it has no
+    1-atm melting point and no metallic radius (see elemental.py). The
+    top missing elements are all in the pair table already, so any
+    future expansion is just sourcing per-element scalars."""
     r = coverage.analyze(V010_CSV)
     top = sorted(r["missing_from_basic"].items(), key=lambda kv: -kv[1])
-    assert top[0] == ("Mg", 133)
+    assert top[0] == ("C", 98)
 
 
 @pytestmark_v010
