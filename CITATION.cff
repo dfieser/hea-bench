@@ -7,6 +7,14 @@ authors:
   - given-names: David
     family-names: Fieser
     orcid: 'https://orcid.org/0009-0007-5754-4331'
+    affiliation: >-
+      Department of Mechanical and Aerospace Engineering,
+      University of Tennessee Knoxville
+  - given-names: Anming
+    family-names: Hu
+    affiliation: >-
+      Department of Mechanical and Aerospace Engineering,
+      University of Tennessee Knoxville
 abstract: >-
   hea-bench is a standardized, reproducible benchmark suite for high-entropy
   alloy phase prediction. It consolidates published open HEA phase-label

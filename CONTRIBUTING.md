@@ -40,6 +40,27 @@ When adding a new descriptor, rule, or loader, add tests that cover
 at least one canonical reference case (the equiatomic Cantor alloy
 CoCrFeMnNi is the standard sanity check) plus the error paths.
 
+## Adding a rule or descriptor
+
+The descriptor layer lives under `src/hea_bench/descriptors/`. Each
+descriptor is a pure function that takes a composition dict and
+returns a float, with units documented in the docstring. Add new
+descriptors as a sibling module of the existing six (`entropy.py`,
+`size.py`, `vec.py`, `melting.py`, `miedema.py`, `omega.py`) and the
+v1.1 phi-family (`phi.py`).
+
+The rules layer lives under `src/hea_bench/rules/`. Each rule is a
+module exposing `DESCRIPTION`, `DEFAULT_THRESHOLD` (where
+applicable), and `predict(composition, ...)`. New rules should follow
+the existing module-functional pattern shown by `yang_omega.py`,
+`king_phi.py`, and `ye_phi.py`.
+
+If a new rule needs a held-out evaluation, add a rule-specific
+helper to `src/hea_bench/evaluation/holdout.py` alongside the
+existing `evaluate_*_holdout` functions. The generic
+`evaluate_binary_kfold` primitive accepts arbitrary predict / observe
+callables, so a wrapper is typically all that is required.
+
 ## Adding a dataset
 
 Per-source data lives under `data/raw/<source>/` with a README that
