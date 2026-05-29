@@ -3,12 +3,13 @@
 Worked examples of the `hea-bench` API. Both notebooks render
 inline on GitHub with their embedded outputs, so you can read them
 without running anything; or open them in Jupyter / VS Code to
-execute and edit.
+execute and edit. Terms (descriptors, metrics, phase labels) are
+defined in the repository [glossary](../GLOSSARY.md).
 
 | Notebook | What it shows |
 |---|---|
 | [`01_cantor_walkthrough.ipynb`](./01_cantor_walkthrough.ipynb) | Every descriptor (the six v0.1.0 descriptors and the v1.1 phi-family) and every rule applied to the canonical CoCrFeMnNi alloy; the formula-parsing surface; what happens to Guo–Liu VEC predictions as Al content rises in Al<sub>x</sub>CoCrFeNi. |
-| [`02_benchmark_evaluation.ipynb`](./02_benchmark_evaluation.ipynb) | Loads the consolidated v0.1.0 benchmark, runs all six rules, reproduces the headline classifier statistics, drills into Zhang δ's confusion matrix, runs a ROC sweep showing the optimal Youden's-J threshold on this dataset is δ < 2.5% (far tighter than the canonical 6.5%), and ends with the v1.1 intermetallic-aware sub-benchmark that recovers Ye φ's J ≈ +0.17 against Peivaste's fine-grained ground truth. |
+| [`02_benchmark_evaluation.ipynb`](./02_benchmark_evaluation.ipynb) | Loads the consolidated v0.1.0 benchmark, runs all six rules, reproduces the headline scores, examines where the Zhang atomic-size-mismatch (δ) rule errs, and sweeps its cutoff to find the best-separating threshold on this dataset (δ < 2.6%, far tighter than the textbook 6.5%). It ends with the v1.1 intermetallic-aware sub-benchmark, where the Ye φ rule separates solid solutions from intermetallics far better than on the coarse benchmark (Youden's J ≈ +0.19) against Peivaste's fine-grained labels. |
 
 ## How these notebooks are built
 
