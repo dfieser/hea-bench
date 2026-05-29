@@ -7,10 +7,6 @@
 > python -m hea_bench.benchmark.consolidate
 > ```
 
-> Terms used here — single-phase, multi-phase, FCC / BCC / HCP, solid
-> solution (SS), intermetallic (IM), amorphous (AM) — are defined in the
-> repository [glossary](../../../GLOSSARY.md).
-
 ## Headline numbers
 
 | | count |

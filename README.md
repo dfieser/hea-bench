@@ -35,10 +35,6 @@ An open, reproducible benchmark suite and reference baselines for
 > exact return types and units, the fastest path to each task, and
 > the mistakes to avoid.
 
-> **New to the terminology?** Every metric, descriptor, phase label,
-> and abbreviation used in this project is defined once in
-> [GLOSSARY.md](./GLOSSARY.md).
-
 ## Headline benchmark numbers (v0.1.0)
 
 Running the four canonical rules against the consolidated benchmark
@@ -46,8 +42,7 @@ produces the reference baselines below. **These are pinned in tests so
 any drift in dataset, descriptor code, or rule thresholds surfaces as
 a test failure.**
 
-**How to read these tables** (full definitions in
-[GLOSSARY.md](./GLOSSARY.md)):
+**How to read these tables:**
 
 - **Alloys scored** — how many benchmark alloys the rule could be
   applied to and was scored on.
@@ -57,12 +52,14 @@ a test failure.**
   single-phase, the fraction the rule calls single-phase.
 - **Specificity (multi-phase)** — of the alloys that are *truly*
   multi-phase, the fraction the rule calls multi-phase.
-- **Youden's J** = sensitivity + specificity − 1: one separation score
-  from −1 to +1, where **0 is no better than guessing** and 1 is
-  perfect.
+- **Youden's J** = sensitivity + specificity − 1: one number for how
+  well a rule separates the two classes, from −1 to +1, where **0 is no
+  better than guessing** and 1 is perfect.
 
-The descriptors named in the rules — δ (atomic-size mismatch), Ω, VEC,
-ΔS<sub>mix</sub> — and the phase labels are also defined in the glossary.
+The rules are named by the quantity they use: **δ** is the atomic-size
+mismatch, **Ω** the ratio of mixing entropy to mixing enthalpy, **VEC**
+the average valence-electron count, and **ΔS<sub>mix</sub>** the mixing
+entropy.
 
 | Rule | Alloys scored | Accuracy | Sensitivity (single-phase) | Specificity (multi-phase) | Youden's J |
 |---|---:|---:|---:|---:|---:|

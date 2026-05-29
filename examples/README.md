@@ -3,8 +3,7 @@
 Worked examples of the `hea-bench` API. Both notebooks render
 inline on GitHub with their embedded outputs, so you can read them
 without running anything; or open them in Jupyter / VS Code to
-execute and edit. Terms (descriptors, metrics, phase labels) are
-defined in the repository [glossary](../GLOSSARY.md).
+execute and edit.
 
 | Notebook | What it shows |
 |---|---|

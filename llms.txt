@@ -16,12 +16,10 @@ shared reference. Currently shipping version 1.3.0 under MIT.
 ## For AI agents reading this first
 
 Read [AGENTS.md](AGENTS.md) for the full machine-oriented API
-guide. It defines the public surface, exact return units, and the
+guide. It defines the public surface, exact return units, the
 copy-pasteable jumpstart that verifies your install against the
-canonical Cantor-alloy sanity values. Every metric, descriptor, phase
-label, and abbreviation used below is defined in
-[GLOSSARY.md](GLOSSARY.md) — including what each scoring metric is
-measured against (e.g. "sensitivity" always names its reference class).
+canonical Cantor-alloy sanity values, and what each scoring metric
+means (and the class it is measured against).
 
 ## Mental model
 

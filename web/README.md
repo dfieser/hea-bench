@@ -2,8 +2,7 @@
 
 A self-contained browser calculator for the `hea-bench` descriptors and
 rules. It runs entirely client-side. No server, no install, no Python
-runtime in the browser. Descriptor symbols and terms used below are
-defined in the repository [glossary](../GLOSSARY.md).
+runtime in the browser.
 
 ## How to use it
 

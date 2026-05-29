@@ -7,12 +7,11 @@ fastest path to each common task, and the mistakes to avoid. Every
 snippet here is copy-pasteable and was checked against the shipped
 code.
 
-> **Editing this repo's own docs (or this file)?** Follow the
-> documentation rule in [CONTRIBUTING.md](./CONTRIBUTING.md): define
-> every term, symbol, and metric at first use, or link
-> [GLOSSARY.md](./GLOSSARY.md) — and always state what a metric is
-> measured against (no bare "sensitivity" or "n_eval"). Every term used
-> below is defined in the glossary.
+> **Editing this repo's own docs (or this file)?** Follow the writing
+> rule in [CONTRIBUTING.md](./CONTRIBUTING.md): minimize jargon and
+> explain any necessary term inline in plain language, and always state
+> what a metric is measured against (no bare "sensitivity" or
+> "n_eval"). Don't defer to a glossary.
 
 ## What this library is
 
@@ -162,7 +161,7 @@ r["confusion"]     # confusion matrix
 #       positive_label
 ```
 
-What the metrics mean (full definitions in [GLOSSARY.md](./GLOSSARY.md)):
+What the metrics mean:
 `n` is the number of alloys scored; `accuracy` is the fraction labelled
 correctly; `sensitivity` is — of the alloys that truly are the positive
 class (`positive_label`, here single-phase) — the fraction predicted

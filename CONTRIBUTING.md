@@ -43,35 +43,41 @@ CoCrFeMnNi is the standard sanity check) plus the error paths.
 
 ## Documentation and writing style
 
-A reader must be able to understand any document without already
-knowing the jargon. **Define every term, symbol, abbreviation, and
-metric at its first use in a document, or link to
-[GLOSSARY.md](./GLOSSARY.md).** This applies to every README, the
-docs, code comments, and the manuscript. (This is enforced because it
-has been a recurring problem; treat it as a hard rule, not a
-preference.)
+Write so a reader understands the document on the **first read**, in
+place. This is a hard rule, not a preference — readability has been a
+recurring problem.
 
-Specifically:
+Calibrate to the audience: **a reader of the target journal**
+(Computational Materials Science). Terms such a reader would naturally
+already know (FCC, BCC, HCP, alloy, phase, entropy, enthalpy, melting
+temperature, and the like) need no explanation — do not over-explain
+them. Everything beyond that shared background — above all **jargon
+specific to this project**: its descriptors, metrics, named rules, and
+constructs (`δ`, `Ω`, `Φ`, `n_eval`, "FCC sensitivity", the held-out
+sub-benchmark, conflict rows, …) — must be minimized, especially early,
+and explained in plain context the first time it appears.
 
+- **Minimize jargon, especially at the start** of any document,
+  section, abstract, or table. Lead with plain language; introduce a
+  technical term only when it is actually needed.
+- **Explain any necessary term inline, in plain language, with context,
+  the first time it appears** — woven into the sentence. Do **not**
+  defer to a glossary: a glossary just relocates the confusion, and
+  readers do not jump to one mid-read.
 - **State what a metric is measured against.** Never write a bare
-  "sensitivity", "specificity", or "FCC sensitivity". Write "of truly
-  single-phase alloys, the fraction the rule labels single-phase", and
-  always name the class — a metric with no reference class is
-  meaningless.
-- **No undefined shorthand.** Do not introduce `n_eval`, `sens`,
-  `spec`, `δ`, `Ω`, `VEC`, `HEA`, `IM`, `AM`, "Youden's J", etc.
-  without defining it on first use or linking the glossary.
-- **Plain words first.** Prefer "atomic size mismatch" to a bare `δ`;
-  if a symbol or abbreviation is genuinely needed, define it once and
-  use it consistently.
+  "sensitivity", "specificity", or "FCC sensitivity". Write, in context,
+  "of the alloys that are truly single-phase, the fraction the rule
+  labels single-phase", and always name the class — a metric with no
+  reference class is meaningless.
+- **No undefined shorthand** (`n_eval`, `sens`, `spec`, bare `δ`, `Ω`,
+  `VEC`, `HEA`, `IM`, "Youden's J", …). Prefer plain words; use a symbol
+  only after giving its plain name.
 - **Figures** carry no titles and no bare symbols on axes — spell the
   quantity out (e.g. "mixing enthalpy (kJ/mol)", not `ΔH_mix`).
-- **Keep the glossary in sync.** If you introduce a term anywhere, add
-  its definition to `GLOSSARY.md`.
 
-Before committing any prose or figure change, reread it as a newcomer:
-if a term would make them stop and search, define it or link the
-glossary.
+Before committing any prose or figure change, reread it cold as a
+non-specialist: if a term would make them stop, rewrite the sentence to
+explain it plainly in place, or drop the jargon.
 
 ## Adding a rule or descriptor
 
