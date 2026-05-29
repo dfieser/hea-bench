@@ -5,7 +5,7 @@ An open, reproducible benchmark suite and reference baselines for
 
 [![DOI](https://zenodo.org/badge/1246292321.svg)](https://doi.org/10.5281/zenodo.20346287)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-![tests: 236](https://img.shields.io/badge/tests-236%20passing-success)
+![tests: 241](https://img.shields.io/badge/tests-241%20passing-success)
 ![coverage: 90.2%](https://img.shields.io/badge/v0.1.0%20coverage-90.2%25-success)
 
 ## TL;DR
@@ -18,6 +18,11 @@ An open, reproducible benchmark suite and reference baselines for
   v0.1.0 empirical rules plus the v1.1 phi-family thermodynamic
   extension (`S_E`, `DeltaG_ss`, `DeltaG_max`, King `Phi`, Ye `phi`),
   all exposed as test-guarded descriptor and rule APIs.
+- **A learned reference baseline** (v1.3, `hea_bench.baselines`): a
+  logistic regression on the six descriptors that sets the quantitative
+  floor a new method should beat. A linear fit only ties the best rule,
+  but adding interaction terms triples its discrimination — the
+  descriptors hold joint signal the single-threshold rules miss.
 - **A clean, dependency-free Python API** (`pip install hea-bench`)
   *and* a self-contained HTML calculator that runs entirely
   client-side, computes the full v1.1 browser descriptor set plus the
@@ -59,6 +64,15 @@ from three independent open sources, both binary rules collapse to
 "predict single-phase almost always" (Youden's J ~ 0.04–0.09), and
 the VEC rule misses about half of observed BCC alloys despite
 catching 92% of FCC alloys. The canonical rules generalize poorly.
+
+### Learned reference baseline (v1.3)
+
+The benchmark also ships a learned floor to beat. A logistic regression
+on the same six descriptors, scored under the same held-out protocol,
+ties the best rule (Youden's J ≈ 0.09) when linear but reaches J ≈ 0.31
+once squared and interaction terms are added — evidence the descriptors
+carry joint signal the single-threshold rules cannot reach. Needs the
+`[ml]` extra (`pip install "hea-bench[ml]"`); see `hea_bench.baselines`.
 
 ## Quick start (Python)
 
@@ -260,7 +274,7 @@ hea-bench/
 │   ├── constants.py     R = 8.314
 │   ├── evaluate.py      orchestrator: rules vs benchmark → headline stats
 │   └── cli.py           command-line entry point
-├── tests/               236 tests, all passing
+├── tests/               241 tests, all passing
 ├── web/                 self-contained HTML calculator (pure JS, no server)
 └── pyproject.toml
 ```

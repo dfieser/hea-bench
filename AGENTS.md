@@ -206,6 +206,34 @@ J ≈ -0.01 on the main benchmark. The fine label restores a real
 signal that the coarse multi-phase class hides. King Phi remains
 weak on both (J ≈ -0.01 at the published cutoff, J ≈ +0.02 tuned).
 
+## Learned reference baseline (v1.3, optional `[ml]` extra)
+
+`hea_bench.baselines` ships a learned classifier as the quantitative
+floor a new method should beat. It needs numpy, so install the extra:
+`pip install "hea-bench[ml]"`. Importing the package without numpy is
+fine; only fitting requires it.
+
+```python
+from hea_bench.baselines import LogisticBaseline, descriptor_vector, evaluate
+
+csv = "data/consolidated/v0.1.0/consolidated.csv"
+evaluate(csv, interactions=False)["youden_j"]["mean"]  # ~0.092 (ties best rule)
+evaluate(csv, interactions=True)["youden_j"]["mean"]   # ~0.313 (triples it)
+```
+
+`evaluate(csv, interactions=False|True, k=5, seed=0)` runs held-out
+k-fold scoring under the same stratified split as the rules, returning
+`{accuracy, sensitivity, specificity, youden_j}` each as
+`{"mean", "se"}`, plus `n_rows`, `n_descriptors`, `interactions`.
+`LogisticBaseline(interactions=...)` is the model (`fit` / `predict` /
+`predict_proba`); `descriptor_vector(comp)` is the six-feature vector
+(size mismatch, VEC, mixing entropy, mixing enthalpy, melting T, Omega
+capped at 50). The finding: a linear model ties the best rule
+(J ≈ 0.09), but squared + interaction terms triple it (J ≈ 0.31) on
+single-vs-multi — the descriptors carry joint signal the single-
+threshold rules cannot reach. The core stays dependency-free; only this
+module imports numpy.
+
 ## Threshold sweeps / ROC
 
 ```python
@@ -271,7 +299,7 @@ fully evaluable.
 After wiring this in, confirm the Cantor sanity values
 (`smix=13.381`, `delta=3.164`, `vec=8.0`, `omega=5.794`,
 `s_excess=0.318`, `delta_g_max=-8.000`, `phi_king=3.533`,
-`phi_ye=34.822`) and run the test suite (`python -m pytest -q`, 236
+`phi_ye=34.822`) and run the test suite (`python -m pytest -q`, 241
 tests). If those match, your environment is using the canonical
 implementation correctly.
 
@@ -320,7 +348,7 @@ Expected output (truncated):
 
 ```json
 {
-  "version": "1.2.0",
+  "version": "1.3.0",
   "cantor_descriptors": {
     "smix": 13.3815...,
     "delta": 3.1643...,

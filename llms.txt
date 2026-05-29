@@ -11,7 +11,7 @@
 Use it to (1) compute HEA descriptors as features for downstream
 models, (2) screen candidate alloys with the published empirical
 rules, or (3) score a new phase-prediction method against a fixed
-shared reference. Currently shipping version 1.2.0 under MIT.
+shared reference. Currently shipping version 1.3.0 under MIT.
 
 ## For AI agents reading this first
 
@@ -68,6 +68,18 @@ hb.phi_ye(cantor)      # 34.822 (Ye 2015 proxy)
 | `evaluate.build_evaluation_report(include_phi=True)` | In-sample + stratified 5-fold CV (fixed + tuned thresholds + double-scored conflict rows) |
 | `evaluate.build_intermetallic_subbench_report()` | Peivaste 12-class projection to solid_solution / intermetallic, with in-sample + held-out fixed + held-out tuned |
 
+## Learned baseline (v1.3, optional `[ml]` extra)
+
+The quantitative floor a new method should beat:
+`from hea_bench.baselines import LogisticBaseline, descriptor_vector, evaluate`.
+
+| Call | Returns |
+|---|---|
+| `baselines.evaluate(csv, interactions=False)` | Held-out 5-fold logistic regression on the six descriptors; ties the best rule (Youden's J ~ 0.09) |
+| `baselines.evaluate(csv, interactions=True)` | Same with squared + interaction terms; J ~ 0.31 — the descriptors hold joint signal the single-threshold rules miss |
+
+Needs numpy (`pip install "hea-bench[ml]"`); the core stays dependency-free.
+
 ## Browser
 
 A self-contained HTML calculator computes the same descriptors and
@@ -96,10 +108,10 @@ is regression-checked against the JS implementation in CI.
 ## Citing
 
 ```bibtex
-@software{hea_bench_1_2_0,
+@software{hea_bench_1_3_0,
   author  = {Fieser, David and Hu, Anming},
   title   = {hea-bench: An open benchmark suite and reference baselines for high-entropy alloy phase prediction},
-  version = {1.2.0},
+  version = {1.3.0},
   license = {MIT},
   url     = {https://github.com/dfieser/hea-bench},
 }

@@ -235,7 +235,7 @@ def evaluate(
         "k": k,
         "seed": seed,
         "interactions": interactions,
-        "n_features": X.shape[1] if not interactions else None,
+        "n_descriptors": int(X.shape[1]),
         "accuracy": summarize(accuracy),
         "sensitivity": summarize(sensitivity),
         "specificity": summarize(specificity),
