@@ -11,9 +11,32 @@ library gains features that do not change the underlying dataset.
 The format is loosely based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased] — v1.2.0
+## [Unreleased] — v1.3.0
 
-`v1.2-coverage` branch, stacked on `v1.1-phi`. Targets tag `v1.2.0`.
+`v1.3-baseline` branch, stacked on `v1.2-coverage`. Targets tag `v1.3.0`.
+
+### Added
+
+- **Learned reference baseline** (`hea_bench.baselines`):
+  `LogisticBaseline`, a logistic regression on the six descriptors with
+  an optional squared + pairwise-interaction expansion
+  (`interactions=True`), plus `descriptor_vector`, `load_features`, and
+  `evaluate` for held-out k-fold scoring under the same stratified
+  protocol used for the rules. This is the quantitative floor a new
+  phase-prediction method should beat.
+  - Headline result on single-vs-multi: a linear model ties the best
+    textbook rule (held-out Youden's J 0.092), but adding interactions
+    roughly triples it (J 0.313, accuracy 66%) — the descriptors carry
+    joint signal the single-threshold rules cannot reach.
+  - numpy is the only new dependency: lazily imported and gated behind a
+    new optional `[ml]` extra, so the core stays dependency-free
+    (`import hea_bench` needs no numpy).
+- 5 regression tests (`tests/test_learned_baseline.py`) pinning the
+  held-out numbers; skipped when numpy or the v0.1.0 CSV is absent.
+
+## [1.2.0] — elemental coverage 24 → 30 (complete; release on hold)
+
+`v1.2-coverage` branch, stacked on `v1.1-phi`.
 
 ### Changed
 
