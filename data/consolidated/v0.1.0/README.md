@@ -7,6 +7,10 @@
 > python -m hea_bench.benchmark.consolidate
 > ```
 
+> Terms used here — single-phase, multi-phase, FCC / BCC / HCP, solid
+> solution (SS), intermetallic (IM), amorphous (AM) — are defined in the
+> repository [glossary](../../../GLOSSARY.md).
+
 ## Headline numbers
 
 | | count |
@@ -82,15 +86,15 @@ are preserved so downstream consumers can resolve however they want.
 The taxonomy used here is deliberately coarse to maximize cross-source
 coverage at the v0.1.0 release. The richer source labels are preserved
 verbatim in the `*_raw_label` columns so downstream consumers needing
-finer granularity (amorphous vs. intermetallic vs. dual-SS) can
-reconstruct it.
+finer granularity (amorphous vs. intermetallic vs. dual solid
+solution) can reconstruct it.
 
 | Canonical class | What's bundled in |
 |---|---|
 | `BCC` | single-phase BCC solid solution (incl. ordered B2 only when the source labeled it as plain BCC) |
 | `FCC` | single-phase FCC solid solution |
 | `HCP` | single-phase HCP solid solution (Borg's simplified column doesn't expose HCP; HCP entries come from Pei and Peivaste only) |
-| `multi-phase` | everything else — dual-phase SS (FCC+BCC, …), intermetallic (IM, Laves, B2, …), amorphous (AM), three-phase combos. **Includes amorphous, which is technically not multi-phase in the crystallographic sense.** Caveat documented in `taxonomy.py`. |
+| `multi-phase` | everything else — dual-phase solid solution (FCC+BCC, …), intermetallic (IM; e.g. Laves, B2 ordered compounds), amorphous (AM, glassy), three-phase combos. **Includes amorphous, which is technically not multi-phase in the crystallographic sense.** Caveat documented in `taxonomy.py`. |
 
 A finer 7+ class taxonomy is a candidate for v0.2.0. Reach for the
 `*_raw_label` columns in this release if you need it now.

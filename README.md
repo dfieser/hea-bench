@@ -35,6 +35,10 @@ An open, reproducible benchmark suite and reference baselines for
 > exact return types and units, the fastest path to each task, and
 > the mistakes to avoid.
 
+> **New to the terminology?** Every metric, descriptor, phase label,
+> and abbreviation used in this project is defined once in
+> [GLOSSARY.md](./GLOSSARY.md).
+
 ## Headline benchmark numbers (v0.1.0)
 
 Running the four canonical rules against the consolidated benchmark
@@ -42,22 +46,44 @@ produces the reference baselines below. **These are pinned in tests so
 any drift in dataset, descriptor code, or rule thresholds surfaces as
 a test failure.**
 
-| Rule | n_eval | Accuracy | Sens (single-phase) | Spec (multi-phase) | Youden's J |
+**How to read these tables** (full definitions in
+[GLOSSARY.md](./GLOSSARY.md)):
+
+- **Alloys scored** — how many benchmark alloys the rule could be
+  applied to and was scored on.
+- **Accuracy** — of those alloys, the fraction the rule labels
+  correctly.
+- **Sensitivity (single-phase)** — of the alloys that are *truly*
+  single-phase, the fraction the rule calls single-phase.
+- **Specificity (multi-phase)** — of the alloys that are *truly*
+  multi-phase, the fraction the rule calls multi-phase.
+- **Youden's J** = sensitivity + specificity − 1: one separation score
+  from −1 to +1, where **0 is no better than guessing** and 1 is
+  perfect.
+
+The descriptors named in the rules — δ (atomic-size mismatch), Ω, VEC,
+ΔS<sub>mix</sub> — and the phase labels are also defined in the glossary.
+
+| Rule | Alloys scored | Accuracy | Sensitivity (single-phase) | Specificity (multi-phase) | Youden's J |
 |---|---:|---:|---:|---:|---:|
 | **Zhang δ < 6.5%** | 6,922 | 57.1% | **98.9%** | **10.5%** | 0.094 |
 | **Yang Ω > 1.1**   | 6,922 | 54.2% | 95.0% | 8.6% | 0.036 |
 
-The Guo–Liu VEC rule predicts crystal structure rather than
-single-vs-multi, so it's evaluated stratified to single-phase
-observations (BCC|FCC only):
+The Guo–Liu VEC rule predicts which crystal structure a single-phase
+alloy takes, not whether it is single-phase, so it is scored only on
+the alloys observed to be single-phase FCC or BCC. Here **FCC recall**
+means: of the alloys observed to be FCC, the fraction the rule predicts
+FCC (and **BCC recall** likewise).
 
-| Rule | n_eval | Accuracy | FCC sensitivity | BCC sensitivity |
+| Rule | Alloys scored | Accuracy | FCC recall | BCC recall |
 |---|---:|---:|---:|---:|
-| **Guo–Liu VEC** (FCC if VEC ≥ 8.0, BCC if VEC < 6.87) | 3,556 | 67.4% | 91.9% | **49.1%** |
+| **Guo–Liu VEC** (predicts FCC if VEC ≥ 8.0, BCC if VEC < 6.87) | 3,556 | 67.4% | 91.9% | **49.1%** |
 
-Yeh ΔS<sub>mix</sub> is descriptive (no phase-prediction claim
-attached) — 47% of the consolidated benchmark passes the 1.5R
-HEA-class threshold, 37% sits in the MEA bin, 16% is dilute.
+Yeh's mixing-entropy rule (ΔS<sub>mix</sub>) only sorts alloys into
+entropy classes; it makes no phase prediction. 47% of the benchmark
+clears the high-entropy threshold (ΔS<sub>mix</sub> > 1.5R, where R is
+the gas constant), 37% are medium-entropy, and 16% low-entropy
+("dilute").
 
 **The publishable observation:** on a consolidated benchmark drawn
 from three independent open sources, both binary rules collapse to

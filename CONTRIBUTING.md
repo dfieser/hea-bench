@@ -18,13 +18,14 @@ improvements.
 ```bash
 git clone https://github.com/dfieser/hea-bench
 cd hea-bench
-pip install -e ".[dev,data]"
+pip install -e ".[dev,data,ml]"
 python -m pytest tests/ -q
 ```
 
 The core package is dependency-free. The `dev` extra adds `pytest`,
 `pytest-cov`, and `ruff`. The `data` extra adds `pandas` for tabular
-work.
+work. The `ml` extra adds `numpy` for the learned baseline
+(`hea_bench.baselines`).
 
 ## Tests
 
@@ -39,6 +40,38 @@ memory.
 When adding a new descriptor, rule, or loader, add tests that cover
 at least one canonical reference case (the equiatomic Cantor alloy
 CoCrFeMnNi is the standard sanity check) plus the error paths.
+
+## Documentation and writing style
+
+A reader must be able to understand any document without already
+knowing the jargon. **Define every term, symbol, abbreviation, and
+metric at its first use in a document, or link to
+[GLOSSARY.md](./GLOSSARY.md).** This applies to every README, the
+docs, code comments, and the manuscript. (This is enforced because it
+has been a recurring problem; treat it as a hard rule, not a
+preference.)
+
+Specifically:
+
+- **State what a metric is measured against.** Never write a bare
+  "sensitivity", "specificity", or "FCC sensitivity". Write "of truly
+  single-phase alloys, the fraction the rule labels single-phase", and
+  always name the class — a metric with no reference class is
+  meaningless.
+- **No undefined shorthand.** Do not introduce `n_eval`, `sens`,
+  `spec`, `δ`, `Ω`, `VEC`, `HEA`, `IM`, `AM`, "Youden's J", etc.
+  without defining it on first use or linking the glossary.
+- **Plain words first.** Prefer "atomic size mismatch" to a bare `δ`;
+  if a symbol or abbreviation is genuinely needed, define it once and
+  use it consistently.
+- **Figures** carry no titles and no bare symbols on axes — spell the
+  quantity out (e.g. "mixing enthalpy (kJ/mol)", not `ΔH_mix`).
+- **Keep the glossary in sync.** If you introduce a term anywhere, add
+  its definition to `GLOSSARY.md`.
+
+Before committing any prose or figure change, reread it as a newcomer:
+if a term would make them stop and search, define it or link the
+glossary.
 
 ## Adding a rule or descriptor
 

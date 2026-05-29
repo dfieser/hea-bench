@@ -7,6 +7,13 @@ fastest path to each common task, and the mistakes to avoid. Every
 snippet here is copy-pasteable and was checked against the shipped
 code.
 
+> **Editing this repo's own docs (or this file)?** Follow the
+> documentation rule in [CONTRIBUTING.md](./CONTRIBUTING.md): define
+> every term, symbol, and metric at first use, or link
+> [GLOSSARY.md](./GLOSSARY.md) — and always state what a metric is
+> measured against (no bare "sensitivity" or "n_eval"). Every term used
+> below is defined in the glossary.
+
 ## What this library is
 
 `hea-bench` does two separate things:
@@ -154,6 +161,15 @@ r["confusion"]     # confusion matrix
 #       true_positive, false_positive, true_negative, false_negative,
 #       positive_label
 ```
+
+What the metrics mean (full definitions in [GLOSSARY.md](./GLOSSARY.md)):
+`n` is the number of alloys scored; `accuracy` is the fraction labelled
+correctly; `sensitivity` is — of the alloys that truly are the positive
+class (`positive_label`, here single-phase) — the fraction predicted
+positive; `specificity` is the same for the negative class (multi-phase);
+`youden_j` = sensitivity + specificity − 1, where 0 means no better than
+guessing and 1 is perfect; `accuracy_ci95` is the Wilson 95% confidence
+interval for the accuracy.
 
 ## Held-out cross-validation (v1.1)
 
