@@ -1,9 +1,12 @@
 """Regenerate ``web_parity_cases.json``.
 
 The parity-test fixture lists every composition that the Python and
-JavaScript implementations must agree on. v1.1 expanded the fixture
-to exercise every binary pair in the 24-element property table so
-the parity guarantee is exhaustive on the supported element set.
+JavaScript implementations must agree on. The fixture exercises every
+binary pair in the supported element table so the parity guarantee is
+exhaustive across the calculator's element coverage. v1.1 introduced
+this with 24 elements (276 binaries); v1.3 expands it to 30 elements
+(435 binaries) after the JS browser core was brought to parity with
+the v1.2 elemental-table additions (Au, Li, Mg, Re, Sn, Zn).
 
 Run from the repo root::
 
@@ -40,7 +43,7 @@ _CURATED_CASES = [
 
 
 def _binary_cases() -> list[dict]:
-    """One equiatomic binary case per (i, j) pair in the 24-element table.
+    """One equiatomic binary case per (i, j) pair in the elemental table.
 
     The case name is ``binary_{a}_{b}`` with elements alphabetised so the
     JSON is stable across regenerations.
@@ -50,8 +53,9 @@ def _binary_cases() -> list[dict]:
     out: list[dict] = []
     for a, b in combinations(elements, 2):
         if a not in pair_covered or b not in pair_covered:
-            # Defensive: every 24-element pair is currently in matminer's
-            # Miedema table, but skip rather than crash if that ever changes.
+            # Defensive: every covered pair is currently in matminer's
+            # Miedema table, but skip rather than crash if that ever
+            # changes (e.g. if a future element addition has no pair data).
             continue
         out.append(
             {

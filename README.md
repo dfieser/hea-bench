@@ -25,10 +25,11 @@ An open, reproducible benchmark suite and reference baselines for
   descriptors hold joint signal the single-threshold rules miss.
 - **A clean, dependency-free Python API** (`pip install hea-bench`)
   *and* a self-contained HTML calculator that runs entirely
-  client-side, computes the full v1.1 browser descriptor set plus the
-  Miedema decompositions, and applies all six shipped rule outputs to
-  the entered composition. The browser core is parity-tested against
-  Python on canonical alloys.
+  client-side, computes the same descriptor set plus the Miedema
+  decompositions, and applies all six shipped rule outputs to the
+  entered composition. The browser core covers the same 30 elements
+  the Python library does and is parity-tested against Python on
+  every binary pair plus canonical multi-element alloys.
 
 > **Using an AI coding agent to integrate this?** See
 > [AGENTS.md](./AGENTS.md) for a machine-oriented guide to the API,
@@ -166,9 +167,10 @@ python -m hea_bench.benchmark.coverage # coverage analysis on v0.1.0
 
 ## Quick start (browser, no install)
 
-A self-contained HTML calculator computes the v1.1 browser descriptors,
+A self-contained HTML calculator computes the same descriptors,
 applies all six shipped rules, and runs the Miedema decompositions
-entirely client-side. Two equivalent paths:
+entirely client-side, on the full 30-element table the Python library
+covers (regression-checked binary-by-binary). Two equivalent paths:
 
 - Open the hosted page: **https://dfieser.github.io/hea-bench/**
 - Or download / clone the repo and double-click `web/index.html`. No

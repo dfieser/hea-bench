@@ -17,6 +17,15 @@ The format is loosely based on
 
 ### Added
 
+- **Browser calculator extended to 30 elements** to match the v1.2
+  Python table (`ELEMENTAL_DATA`). The JS core (`web/hea-calculator-
+  core.js`) and Python source-of-truth (`hea_bench.descriptors.
+  browser_compat`) now both carry Au, Li, Mg, Re, Sn, and Zn in the
+  Miedema parameter set, the volume-mismatch coefficient table, and
+  the vendored binary pair-enthalpy table (159 new pairs). The parity
+  fixture expanded from 286 to 445 cases (every C(30, 2) binary plus
+  the 10 curated multi-element compositions); the byte-for-byte
+  Python/JS parity test continues to pass at `rtol=5e-4`.
 - **Learned reference baseline** (`hea_bench.baselines`):
   `LogisticBaseline`, a logistic regression on the six descriptors with
   an optional squared + pairwise-interaction expansion

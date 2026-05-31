@@ -42,13 +42,24 @@ For any composition you enter, the page reports:
   Vendored so the page works fully offline.
 - `.nojekyll` — marks the directory so GitHub Pages serves files as-is.
 
+## Element coverage
+
+The calculator covers the same 30 elements as the Python library's
+`ELEMENTAL_DATA` table: Ag, Al, Au, Co, Cr, Cu, Fe, Hf, Ir, Li, Mg, Mn,
+Mo, Nb, Ni, Os, Pd, Pt, Re, Rh, Ru, Si, Sn, Ta, Ti, V, W, Y, Zn, Zr.
+Compositions containing any element outside this set surface a warning
+in the page rather than producing a number. The original 24 elements
+shipped in v1.1; Au, Li, Mg, Re, Sn, and Zn landed in v1.3 to bring
+the browser to parity with the v1.2 Python table.
+
 ## Updating the calculator
 
 For parity-critical descriptor or rule changes, update `hea-calculator-core.js`
 and then run the browser parity regression in `tests/test_web_parity.py`.
 That test executes the shared JS core under Node and compares the browser-side
-results against the matching Python APIs on canonical alloys, including the
-calculator-specific `Hmix` / `Omega` path.
+results against the matching Python APIs on every binary pair (435 cases) and
+the curated multi-element fixtures, including the calculator-specific
+`Hmix` / `Omega` path.
 
 For page-only UI work, edit `index.html`. The calculator stays fully offline,
 but the numerical drift risk is now guarded by the automated Python-vs-JS
