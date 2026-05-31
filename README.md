@@ -351,3 +351,21 @@ All numerical parameters, formulas,
 threshold values, and benchmark numbers are derived from cited
 primary sources or computed in this codebase from documented inputs;
 the author verified outputs against the cited literature.
+
+## Disclaimer
+
+Benchmark results, descriptor values, and rule predictions reported by
+hea-bench are **empirical estimates and retrospective statistical summaries**
+for research purposes only. The rules and descriptors are semi-empirical
+surrogates with known limitations; accuracy figures reflect a specific
+historical dataset and may not generalise to other alloy families or
+experimental conditions. No warranty is made as to accuracy, completeness,
+fitness for any particular purpose, or suitability for material qualification.
+The consolidated dataset aggregates literature-sourced data and inherits any
+limitations and potential errors of the original sources.
+
+Software is provided **"as is"** under the [MIT License](LICENSE) — see
+[LICENSE](LICENSE). Vendored Miedema elemental parameters from
+[matminer](https://github.com/hackingmaterials/matminer) remain under their
+upstream BSD-3-Clause license; see
+[`src/hea_bench/descriptors/data/LICENSE.matminer.txt`](./src/hea_bench/descriptors/data/LICENSE.matminer.txt).
