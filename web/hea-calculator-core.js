@@ -22,13 +22,10 @@
     var GUO_VEC_FCC_THRESHOLD = 8.0;
     var GUO_VEC_BCC_THRESHOLD = 6.87;
 
-    // 30-element coverage. The original 24 (v1.1) match Python
-    // browser_compat.py byte-for-byte; the six v1.2 additions (Au, Li,
-    // Mg, Re, Sn, Zn) come from matminer's Miedema parameter table with
-    // V23 = molar_volume^(2/3) and nws13 = electron_density^(1/3),
-    // rounded to two decimals. Class (TM/NTM) follows Miedema's group
-    // convention: alkali, alkaline-earth, group 12, and p-block are
-    // NTM; everything else here is TM.
+    // 30-element coverage (atomic radius, melting point, valence). The
+    // original 24 (v1.1) match the Python elemental data table
+    // byte-for-byte; the six v1.2 additions (Au, Li, Mg, Re, Sn, Zn)
+    // were added alongside the Python library for parity.
     var DEFAULT_ELEMENT_DATA = {
       Ag: { radius: 144.0, melting: 1234.93, valence: 11 },
       Al: { radius: 143.0, melting: 933.47, valence: 3 },
@@ -60,79 +57,6 @@
       Y: { radius: 182.0, melting: 1799.0, valence: 3 },
       Zn: { radius: 137.0, melting: 692.68, valence: 12 },
       Zr: { radius: 160.0, melting: 2128.0, valence: 4 }
-    };
-
-    var BROWSER_MIEDEMA_PARAMS = {
-      Ag: { phi_star: 4.35, nws13: 1.36, V23: 4.72, cls: "TM" },
-      Al: { phi_star: 4.20, nws13: 1.39, V23: 4.64, cls: "NTM" },
-      Au: { phi_star: 5.15, nws13: 1.57, V23: 4.70, cls: "TM" },
-      Co: { phi_star: 5.10, nws13: 1.75, V23: 3.55, cls: "TM" },
-      Cr: { phi_star: 4.65, nws13: 1.73, V23: 3.74, cls: "TM" },
-      Cu: { phi_star: 4.45, nws13: 1.47, V23: 3.70, cls: "TM" },
-      Fe: { phi_star: 4.93, nws13: 1.77, V23: 3.69, cls: "TM" },
-      Hf: { phi_star: 3.60, nws13: 1.45, V23: 5.65, cls: "TM" },
-      Ir: { phi_star: 5.55, nws13: 1.83, V23: 4.17, cls: "TM" },
-      Li: { phi_star: 2.85, nws13: 0.98, V23: 5.53, cls: "NTM" },
-      Mg: { phi_star: 3.45, nws13: 1.17, V23: 5.81, cls: "NTM" },
-      Mn: { phi_star: 4.45, nws13: 1.61, V23: 3.78, cls: "TM" },
-      Mo: { phi_star: 4.65, nws13: 1.77, V23: 4.45, cls: "TM" },
-      Nb: { phi_star: 4.05, nws13: 1.64, V23: 4.89, cls: "TM" },
-      Ni: { phi_star: 5.20, nws13: 1.75, V23: 3.52, cls: "TM" },
-      Os: { phi_star: 5.40, nws13: 1.85, V23: 4.15, cls: "TM" },
-      Pd: { phi_star: 5.45, nws13: 1.67, V23: 4.29, cls: "TM" },
-      Pt: { phi_star: 5.65, nws13: 1.78, V23: 4.36, cls: "TM" },
-      Re: { phi_star: 5.20, nws13: 1.85, V23: 4.28, cls: "TM" },
-      Rh: { phi_star: 5.40, nws13: 1.76, V23: 4.10, cls: "TM" },
-      Ru: { phi_star: 5.40, nws13: 1.83, V23: 4.60, cls: "TM" },
-      Si: { phi_star: 4.70, nws13: 1.50, V23: 4.20, cls: "NTM" },
-      Sn: { phi_star: 4.15, nws13: 1.24, V23: 6.43, cls: "NTM" },
-      Ta: { phi_star: 4.05, nws13: 1.63, V23: 4.89, cls: "TM" },
-      Ti: { phi_star: 3.80, nws13: 1.52, V23: 4.12, cls: "TM" },
-      V: { phi_star: 4.25, nws13: 1.64, V23: 4.12, cls: "TM" },
-      W: { phi_star: 4.80, nws13: 1.81, V23: 4.50, cls: "TM" },
-      Y: { phi_star: 3.20, nws13: 1.21, V23: 7.34, cls: "TM" },
-      Zn: { phi_star: 4.10, nws13: 1.32, V23: 4.38, cls: "NTM" },
-      Zr: { phi_star: 3.45, nws13: 1.41, V23: 5.81, cls: "TM" }
-    };
-
-    var BROWSER_MIEDEMA_PAIR_P = { "TM-TM": 14.2, "TM-NTM": 12.35, "NTM-NTM": 10.7 };
-    var BROWSER_MIEDEMA_QP_RATIO = 9.4;
-    // Ionicity R/P override. Only NTM elements with a meaningful matminer
-    // value are listed; TM elements (incl. Ag/Cu/Au) and Li (R=0; would
-    // collide with `||` zero-fallback) default to 1.0. Matches Python
-    // browser_compat.py exactly.
-    var BROWSER_MIEDEMA_R_OVER_P = { Al: 1.9, Mg: 0.4, Si: 2.1, Sn: 2.1, Zn: 1.4 };
-    var BROWSER_MIEDEMA_A_VOL = {
-      Ag: 0.07,
-      Al: 0.07,
-      Au: 0.07,
-      Co: 0.04,
-      Cr: 0.04,
-      Cu: 0.07,
-      Fe: 0.04,
-      Hf: 0.04,
-      Ir: 0.04,
-      Li: 0.14,
-      Mg: 0.10,
-      Mn: 0.04,
-      Mo: 0.04,
-      Nb: 0.04,
-      Ni: 0.04,
-      Os: 0.04,
-      Pd: 0.04,
-      Pt: 0.04,
-      Re: 0.04,
-      Rh: 0.04,
-      Ru: 0.04,
-      Si: 0.04,
-      Sn: 0.04,
-      Ta: 0.04,
-      Ti: 0.04,
-      V: 0.04,
-      W: 0.04,
-      Y: 0.04,
-      Zn: 0.10,
-      Zr: 0.04
     };
 
     // 435 pairs = C(30, 2). Matminer-derived Miedema binary mixing
@@ -655,106 +579,6 @@
       }
     }
 
-    function browserPairEnthalpy(elemA, elemB) {
-      var paramsA;
-      var paramsB;
-      var pairType;
-      var pConst;
-      var qConst;
-      var rVal;
-      var dPhi;
-      var dNws;
-      var baseV23A;
-      var baseV23B;
-      var v23A;
-      var v23B;
-      var aA;
-      var aB;
-      var csA;
-      var csB;
-      var iter;
-      var volumeFactor;
-      var nwsAvgInv;
-      var interfacialEnergy;
-
-      if (elemA === elemB) {
-        return 0.0;
-      }
-
-      paramsA = BROWSER_MIEDEMA_PARAMS[elemA];
-      paramsB = BROWSER_MIEDEMA_PARAMS[elemB];
-      if (!paramsA || !paramsB) {
-        return null;
-      }
-
-      if (paramsA.cls === "TM" && paramsB.cls === "TM") {
-        pairType = "TM-TM";
-      } else if (paramsA.cls === "NTM" && paramsB.cls === "NTM") {
-        pairType = "NTM-NTM";
-      } else {
-        pairType = "TM-NTM";
-      }
-
-      pConst = BROWSER_MIEDEMA_PAIR_P[pairType];
-      qConst = pConst * BROWSER_MIEDEMA_QP_RATIO;
-      rVal = 0.0;
-
-      if (pairType !== "TM-TM") {
-        rVal = (BROWSER_MIEDEMA_R_OVER_P[elemA] || 1.0) * (BROWSER_MIEDEMA_R_OVER_P[elemB] || 1.0) * pConst;
-      }
-
-      dPhi = paramsA.phi_star - paramsB.phi_star;
-      dNws = paramsA.nws13 - paramsB.nws13;
-      baseV23A = paramsA.V23;
-      baseV23B = paramsB.V23;
-      v23A = baseV23A;
-      v23B = baseV23B;
-      aA = BROWSER_MIEDEMA_A_VOL[elemA] || 0.04;
-      aB = BROWSER_MIEDEMA_A_VOL[elemB] || 0.04;
-
-      for (iter = 0; iter < 5; iter += 1) {
-        csB = v23B / (v23A + v23B);
-        csA = v23A / (v23A + v23B);
-        v23A = baseV23A * (1.0 + aA * csB * dPhi);
-        v23B = baseV23B * (1.0 - aB * csA * dPhi);
-      }
-
-      volumeFactor = (2.0 * v23A * v23B) / (v23A + v23B);
-      nwsAvgInv = 0.5 * (1.0 / paramsA.nws13 + 1.0 / paramsB.nws13);
-      interfacialEnergy = (-pConst * dPhi * dPhi + qConst * dNws * dNws - rVal) / nwsAvgInv;
-      return volumeFactor * interfacialEnergy;
-    }
-
-    function browserMixingEnthalpy(composition) {
-      var norm = normalizeComposition(composition);
-      var missing = [];
-      var key;
-      var pairTerms;
-
-      for (key in norm) {
-        if (hasOwn(norm, key) && !hasOwn(BROWSER_MIEDEMA_PARAMS, key)) {
-          missing.push(key);
-        }
-      }
-
-      if (missing.length) {
-        throw new Error(
-          "composition contains elements not in browser Miedema calculator data: " + sortStrings(missing).join(", ")
-        );
-      }
-
-      pairTerms = collectPairTerms(norm, browserPairEnthalpy);
-      return pairTerms.total;
-    }
-
-    function browserOmega(composition, options) {
-      var h = browserMixingEnthalpy(composition);
-      if (h === 0.0) {
-        return Infinity;
-      }
-      return (meltingTemperature(composition, options) * smix(composition)) / (Math.abs(h) * 1000.0);
-    }
-
     function buildPairResolver(options) {
       var pairTable = options && options.pairTable ? options.pairTable : PAIR_ENTHALPIES;
       var overrides = options && options.pairEnthalpyOverrides ? options.pairEnthalpyOverrides : null;
@@ -1271,9 +1095,6 @@
       GUO_VEC_BCC_THRESHOLD: GUO_VEC_BCC_THRESHOLD,
       ELEMENT_DATA: DEFAULT_ELEMENT_DATA,
       PAIR_ENTHALPIES: PAIR_ENTHALPIES,
-      browserPairEnthalpy: browserPairEnthalpy,
-      browserMixingEnthalpy: browserMixingEnthalpy,
-      browserOmega: browserOmega,
       pairKey: pairKey,
       normalizeComposition: normalizeComposition,
       calculateDescriptors: calculateDescriptors,

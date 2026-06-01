@@ -70,17 +70,17 @@ def _python_snapshot() -> dict[str, dict]:
         effective_temperature = (
             float(king_temperature) if king_temperature is not None else melting_temperature
         )
-        browser_hmix = hb.browser_mixing_enthalpy(composition)
-        browser_omega = hb.browser_omega(composition)
+        hmix = hb.mixing_enthalpy(composition)
+        omega_value = hb.omega(composition)
 
         descriptors = {
             "Smix": hb.smix(composition),
             "delta": hb.delta(composition),
             "Tm_K": melting_temperature,
             "Tm_C": melting_temperature - 273.15,
-            "Hmix": browser_hmix,
+            "Hmix": hmix,
             "VEC": hb.vec(composition),
-            "Omega": browser_omega,
+            "Omega": omega_value,
             "S_excess": hb.s_excess(composition),
             "DeltaG_ss": hb.delta_g_ss(composition, temperature=king_temperature),
             "DeltaG_max": hb.delta_g_max(composition),
@@ -96,7 +96,7 @@ def _python_snapshot() -> dict[str, dict]:
             "yang_omega": {
                 "verdict": (
                     "single-phase"
-                    if browser_omega > yang_omega.DEFAULT_THRESHOLD
+                    if omega_value > yang_omega.DEFAULT_THRESHOLD
                     else "multi-phase"
                 )
             },

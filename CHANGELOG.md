@@ -43,6 +43,27 @@ The format is loosely based on
 - 5 regression tests (`tests/test_learned_baseline.py`) pinning the
   held-out numbers; skipped when numpy or the v0.1.0 CSV is absent.
 
+### Changed
+
+- **Unified the calculator's `Hmix` / `Omega` on the vendored
+  pair-enthalpy table.** The browser calculator and `tests/
+  test_web_parity.py` previously displayed a separate live-Miedema
+  estimate for `Hmix` / `Omega` while the phi-family rules used the
+  vendored pair table. Both now derive from the single pair-table
+  path (`hea_bench.mixing_enthalpy` / `hea_bench.omega`), so every
+  descriptor on the page is internally consistent and matches the
+  Python library.
+
+### Removed
+
+- **Legacy live-Miedema descriptor path.** Removed the
+  `hea_bench.descriptors.browser_compat` module (and its
+  `browser_mixing_enthalpy` / `browser_omega` exports), the
+  `browser*` helpers and `BROWSER_MIEDEMA_*` tables in
+  `web/hea-calculator-core.js`, and the corresponding dead code in
+  `web/index.html`. The extended Miedema formation-enthalpy panel
+  (compound / solid-solution / amorphous decompositions) is unchanged.
+
 ## [1.2.0] — elemental coverage 24 → 30 (complete; release on hold)
 
 `v1.2-coverage` branch, stacked on `v1.1-phi`.

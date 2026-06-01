@@ -5239,8 +5239,8 @@ font-family: 'Source Sans Pro'
 
     <script src="hea-calculator-core.js"></script>
     <script>
-      const VERSION = "1.1.0";
-      const VERSION_DATE = "2026-05-27";
+      const VERSION = "1.3.0";
+      const VERSION_DATE = "2026-06-01";
       const VERSION_HISTORY = [
         { version: "1.1.0", date: "2026-05-27", notes: "Added King/Ye phi descriptors, King temperature control, and JS parity core" },
         { version: "1.0.0", date: "2026-03-18", notes: "Initial versioned release" },
@@ -5417,60 +5417,6 @@ font-family: 'Source Sans Pro'
       /** Topological enthalpy constant β (Eq. 16a) */
       const BETA_TOPO = 3.5;
 
-      /**
-       * Compute equiatomic binary mixing enthalpy ΔH_ij (kJ/mol)
-       * using the Miedema semi-empirical model (chemical term only).
-       * Returns null if either element lacks Miedema parameters.
-       */
-      function computeMiedemaEnthalpy(elA, elB) {
-        const pA = MIEDEMA_PARAMS[elA];
-        const pB = MIEDEMA_PARAMS[elB];
-        if (!pA || !pB) return null;
-        if (elA === elB) return 0;
-
-        // Determine pair type and constants
-        const clsA = pA.cls, clsB = pB.cls;
-        let pairType;
-        if (clsA === "TM" && clsB === "TM") pairType = "TM-TM";
-        else if (clsA === "NTM" && clsB === "NTM") pairType = "NTM-NTM";
-        else pairType = "TM-NTM";
-
-        const P = MIEDEMA_P[pairType];
-        const Q = P * MIEDEMA_QP_RATIO;
-
-        // R hybridization correction
-        const rOverP_A = MIEDEMA_R_OVER_P[elA] || 1.0;
-        const rOverP_B = MIEDEMA_R_OVER_P[elB] || 1.0;
-        let R_val = 0;
-        if (pairType === "TM-NTM" || pairType === "NTM-NTM") {
-          R_val = rOverP_A * rOverP_B * P;
-        }
-
-        // Core calculation
-        const dPhi = pA.phi_star - pB.phi_star;
-        const dNws = pA.nws13 - pB.nws13;
-
-        // Volume correction with surface concentrations (de Boer et al. 1988, Eq. 2.10)
-        // a_vol parameters are fitted to V^{2/3} directly, no (2/3) exponent factor.
-        // Iterative self-consistent correction: V* depends on c_s which depends on V*.
-        const extA = ELEMENT_EXTENDED[elA];
-        const extB = ELEMENT_EXTENDED[elB];
-        const aA = (extA && extA.a_vol) || 0.04;
-        const aB = (extB && extB.a_vol) || 0.04;
-        let V23A = pA.V23, V23B = pB.V23;
-        for (let iter = 0; iter < 5; iter++) {
-          const csB = V23B / (V23A + V23B);
-          const csA = V23A / (V23A + V23B);
-          V23A = pA.V23 * (1 + aA * csB * dPhi);
-          V23B = pB.V23 * (1 - aB * csA * dPhi);
-        }
-
-        const volumeFactor = (2 * V23A * V23B) / (V23A + V23B);
-        const nwsAvgInv = 0.5 * (1 / pA.nws13 + 1 / pB.nws13);
-        const interfacialEnergy = (-P * dPhi * dPhi + Q * dNws * dNws - R_val) / nwsAvgInv;
-
-        return volumeFactor * interfacialEnergy;
-      }
 
       /**
        * Compute the Miedema interfacial enthalpy amplitude ΓAB
@@ -6536,37 +6482,8 @@ font-family: 'Source Sans Pro'
         return a < b ? `${a}|${b}` : `${b}|${a}`;
       }
 
-      function getLegacyBrowserPairEnthalpy(elA, elB) {
-        if (typeof calcCore.browserPairEnthalpy === "function") {
-          const value = calcCore.browserPairEnthalpy(elA, elB);
-          return Number.isFinite(value) ? value : null;
-        }
-        return computeMiedemaEnthalpy(elA, elB);
-      }
-
-      /**
-       * Resolve the pair enthalpy for a given key.
-       * Priority: 1) user manual edit → 2) Miedema computation
-       */
-      function getEffectivePairEnthalpy(key) {
-        if (Object.prototype.hasOwnProperty.call(pairEnthalpyEdits, key)) {
-          return pairEnthalpyEdits[key];
-        }
-        const [elA, elB] = key.split("|");
-        if (elA && elB) {
-          const miedema = getLegacyBrowserPairEnthalpy(elA, elB);
-          if (miedema !== null) return miedema;
-        }
-        return undefined;
-      }
-
       /** Get the auto-computed default value for a pair. */
       function getDefaultPairEnthalpy(key) {
-        const [elA, elB] = key.split("|");
-        if (elA && elB) {
-          const miedema = getLegacyBrowserPairEnthalpy(elA, elB);
-          if (miedema !== null) return { value: miedema, source: "miedema" };
-        }
         if (Object.prototype.hasOwnProperty.call(calcCore.PAIR_ENTHALPIES, key)) {
           return { value: calcCore.PAIR_ENTHALPIES[key], source: "hea_bench" };
         }
@@ -6611,9 +6528,7 @@ font-family: 'Source Sans Pro'
             if (edited !== undefined) {
               sourceLabel = `<span class="pair-source pair-source-manual" title="User-entered value">manual</span>`;
             } else if (source === "hea_bench") {
-              sourceLabel = `<span class="pair-source pair-source-miedema" title="Fallback vendored pair table from the Python library">hea-bench</span>`;
-            } else if (source === "miedema") {
-              sourceLabel = `<span class="pair-source pair-source-miedema" title="Auto-computed via the calculator's browser-compatible Miedema chemical-term model">Miedema</span>`;
+              sourceLabel = `<span class="pair-source pair-source-miedema" title="Vendored pair table from the Python library">hea-bench</span>`;
             }
 
             rows.push(`
@@ -6648,25 +6563,18 @@ font-family: 'Source Sans Pro'
           elementData: ELEMENT_DATA,
           kingTemperature: getKingTemperatureOverride(),
           pairEnthalpyOverrides: pairEnthalpyEdits,
-          pairEnthalpyResolver: (elA, elB) => getLegacyBrowserPairEnthalpy(elA, elB),
         };
 
+        // Hmix/Omega and the phi-family descriptors all derive from the same
+        // vendored pair-enthalpy table used by the Python library (hea_bench).
         const coreResult = calcCore.calculateDescriptors(fractions, sharedOptions);
-        // Keep the browser calculator's legacy Miedema-backed Hmix/Omega path
-        // while the phi-family outputs stay aligned to the Python pair table.
-        const browserMixResult = calcCore.calculateDescriptors(fractions, {
-          ...sharedOptions,
-          pairTable: {},
-        });
 
-        const warnings = [...new Set([...(browserMixResult.warnings || []), ...(coreResult.warnings || [])])];
+        const warnings = [...new Set(coreResult.warnings || [])];
         const miedema = calculateMiedemaDescriptors(elements, fractions);
         if (miedema.warnings) warnings.push(...miedema.warnings);
 
         const descriptors = {
           ...coreResult.descriptors,
-          Hmix: browserMixResult.descriptors.Hmix,
-          Omega: browserMixResult.descriptors.Omega,
           H_compound: miedema.compound ? miedema.compound.H_form : null,
           H_SS_total: miedema.solidSolution ? miedema.solidSolution.H_total : null,
           H_SS_chem: miedema.solidSolution ? miedema.solidSolution.H_chem : null,
@@ -7234,6 +7142,5 @@ font-family: 'Source Sans Pro'
 
       document.getElementById("version-badge").textContent = "v" + VERSION + " — " + VERSION_DATE;
     </script>
-  <script defer="" src="./Thermodynamic Descriptor Calculator_files/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;13d07307214c430eb7475763434b6a90&quot;,&quot;r&quot;:1,&quot;server_timing&quot;:{&quot;name&quot;:{&quot;cfCacheStatus&quot;:true,&quot;cfEdge&quot;:true,&quot;cfExtPri&quot;:true,&quot;cfL4&quot;:true,&quot;cfOrigin&quot;:true,&quot;cfSpeedBrain&quot;:true},&quot;location_startswith&quot;:null}}" crossorigin="anonymous"></script>
 
 </body></html>

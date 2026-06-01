@@ -15,7 +15,7 @@
 ## License status
 
 **No LICENSE file declared in the upstream repository.** Per the
-`hea-bench` hybrid redistribution policy (PROJECT_PLAN.md §7), this means
+`hea-bench` redistribution policy (see `data/raw/README.md`), this means
 we **do not redistribute** the CSV inside this repo. Users must download
 it directly from upstream via `fetch.py`. The repository owner retains
 all rights; users are responsible for confirming their own permitted use.

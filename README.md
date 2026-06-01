@@ -148,10 +148,9 @@ sub = build_intermetallic_subbench_report()
 sub["in_sample"]["ye_phi_20_0"]["youden_j"]  # 0.191 (vs -0.012 on the coarse main benchmark)
 ```
 
-Need the exact HTML calculator `Hmix` / `Omega` path from Python?
-Use `hea_bench.browser_mixing_enthalpy(...)` and
-`hea_bench.browser_omega(...)`. The benchmark-default
-`mixing_enthalpy(...)` / `omega(...)` APIs remain the pair-table
+Both the Python library and the HTML calculator compute `Hmix` /
+`Omega` from the same vendored pair-enthalpy table via
+`hea_bench.mixing_enthalpy(...)` / `hea_bench.omega(...)`, the
 definitions used by the pinned evaluation artifacts.
 
 ## Quick start (CLI)
@@ -182,9 +181,9 @@ King `Phi` solid-solution/intermetallic, Ye `phi`
 solid-solution/intermetallic) alongside the computed descriptor values.
 The parity-critical math lives in `web/hea-calculator-core.js` and is
 regression-checked against Python by `tests/test_web_parity.py`.
-The calculator's displayed `Hmix` / `Omega` path is also exposed from
-Python as `hea_bench.browser_mixing_enthalpy(...)` and
-`hea_bench.browser_omega(...)`.
+The calculator's displayed `Hmix` / `Omega` come from the same
+vendored pair-enthalpy table as `hea_bench.mixing_enthalpy(...)` and
+`hea_bench.omega(...)`.
 
 ## Architecture
 

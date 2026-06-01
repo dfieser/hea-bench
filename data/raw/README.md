@@ -8,7 +8,7 @@ has:
 - `fetch.py` (where applicable) — downloads the dataset from upstream when
   redistribution isn't permitted
 - `<dataset>.csv` (where redistribution *is* permitted under the hybrid
-  policy in `PROJECT_PLAN.md` §7)
+  policy summarized below)
 
 ## Redistribution policy summary
 

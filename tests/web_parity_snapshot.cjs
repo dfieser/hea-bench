@@ -10,25 +10,13 @@ const parityCases = JSON.parse(fs.readFileSync(casesPath, "utf8"));
 const snapshot = {};
 
 for (const parityCase of parityCases) {
-  const sharedOptions = {
-    pairEnthalpyResolver: calculatorCore.browserPairEnthalpy,
-  };
+  const sharedOptions = {};
   if (parityCase.king_temperature !== undefined) {
     sharedOptions.kingTemperature = Number(parityCase.king_temperature);
   }
   const coreResult = calculatorCore.calculateDescriptors(parityCase.composition, sharedOptions);
-  const browserMixResult = calculatorCore.calculateDescriptors(parityCase.composition, {
-    ...sharedOptions,
-    pairTable: {},
-  });
-  const descriptors = {
-    ...coreResult.descriptors,
-    Hmix: browserMixResult.descriptors.Hmix,
-    Omega: browserMixResult.descriptors.Omega,
-  };
-  const warnings = [
-    ...new Set([...(browserMixResult.warnings || []), ...(coreResult.warnings || [])]),
-  ];
+  const descriptors = { ...coreResult.descriptors };
+  const warnings = [...new Set(coreResult.warnings || [])];
   snapshot[parityCase.name] = {
     descriptors,
     rules: calculatorCore.rulePredictionsFromDescriptors(descriptors, {

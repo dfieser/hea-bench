@@ -12,7 +12,6 @@ Quick start::
 """
 
 from .composition import Composition, normalize, parse_formula
-from .descriptors.browser_compat import browser_mixing_enthalpy, browser_omega
 from .descriptors.entropy import smix
 from .descriptors.melting import melting_temperature
 from .descriptors.miedema import mixing_enthalpy
@@ -35,9 +34,7 @@ __all__ = [
     "vec",
     "melting_temperature",
     "mixing_enthalpy",
-    "browser_mixing_enthalpy",
     "omega",
-    "browser_omega",
     "delta_h_ss",
     "delta_g_ss",
     "delta_g_max",

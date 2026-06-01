@@ -9,12 +9,6 @@ build/
 .eggs/
 pip-wheel-metadata/
 
-# But DO commit the wheel served by the Pyodide frontend so the demo
-# "just works" after a clone. Rebuild this with:
-#   python -m pip wheel . --no-deps -w web/dist
-!web/dist/
-!web/dist/*.whl
-
 # Virtual environments
 .venv/
 venv/
