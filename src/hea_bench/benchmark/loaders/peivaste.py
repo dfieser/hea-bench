@@ -26,7 +26,7 @@ import csv
 import pathlib
 from collections.abc import Iterator
 
-from ..composition import from_element_columns
+from ...composition import from_element_columns
 from ..taxonomy import PEIVASTE_MAP
 from . import AlloyRecord
 

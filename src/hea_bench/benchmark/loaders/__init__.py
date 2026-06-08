@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..composition import Composition
+from ...composition import Composition
 from ..taxonomy import PhaseClass
 
 

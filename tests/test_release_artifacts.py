@@ -24,6 +24,7 @@ from hea_bench.evaluate import build_report
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 V010 = REPO_ROOT / "data" / "consolidated" / "v0.1.0"
 CSV = V010 / "consolidated.csv"
+V11_RULES = V010 / "rule_baselines_v1.1.json"
 
 pytestmark = pytest.mark.skipif(not CSV.exists(), reason=f"v0.1.0 CSV not at {CSV}")
 
@@ -34,6 +35,15 @@ def test_committed_rule_baselines_matches_fresh_build() -> None:
     field is an absolute path and is excluded from the comparison)."""
     committed = json.loads((V010 / "rule_baselines.json").read_text(encoding="utf-8"))
     fresh = build_report(CSV)
+    assert committed["n_rows_loaded"] == fresh["n_rows_loaded"]
+    assert committed["rules"] == fresh["rules"]
+
+
+def test_committed_v11_rule_baselines_matches_fresh_build() -> None:
+    """rule_baselines_v1.1.json must equal a fresh build_report() with
+    the phi rules enabled on the same frozen v0.1.0 benchmark."""
+    committed = json.loads(V11_RULES.read_text(encoding="utf-8"))
+    fresh = build_report(CSV, include_phi=True)
     assert committed["n_rows_loaded"] == fresh["n_rows_loaded"]
     assert committed["rules"] == fresh["rules"]
 

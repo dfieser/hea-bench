@@ -19,10 +19,45 @@ _CANTOR = {"Co": 0.2, "Cr": 0.2, "Fe": 0.2, "Mn": 0.2, "Ni": 0.2}
 
 # ---- elemental data table ----
 
-def test_table_has_24_elements() -> None:
-    """Mirrors the legacy ELEMENT_DATA scope; expanding coverage is a
-    later sub-step."""
-    assert len(ELEMENTAL_DATA) == 24
+def test_table_has_37_elements() -> None:
+    """The original 24 legacy elements plus the six v1.2 additions
+    (Mg, Zn, Sn, Re, Au, Li) plus the seven v1.3 additions
+    (Be, Ca, Ce, Gd, In, La, Sc). B, C, and N are deliberately
+    excluded; see the elemental.py docstring."""
+    assert len(ELEMENTAL_DATA) == 37
+
+
+def test_v12_v13_additions_present_bcn_absent() -> None:
+    """The v1.2 and v1.3 metals are in the table; the three problematic
+    non-metals are not."""
+    assert {"Mg", "Zn", "Sn", "Re", "Au", "Li"} <= covered_elements()
+    assert {"Be", "Ca", "Ce", "Gd", "In", "La", "Sc"} <= covered_elements()
+    assert "B" not in covered_elements()
+    assert "C" not in covered_elements()
+    assert "N" not in covered_elements()
+
+
+def test_v12_added_element_values_pinned() -> None:
+    """Cross-verified per-element scalars for the six v1.2 additions.
+
+    Radii are Goldschmidt 12-coordinate metallic radii (Housecroft &
+    Sharpe Appendix 6, matching the original 24's convention); melting
+    points are CRC; valences follow the s+d / group-number convention
+    used throughout the table. See elemental.py for the per-element
+    source comments and noted alternatives."""
+    expected = {
+        "Mg": (160.0, 923.15, 2),
+        "Zn": (137.0, 692.68, 12),
+        "Sn": (158.0, 505.08, 4),
+        "Re": (137.0, 3459.15, 7),
+        "Au": (144.0, 1337.33, 11),
+        "Li": (157.0, 453.65, 1),
+    }
+    for sym, (radius, melting, valence) in expected.items():
+        props = ELEMENTAL_DATA[sym]
+        assert props.radius_pm == pytest.approx(radius, abs=1e-9), sym
+        assert props.melting_K == pytest.approx(melting, abs=1e-9), sym
+        assert props.valence == valence, sym
 
 
 def test_covered_elements_matches_table_keys() -> None:

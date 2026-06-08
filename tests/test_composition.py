@@ -1,8 +1,8 @@
-"""Tests for hea_bench.benchmark.composition."""
+"""Tests for hea_bench.composition (formula parsing, normalization)."""
 
 import pytest
 
-from hea_bench.benchmark.composition import (
+from hea_bench.composition import (
     from_element_columns,
     normalize,
     parse_formula,

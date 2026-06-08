@@ -1,0 +1,257 @@
+{
+  "csv_path": "D:\\Documents\\Visual studio\\HTMLs\\hea-bench\\data\\consolidated\\v0.1.0\\consolidated.csv",
+  "holdout_mode": "kfold",
+  "seed": 0,
+  "test_fraction": null,
+  "in_sample": {
+    "csv_path": "D:\\Documents\\Visual studio\\HTMLs\\hea-bench\\data\\consolidated\\v0.1.0\\consolidated.csv",
+    "n_rows_loaded": 7684,
+    "rules": {
+      "zhang_delta_6_5": {
+        "n": 7127,
+        "n_positive_observed": 3668,
+        "n_negative_observed": 3459,
+        "true_positive": 3627,
+        "false_positive": 2944,
+        "true_negative": 515,
+        "false_negative": 41,
+        "accuracy": 0.581170197839203,
+        "sensitivity": 0.9888222464558343,
+        "specificity": 0.1488869615495808,
+        "youden_j": 0.1377092080054152,
+        "accuracy_ci95": [
+          0.5696750501621368,
+          0.5925778878360932
+        ],
+        "positive_label": "single-phase",
+        "confusion": {
+          "multi-phase->multi-phase": 515,
+          "single-phase->single-phase": 3627,
+          "single-phase->multi-phase": 2944,
+          "multi-phase->single-phase": 41
+        }
+      },
+      "yang_omega_1_1": {
+        "n": 7127,
+        "n_positive_observed": 3668,
+        "n_negative_observed": 3459,
+        "true_positive": 3484,
+        "false_positive": 3028,
+        "true_negative": 431,
+        "false_negative": 184,
+        "accuracy": 0.5493194892661709,
+        "sensitivity": 0.9498364231188658,
+        "specificity": 0.12460248626770742,
+        "youden_j": 0.07443890938657338,
+        "accuracy_ci95": [
+          0.5377442029082686,
+          0.5608416358235859
+        ],
+        "positive_label": "single-phase",
+        "confusion": {
+          "multi-phase->multi-phase": 431,
+          "single-phase->multi-phase": 3028,
+          "single-phase->single-phase": 3484,
+          "multi-phase->single-phase": 184
+        }
+      },
+      "guo_vec_stratified": {
+        "n_eval": 3567,
+        "accuracy": 0.6747967479674797,
+        "fcc_sensitivity": 0.9191321499013807,
+        "bcc_sensitivity": 0.49315738025415445,
+        "n_fcc_observed": 1521,
+        "n_bcc_observed": 2046,
+        "confusion": {
+          "FCC->FCC": 1398,
+          "BCC->BCC": 1009,
+          "FCC->BCC": 393,
+          "mixed->FCC": 111,
+          "BCC->FCC": 12,
+          "mixed->BCC": 644
+        }
+      },
+      "yeh_smix_descriptive": {
+        "n": 7684,
+        "fraction_HEA": 0.4699375325351379,
+        "fraction_MEA": 0.36907860489328476,
+        "fraction_dilute": 0.1609838625715773,
+        "bins": {
+          "MEA": 2836,
+          "dilute": 1237,
+          "HEA": 3611
+        }
+      }
+    }
+  },
+  "holdout_strict_consensus_fixed": {
+    "csv_path": "D:\\Documents\\Visual studio\\HTMLs\\hea-bench\\data\\consolidated\\v0.1.0\\consolidated.csv",
+    "protocol": "strict_consensus_kfold",
+    "k": 5,
+    "seed": 0,
+    "rules": {
+      "zhang_delta_6_5": {
+        "n_folds": 5,
+        "n_rows_total": 7784,
+        "n_rows_scored": 7127,
+        "positive_label": "single-phase",
+        "accuracy_mean": 0.5811702467951084,
+        "accuracy_se": 0.002247642040836495,
+        "sensitivity_mean": 0.9888216466984623,
+        "sensitivity_se": 0.0013230459279712633,
+        "specificity_mean": 0.14888617484921743,
+        "specificity_se": 0.003501651607055948,
+        "youden_j_mean": 0.1377078215476796,
+        "youden_j_se": 0.004575361910109062
+      },
+      "yang_omega_1_1": {
+        "n_folds": 5,
+        "n_rows_total": 7784,
+        "n_rows_scored": 7127,
+        "positive_label": "single-phase",
+        "accuracy_mean": 0.5493196525676042,
+        "accuracy_se": 0.0020060928170188793,
+        "sensitivity_mean": 0.9498366237811837,
+        "sensitivity_se": 0.0037933714490628314,
+        "specificity_mean": 0.12460369908735769,
+        "specificity_se": 0.0028083531280309543,
+        "youden_j_mean": 0.07444032286854134,
+        "youden_j_se": 0.0038129928047294526
+      }
+    }
+  },
+  "holdout_double_scored_fixed": {
+    "csv_path": "D:\\Documents\\Visual studio\\HTMLs\\hea-bench\\data\\consolidated\\v0.1.0\\consolidated.csv",
+    "protocol": "double_scored_kfold",
+    "k": 5,
+    "seed": 0,
+    "rules": {
+      "zhang_delta_6_5": {
+        "n_folds": 5,
+        "n_rows_total": 7784,
+        "n_rows_scored": 7227,
+        "positive_label": "single-phase",
+        "any_match": {
+          "n_folds": 5,
+          "n_rows_total": 7784,
+          "n_rows_scored": 7227,
+          "positive_label": "single-phase",
+          "accuracy_mean": 0.586965498427831,
+          "accuracy_se": 0.00044317092572762926,
+          "sensitivity_mean": 0.9890939174989934,
+          "sensitivity_se": 0.0012925910608954953,
+          "specificity_mean": 0.15084496047800677,
+          "specificity_se": 0.0023820368478789577,
+          "youden_j_mean": 0.13993887797700025,
+          "youden_j_se": 0.0011945674696717614
+        },
+        "all_match": {
+          "n_folds": 5,
+          "n_rows_total": 7784,
+          "n_rows_scored": 7227,
+          "positive_label": "single-phase",
+          "accuracy_mean": 0.5731284967001201,
+          "accuracy_se": 0.0004435472325140955,
+          "sensitivity_mean": 0.9866751208042028,
+          "sensitivity_se": 0.0018867307118538691,
+          "specificity_mean": 0.14503018061020878,
+          "specificity_se": 0.002093592195702261,
+          "youden_j_mean": 0.13170530141441167,
+          "youden_j_se": 0.001418486679367103
+        }
+      },
+      "yang_omega_1_1": {
+        "n_folds": 5,
+        "n_rows_total": 7784,
+        "n_rows_scored": 7227,
+        "positive_label": "single-phase",
+        "any_match": {
+          "n_folds": 5,
+          "n_rows_total": 7784,
+          "n_rows_scored": 7227,
+          "positive_label": "single-phase",
+          "accuracy_mean": 0.5555561936759082,
+          "accuracy_se": 0.0022900526453785075,
+          "sensitivity_mean": 0.9511174116186479,
+          "sensitivity_se": 0.0036899884823166857,
+          "specificity_mean": 0.12561494744172577,
+          "specificity_se": 0.0009509535938984074,
+          "youden_j_mean": 0.07673235906037372,
+          "youden_j_se": 0.004378165832898908
+        },
+        "all_match": {
+          "n_folds": 5,
+          "n_rows_total": 7784,
+          "n_rows_scored": 7227,
+          "positive_label": "single-phase",
+          "accuracy_mean": 0.5417191919481974,
+          "accuracy_se": 0.002289089860699556,
+          "sensitivity_mean": 0.948802960633121,
+          "sensitivity_se": 0.0037665144261820925,
+          "specificity_mean": 0.12123639393020066,
+          "specificity_se": 0.001173949120241525,
+          "youden_j_mean": 0.07003935456332169,
+          "youden_j_se": 0.004548170762440393
+        }
+      }
+    }
+  },
+  "holdout_strict_consensus_tuned": {
+    "csv_path": "D:\\Documents\\Visual studio\\HTMLs\\hea-bench\\data\\consolidated\\v0.1.0\\consolidated.csv",
+    "protocol": "strict_consensus_kfold_tuned",
+    "k": 5,
+    "seed": 0,
+    "rules": {
+      "zhang_delta_tuned": {
+        "n_folds": 5,
+        "n_rows_total": 7784,
+        "n_rows_scored": 7127,
+        "positive_label": "single-phase",
+        "default_threshold": 6.5,
+        "tuning_objective": "train_fold_youden_j",
+        "threshold_mean": 6.6,
+        "threshold_se": 0.0,
+        "fold_thresholds": [
+          6.6,
+          6.6,
+          6.6,
+          6.6,
+          6.6
+        ],
+        "accuracy_mean": 0.5818717059127482,
+        "accuracy_se": 0.0021406883519076514,
+        "sensitivity_mean": 0.9934560296790836,
+        "sensitivity_se": 0.001519807062717657,
+        "specificity_mean": 0.14541671197811665,
+        "specificity_se": 0.0033028785082663253,
+        "youden_j_mean": 0.13887274165720043,
+        "youden_j_se": 0.00436240747507421
+      },
+      "yang_omega_tuned": {
+        "n_folds": 5,
+        "n_rows_total": 7784,
+        "n_rows_scored": 7127,
+        "positive_label": "single-phase",
+        "default_threshold": 1.1,
+        "tuning_objective": "train_fold_youden_j",
+        "threshold_mean": 2.7600000000000002,
+        "threshold_se": 0.04301162633521311,
+        "fold_thresholds": [
+          2.8,
+          2.75,
+          2.85,
+          2.6,
+          2.8
+        ],
+        "accuracy_mean": 0.5557755960729314,
+        "accuracy_se": 0.004585845829853036,
+        "sensitivity_mean": 0.6886573411496184,
+        "sensitivity_se": 0.008343575425103548,
+        "specificity_mean": 0.41486494399504786,
+        "specificity_se": 0.007258125011069066,
+        "youden_j_mean": 0.10352228514466626,
+        "youden_j_se": 0.009100119672241972
+      }
+    }
+  }
+}

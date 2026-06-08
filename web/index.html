@@ -4829,6 +4829,11 @@ font-family: 'Source Sans Pro'
           <button id="parse-formula" class="secondary">Parse</button>
           <button id="share-url" class="ghost">Copy URL</button>
         </div>
+        <div class="row" style="margin-bottom: 8px; align-items: center;">
+          <label for="king-temperature">King Phi temperature</label>
+          <input id="king-temperature" type="number" min="0" step="0.1" placeholder="blank = Tm">
+          <span class="small-note" style="margin: 0;">Leave blank to use the rule-of-mixtures Tm (King 2016 default).</span>
+        </div>
         <div class="row">
           <label for="element-count">Number of elements</label>
           <input id="element-count" type="number" min="2" max="10" value="5">
@@ -4949,7 +4954,7 @@ font-family: 'Source Sans Pro'
           <div style="padding: 10px 12px; color: #64748b;">Select at least two elements to show pairs.</div>
         </div>
         <p class="small-note">Unique pairs (i&lt;j) for the currently selected elements.</p>
-        <p class="small-note">Calculated from the Miedema model. Override manually if needed.</p>
+        <p class="small-note">Defaults use the same vendored Miedema-derived pair table as the Python library. Override manually if needed.</p>
       </section>
 
       <div id="error" class="error hidden"></div>
@@ -5073,13 +5078,17 @@ font-family: 'Source Sans Pro'
                 <th>ΔH mix</th>
                 <th>VEC</th>
                 <th>Ω</th>
+                <th>S_E</th>
+                <th>King Phi</th>
+                <th>Ye phi</th>
+                <th>King T (K)</th>
                 <th>ΔH comp</th>
                 <th>ΔH SS</th>
                 <th>ΔH AM</th>
                 <th>Action</th>
               </tr>
             </thead>
-            <tbody id="saved-results-body"><tr><td colspan="12" style="color: #64748b;">No saved results yet.</td></tr></tbody>
+            <tbody id="saved-results-body"><tr><td colspan="16" style="color: #64748b;">No saved results yet.</td></tr></tbody>
           </table>
         </div>
       </section>
@@ -5202,13 +5211,38 @@ font-family: 'Source Sans Pro'
                 <a href="https://doi.org/10.1103/PhysRevLett.65.353" target="_blank" rel="noopener noreferrer">https://doi.org/10.1103/PhysRevLett.65.353</a>
               </li>
         </ul>
+        <div style="margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted-2); line-height: 1.75;">
+          <p style="margin: 0 0 7px;">
+            <strong style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted);">Disclaimer</strong> &mdash;
+            Results are empirical estimates provided for research and informational purposes only. No warranty is made as to accuracy, completeness, or fitness for any particular purpose. Do not use these outputs as the sole basis for engineering design, safety-critical analysis, or commercial material qualification without independent verification by validated thermodynamic methods (e.g. CALPHAD or DFT).
+          </p>
+          <p style="margin: 0 0 7px;">
+            &copy; 2026 David Fieser &mdash; released under the
+            <a href="../LICENSE" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted-2); text-decoration: underline;">MIT License</a>
+            (&ldquo;as&nbsp;is,&rdquo; without warranty of any kind).
+            Archived at <a href="https://doi.org/10.5281/zenodo.20346287" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted-2); text-decoration: underline;">doi:10.5281/zenodo.20346287</a>.
+          </p>
+          <p style="margin: 0 0 7px;">
+            <strong style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted);">Third-party notices</strong> &mdash;
+            Equation rendering by <a href="https://www.mathjax.org/" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted-2); text-decoration: underline;">MathJax</a> 3.2.2
+            &copy; The MathJax Consortium, Apache-2.0 license (see <code style="font-size: 11px;">mathjax/LICENSE</code>).
+            Miedema elemental parameters in the Python library derived from
+            <a href="https://github.com/hackingmaterials/matminer" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted-2); text-decoration: underline;">matminer</a>,
+            BSD-3-Clause (see <code style="font-size: 11px;">src/hea_bench/descriptors/data/LICENSE.matminer.txt</code>).
+          </p>
+          <p style="margin: 0;">
+            <a href="./privacy.html" style="color: var(--text-muted-2); text-decoration: underline;">Privacy Policy</a>
+          </p>
+        </div>
       </footer>
     </div>
 
+    <script src="hea-calculator-core.js"></script>
     <script>
-      const VERSION = "1.0.0";
-      const VERSION_DATE = "2026-03-18";
+      const VERSION = "1.3.0";
+      const VERSION_DATE = "2026-06-01";
       const VERSION_HISTORY = [
+        { version: "1.1.0", date: "2026-05-27", notes: "Added King/Ye phi descriptors, King temperature control, and JS parity core" },
         { version: "1.0.0", date: "2026-03-18", notes: "Initial versioned release" },
       ];
 
@@ -5221,6 +5255,11 @@ font-family: 'Source Sans Pro'
       };
 
       const CUSTOM_OPTION_VALUE = "__custom__";
+
+      const calcCore = window.HeaCalculatorCore;
+      if (!calcCore) {
+        throw new Error("hea-calculator-core.js failed to load.");
+      }
 
       const ELEMENT_DATA = {
         Ti: { radius: 147.0, melting: 1941.0, valence: 4 },
@@ -5378,60 +5417,6 @@ font-family: 'Source Sans Pro'
       /** Topological enthalpy constant β (Eq. 16a) */
       const BETA_TOPO = 3.5;
 
-      /**
-       * Compute equiatomic binary mixing enthalpy ΔH_ij (kJ/mol)
-       * using the Miedema semi-empirical model (chemical term only).
-       * Returns null if either element lacks Miedema parameters.
-       */
-      function computeMiedemaEnthalpy(elA, elB) {
-        const pA = MIEDEMA_PARAMS[elA];
-        const pB = MIEDEMA_PARAMS[elB];
-        if (!pA || !pB) return null;
-        if (elA === elB) return 0;
-
-        // Determine pair type and constants
-        const clsA = pA.cls, clsB = pB.cls;
-        let pairType;
-        if (clsA === "TM" && clsB === "TM") pairType = "TM-TM";
-        else if (clsA === "NTM" && clsB === "NTM") pairType = "NTM-NTM";
-        else pairType = "TM-NTM";
-
-        const P = MIEDEMA_P[pairType];
-        const Q = P * MIEDEMA_QP_RATIO;
-
-        // R hybridization correction
-        const rOverP_A = MIEDEMA_R_OVER_P[elA] || 1.0;
-        const rOverP_B = MIEDEMA_R_OVER_P[elB] || 1.0;
-        let R_val = 0;
-        if (pairType === "TM-NTM" || pairType === "NTM-NTM") {
-          R_val = rOverP_A * rOverP_B * P;
-        }
-
-        // Core calculation
-        const dPhi = pA.phi_star - pB.phi_star;
-        const dNws = pA.nws13 - pB.nws13;
-
-        // Volume correction with surface concentrations (de Boer et al. 1988, Eq. 2.10)
-        // a_vol parameters are fitted to V^{2/3} directly, no (2/3) exponent factor.
-        // Iterative self-consistent correction: V* depends on c_s which depends on V*.
-        const extA = ELEMENT_EXTENDED[elA];
-        const extB = ELEMENT_EXTENDED[elB];
-        const aA = (extA && extA.a_vol) || 0.04;
-        const aB = (extB && extB.a_vol) || 0.04;
-        let V23A = pA.V23, V23B = pB.V23;
-        for (let iter = 0; iter < 5; iter++) {
-          const csB = V23B / (V23A + V23B);
-          const csA = V23A / (V23A + V23B);
-          V23A = pA.V23 * (1 + aA * csB * dPhi);
-          V23B = pB.V23 * (1 - aB * csA * dPhi);
-        }
-
-        const volumeFactor = (2 * V23A * V23B) / (V23A + V23B);
-        const nwsAvgInv = 0.5 * (1 / pA.nws13 + 1 / pB.nws13);
-        const interfacialEnergy = (-P * dPhi * dPhi + Q * dNws * dNws - R_val) / nwsAvgInv;
-
-        return volumeFactor * interfacialEnergy;
-      }
 
       /**
        * Compute the Miedema interfacial enthalpy amplitude ΓAB
@@ -5750,6 +5735,7 @@ font-family: 'Source Sans Pro'
       const resetBtn = document.getElementById("reset");
       const elementCountInput = document.getElementById("element-count");
       const formulaInput = document.getElementById("formula-input");
+      const kingTemperatureInput = document.getElementById("king-temperature");
       const parseFormulaBtn = document.getElementById("parse-formula");
       const shareUrlBtn = document.getElementById("share-url");
 
@@ -5825,6 +5811,12 @@ font-family: 'Source Sans Pro'
             Hmix: Number(descriptors.Hmix),
             VEC: Number(descriptors.VEC),
             Omega: Number(descriptors.Omega),
+            S_excess: descriptors.S_excess != null ? Number(descriptors.S_excess) : null,
+            DeltaG_ss: descriptors.DeltaG_ss != null ? Number(descriptors.DeltaG_ss) : null,
+            DeltaG_max: descriptors.DeltaG_max != null ? Number(descriptors.DeltaG_max) : null,
+            Phi_king: descriptors.Phi_king != null ? Number(descriptors.Phi_king) : null,
+            Phi_ye: descriptors.Phi_ye != null ? Number(descriptors.Phi_ye) : null,
+            King_temperature_K: descriptors.King_temperature_K != null ? Number(descriptors.King_temperature_K) : null,
             H_compound: descriptors.H_compound != null ? Number(descriptors.H_compound) : null,
             H_SS_total: descriptors.H_SS_total != null ? Number(descriptors.H_SS_total) : null,
             H_SS_chem: descriptors.H_SS_chem != null ? Number(descriptors.H_SS_chem) : null,
@@ -5895,6 +5887,10 @@ font-family: 'Source Sans Pro'
           elementCount: count,
           elements: cleanedElements,
           percents: cleanedPercents,
+          kingTemperature: (() => {
+            const value = Number(kingTemperatureInput.value);
+            return Number.isFinite(value) && value > 0 ? value : null;
+          })(),
           pairEnthalpyEdits: { ...pairEnthalpyEdits },
           savedAt: Date.now(),
         };
@@ -5932,6 +5928,7 @@ font-family: 'Source Sans Pro'
           elementCount,
           elements,
           percents,
+          kingTemperature: parsed.kingTemperature != null ? Number(parsed.kingTemperature) : null,
           pairEnthalpyEdits: sanitizePairEdits(parsed.pairEnthalpyEdits),
         };
       }
@@ -5957,6 +5954,12 @@ font-family: 'Source Sans Pro'
           const value = Number(state.percents?.[idx]);
           if (Number.isFinite(value)) input.value = String(value);
         });
+
+        if (state.kingTemperature != null && Number.isFinite(state.kingTemperature) && state.kingTemperature > 0) {
+          kingTemperatureInput.value = String(state.kingTemperature);
+        } else {
+          kingTemperatureInput.value = "";
+        }
 
         pairEnthalpyEdits = state.pairEnthalpyEdits ? { ...state.pairEnthalpyEdits } : {};
         renderPairEnthalpyEditor();
@@ -6184,6 +6187,21 @@ font-family: 'Source Sans Pro'
         return Number(value).toPrecision(digits);
       }
 
+      function getKingTemperatureOverride() {
+        const value = Number(kingTemperatureInput.value);
+        if (Number.isFinite(value) && value > 0) {
+          return value;
+        }
+        return null;
+      }
+
+      function formatVerdict(value) {
+        if (!value) {
+          return "—";
+        }
+        return String(value).replace(/_/g, " ");
+      }
+
       function showError(message) {
         if (!message) {
           errorEl.classList.add("hidden");
@@ -6211,6 +6229,10 @@ font-family: 'Source Sans Pro'
         }
 
         const { composition, descriptors } = payload;
+        const rules = payload.rules || calcCore.rulePredictionsFromDescriptors(descriptors, {
+          kingThreshold: calcCore.KING_PHI_THRESHOLD,
+          yeThreshold: calcCore.YE_PHI_THRESHOLD,
+        });
         const compositionItems = Object.entries(composition)
           .map(
             ([k, v]) =>
@@ -6267,6 +6289,36 @@ font-family: 'Source Sans Pro'
             symbol: "Ω",
             units: "—",
             value: formatNumber(descriptors.Omega),
+          },
+          {
+            title: "Mismatch entropy",
+            symbol: "S_E",
+            units: "J/mol·K",
+            value: descriptors.S_excess != null ? formatNumber(descriptors.S_excess) : "—",
+          },
+          {
+            title: "Solid-solution Gibbs proxy",
+            symbol: "ΔG SS",
+            units: "kJ/mol",
+            value: descriptors.DeltaG_ss != null ? formatNumber(descriptors.DeltaG_ss) : "—",
+          },
+          {
+            title: "Most stable binary proxy",
+            symbol: "ΔG max",
+            units: "kJ/mol",
+            value: descriptors.DeltaG_max != null ? formatNumber(descriptors.DeltaG_max) : "—",
+          },
+          {
+            title: "King Phi",
+            symbol: "Φ",
+            units: "—",
+            value: descriptors.Phi_king != null ? formatNumber(descriptors.Phi_king) : "—",
+          },
+          {
+            title: "Ye phi",
+            symbol: "φ",
+            units: "—",
+            value: descriptors.Phi_ye != null ? formatNumber(descriptors.Phi_ye) : "—",
           },
         ];
 
@@ -6365,73 +6417,42 @@ font-family: 'Source Sans Pro'
           });
         }
 
-        // Apply the four canonical phase-prediction rules to the
-        // composition's descriptor values. Verdicts mirror the Python
-        // library exactly: a missing descriptor yields a "—" verdict
-        // rather than a guess.
-        const R_GAS = 8.314;  // J/(mol K)
-        const isNum = (v) => typeof v === "number" && Number.isFinite(v);
         const ruleCards = [];
-
-        // Yeh entropy rule: HEA if ΔS_mix > 1.5R, MEA if R ≤ ΔS_mix ≤ 1.5R,
-        // else dilute (Yeh et al. 2004).
-        let yehVerdict = "—";
-        if (isNum(descriptors.Smix)) {
-          if (descriptors.Smix > 1.5 * R_GAS) yehVerdict = "HEA (high-entropy)";
-          else if (descriptors.Smix >= R_GAS) yehVerdict = "MEA (medium-entropy)";
-          else yehVerdict = "dilute";
-        }
         ruleCards.push({
           title: "Yeh entropy rule",
           symbol: "ΔS mix vs 1.5R, R",
-          units: isNum(descriptors.Smix) ? `ΔS mix = ${formatNumber(descriptors.Smix)} J/mol·K` : "—",
-          value: yehVerdict,
+          units: descriptors.Smix != null ? `ΔS mix = ${formatNumber(descriptors.Smix)} J/mol·K` : "—",
+          value: formatVerdict(rules.yeh_smix.verdict),
         });
-
-        // Zhang size-mismatch rule: single-phase solid solution if
-        // δ < 6.5 % (Zhang et al. 2008).
-        let zhangVerdict = "—";
-        if (isNum(descriptors.delta)) {
-          zhangVerdict = descriptors.delta < 6.5 ? "single-phase" : "multi-phase";
-        }
         ruleCards.push({
           title: "Zhang size-mismatch rule",
           symbol: "δ < 6.5 % → single-phase",
-          units: isNum(descriptors.delta) ? `δ = ${formatNumber(descriptors.delta)} %` : "—",
-          value: zhangVerdict,
+          units: descriptors.delta != null ? `δ = ${formatNumber(descriptors.delta)} %` : "—",
+          value: formatVerdict(rules.zhang_delta.verdict),
         });
-
-        // Guo–Liu valence-electron rule: FCC if VEC ≥ 8.0, BCC if
-        // VEC < 6.87, mixed otherwise (Guo & Liu 2011). The VEC is
-        // rounded to 6 decimals before the boundary test so that
-        // exact-integer cases like equiatomic CrFeNi (VEC = 8.0) are
-        // not flipped by float-summation noise. Matches the Python
-        // library's guo_vec.predict implementation exactly.
-        let guoVerdict = "—";
-        if (isNum(descriptors.VEC)) {
-          const vec = Math.round(descriptors.VEC * 1e6) / 1e6;
-          if (vec >= 8.0) guoVerdict = "FCC";
-          else if (vec < 6.87) guoVerdict = "BCC";
-          else guoVerdict = "mixed (FCC + BCC)";
-        }
         ruleCards.push({
           title: "Guo–Liu VEC rule",
           symbol: "VEC bounds 6.87, 8.0",
-          units: isNum(descriptors.VEC) ? `VEC = ${formatNumber(descriptors.VEC)}` : "—",
-          value: guoVerdict,
+          units: descriptors.VEC != null ? `VEC = ${formatNumber(descriptors.VEC)}` : "—",
+          value: formatVerdict(rules.guo_vec.verdict === "mixed" ? "mixed (FCC + BCC)" : rules.guo_vec.verdict),
         });
-
-        // Yang–Zhang Ω rule: single-phase solid solution if Ω > 1.1
-        // (Yang & Zhang 2012).
-        let yangVerdict = "—";
-        if (isNum(descriptors.Omega)) {
-          yangVerdict = descriptors.Omega > 1.1 ? "single-phase" : "multi-phase";
-        }
         ruleCards.push({
           title: "Yang–Zhang Ω rule",
           symbol: "Ω > 1.1 → single-phase",
-          units: isNum(descriptors.Omega) ? `Ω = ${formatNumber(descriptors.Omega)}` : "—",
-          value: yangVerdict,
+          units: descriptors.Omega != null ? `Ω = ${formatNumber(descriptors.Omega)}` : "—",
+          value: formatVerdict(rules.yang_omega.verdict),
+        });
+        ruleCards.push({
+          title: "King Phi rule",
+          symbol: `Φ >= ${formatNumber(rules.king_phi.threshold, 4)} → solid solution`,
+          units: descriptors.Phi_king != null ? `Φ = ${formatNumber(descriptors.Phi_king)} at T = ${formatNumber(descriptors.King_temperature_K, 5)} K` : "—",
+          value: formatVerdict(rules.king_phi.verdict),
+        });
+        ruleCards.push({
+          title: "Ye phi rule",
+          symbol: `φ >= ${formatNumber(rules.ye_phi.threshold, 4)} → solid solution`,
+          units: descriptors.Phi_ye != null ? `φ = ${formatNumber(descriptors.Phi_ye)}` : "—",
+          value: formatVerdict(rules.ye_phi.verdict),
         });
 
         rulesPanelEl.classList.remove("hidden");
@@ -6461,28 +6482,10 @@ font-family: 'Source Sans Pro'
         return a < b ? `${a}|${b}` : `${b}|${a}`;
       }
 
-      /**
-       * Resolve the pair enthalpy for a given key.
-       * Priority: 1) user manual edit → 2) Miedema computation
-       */
-      function getEffectivePairEnthalpy(key) {
-        if (Object.prototype.hasOwnProperty.call(pairEnthalpyEdits, key)) {
-          return pairEnthalpyEdits[key];
-        }
-        const [elA, elB] = key.split("|");
-        if (elA && elB) {
-          const miedema = computeMiedemaEnthalpy(elA, elB);
-          if (miedema !== null) return miedema;
-        }
-        return undefined;
-      }
-
-      /** Get the auto-computed default value for a pair (Miedema computation). */
+      /** Get the auto-computed default value for a pair. */
       function getDefaultPairEnthalpy(key) {
-        const [elA, elB] = key.split("|");
-        if (elA && elB) {
-          const miedema = computeMiedemaEnthalpy(elA, elB);
-          if (miedema !== null) return { value: miedema, source: "miedema" };
+        if (Object.prototype.hasOwnProperty.call(calcCore.PAIR_ENTHALPIES, key)) {
+          return { value: calcCore.PAIR_ENTHALPIES[key], source: "hea_bench" };
         }
         return null;
       }
@@ -6524,8 +6527,8 @@ font-family: 'Source Sans Pro'
             let sourceLabel = "";
             if (edited !== undefined) {
               sourceLabel = `<span class="pair-source pair-source-manual" title="User-entered value">manual</span>`;
-            } else if (source === "miedema") {
-              sourceLabel = `<span class="pair-source pair-source-miedema" title="Auto-computed via Miedema model (de Boer et al. 1988)">Miedema</span>`;
+            } else if (source === "hea_bench") {
+              sourceLabel = `<span class="pair-source pair-source-miedema" title="Vendored pair table from the Python library">hea-bench</span>`;
             }
 
             rows.push(`
@@ -6556,81 +6559,38 @@ font-family: 'Source Sans Pro'
       }
 
       function calculateDescriptors(elements, fractions) {
-        const warnings = [];
-        const radii = {};
-        const melting = {};
-        const valence = {};
+        const sharedOptions = {
+          elementData: ELEMENT_DATA,
+          kingTemperature: getKingTemperatureOverride(),
+          pairEnthalpyOverrides: pairEnthalpyEdits,
+        };
 
-        elements.forEach((el) => {
-          if (el === CUSTOM_OPTION_VALUE) {
-            throw new Error("Custom element is not configured. Enter properties and save it.");
-          }
-          if (!ELEMENT_DATA[el]) {
-            throw new Error(`No atomic data for element '${el}'.`);
-          }
-          radii[el] = ELEMENT_DATA[el].radius;
-          melting[el] = ELEMENT_DATA[el].melting;
-          valence[el] = ELEMENT_DATA[el].valence;
-        });
+        // Hmix/Omega and the phi-family descriptors all derive from the same
+        // vendored pair-enthalpy table used by the Python library (hea_bench).
+        const coreResult = calcCore.calculateDescriptors(fractions, sharedOptions);
 
-        const rBar = elements.reduce((sum, el) => sum + fractions[el] * radii[el], 0);
-        const Tm = elements.reduce((sum, el) => sum + fractions[el] * melting[el], 0);
-        const Smix = -R * elements.reduce((sum, el) => sum + fractions[el] * Math.log(fractions[el]), 0);
-        const delta =
-          100 *
-          Math.sqrt(
-            elements.reduce(
-              (sum, el) => sum + fractions[el] * Math.pow(1 - radii[el] / rBar, 2),
-              0
-            )
-          );
-        const VEC = elements.reduce((sum, el) => sum + fractions[el] * valence[el], 0);
-
-        let Hmix = 0;
-        for (let i = 0; i < elements.length; i += 1) {
-          for (let j = i + 1; j < elements.length; j += 1) {
-            const ei = elements[i];
-            const ej = elements[j];
-            const key = getPairKey(ei, ej);
-            const Hij = getEffectivePairEnthalpy(key);
-            if (Hij === undefined) {
-              warnings.push(`Missing ΔH_ij for ${ei}–${ej}; assumed 0.`);
-              Hmix += 0;
-            } else {
-              Hmix += 4 * Hij * fractions[ei] * fractions[ej];
-            }
-          }
-        }
-
-        const HmixJ = Hmix * 1000;
-        const Omega = HmixJ === 0 ? Infinity : (Tm * Smix) / Math.abs(HmixJ);
-        const TmC = Tm - 273.15;
-
-        // Miedema-theory formation enthalpies (Zhang et al. 2016)
+        const warnings = [...new Set(coreResult.warnings || [])];
         const miedema = calculateMiedemaDescriptors(elements, fractions);
         if (miedema.warnings) warnings.push(...miedema.warnings);
 
+        const descriptors = {
+          ...coreResult.descriptors,
+          H_compound: miedema.compound ? miedema.compound.H_form : null,
+          H_SS_total: miedema.solidSolution ? miedema.solidSolution.H_total : null,
+          H_SS_chem: miedema.solidSolution ? miedema.solidSolution.H_chem : null,
+          H_SS_elast: miedema.solidSolution ? miedema.solidSolution.H_elast : null,
+          H_SS_struct: miedema.solidSolution ? miedema.solidSolution.H_struct : null,
+          H_AM_total: miedema.amorphous ? miedema.amorphous.H_total : null,
+          H_AM_chem: miedema.amorphous ? miedema.amorphous.H_chem : null,
+          H_AM_topo: miedema.amorphous ? miedema.amorphous.H_topo : null,
+        };
+
         return {
-          descriptors: {
-            Smix,
-            delta,
-            Tm_K: Tm,
-            Tm_C: TmC,
-            Hmix,
-            VEC,
-            Omega,
-            // Miedema compound
-            H_compound: miedema.compound ? miedema.compound.H_form : null,
-            // Solid solution breakdown
-            H_SS_total: miedema.solidSolution ? miedema.solidSolution.H_total : null,
-            H_SS_chem: miedema.solidSolution ? miedema.solidSolution.H_chem : null,
-            H_SS_elast: miedema.solidSolution ? miedema.solidSolution.H_elast : null,
-            H_SS_struct: miedema.solidSolution ? miedema.solidSolution.H_struct : null,
-            // Amorphous
-            H_AM_total: miedema.amorphous ? miedema.amorphous.H_total : null,
-            H_AM_chem: miedema.amorphous ? miedema.amorphous.H_chem : null,
-            H_AM_topo: miedema.amorphous ? miedema.amorphous.H_topo : null,
-          },
+          descriptors,
+          rules: calcCore.rulePredictionsFromDescriptors(descriptors, {
+            kingThreshold: calcCore.KING_PHI_THRESHOLD,
+            yeThreshold: calcCore.YE_PHI_THRESHOLD,
+          }),
           warnings,
         };
       }
@@ -6713,8 +6673,8 @@ font-family: 'Source Sans Pro'
         );
 
         try {
-          const { descriptors, warnings } = calculateDescriptors(selected, fractions);
-          renderResults({ composition: fractions, descriptors });
+          const { descriptors, rules, warnings } = calculateDescriptors(selected, fractions);
+          renderResults({ composition: fractions, descriptors, rules });
           renderWarnings(warnings);
           lastCalculation = {
             timestamp: Date.now(),
@@ -6722,6 +6682,7 @@ font-family: 'Source Sans Pro'
             percents: Object.fromEntries(selected.map((el, idx) => [el, normalized[idx]])),
             composition: { ...fractions },
             descriptors: { ...descriptors },
+            rules: { ...rules },
           };
         } catch (error) {
           showError(error.message);
@@ -6791,6 +6752,10 @@ font-family: 'Source Sans Pro'
         });
         const url = new URL(window.location.href.split("?")[0]);
         url.searchParams.set("comp", parts.join(""));
+        const kingTemperature = getKingTemperatureOverride();
+        if (kingTemperature !== null) {
+          url.searchParams.set("kingT", String(kingTemperature));
+        }
         return url.toString();
       }
 
@@ -6798,7 +6763,9 @@ font-family: 'Source Sans Pro'
         const params = new URLSearchParams(window.location.search);
         const comp = params.get("comp");
         if (!comp) return false;
+        const kingTemperature = Number(params.get("kingT"));
         formulaInput.value = comp;
+        kingTemperatureInput.value = Number.isFinite(kingTemperature) && kingTemperature > 0 ? String(kingTemperature) : "";
         try {
           applyFormula();
           handleCalculate();
@@ -6825,6 +6792,7 @@ font-family: 'Source Sans Pro'
 
       function resetForm() {
         elementCountInput.value = 5;
+        kingTemperatureInput.value = "";
         renderRatioTable(5);
         showError("");
         showSaveMessage("");
@@ -6844,7 +6812,7 @@ font-family: 'Source Sans Pro'
         savedResultsBodyEl.innerHTML = "";
         if (!savedResults.length) {
           const tr = document.createElement("tr");
-          tr.innerHTML = `<td colspan="12" style="color: #64748b;">No saved results yet.</td>`;
+          tr.innerHTML = `<td colspan="16" style="color: #64748b;">No saved results yet.</td>`;
           savedResultsBodyEl.appendChild(tr);
           return;
         }
@@ -6863,6 +6831,10 @@ font-family: 'Source Sans Pro'
             <td>${formatNumber(row.descriptors.Hmix)}</td>
             <td>${formatNumber(row.descriptors.VEC)}</td>
             <td>${formatNumber(row.descriptors.Omega)}</td>
+            <td>${row.descriptors.S_excess != null ? formatNumber(row.descriptors.S_excess) : '—'}</td>
+            <td>${row.descriptors.Phi_king != null ? formatNumber(row.descriptors.Phi_king) : '—'}</td>
+            <td>${row.descriptors.Phi_ye != null ? formatNumber(row.descriptors.Phi_ye) : '—'}</td>
+            <td>${row.descriptors.King_temperature_K != null ? formatNumber(row.descriptors.King_temperature_K, 5) : '—'}</td>
             <td>${row.descriptors.H_compound != null ? formatNumber(row.descriptors.H_compound) : '—'}</td>
             <td>${row.descriptors.H_SS_total != null ? formatNumber(row.descriptors.H_SS_total) : '—'}</td>
             <td>${row.descriptors.H_AM_total != null ? formatNumber(row.descriptors.H_AM_total) : '—'}</td>
@@ -6896,6 +6868,10 @@ font-family: 'Source Sans Pro'
           "Mixing enthalpy (kJ/mol)",
           "Valence electron concentration (—)",
           "Omega parameter (—)",
+          "Mismatch entropy S_E (J/mol·K)",
+          "King Phi (—)",
+          "Ye phi (—)",
+          "King temperature (K)",
           "Compound enthalpy (kJ/mol)",
           "SS enthalpy (kJ/mol)",
           "SS chemical (kJ/mol)",
@@ -6919,6 +6895,10 @@ font-family: 'Source Sans Pro'
             row.descriptors.Hmix,
             row.descriptors.VEC,
             row.descriptors.Omega,
+            row.descriptors.S_excess ?? "",
+            row.descriptors.Phi_king ?? "",
+            row.descriptors.Phi_ye ?? "",
+            row.descriptors.King_temperature_K ?? "",
             row.descriptors.H_compound ?? "",
             row.descriptors.H_SS_total ?? "",
             row.descriptors.H_SS_chem ?? "",
@@ -7010,6 +6990,8 @@ font-family: 'Source Sans Pro'
           scheduleSaveFormState();
         }
       });
+
+      kingTemperatureInput.addEventListener("input", scheduleSaveFormState);
 
       customSaveBtn.addEventListener("click", () => {
         showError("");
@@ -7152,12 +7134,13 @@ font-family: 'Source Sans Pro'
         if (!restored) {
           renderRatioTable(5);
           renderPairEnthalpyEditor();
+          renderResults(null);
+          renderWarnings([]);
         }
       }
       renderSavedResultsTable();
 
       document.getElementById("version-badge").textContent = "v" + VERSION + " — " + VERSION_DATE;
     </script>
-  <script defer="" src="./Thermodynamic Descriptor Calculator_files/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;13d07307214c430eb7475763434b6a90&quot;,&quot;r&quot;:1,&quot;server_timing&quot;:{&quot;name&quot;:{&quot;cfCacheStatus&quot;:true,&quot;cfEdge&quot;:true,&quot;cfExtPri&quot;:true,&quot;cfL4&quot;:true,&quot;cfOrigin&quot;:true,&quot;cfSpeedBrain&quot;:true},&quot;location_startswith&quot;:null}}" crossorigin="anonymous"></script>
 
 </body></html>

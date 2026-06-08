@@ -1,12 +1,13 @@
 # hea-bench
 
-An open, reproducible benchmark suite and reference baselines for
+An open, reproducible benchmark suite and reference implementations of
+the canonical empirical descriptor rules for
 **high-entropy alloy (HEA) phase prediction**.
 
 [![DOI](https://zenodo.org/badge/1246292321.svg)](https://doi.org/10.5281/zenodo.20346287)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-![tests: 157](https://img.shields.io/badge/tests-157%20passing-success)
-![coverage: 86.7%](https://img.shields.io/badge/v0.1.0%20coverage-86.7%25-success)
+![tests: 229](https://img.shields.io/badge/tests-229%20passing-success)
+![coverage: 90.2%](https://img.shields.io/badge/v0.1.0%20coverage-90.2%25-success)
 
 ## TL;DR
 
@@ -15,14 +16,16 @@ An open, reproducible benchmark suite and reference baselines for
   primary sources (Borg 2020, Pei 2020, Peivaste 2023) with
   per-row source provenance.
 - **Reference baseline implementations** of the four canonical
-  empirical phase-prediction rules (Yeh ΔS<sub>mix</sub>, Zhang δ,
-  Guo-Liu VEC, Yang-Zhang Ω), wrapped as proper diagnostic
-  classifiers with sensitivity / specificity / Wilson 95% CIs.
+  v0.1.0 empirical rules plus the v1.1 phi-family thermodynamic
+  extension (`S_E`, `DeltaG_ss`, `DeltaG_max`, King `Phi`, Ye `phi`),
+  all exposed as test-guarded descriptor and rule APIs.
 - **A clean, dependency-free Python API** (`pip install hea-bench`)
   *and* a self-contained HTML calculator that runs entirely
-  client-side, computes all six descriptors plus the Miedema
-  decompositions, and applies the four phase-prediction rules to the
-  entered composition — open by URL or just double-click the file.
+  client-side, computes the same descriptor set plus the Miedema
+  decompositions, and applies all six shipped rule outputs to the
+  entered composition. The browser core covers the same 30 elements
+  the Python library does and is parity-tested against Python on
+  every binary pair plus canonical multi-element alloys.
 
 > **Using an AI coding agent to integrate this?** See
 > [AGENTS.md](./AGENTS.md) for a machine-oriented guide to the API,
@@ -36,26 +39,49 @@ produces the reference baselines below. **These are pinned in tests so
 any drift in dataset, descriptor code, or rule thresholds surfaces as
 a test failure.**
 
-| Rule | n_eval | Accuracy | Sens (single-phase) | Spec (multi-phase) | Youden's J |
+**How to read these tables:**
+
+- **Alloys scored** — how many benchmark alloys the rule could be
+  applied to and was scored on.
+- **Accuracy** — of those alloys, the fraction the rule labels
+  correctly.
+- **Sensitivity (single-phase)** — of the alloys that are *truly*
+  single-phase, the fraction the rule calls single-phase.
+- **Specificity (multi-phase)** — of the alloys that are *truly*
+  multi-phase, the fraction the rule calls multi-phase.
+- **Youden's J** = sensitivity + specificity − 1: one number for how
+  well a rule separates the two classes, from −1 to +1, where **0 is no
+  better than guessing** and 1 is perfect.
+
+The rules are named by the quantity they use: **δ** is the atomic-size
+mismatch, **Ω** the ratio of mixing entropy to mixing enthalpy, **VEC**
+the average valence-electron count, and **ΔS<sub>mix</sub>** the mixing
+entropy.
+
+| Rule | Alloys scored | Accuracy | Sensitivity (single-phase) | Specificity (multi-phase) | Youden's J |
 |---|---:|---:|---:|---:|---:|
-| **Zhang δ < 6.5%** | 6,651 | 56.7% | **99.0%** | **8.5%** | 0.075 |
-| **Yang Ω > 1.1**   | 6,651 | 54.4% | 95.8% | 7.4% | 0.032 |
+| **Zhang δ < 6.5%** | 6,922 | 57.1% | **98.9%** | **10.5%** | 0.094 |
+| **Yang Ω > 1.1**   | 6,922 | 54.2% | 95.0% | 8.6% | 0.036 |
 
-The Guo–Liu VEC rule predicts crystal structure rather than
-single-vs-multi, so it's evaluated stratified to single-phase
-observations (BCC|FCC only):
+The Guo–Liu VEC rule predicts which crystal structure a single-phase
+alloy takes, not whether it is single-phase, so it is scored only on
+the alloys observed to be single-phase FCC or BCC. Here **FCC recall**
+means: of the alloys observed to be FCC, the fraction the rule predicts
+FCC (and **BCC recall** likewise).
 
-| Rule | n_eval | Accuracy | FCC sensitivity | BCC sensitivity |
+| Rule | Alloys scored | Accuracy | FCC recall | BCC recall |
 |---|---:|---:|---:|---:|
-| **Guo–Liu VEC** (FCC if VEC ≥ 8.0, BCC if VEC < 6.87) | 3,463 | 66.9% | 92.4% | **48.3%** |
+| **Guo–Liu VEC** (predicts FCC if VEC ≥ 8.0, BCC if VEC < 6.87) | 3,556 | 67.4% | 91.9% | **49.1%** |
 
-Yeh ΔS<sub>mix</sub> is descriptive (no phase-prediction claim
-attached) — 47% of the consolidated benchmark passes the 1.5R
-HEA-class threshold, 37% sits in the MEA bin, 16% is dilute.
+Yeh's mixing-entropy rule (ΔS<sub>mix</sub>) only sorts alloys into
+entropy classes; it makes no phase prediction. 47% of the benchmark
+clears the high-entropy threshold (ΔS<sub>mix</sub> > 1.5R, where R is
+the gas constant), 37% are medium-entropy, and 16% low-entropy
+("dilute").
 
 **The publishable observation:** on a consolidated benchmark drawn
 from three independent open sources, both binary rules collapse to
-"predict single-phase almost always" (Youden's J ~ 0.03–0.08), and
+"predict single-phase almost always" (Youden's J ~ 0.04–0.09), and
 the VEC rule misses about half of observed BCC alloys despite
 catching 92% of FCC alloys. The canonical rules generalize poorly.
 
@@ -75,41 +101,76 @@ hea_bench.delta(cantor)              # 3.164 % atomic-size mismatch
 hea_bench.vec(cantor)                # 8.0 valence electrons
 hea_bench.mixing_enthalpy(cantor)    # -4.16 kJ/mol  (Miedema)
 hea_bench.omega(cantor)              # 5.79  (Yang-Zhang)
+hea_bench.s_excess(cantor)           # 0.318 J/(mol·K)  (Mansoori excess entropy)
+hea_bench.delta_g_max(cantor)        # -8.00 kJ/mol  (most-negative Miedema pair)
+hea_bench.phi_king(cantor)           # 3.533 (King 2016 proxy)
+hea_bench.phi_ye(cantor)             # 34.82 (Ye 2015 proxy)
 
 # Apply the canonical rules
-from hea_bench.rules import zhang_delta, yang_omega, guo_vec
+from hea_bench.rules import guo_vec, king_phi, yang_omega, ye_phi, zhang_delta
 zhang_delta.predict(cantor)          # 'single-phase'
 yang_omega.predict(cantor)           # 'single-phase'
 guo_vec.predict(cantor)              # 'FCC'
+king_phi.predict(cantor)             # 'solid_solution'
+ye_phi.predict(cantor)               # 'solid_solution'
 
 # Run the full rule benchmark against the consolidated v0.1.0 dataset
-from hea_bench.evaluate import build_report
+from hea_bench.evaluate import build_report, build_evaluation_report
 report = build_report()
-print(report["rules"]["zhang_delta_6_5"]["accuracy"])  # 0.5670
+print(report["rules"]["zhang_delta_6_5"]["accuracy"])  # 0.5711
+
+# Held-out 5-fold cross-validation (v1.1) — every rule under
+# stratified phase x source folds with optional per-fold threshold
+# tuning, so the optimism gap is visible separately from the
+# in-sample sweep.
+heldout = build_evaluation_report(include_phi=True)
+heldout["holdout_strict_consensus_tuned"]["rules"]["zhang_delta_tuned"]["youden_j_mean"]
+
+# Intermetallic-aware sub-benchmark (v1.1) — King Phi and Ye phi
+# scored against Peivaste's 12-class side-channel labels projected
+# to solid_solution vs intermetallic, the distinction the phi rules
+# were actually designed to make.
+from hea_bench.evaluate import build_intermetallic_subbench_report
+sub = build_intermetallic_subbench_report()
+sub["in_sample"]["ye_phi_20_0"]["youden_j"]  # 0.191 (vs -0.012 on the coarse main benchmark)
 ```
+
+Both the Python library and the HTML calculator compute `Hmix` /
+`Omega` from the same vendored pair-enthalpy table via
+`hea_bench.mixing_enthalpy(...)` / `hea_bench.omega(...)`, the
+definitions used by the pinned evaluation artifacts.
 
 ## Quick start (CLI)
 
 ```bash
 hea-bench --version
-python -m hea_bench.evaluate           # run all 4 rules on v0.1.0
+python -m hea_bench.evaluate           # in-sample + held-out summary on v0.1.0
+python -m hea_bench.evaluate --include-phi  # add King/Ye phi rules to the report
+python -m hea_bench.evaluate --single-split  # quick 70/30 held-out reproduction (seed 0)
+python -m hea_bench.evaluate --in-sample-only --include-phi  # legacy v1.1 in-sample artifact
 python -m hea_bench.benchmark.coverage # coverage analysis on v0.1.0
 ```
 
 ## Quick start (browser, no install)
 
-A self-contained HTML calculator computes the descriptors, applies
-the four phase-prediction rules, and runs the Miedema decompositions
-entirely client-side. Two equivalent paths:
+A self-contained HTML calculator computes the same descriptors,
+applies all six shipped rules, and runs the Miedema decompositions
+entirely client-side, on the full 30-element table the Python library
+covers (regression-checked binary-by-binary). Two equivalent paths:
 
 - Open the hosted page: **https://dfieser.github.io/hea-bench/**
 - Or download / clone the repo and double-click `web/index.html`. No
   install, no terminal, no server.
 
 The page reports each rule's verdict (Yeh HEA/MEA/dilute, Zhang
-single/multi, Guo–Liu FCC/BCC/mixed, Yang–Zhang single/multi)
-alongside the computed descriptor values. Logic matches the Python
-library, including the six-decimal VEC-boundary rounding.
+single/multi, Guo–Liu FCC/BCC/mixed, Yang–Zhang single/multi,
+King `Phi` solid-solution/intermetallic, Ye `phi`
+solid-solution/intermetallic) alongside the computed descriptor values.
+The parity-critical math lives in `web/hea-calculator-core.js` and is
+regression-checked against Python by `tests/test_web_parity.py`.
+The calculator's displayed `Hmix` / `Omega` come from the same
+vendored pair-enthalpy table as `hea_bench.mixing_enthalpy(...)` and
+`hea_bench.omega(...)`.
 
 ## Architecture
 
@@ -139,13 +200,14 @@ library, including the six-decimal VEC-boundary rounding.
                               │  - evaluate.py                │
                               └──────────────┬────────────────┘
                                              │
-                                             │ independent
-                                             │ implementation
+                                             │ parity-tested
+                                             │ shared formulas
                                              ▼
                               ┌──────────────────────────────┐
                               │  web/   (standalone HTML +   │
-                              │          JavaScript)         │
+                              │          shared JS core)     │
                               │  - index.html                │
+                              │  - hea-calculator-core.js    │
                               │  - mathjax/   (vendored)     │
                               └──────────────────────────────┘
 ```
@@ -178,14 +240,15 @@ SHA-256s.
 
 ## What's covered
 
-- **86.7%** of the 7,784 compositions are scorable by every descriptor
-  (δ, VEC, T_m, ΔS_mix, ΔH_mix, Ω) with the current 24-element
+- **90.2%** of the 7,784 compositions are scorable by every descriptor
+  (δ, VEC, T_m, ΔS_mix, ΔH_mix, Ω) with the current 30-element
   `ELEMENTAL_DATA` table
 - **99.6%** are scorable for Miedema-based descriptors only
   (the vendored matminer pair table covers 75 elements)
-- Top elements whose addition would lift coverage to ~95%: Mg, C, Zn,
-  B, Sn, Re (all already in the matminer pair table — pending v0.2.0
-  data release)
+- Remaining uncovered alloys are dominated by C, B, Be, Ca, Sc, La;
+  carbon and boron are deliberately held out (no metallic radius, and
+  no 1-atm melting point for carbon), so further coverage gains come
+  from the metals among the rest
 
 Re-run the coverage analysis on your own version of the dataset with:
 
@@ -216,13 +279,13 @@ hea-bench/
 ├── src/hea_bench/
 │   ├── benchmark/       loaders, consolidator, coverage analysis
 │   ├── descriptors/     ΔS_mix, δ, VEC, T_m, ΔH_mix, Ω + data tables
-│   ├── rules/           four canonical empirical rules as classifiers
+│   ├── rules/           canonical rules + v1.1 King/Ye phi rules
 │   ├── classifiers/     diagnostic-stats machinery
 │   ├── composition.py   formula parser, normalizer
 │   ├── constants.py     R = 8.314
 │   ├── evaluate.py      orchestrator: rules vs benchmark → headline stats
 │   └── cli.py           command-line entry point
-├── tests/               157 tests, all passing
+├── tests/               241 tests, all passing
 ├── web/                 self-contained HTML calculator (pure JS, no server)
 └── pyproject.toml
 ```
@@ -276,3 +339,21 @@ All numerical parameters, formulas,
 threshold values, and benchmark numbers are derived from cited
 primary sources or computed in this codebase from documented inputs;
 the author verified outputs against the cited literature.
+
+## Disclaimer
+
+Benchmark results, descriptor values, and rule predictions reported by
+hea-bench are **empirical estimates and retrospective statistical summaries**
+for research purposes only. The rules and descriptors are semi-empirical
+surrogates with known limitations; accuracy figures reflect a specific
+historical dataset and may not generalise to other alloy families or
+experimental conditions. No warranty is made as to accuracy, completeness,
+fitness for any particular purpose, or suitability for material qualification.
+The consolidated dataset aggregates literature-sourced data and inherits any
+limitations and potential errors of the original sources.
+
+Software is provided **"as is"** under the [MIT License](LICENSE) — see
+[LICENSE](LICENSE). Vendored Miedema elemental parameters from
+[matminer](https://github.com/hackingmaterials/matminer) remain under their
+upstream BSD-3-Clause license; see
+[`src/hea_bench/descriptors/data/LICENSE.matminer.txt`](./src/hea_bench/descriptors/data/LICENSE.matminer.txt).

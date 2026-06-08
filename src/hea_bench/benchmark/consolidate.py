@@ -31,7 +31,7 @@ from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 
-from .composition import Composition
+from ..composition import Composition
 from .loaders import AlloyRecord, borg2020, pei2020, peivaste
 from .taxonomy import PhaseClass
 

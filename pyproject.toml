@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "hea-bench"
-version = "0.1.0"
-description = "An open benchmark suite and reference baselines for high-entropy alloy phase prediction."
+version = "1.3.0"
+description = "An open benchmark suite and reference implementations of the canonical empirical descriptor rules for high-entropy alloy phase prediction."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
@@ -34,7 +34,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
     "Topic :: Scientific/Engineering :: Chemistry",
 ]
-# Intentionally dependency-free at the core. Heavier extras (pandas, sklearn,
+# Intentionally dependency-free at the core. Heavier extras (pandas,
 # matplotlib) belong under optional-dependencies, not the base install.
 dependencies = []
 

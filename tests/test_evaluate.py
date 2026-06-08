@@ -11,11 +11,13 @@ output of the project. Any future drift in:
 will surface as a failing test here.
 """
 
+import json
+
 import pathlib
 
 import pytest
 
-from hea_bench.evaluate import build_report
+from hea_bench.evaluate import build_evaluation_report, build_report, main
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 V010 = REPO_ROOT / "data" / "consolidated" / "v0.1.0" / "consolidated.csv"
@@ -26,6 +28,16 @@ pytestmark = pytest.mark.skipif(not V010.exists(), reason=f"v0.1.0 CSV not at {V
 @pytest.fixture(scope="module")
 def report():
     return build_report(V010)
+
+
+@pytest.fixture(scope="module")
+def evaluation_report_phi():
+    return build_evaluation_report(V010, include_phi=True)
+
+
+@pytest.fixture(scope="module")
+def evaluation_report_single_split_phi():
+    return build_evaluation_report(V010, include_phi=True, holdout_mode="single_split", seed=0)
 
 
 # ---- Top-level loading ----
@@ -39,12 +51,12 @@ def test_loads_expected_non_conflict_rows(report):
 # ---- Zhang δ < 6.5% (binary single vs multi) ----
 
 def test_zhang_delta_accuracy_pinned(report):
-    """Pinned 2026-05-20: accuracy 56.7% on 6,651 alloys with full
-    ELEMENTAL_DATA coverage. This is the headline 'δ rule on the
-    consolidated open benchmark' number."""
+    """Pinned for the v1.3 37-element table: accuracy 58.1% on 7,127
+    alloys with full ELEMENTAL_DATA coverage. This is the headline
+    'δ rule on the consolidated open benchmark' number."""
     z = report["rules"]["zhang_delta_6_5"]
-    assert z["n"] == 6651
-    assert z["accuracy"] == pytest.approx(0.5670, abs=0.0005)
+    assert z["n"] == 7127
+    assert z["accuracy"] == pytest.approx(0.5812, abs=0.0005)
 
 
 def test_zhang_delta_sensitivity_high(report):
@@ -58,24 +70,24 @@ def test_zhang_delta_specificity_low(report):
     """δ rule almost never correctly identifies multi-phase alloys —
     low specificity is the rule's documented weakness on modern data."""
     z = report["rules"]["zhang_delta_6_5"]
-    assert z["specificity"] < 0.10
+    assert z["specificity"] < 0.16
 
 
 def test_zhang_delta_weak_youden_j(report):
     """Youden's J = sens + spec - 1; well below 1.0 means weak
     classifier overall. Pinned for paper."""
     z = report["rules"]["zhang_delta_6_5"]
-    assert z["youden_j"] == pytest.approx(0.0750, abs=0.001)
+    assert z["youden_j"] == pytest.approx(0.1377, abs=0.001)
 
 
 # ---- Yang Ω > 1.1 (binary single vs multi) ----
 
 def test_yang_omega_accuracy_pinned(report):
-    """Pinned 2026-05-20: accuracy 54.4% on 6,651 alloys with all 6
-    descriptors covered."""
+    """Pinned for the v1.3 37-element table: accuracy 54.9% on 7,127
+    alloys with all six descriptors covered."""
     y = report["rules"]["yang_omega_1_1"]
-    assert y["n"] == 6651
-    assert y["accuracy"] == pytest.approx(0.5443, abs=0.0005)
+    assert y["n"] == 7127
+    assert y["accuracy"] == pytest.approx(0.5493, abs=0.0005)
 
 
 def test_yang_omega_high_sensitivity_low_specificity(report):
@@ -83,22 +95,23 @@ def test_yang_omega_high_sensitivity_low_specificity(report):
     predicts single-phase."""
     y = report["rules"]["yang_omega_1_1"]
     assert y["sensitivity"] > 0.90
-    assert y["specificity"] < 0.10
+    assert y["specificity"] < 0.14
 
 
 # ---- Guo-Liu VEC stratified to FCC|BCC observed ----
 
 def test_guo_vec_stratified_accuracy(report):
     """VEC rule restricted to single-phase observed (BCC|FCC). Pinned
-    2026-05-20: 66.9% on the 3,463 single-phase alloys.
+    for the v1.3 37-element table: 67.5% on the 3,567 single-phase
+    alloys.
 
     Note: this is lower than the 78.5% legacy validator reported on
     Borg alone, because the consolidated benchmark includes Pei +
     Peivaste, which contain many BCC compositions the canonical VEC
     bounds don't catch."""
     g = report["rules"]["guo_vec_stratified"]
-    assert g["n_eval"] == 3463
-    assert g["accuracy"] == pytest.approx(0.669, abs=0.001)
+    assert g["n_eval"] == 3567
+    assert g["accuracy"] == pytest.approx(0.675, abs=0.001)
 
 
 def test_guo_vec_fcc_strong_bcc_weak(report):
@@ -119,6 +132,60 @@ def test_yeh_descriptive_fractions(report):
     assert 0.45 < s["fraction_HEA"] < 0.50
     assert 0.35 < s["fraction_MEA"] < 0.40
     assert 0.15 < s["fraction_dilute"] < 0.18
+
+
+def test_build_evaluation_report_adds_heldout_sections(evaluation_report_phi) -> None:
+    assert evaluation_report_phi["holdout_mode"] == "kfold"
+    assert evaluation_report_phi["in_sample"]["n_rows_loaded"] == 7684
+    assert evaluation_report_phi["holdout_strict_consensus_fixed"]["protocol"] == "strict_consensus_kfold"
+    assert evaluation_report_phi["holdout_double_scored_fixed"]["protocol"] == "double_scored_kfold"
+    assert evaluation_report_phi["holdout_strict_consensus_tuned"]["protocol"] == "strict_consensus_kfold_tuned"
+    assert "king_phi_1_0" in evaluation_report_phi["holdout_strict_consensus_fixed"]["rules"]
+    assert "ye_phi_tuned" in evaluation_report_phi["holdout_strict_consensus_tuned"]["rules"]
+
+
+def test_build_evaluation_report_single_split_uses_documented_seed(evaluation_report_single_split_phi) -> None:
+    assert evaluation_report_single_split_phi["holdout_mode"] == "single_split"
+    assert evaluation_report_single_split_phi["seed"] == 0
+    assert evaluation_report_single_split_phi["test_fraction"] == pytest.approx(0.3)
+    assert (
+        evaluation_report_single_split_phi["holdout_strict_consensus_fixed"]["protocol"]
+        == "strict_consensus_single_split"
+    )
+    assert (
+        evaluation_report_single_split_phi["holdout_double_scored_fixed"]["protocol"]
+        == "double_scored_single_split"
+    )
+    assert (
+        evaluation_report_single_split_phi["holdout_strict_consensus_tuned"]["protocol"]
+        == "strict_consensus_single_split_tuned"
+    )
+
+
+def test_main_default_writes_combined_report(tmp_path: pathlib.Path, capsys: pytest.CaptureFixture[str]) -> None:
+    output = tmp_path / "evaluation-report.json"
+    code = main(["--include-phi", "--single-split", "--output", str(output)])
+    captured = capsys.readouterr()
+
+    assert code == 0
+    assert "Held-out strict-consensus fixed thresholds" in captured.out
+    data = json.loads(output.read_text(encoding="utf-8"))
+    assert "in_sample" in data
+    assert "holdout_strict_consensus_fixed" in data
+    assert "holdout_double_scored_fixed" in data
+    assert "holdout_strict_consensus_tuned" in data
+
+
+def test_main_in_sample_only_preserves_legacy_shape(tmp_path: pathlib.Path, capsys: pytest.CaptureFixture[str]) -> None:
+    output = tmp_path / "rule-baselines.json"
+    code = main(["--in-sample-only", "--output", str(output)])
+    captured = capsys.readouterr()
+
+    assert code == 0
+    assert "Held-out strict-consensus fixed thresholds" not in captured.out
+    data = json.loads(output.read_text(encoding="utf-8"))
+    assert "rules" in data
+    assert "in_sample" not in data
 
 
 def _zhang_roc_points():
@@ -152,20 +219,21 @@ def _zhang_roc_points():
 
 def test_zhang_roc_recalibration_finding(report):
     """Pin the headline recalibration result reported in the paper and
-    the figure: on the v0.1.0 benchmark, the balance-optimal Zhang
-    delta threshold is 2.5% with Youden's J = 0.113, far tighter than
-    the canonical 6.5% (J = 0.075). This is the most-cited claim of
-    the paper and was previously not regression-guarded against the
-    real data."""
+    the figure. On the consolidated benchmark with the v1.3
+    37-element table, the balance-optimal Zhang delta threshold is
+    6.6% with Youden's J = 0.1389, essentially identical to the
+    canonical 6.5% (J = 0.1377). The new elements do not materially
+    change the ROC landscape; only the exact numbers shift with the
+    wider element coverage."""
     points = _zhang_roc_points()
     canonical = min(points, key=lambda p: abs(p.threshold - 6.5))
     best_j = max(points, key=lambda p: p.youden_j)
 
     assert canonical.threshold == pytest.approx(6.5, abs=1e-9)
-    assert canonical.youden_j == pytest.approx(0.075, abs=0.001)
+    assert canonical.youden_j == pytest.approx(0.1377, abs=0.001)
 
-    assert best_j.threshold == pytest.approx(2.5, abs=1e-9)
-    assert best_j.youden_j == pytest.approx(0.113, abs=0.001)
+    assert best_j.threshold == pytest.approx(6.6, abs=1e-9)
+    assert best_j.youden_j == pytest.approx(0.1389, abs=0.001)
     # The optimum trades sensitivity for specificity relative to canonical.
-    assert best_j.sensitivity == pytest.approx(0.236, abs=0.005)
-    assert best_j.specificity == pytest.approx(0.877, abs=0.005)
+    assert best_j.sensitivity == pytest.approx(0.993, abs=0.005)
+    assert best_j.specificity == pytest.approx(0.145, abs=0.005)

@@ -9,12 +9,6 @@ build/
 .eggs/
 pip-wheel-metadata/
 
-# But DO commit the wheel served by the Pyodide frontend so the demo
-# "just works" after a clone. Rebuild this with:
-#   python -m pip wheel . --no-deps -w web/dist
-!web/dist/
-!web/dist/*.whl
-
 # Virtual environments
 .venv/
 venv/
@@ -62,3 +56,6 @@ data/raw/peivaste/*.ipynb
 # Built docs
 docs/_build/
 site/
+
+# Large LLM-DB provenance dump (phase-prediction research; re-downloadable via DOI 10.17632/j75v9bbbjz)
+data/raw/chizhevskiy2026/database_of_raw_responses.csv

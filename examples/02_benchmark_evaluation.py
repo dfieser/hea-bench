@@ -2,12 +2,17 @@
 # # Example 2 — Benchmark evaluation
 #
 # This notebook reproduces the project's **headline benchmark
-# numbers**: the four canonical empirical phase-prediction rules
-# evaluated as diagnostic classifiers against the consolidated
-# v0.1.0 dataset.
+# numbers**: the six canonical empirical phase-prediction rules
+# (four textbook rules plus the v1.1 phi-family rules from King 2016
+# and Ye 2015) evaluated as diagnostic classifiers against the
+# consolidated v0.1.0 dataset. It also shows the v1.1
+# intermetallic-aware sub-benchmark that uses Peivaste's 12-class
+# side-channel labels to score the phi rules against an explicit
+# solid-solution-versus-intermetallic ground truth.
 #
-# Every number below is **pinned in `tests/test_evaluate.py`** as
-# ground truth, so any future code or data change that perturbs them
+# Every number below is **pinned in `tests/test_evaluate.py`,
+# `tests/test_evaluate_phi.py`, and `tests/test_intermetallic_subbench.py`**
+# as ground truth, so any future code or data change that perturbs them
 # also breaks the test suite.
 
 # %% [markdown]
@@ -20,9 +25,10 @@
 # %%
 from hea_bench.evaluate import build_report, format_report
 
-report = build_report()
+report = build_report(include_phi=True)
 print(f"benchmark CSV:        {report['csv_path']}")
 print(f"non-conflict rows:    {report['n_rows_loaded']}")
+print(f"rules evaluated:      {list(report['rules'])}")
 
 # %% [markdown]
 # ## Headline numbers — formatted summary
@@ -124,3 +130,49 @@ print(f"  canonical 6.5% threshold for reference: J = {next(p.youden_j for p in 
 #
 # This kind of recalibration finding is exactly the use that
 # `hea-bench` is designed to support.
+#
+# ## v1.1 intermetallic-aware sub-benchmark
+#
+# The main benchmark collapses intermetallic alloys into a single
+# "multi-phase" class. The Peivaste source ships a finer 12-class
+# label that separates intermetallic-containing alloys (IM, FCC+IM,
+# BCC+IM, BCC+FCC+IM) from pure solid-solution states (BCC, FCC,
+# HCP, BCC+FCC) and from amorphous states. v1.1 uses those labels
+# to construct a sub-benchmark that scores the phi-family rules
+# against an explicit `solid_solution` versus `intermetallic`
+# ground truth.
+
+# %%
+from hea_bench.evaluate import build_intermetallic_subbench_report
+
+sub = build_intermetallic_subbench_report()
+print(f"sub-benchmark rows loaded:  {sub['n_rows_loaded']}")
+print()
+print("In-sample at the published cutoff:")
+for rule, stats in sub["in_sample"].items():
+    print(
+        f"  {rule:18s} n={stats['n']}  "
+        f"acc={stats['accuracy']:.3f}  "
+        f"sens={stats['sensitivity']:.3f}  "
+        f"spec={stats['specificity']:.3f}  "
+        f"J={stats['youden_j']:+.3f}"
+    )
+print()
+print("Held-out 5-fold with per-fold tuned cutoffs:")
+for rule, summary in sub["holdout_tuned"].items():
+    print(
+        f"  {rule:18s} acc={summary['accuracy_mean']:.3f}  "
+        f"J={summary['youden_j_mean']:+.3f}  "
+        f"threshold mean={summary['threshold_mean']:.2f}"
+    )
+
+# %% [markdown]
+# The sub-benchmark is what makes Ye φ's signal visible. On the
+# coarse main benchmark Ye φ has Youden's J ≈ -0.03 (worse than
+# random) at its published cutoff. On the intermetallic-aware
+# sub-benchmark it has J ≈ +0.17, an order of magnitude larger and
+# clearly positive. The Peivaste 12-class label is restoring a
+# distinction that the lowest-common-denominator main taxonomy
+# hides. King Φ remains weak on both, consistent with v1.1's
+# raw-pair-enthalpy approximation of ΔG_max rather than the full
+# ordered-compound Miedema branch used by King 2016.

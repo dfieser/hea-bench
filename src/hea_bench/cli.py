@@ -28,7 +28,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     del args  # nothing to do yet
     print("hea-bench Phase 0 skeleton. No commands implemented yet.")
-    print("See PROJECT_PLAN.md for the roadmap.")
+    print("See README.md for the available Python and evaluation APIs.")
     return 0
 
 

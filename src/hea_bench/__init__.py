@@ -16,10 +16,11 @@ from .descriptors.entropy import smix
 from .descriptors.melting import melting_temperature
 from .descriptors.miedema import mixing_enthalpy
 from .descriptors.omega import omega
+from .descriptors.phi import delta_g_max, delta_g_ss, delta_h_ss, phi_king, phi_ye, s_excess
 from .descriptors.size import delta
 from .descriptors.vec import vec
 
-__version__ = "0.1.0"
+__version__ = "1.3.0"
 
 __all__ = [
     "__version__",
@@ -34,4 +35,10 @@ __all__ = [
     "melting_temperature",
     "mixing_enthalpy",
     "omega",
+    "delta_h_ss",
+    "delta_g_ss",
+    "delta_g_max",
+    "s_excess",
+    "phi_king",
+    "phi_ye",
 ]

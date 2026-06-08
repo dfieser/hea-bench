@@ -14,7 +14,7 @@ import csv
 import pathlib
 from collections.abc import Iterator
 
-from ..composition import parse_formula
+from ...composition import parse_formula
 from ..taxonomy import BORG_SIMPLE_MAP
 from . import AlloyRecord
 
