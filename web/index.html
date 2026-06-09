@@ -846,6 +846,507 @@
       ::-webkit-scrollbar-thumb:hover {
         background: var(--text-muted-2);
       }
+
+      /* ============================================================
+         DESKTOP APP SHELL (V2 redesign)
+         Layered over the base styles above. Every class the
+         calculator's generated content relies on is left intact;
+         this only adds the window chrome and re-flows the layout
+         into a titlebar / two-pane workspace / status-bar app.
+         ============================================================ */
+      html, body { height: 100%; }
+      body { overflow: hidden; min-height: 0; }
+
+      .app {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        background: var(--bg);
+      }
+
+      /* --- Title bar -------------------------------------------------- */
+      .titlebar {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: stretch;
+        max-width: none;
+        margin: 0;
+        padding: 0 14px;
+        height: 46px;
+        background: var(--surface);
+        border: 0;
+        border-bottom: 1px solid var(--border-2);
+        text-align: left;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .titlebar__brand {
+        display: flex;
+        align-items: baseline;
+        gap: 9px;
+        padding-right: 20px;
+        align-self: center;
+      }
+      .titlebar__logo {
+        font-size: 17px;
+        line-height: 1;
+        color: var(--accent);
+        align-self: center;
+      }
+      .titlebar__name {
+        font-family: var(--sans);
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: -0.01em;
+        color: var(--text-strong);
+      }
+      .titlebar__sub {
+        font-family: var(--sans);
+        font-size: 12px;
+        color: var(--text-muted-2);
+      }
+      .titlebar__tabs {
+        display: flex;
+        align-items: stretch;
+        gap: 2px;
+      }
+      .tab {
+        appearance: none;
+        border: 0;
+        border-bottom: 2px solid transparent;
+        background: transparent;
+        padding: 0 15px;
+        margin: 0;
+        height: 100%;
+        font-family: var(--sans);
+        font-size: 12.5px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        color: var(--text-muted);
+        cursor: pointer;
+        border-radius: 0;
+        white-space: nowrap;
+        transition: color 0.12s ease, border-color 0.12s ease, background-color 0.12s ease;
+      }
+      .tab:hover { color: var(--text); background: var(--surface-subtle); }
+      .tab.is-active {
+        color: var(--text-strong);
+        border-bottom-color: var(--accent);
+      }
+      .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+      .titlebar__meta {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-muted-2);
+        letter-spacing: 0.02em;
+      }
+      @media (max-width: 760px) {
+        .titlebar__sub { display: none; }
+        .tab { padding: 0 11px; }
+      }
+
+      /* --- View area (one view visible at a time) -------------------- */
+      .views {
+        position: relative;
+        flex: 1 1 auto;
+        min-height: 0;
+      }
+      .view { display: none; height: 100%; overflow: auto; }
+      .view.view--active { display: block; }
+      .view[data-view-panel="calc"] { overflow: hidden; }
+      .view[data-view-panel="calc"].view--active { display: flex; }
+      .view[data-view-panel="theory"] > .theory-section,
+      .view[data-view-panel="reference"] > .background-section,
+      .view[data-view-panel="refs"] > .references-footer {
+        padding-top: 30px;
+      }
+
+      /* --- Two-pane workspace ---------------------------------------- */
+      .workspace {
+        flex: 1 1 auto;
+        display: flex;
+        min-width: 0;
+        width: 100%;
+      }
+      .rail {
+        flex: 0 0 clamp(360px, 33%, 470px);
+        min-width: 0;
+        overflow: auto;
+        padding: 14px;
+        background: var(--surface-subtle);
+        border-right: 1px solid var(--border-2);
+      }
+      .results-area {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: auto;
+        padding: 14px 16px;
+      }
+
+      /* --- Density tweaks for the working surface -------------------- */
+      .app .panel {
+        margin-bottom: 12px;
+        padding: 14px 16px;
+        border-radius: var(--radius-md);
+      }
+      .rail .panel { background: var(--surface); }
+      .rail .panel:last-child { margin-bottom: 0; }
+      .app .panel > h2 { font-size: 11.5px; }
+      .rail .row { gap: 8px 10px; margin-bottom: 10px; }
+      .rail .ratio-table { overflow-x: auto; }
+      .results-area .results { grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 8px; }
+      .results-area .result-card { padding: 10px 12px; background: var(--surface); }
+      .results-area .result-card p { font-size: 19px; }
+      .results-area .composition-card { background: var(--surface-subtle); }
+
+      /* --- Status bar ------------------------------------------------- */
+      .statusbar {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        height: 26px;
+        max-width: none;
+        margin: 0;
+        padding: 0 14px;
+        background: var(--surface-muted);
+        border: 0;
+        border-top: 1px solid var(--border-2);
+        font-family: var(--sans);
+        font-size: 11px;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+      }
+      .statusbar .sb-spacer { margin-left: auto; }
+      .statusbar .sb-sep { color: var(--text-muted-2); }
+
+      /* ============================================================
+         DOCUMENTATION VIEWS — Theory (docs) + Equations (reference).
+         Styled to read like an app's built-in docs viewer, not an
+         academic article: sans body, sticky section nav, admonition
+         callouts, code-like equation blocks, a filterable card grid.
+         ============================================================ */
+
+      /* ---- Theory: two-pane documentation layout ---- */
+      .docs {
+        display: grid;
+        grid-template-columns: 234px minmax(0, 752px);
+        gap: 0 48px;
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 30px 28px 80px;
+        align-items: start;
+        line-height: 1.6;
+      }
+      @media (max-width: 920px) {
+        .docs { grid-template-columns: minmax(0, 1fr); }
+        .docs-nav { display: none; }
+      }
+      .docs-nav {
+        position: sticky;
+        top: 22px;
+        align-self: start;
+        border-left: 1px solid var(--border);
+        max-height: calc(100vh - 120px);
+        overflow: auto;
+      }
+      .docs-nav__title {
+        font-family: var(--sans);
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.13em;
+        color: var(--text-muted-2);
+        padding: 0 0 12px 16px;
+      }
+      .docs-nav__list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        counter-reset: docnav;
+      }
+      .docs-nav__list li { counter-increment: docnav; margin: 0; }
+      .docs-nav__list a {
+        display: block;
+        position: relative;
+        margin-left: -1px;
+        padding: 5px 10px 5px 16px;
+        border-left: 2px solid transparent;
+        font-family: var(--sans);
+        font-size: 12.5px;
+        line-height: 1.35;
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: color 0.1s ease, border-color 0.1s ease;
+      }
+      .docs-nav__list a::before {
+        content: counter(docnav, decimal-leading-zero);
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--text-muted-2);
+        margin-right: 8px;
+      }
+      .docs-nav__list a:hover { color: var(--text); }
+      .docs-nav__list a.is-active {
+        color: var(--accent);
+        border-left-color: var(--accent);
+        font-weight: 600;
+      }
+      .docs-nav__list a.is-active::before { color: var(--accent); }
+
+      .docs-main { min-width: 0; }
+      .docs .theory-eyebrow { margin-top: 2px; }
+      .docs .theory-title { font-size: 25px; margin-bottom: 10px; }
+      .docs .theory-lede {
+        font-family: var(--sans);
+        font-style: normal;
+        font-size: 15px;
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin-bottom: 8px;
+        padding-bottom: 22px;
+        max-width: 70ch;
+      }
+      .docs p,
+      .docs ul,
+      .docs ol.body-list,
+      .docs li { font-family: var(--sans); }
+      .docs p { font-size: 14.5px; line-height: 1.7; max-width: 70ch; }
+      .docs ul, .docs ol.body-list { font-size: 14.5px; line-height: 1.65; max-width: 68ch; }
+      .docs h3 {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        font-size: 17px;
+        margin: 40px 0 14px;
+        padding-bottom: 8px;
+      }
+      .docs h3 .sec-num {
+        flex: 0 0 auto;
+        font-family: var(--mono);
+        font-size: 10.5px;
+        font-weight: 700;
+        color: #fff;
+        background: var(--accent);
+        padding: 2px 7px;
+        border-radius: 3px;
+        margin: 0;
+        letter-spacing: 0;
+      }
+      .docs h4 { font-size: 11.5px; margin-top: 20px; }
+      .docs .display-eq {
+        background: var(--surface-subtle);
+        border: 1px solid var(--border);
+        border-left: 2px solid var(--accent);
+        border-radius: var(--radius-sm);
+        padding: 10px 18px;
+        margin: 16px 0 18px;
+      }
+      .docs .callout {
+        margin: 18px 0;
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--text-muted-2);
+        border-radius: var(--radius-sm);
+        background: var(--surface-subtle);
+        padding: 12px 16px;
+      }
+      .docs .callout.warning { border-left-color: var(--accent); }
+      .docs .callout.note { border-left-color: var(--text-muted-2); }
+      .docs .callout p { font-family: var(--sans); font-size: 13.5px; margin: 0; }
+      .docs .param-table { font-size: 13px; max-width: none; }
+
+      /* ---- Equations: filterable reference grid ---- */
+      .background-section {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 30px 28px 80px;
+      }
+      .eq-toolbar {
+        display: flex;
+        align-items: flex-end;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--border);
+      }
+      .eq-toolbar .bg-title { margin-bottom: 4px; }
+      .eq-toolbar__sub {
+        margin: 0;
+        font-family: var(--sans);
+        font-size: 12.5px;
+        color: var(--text-muted);
+      }
+      .eq-search {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        position: relative;
+      }
+      .eq-search__icon {
+        position: absolute;
+        left: 9px;
+        font-size: 14px;
+        color: var(--text-muted-2);
+        pointer-events: none;
+      }
+      .eq-search input {
+        width: 250px;
+        max-width: 52vw;
+        padding: 7px 10px 7px 28px;
+        border: 1px solid var(--border-2);
+        border-radius: var(--radius-sm);
+        background: var(--surface);
+        color: var(--text);
+        font-family: var(--sans);
+        font-size: 13px;
+      }
+      .eq-search input:focus { outline: none; }
+      .eq-search input:focus-visible {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px rgba(139, 58, 47, 0.18);
+      }
+      .eq-grid { border-radius: var(--radius-sm); overflow: hidden; }
+      .eq-card { transition: background-color 0.1s ease; }
+      .eq-card:hover { background: var(--surface-subtle); }
+      .eq-card.eq-hidden { display: none; }
+      .eq-empty {
+        grid-column: 1 / -1;
+        padding: 28px 16px;
+        text-align: center;
+        color: var(--text-muted-2);
+        font-family: var(--sans);
+        font-size: 13px;
+        border-right: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+
+      /* ============================================================
+         CALM PASS — fewer nested boxes, quieter secondary actions,
+         a real empty state, and a draggable rail divider.
+         ============================================================ */
+
+      /* ---- Rail: one cohesive input column, not a stack of cards ---- */
+      .rail { border-right: 0; padding-top: 6px; }
+      .rail .panel {
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        margin: 0;
+        padding: 16px 0;
+        border-top: 1px solid var(--border);
+      }
+      .rail > .panel:first-child { border-top: 0; padding-top: 4px; }
+      .rail .panel > h2 {
+        border-bottom: 0;
+        padding-bottom: 0;
+        margin-bottom: 10px;
+      }
+      /* de-emphasize secondary actions so the primary Calculate leads */
+      .rail button.ghost {
+        border-color: transparent;
+        color: var(--text-muted);
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      .rail button.ghost:hover {
+        border-color: var(--border-2);
+        color: var(--accent);
+        background: var(--surface);
+      }
+
+      /* ---- Results: flatter tiles, fewer hairlines ---- */
+      .results-area .result-card,
+      .results-area .result-card-compact {
+        border: 0;
+        background: var(--surface-subtle);
+      }
+      .results-area .panel-secondary .result-card-compact { background: var(--surface); }
+      .results-area .composition-card { background: var(--surface-muted); }
+      .results-area .composition-cell { border: 0; background: var(--surface); }
+      /* hide the Warnings panel until there is something to warn about */
+      .results-area .panel:has(> #warnings:empty) { display: none; }
+
+      /* ---- Empty state (before the first calculation) ---- */
+      .results-empty {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        gap: 5px;
+        padding: 40px 24px 44px;
+        color: var(--text-muted);
+      }
+      #results:empty + .results-empty { display: flex; }
+      .results-empty__mark {
+        font-size: 34px;
+        line-height: 1;
+        color: var(--border-2);
+        margin-bottom: 6px;
+      }
+      .results-empty__title {
+        margin: 0;
+        font-family: var(--sans);
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .results-empty__hint {
+        margin: 0 0 10px;
+        font-family: var(--sans);
+        font-size: 13px;
+        line-height: 1.5;
+        max-width: 44ch;
+      }
+      .results-empty kbd {
+        font-family: var(--mono);
+        font-size: 11px;
+        background: var(--surface-muted);
+        border: 1px solid var(--border-2);
+        border-bottom-width: 2px;
+        border-radius: 3px;
+        padding: 1px 5px;
+        color: var(--text);
+      }
+
+      /* ---- Draggable rail divider ---- */
+      .rail-resizer {
+        flex: 0 0 6px;
+        align-self: stretch;
+        position: relative;
+        z-index: 2;
+        cursor: col-resize;
+        background: transparent;
+        touch-action: none;
+      }
+      .rail-resizer::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 1px;
+        margin-left: -0.5px;
+        background: var(--border-2);
+        transition: background-color 0.12s ease, width 0.12s ease;
+      }
+      .rail-resizer:hover::before,
+      .rail-resizer:focus-visible::before,
+      body.is-resizing .rail-resizer::before {
+        background: var(--accent);
+        width: 2px;
+        margin-left: -1px;
+      }
+      .rail-resizer:focus-visible { outline: none; }
+      body.is-resizing { cursor: col-resize; user-select: none; -webkit-user-select: none; }
     </style>
 
     <script>
@@ -4170,47 +4671,58 @@ font-family: 'Source Sans Pro'
   }
   </style></head>
   <body>
-    <div class="container">
-      <header>
-        <h1>Thermodynamic Descriptor Calculator</h1>
-        <p>Computes mixing entropy, size mismatch, mixing enthalpy, valence electron concentration, the Yang&ndash;Zhang Ω parameter, and Miedema-model formation enthalpies for compounds, solid solutions, and amorphous alloys.</p>
-        <p style="max-width: 70ch; margin: 12px 0 0; font-size: 13px; line-height: 1.55; color: var(--text-muted);">
-          Pair enthalpies use the Miedema model with elemental parameters (φ*, n<sub>ws</sub><sup>1/3</sup>, V<sup>2/3</sup>) from de Boer et al. (1988). Compound, solid-solution, and amorphous enthalpies follow Zhang, R.&nbsp;F. et al., <em>Comput. Phys. Commun.</em> <strong>209</strong>, 58&ndash;69 (2016).
-        </p>
-        <p id="version-badge" style="margin: 10px 0 0; font-size: 11px; color: var(--text-muted-2); letter-spacing: 0.03em; font-family: var(--mono);"></p>
+    <div class="app">
+      <header class="titlebar">
+        <div class="titlebar__brand">
+          <span class="titlebar__logo" aria-hidden="true">⬢</span>
+          <span class="titlebar__name">HEA-Bench</span>
+          <span class="titlebar__sub">Thermodynamic Descriptor Calculator</span>
+        </div>
+        <nav class="titlebar__tabs" aria-label="Views">
+          <button type="button" class="tab is-active" data-view="calc">Calculator</button>
+          <button type="button" class="tab" data-view="theory">Theory</button>
+          <button type="button" class="tab" data-view="reference">Equations</button>
+          <button type="button" class="tab" data-view="refs">References</button>
+        </nav>
+        <div class="titlebar__meta">
+          <span id="version-badge"></span>
+        </div>
       </header>
 
-      <div class="layout">
-        <section class="theory-section" aria-labelledby="theory-title">
+      <div class="views">
+
+        <div class="view" data-view-panel="theory">
+        <section class="theory-section docs" aria-labelledby="theory-title">
+          <aside class="docs-nav" aria-label="On this page">
+            <div class="docs-nav__title">Contents</div>
+            <ol class="docs-nav__list">
+              <li><a href="#sec-intro">Empirical descriptors</a></li>
+              <li><a href="#sec-entropy">Configurational entropy</a></li>
+              <li><a href="#sec-delta">Atomic size mismatch</a></li>
+              <li><a href="#sec-vec">Valence electron concentration</a></li>
+              <li><a href="#sec-miedema">Miedema macroscopic-atom model</a></li>
+              <li><a href="#sec-surface">Surface concentrations &amp; volume</a></li>
+              <li><a href="#sec-hmix">Mixing enthalpy</a></li>
+              <li><a href="#sec-omega">Yang&ndash;Zhang &Omega; parameter</a></li>
+              <li><a href="#sec-compound">Compound formation enthalpy</a></li>
+              <li><a href="#sec-ss">Solid-solution enthalpy</a></li>
+              <li><a href="#sec-am">Amorphous-alloy enthalpy</a></li>
+              <li><a href="#sec-prediction">Phase-selection criteria</a></li>
+              <li><a href="#sec-limits">Limitations and scope</a></li>
+            </ol>
+          </aside>
+
+          <div class="docs-main">
           <p class="theory-eyebrow">Theoretical background</p>
           <h2 class="theory-title" id="theory-title">Empirical thermodynamic descriptors for multi-component alloys</h2>
           <p class="theory-lede">
-            This page derives every quantity the calculator produces. That covers the configurational
+            This reference derives every quantity the calculator produces &mdash; the configurational
             entropy <em>&Delta;S</em><sub>mix</sub>, atomic size mismatch <em>&delta;</em>, valence
             electron concentration VEC, the Miedema chemical mixing enthalpy <em>&Delta;H</em><sub>mix</sub>,
             the Yang&ndash;Zhang stability parameter <em>&Omega;</em>, and Miedema-model formation
             enthalpies for compounds, disordered solid solutions, and amorphous alloys. Each section
             cites the primary literature.
           </p>
-
-          <nav class="toc" aria-label="Section index">
-            <div class="toc-title">Contents</div>
-            <ol>
-              <li><a href="#sec-intro">High-entropy alloys and the role of empirical descriptors</a></li>
-              <li><a href="#sec-entropy">Configurational mixing entropy</a></li>
-              <li><a href="#sec-delta">Atomic size mismatch</a></li>
-              <li><a href="#sec-vec">Valence electron concentration</a></li>
-              <li><a href="#sec-miedema">The Miedema macroscopic-atom model</a></li>
-              <li><a href="#sec-surface">Surface concentrations &amp; volume correction</a></li>
-              <li><a href="#sec-hmix">Mixing enthalpy of disordered alloys</a></li>
-              <li><a href="#sec-omega">The Yang&ndash;Zhang &Omega; parameter</a></li>
-              <li><a href="#sec-compound">Compound formation enthalpy</a></li>
-              <li><a href="#sec-ss">Solid-solution formation enthalpy</a></li>
-              <li><a href="#sec-am">Amorphous-alloy formation enthalpy</a></li>
-              <li><a href="#sec-prediction">Phase-selection criteria</a></li>
-              <li><a href="#sec-limits">Limitations and scope</a></li>
-            </ol>
-          </nav>
 
           <h3 id="sec-intro"><span class="sec-num">01</span>High-entropy alloys and the role of empirical descriptors</h3>
           <p>
@@ -4439,22 +4951,26 @@ font-family: 'Source Sans Pro'
               \frac{1}{2}\,\frac{V_A^{2/3*}\,V_B^{2/3*}}{V_A^{2/3*} + V_B^{2/3*}}\;\Gamma_{AB}\]
           </div>
           <p>
-            Tabulated \(\Delta H_{ij}\) values are commonly drawn from Takeuchi &amp; Inoue (2005),
-            who derived them from the same Miedema parameters. This calculator computes them on the
-            fly, which keeps custom and off-table elements accessible. A manual override field lets
-            you enter validated literature values.
+            The \(\Delta H_{ij}\) values used for \(\Delta H_{\mathrm{mix}}\) come from a fixed,
+            vendored Miedema pair table (Matminer-derived; all 435 binary pairs of the 30 supported
+            elements) &mdash; the same table the Python library uses, kept in lock-step by a parity
+            test. A manual-override field lets you substitute validated literature values per pair,
+            for example the integer table of Takeuchi &amp; Inoue (2005).
           </p>
-          <div class="callout warning">
-            <span class="callout-title">Implementation note</span>
+          <div class="callout note">
+            <span class="callout-title">Provenance and the &Omega; singularity</span>
             <p>
-              The current calculator returns the <em>interaction parameter</em>
-              \(2\,V_A^{2/3*}V_B^{2/3*}/(V_A^{2/3*} + V_B^{2/3*})\,\Gamma_{AB}\). That quantity is
-              mathematically \(\Omega_{AB}\), four times the equiatomic mixing enthalpy. The
-              multi-component sum then re-applies the factor of 4. Numerically this overstates
-              \(\Delta H_{\mathrm{mix}}\) by a factor of four relative to the convention above. At
-              equiatomic Cu&ndash;Ti the calculator gives about \(-33\,\mathrm{kJ\,mol^{-1}}\), the
-              tabulated value in Takeuchi &amp; Inoue (2005) is \(-9\,\mathrm{kJ\,mol^{-1}}\). Use
-              the manual-override field if you need literature-consistent values.
+              The multi-component sum applies the factor of 4 exactly once, and each
+              \(\Delta H_{ij}\) is the equiatomic binary value, so an equiatomic binary reduces to
+              \(\Delta H_{\mathrm{mix}} = \Delta H_{ij}\) with no double counting. Absolute
+              \(\Delta H_{\mathrm{mix}}\) values nevertheless depend on <em>which</em> Miedema
+              parametrization supplies the pair table; published compilations disagree most on
+              <strong>Mn</strong>, whose Miedema parameters are assigned inconsistently across
+              sources. Because \(\Omega = \bar T_m\,\Delta S_{\mathrm{mix}} / |\Delta H_{\mathrm{mix}}|\)
+              diverges as \(\Delta H_{\mathrm{mix}} \to 0\), \(\Omega\) is extremely sensitive for
+              near-ideal alloys (\(|\Delta H_{\mathrm{mix}}| \lesssim 1\text{--}2\;\mathrm{kJ\,mol^{-1}}\)):
+              a few-kJ shift in one pair value can move \(\Omega\) by an order of magnitude, so read
+              it qualitatively in that regime.
             </p>
           </div>
 
@@ -4655,12 +5171,22 @@ font-family: 'Source Sans Pro'
             Ferreira &amp; Bernard, 1990). The descriptors here remain useful as a fast,
             transparent pre-screen and as a sanity check on more expensive calculations.
           </p>
-
-          <hr class="quick-ref-divider">
+          </div>
         </section>
+        </div>
 
+        <div class="view" data-view-panel="reference">
         <div class="background-section">
-          <h2 class="bg-title">Quick reference: equations at a glance</h2>
+          <div class="eq-toolbar">
+            <div>
+              <h2 class="bg-title">Equation reference</h2>
+              <p class="eq-toolbar__sub">Every closed-form expression the engine evaluates, with its symbols.</p>
+            </div>
+            <div class="eq-search">
+              <span class="eq-search__icon" aria-hidden="true">⌕</span>
+              <input id="eq-filter" type="search" placeholder="Filter equations…" aria-label="Filter equations" autocomplete="off">
+            </div>
+          </div>
           <div class="eq-grid">
 
             <div class="eq-card">
@@ -4816,10 +5342,14 @@ font-family: 'Source Sans Pro'
               <p class="eq-vars">\(\beta \approx 3.5\;\mathrm{J\,mol^{-1}\,K^{-1}}\)</p>
             </div>
 
+            <div class="eq-empty" id="eq-empty" hidden>No equations match your filter.</div>
           </div>
         </div>
+        </div>
 
-        <main class="main">
+        <div class="view view--active" data-view-panel="calc">
+          <div class="workspace">
+            <aside class="rail">
 
       <section class="panel">
         <h2>Composition</h2>
@@ -4957,6 +5487,10 @@ font-family: 'Source Sans Pro'
         <p class="small-note">Defaults use the same vendored Miedema-derived pair table as the Python library. Override manually if needed.</p>
       </section>
 
+            </aside>
+            <div class="rail-resizer" id="rail-resizer" role="separator" aria-orientation="vertical" aria-label="Resize input panel" tabindex="0"></div>
+            <main class="results-area">
+
       <div id="error" class="error hidden"></div>
 
       <section class="panel">
@@ -5002,6 +5536,12 @@ font-family: 'Source Sans Pro'
             <p>7.071</p>
             <div class="units">—</div>
           </div></div>
+        <div class="results-empty" id="results-empty">
+          <div class="results-empty__mark" aria-hidden="true">⬢</div>
+          <p class="results-empty__title">No results yet</p>
+          <p class="results-empty__hint">Choose elements and atomic percents on the left, then press <kbd>Calculate</kbd>.</p>
+          <button type="button" class="secondary" id="empty-load-example">Load example composition</button>
+        </div>
       </section>
 
       <section class="panel" id="rules-panel">
@@ -5098,9 +5638,11 @@ font-family: 'Source Sans Pro'
         <ul id="warnings" class="warnings"></ul>
       </section>
 
-        </main>
-      </div>
+            </main>
+          </div>
+        </div>
 
+        <div class="view" data-view-panel="refs">
       <footer class="references-footer">
         <h2>References</h2>
         <ul class="refs">
@@ -5234,6 +5776,17 @@ font-family: 'Source Sans Pro'
             <a href="./privacy.html" style="color: var(--text-muted-2); text-decoration: underline;">Privacy Policy</a>
           </p>
         </div>
+      </footer>
+        </div>
+
+      </div>
+
+      <footer class="statusbar">
+        <span>30 elements &middot; 435 Miedema pair enthalpies</span>
+        <span class="sb-spacer"></span>
+        <span>Miedema model &mdash; de Boer et al. (1988)</span>
+        <span class="sb-sep">&middot;</span>
+        <span>Offline</span>
       </footer>
     </div>
 
@@ -7141,6 +7694,142 @@ font-family: 'Source Sans Pro'
       renderSavedResultsTable();
 
       document.getElementById("version-badge").textContent = "v" + VERSION + " — " + VERSION_DATE;
+    </script>
+
+    <!-- View switcher (titlebar tabs). Independent of the calculation core;
+         only toggles which top-level .view is visible. -->
+    <script>
+      (function () {
+        const tabs = Array.from(document.querySelectorAll(".titlebar__tabs .tab"));
+        const views = Array.from(document.querySelectorAll(".views .view"));
+        const typeset = new Set();
+
+        function show(name) {
+          tabs.forEach((t) => t.classList.toggle("is-active", t.dataset.view === name));
+          views.forEach((v) => v.classList.toggle("view--active", v.dataset.viewPanel === name));
+          // Re-typeset math the first time a reading view is shown, in case
+          // MathJax measured it while it was display:none on initial load.
+          if (!typeset.has(name) && window.MathJax && typeof window.MathJax.typesetPromise === "function") {
+            const v = document.querySelector('.views .view[data-view-panel="' + name + '"]');
+            if (v) {
+              typeset.add(name);
+              window.MathJax.typesetPromise([v]).catch(function () {});
+            }
+          }
+          // Reset scroll position of the newly shown view, then refresh
+          // the docs section highlight for that view.
+          const active = document.querySelector('.views .view[data-view-panel="' + name + '"]');
+          if (active) active.scrollTop = 0;
+          if (name === "theory") spyDocs();
+        }
+
+        tabs.forEach((t) => t.addEventListener("click", () => show(t.dataset.view)));
+
+        // ---- Docs scroll-spy: highlight the section nearest the top ----
+        const theoryView = document.querySelector('.views .view[data-view-panel="theory"]');
+        const navLinks = theoryView
+          ? Array.from(theoryView.querySelectorAll(".docs-nav__list a"))
+          : [];
+        const sections = navLinks
+          .map((a) => document.getElementById(a.getAttribute("href").slice(1)))
+          .filter(Boolean);
+
+        function spyDocs() {
+          if (!theoryView || !sections.length) return;
+          const mark = theoryView.scrollTop + 96;
+          let idx = 0;
+          for (let i = 0; i < sections.length; i += 1) {
+            if (sections[i].offsetTop <= mark) idx = i;
+            else break;
+          }
+          navLinks.forEach((a, i) => a.classList.toggle("is-active", i === idx));
+        }
+        if (theoryView) {
+          theoryView.addEventListener("scroll", spyDocs, { passive: true });
+          // Smooth-scroll the nav links within the view's scroll container.
+          navLinks.forEach((a, i) => {
+            a.addEventListener("click", (e) => {
+              if (!sections[i]) return;
+              e.preventDefault();
+              theoryView.scrollTo({ top: Math.max(sections[i].offsetTop - 70, 0), behavior: "smooth" });
+            });
+          });
+        }
+
+        // ---- Equation reference filter ----
+        const eqFilter = document.getElementById("eq-filter");
+        if (eqFilter) {
+          const cards = Array.from(document.querySelectorAll(".background-section .eq-card"));
+          const emptyEl = document.getElementById("eq-empty");
+          eqFilter.addEventListener("input", () => {
+            const q = eqFilter.value.trim().toLowerCase();
+            let shown = 0;
+            cards.forEach((c) => {
+              const match = !q || c.textContent.toLowerCase().indexOf(q) !== -1;
+              c.classList.toggle("eq-hidden", !match);
+              if (match) shown += 1;
+            });
+            if (emptyEl) emptyEl.hidden = shown !== 0;
+          });
+        }
+
+        // ---- Empty-state CTA: reuse the existing buttons (no core changes) ----
+        const emptyBtn = document.getElementById("empty-load-example");
+        if (emptyBtn) {
+          emptyBtn.addEventListener("click", () => {
+            const le = document.getElementById("load-example");
+            if (le) le.click();
+            const calc = document.getElementById("calculate");
+            if (calc) calc.click();
+          });
+        }
+
+        // ---- Draggable rail divider (IDE-style resize, persisted) ----
+        const workspace = document.querySelector(".workspace");
+        const rail = document.querySelector(".rail");
+        const resizer = document.getElementById("rail-resizer");
+        const RAIL_MIN = 300;
+        const RAIL_MAX = 640;
+        const RAIL_KEY = "heabench.railWidth";
+
+        function setRailWidth(px) {
+          if (!rail) return;
+          px = Math.max(RAIL_MIN, Math.min(RAIL_MAX, Math.round(px)));
+          rail.style.flex = "0 0 " + px + "px";
+          try { localStorage.setItem(RAIL_KEY, String(px)); } catch (e) {}
+        }
+        try {
+          const savedW = parseFloat(localStorage.getItem(RAIL_KEY));
+          if (savedW && !isNaN(savedW)) setRailWidth(savedW);
+        } catch (e) {}
+
+        if (resizer && workspace && rail) {
+          let dragging = false;
+          resizer.addEventListener("pointerdown", (e) => {
+            dragging = true;
+            try { resizer.setPointerCapture(e.pointerId); } catch (_) {}
+            document.body.classList.add("is-resizing");
+            e.preventDefault();
+          });
+          resizer.addEventListener("pointermove", (e) => {
+            if (!dragging) return;
+            setRailWidth(e.clientX - workspace.getBoundingClientRect().left);
+          });
+          const endDrag = (e) => {
+            if (!dragging) return;
+            dragging = false;
+            document.body.classList.remove("is-resizing");
+            try { resizer.releasePointerCapture(e.pointerId); } catch (_) {}
+          };
+          resizer.addEventListener("pointerup", endDrag);
+          resizer.addEventListener("pointercancel", endDrag);
+          resizer.addEventListener("keydown", (e) => {
+            const cur = rail.getBoundingClientRect().width;
+            if (e.key === "ArrowLeft") { setRailWidth(cur - 16); e.preventDefault(); }
+            else if (e.key === "ArrowRight") { setRailWidth(cur + 16); e.preventDefault(); }
+          });
+        }
+      })();
     </script>
 
 </body></html>

@@ -1,7 +1,8 @@
 """Command-line entry point for hea-bench.
 
-Phase 0: stub only. Real subcommands (`describe`, `classify`, `evaluate`,
-`leaderboard`) arrive in later phases.
+Thin wrapper around the descriptor library. ``--version`` reports the
+package version; the descriptor and rule API is the documented surface
+(see ``README.md``). A richer ``describe`` subcommand may arrive later.
 """
 
 from __future__ import annotations
@@ -16,8 +17,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="hea-bench",
         description=(
-            "Open benchmark suite for high-entropy alloy phase prediction. "
-            "Phase 0 skeleton — full subcommands not yet implemented."
+            "Open calculator of high-entropy-alloy thermodynamic and geometric "
+            "descriptors plus the canonical empirical phase-prediction rules."
         ),
     )
     parser.add_argument(
@@ -27,8 +28,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
     del args  # nothing to do yet
-    print("hea-bench Phase 0 skeleton. No commands implemented yet.")
-    print("See README.md for the available Python and evaluation APIs.")
+    print(f"hea-bench {__version__}")
+    print("Use the Python API (import hea_bench), the browser app, or the")
+    print("desktop app. See README.md for the descriptor and rule surface.")
     return 0
 
 

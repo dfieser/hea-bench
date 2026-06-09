@@ -10,26 +10,29 @@ code.
 > **Editing this repo's own docs (or this file)?** Follow the writing
 > rule in [CONTRIBUTING.md](./CONTRIBUTING.md): minimize jargon and
 > explain any necessary term inline in plain language, and always state
-> what a metric is measured against (no bare "sensitivity" or
-> "n_eval"). Don't defer to a glossary.
+> what a number is and its units. Don't defer to a glossary.
 
-## What this library is
+## What this is
 
-`hea-bench` does two separate things:
+`hea-bench` is an open, interpretable **calculator** of the standard
+high-entropy-alloy (HEA) thermodynamic and geometric descriptors plus
+the canonical empirical **phase-prediction rules**. Every quantity is a
+transparent closed-form expression over a curated element-property
+table — no fitted model, no black box.
 
-1. **Descriptors + rules** — pure functions that compute the six
-  v0.1.0 canonical high-entropy-alloy (HEA) phase descriptors plus
-  the v1.1 thermodynamic extension (`S_E`, `DeltaG_ss`, `DeltaG_max`,
-  King `Phi`, Ye `phi`) for a composition, and the corresponding
-  empirical phase-prediction rules wrapped as classifiers.
-2. **A benchmark** — a versioned, deduplicated dataset of 7,784
-   experimentally characterized compositions with per-row provenance,
-   plus the machinery to score any rule or model against it with
-   diagnostic statistics.
+One calculation core, three surfaces:
 
-It is composition-only and dependency-free in its core. Use it to
-screen candidate alloys, to compute descriptors as features, or as a
-fixed reference benchmark to evaluate a new phase-prediction method.
+1. **Python library + CLI** — this package (`pip install hea-bench`).
+2. **Zero-install browser app** — `web/index.html` (also hosted at
+   <https://dfieser.github.io/hea-bench/>).
+3. **Native desktop app** — a single offline executable that wraps the
+   browser app via Tauri.
+
+The browser/desktop core (`web/hea-calculator-core.js`) is a pure-JS
+reimplementation of this library and is **parity-tested** against it on
+every binary pair and the canonical multi-element fixtures
+(`tests/test_web_parity.py`). The library core is composition-only and
+**dependency-free**.
 
 ## Install and import
 
@@ -42,7 +45,7 @@ import hea_bench as hb
 ```
 
 Python >= 3.10. No required runtime dependencies for the core. The
-`[data]` and `[dev]` extras add pandas/matplotlib/pytest only.
+`[dev]` extra adds pytest/ruff only.
 
 ## The one mental model you need
 
@@ -64,7 +67,7 @@ return a float.
 | `hb.vec(comp)` | valence electron concentration | electrons | linear mean |
 | `hb.melting_temperature(comp)` | average melting point | K | rule-of-mixtures |
 | `hb.mixing_enthalpy(comp)` | Miedema mixing enthalpy | **kJ/mol** | semi-empirical estimate |
-| `hb.omega(comp)` | Yang-Zhang Ω | dimensionless | `Tm·ΔS / |ΔH|` |
+| `hb.omega(comp)` | Yang-Zhang Ω | dimensionless | `Tm·ΔS / \|ΔH\|` |
 | `hb.s_excess(comp)` | Mansoori excess entropy | J/(mol·K) | Ye 2015 packing/size term |
 | `hb.delta_g_ss(comp, temperature=None)` | solid-solution Gibbs proxy | kJ/mol | defaults to `T = Tm` |
 | `hb.delta_g_max(comp)` | most-stable binary-subsystem proxy | kJ/mol | min over `4 cᵢ cⱼ ΔHᵢⱼ` |
@@ -128,167 +131,79 @@ king_phi.predict(cantor)      # 'solid_solution'
 ye_phi.predict(cantor)        # 'solid_solution'
 ```
 
-**Important:** these rules are weak classifiers. On the consolidated
-benchmark both binary rules collapse to "predict single-phase almost
-always" (Youden's J of 0.094 and 0.036). Do not treat a rule's output
-as ground truth. If you need a confidence-aware answer, evaluate
-against the benchmark (below) rather than trusting a single predict().
+**Important:** these rules are weak, semi-empirical screens, not
+predictions. They were calibrated on small historical datasets and
+generalize poorly; do not treat a rule's output as ground truth.
 
-## Scoring against the benchmark
+## The Ω singularity (read this)
 
-```python
-from hea_bench.evaluate import build_report
-report = build_report()                       # textbook rules only
-report = build_report(include_phi=True)       # add King Phi + Ye phi
-```
-
-`report` is a dict with keys `csv_path`, `n_rows_loaded`, and `rules`.
-`report["rules"]` has four base entries (`zhang_delta_6_5`,
-`yang_omega_1_1`, `guo_vec_stratified`, `yeh_smix_descriptive`) plus
-the two phi entries (`king_phi_1_0`, `ye_phi_20_0`) when
-`include_phi=True`. Each binary-rule entry is a dict of statistics:
-
-```python
-r = report["rules"]["zhang_delta_6_5"]
-r["accuracy"]      # 0.5711
-r["sensitivity"]   # 0.989
-r["specificity"]   # 0.105
-r["youden_j"]      # 0.094
-r["accuracy_ci95"] # (low, high) Wilson 95% interval
-r["confusion"]     # confusion matrix
-# also: n, n_positive_observed, n_negative_observed,
-#       true_positive, false_positive, true_negative, false_negative,
-#       positive_label
-```
-
-What the metrics mean:
-`n` is the number of alloys scored; `accuracy` is the fraction labelled
-correctly; `sensitivity` is — of the alloys that truly are the positive
-class (`positive_label`, here single-phase) — the fraction predicted
-positive; `specificity` is the same for the negative class (multi-phase);
-`youden_j` = sensitivity + specificity − 1, where 0 means no better than
-guessing and 1 is perfect; `accuracy_ci95` is the Wilson 95% confidence
-interval for the accuracy.
-
-## Held-out cross-validation (v1.1)
-
-```python
-from hea_bench.evaluate import build_evaluation_report
-report = build_evaluation_report(include_phi=True)
-```
-
-`build_evaluation_report` returns the in-sample dict above plus three
-held-out sections, all under stratified 5-fold CV (stratified jointly
-by phase and source signature):
-
-- `report["holdout_strict_consensus_fixed"]` — held-out at the
-  published threshold (no tuning).
-- `report["holdout_strict_consensus_tuned"]` — held-out with a
-  per-fold threshold chosen by maximising Youden's J on the
-  training folds only.
-- `report["holdout_double_scored_fixed"]` — conflict rows scored two
-  ways (`any_match` and `all_match`) so cross-source uncertainty is
-  visible.
-
-Each held-out rule entry has `accuracy_mean`, `accuracy_se`,
-`sensitivity_mean`, `sensitivity_se`, `specificity_mean`,
-`specificity_se`, `youden_j_mean`, `youden_j_se`, plus
-`threshold_mean` and `threshold_se` for the tuned variants. Youden's
-J is the right metric to report for tuned rules; J = 0 is the
-random baseline regardless of class balance.
-
-## Intermetallic-aware sub-benchmark (v1.1)
-
-```python
-from hea_bench.evaluate import build_intermetallic_subbench_report
-sub = build_intermetallic_subbench_report()
-```
-
-Scores King Phi and Ye phi against Peivaste's 12-class side-channel
-label projected to `solid_solution` (BCC, FCC, HCP, BCC+FCC) versus
-`intermetallic` (IM, FCC+IM, BCC+IM, BCC+FCC+IM). Amorphous-
-containing labels are excluded. 5,930 compositions have usable
-ground truth; 5,685 are scorable. Returns:
-
-- `sub["in_sample"]` — King and Ye at their published cutoffs on
-  the full sub-benchmark.
-- `sub["holdout_fixed"]` — same cutoffs under 5-fold CV.
-- `sub["holdout_tuned"]` — per-fold cutoff selected by argmax J on
-  training folds.
-
-Headline result: Ye phi has J ≈ +0.19 on the sub-benchmark versus
-J ≈ -0.01 on the main benchmark. The fine label restores a real
-signal that the coarse multi-phase class hides. King Phi remains
-weak on both (J ≈ -0.01 at the published cutoff, J ≈ +0.02 tuned).
-
-## Threshold sweeps / ROC
-
-```python
-from hea_bench.classifiers.diagnostic_stats import roc_sweep
-```
-
-Use this to find the accuracy-optimal or Youden-J-optimal threshold
-for a tunable rule. The shipped recalibration finding for the Zhang
-rule is J-optimal at δ < 2.6% (vs the canonical 6.5%); reproduce it
-rather than hard-coding it.
+`omega = Tm·ΔSmix / |ΔHmix|` diverges as `ΔHmix → 0`. For near-ideal
+alloys (`|ΔHmix| ≲ 1–2 kJ/mol`) Ω is extremely sensitive — a few-kJ
+change in one pair value, or a different Miedema parametrization, can
+move Ω by an order of magnitude. Read Ω **qualitatively** in that
+regime; the phase verdict (Ω ≫ 1.1) is robust even when the magnitude
+is not. Absolute `ΔHmix` values depend on which Miedema pair table is
+used; published compilations disagree most on **Mn**.
 
 ## Command line
 
 ```bash
 hea-bench --version
-python -m hea_bench.evaluate            # fixed-threshold + held-out reports on v0.1.0 rules
-python -m hea_bench.evaluate --include-phi  # add the v1.1 phi rules to those reports
-python -m hea_bench.benchmark.coverage  # element-coverage analysis
 ```
 
-On Windows set `PYTHONIOENCODING=utf-8` before these if the output
-contains Greek/math symbols, to avoid a cp1252 encode error.
+The CLI is a thin version/help wrapper; the Python API above is the
+documented surface.
 
 ## Data layout
 
-- `data/consolidated/v0.1.0/consolidated.csv` — the benchmark, 7,784
-  rows. Join key is `composition_key`; `canonical_phase` is one of
-  BCC/FCC/HCP/multi-phase (blank when sources conflict); `sources` is
-  semicolon-separated provenance; `has_conflict` flags the 100
-  cross-source disagreements.
-- `data/consolidated/v0.1.0/{rule_baselines,coverage_report,manifest}.json`
-  — committed outputs, regenerated by the evaluate/coverage modules.
-- `data/raw/<source>/` — per-source provenance, licenses, SHA-256s.
-- `src/hea_bench/descriptors/data/` — vendored elemental table (30
-  elements) and the matminer Miedema pair table (75 elements).
+- `src/hea_bench/descriptors/data/` — the vendored element table (30
+  elements: radius, melting point, VEC) and the matminer-derived
+  Miedema pair-enthalpy table (`pair_enthalpies.tsv`, 75 elements).
+  These are shipped inside the wheel; no fetch step is needed.
+- `web/hea-calculator-core.js` — the JS port of the same math + tables,
+  used by the browser and desktop apps.
 
-## Coverage limit (read before scaling up)
+The browser/desktop apps additionally compute the **Miedema
+formation-enthalpy decompositions** (compound / solid-solution /
+amorphous, split into chemical / elastic / structural / topological
+terms) in page-side code; the Python library currently exposes the
+descriptor + rule surface above.
 
-The elemental data table covers **30 elements**, so 90.2% of the
-benchmark is scorable by every descriptor. Compositions containing
-elements outside the table (C, B, Be, Ca, Sc, and others) will
-not be fully scorable. Check coverage with
-`python -m hea_bench.benchmark.coverage` before assuming a dataset is
-fully evaluable.
+## Coverage limit
+
+The element table covers **30 elements**. Compositions containing
+elements outside it (C, B, Be, Ca, Sc, and others) are not fully
+scorable: `delta`, `smix`-class geometric/melting descriptors need the
+element table, while Miedema-based descriptors fall back to the wider
+75-element pair table. Carbon and boron are deliberately held out (no
+metallic radius; no 1-atm melting point for carbon).
 
 ## Things not to do
 
 - **Do not edit the pinned numbers** in `tests/` to make a test pass.
   Those values are derived from the data and code; a changed number
   means real drift you should explain, not silence.
-- **Do not add elements to the elemental table** without a citable
-  source for the atomic radius, VEC, and melting point. Unsourced
-  values corrupt every descriptor that uses them.
+- **Do not edit `web/hea-calculator-core.js` to diverge from the Python
+  library.** The two are parity-locked by `tests/test_web_parity.py`;
+  change both together and re-run that test.
+- **Do not add elements to the element table** without a citable source
+  for the atomic radius, VEC, and melting point. Unsourced values
+  corrupt every descriptor that uses them.
 - **Do not treat `mixing_enthalpy` as a measured quantity.** It is a
-  semi-empirical Miedema estimate with known systematic error for
-  some pairs.
-- **Do not assume composition fixes phase.** The benchmark is
-  composition-only; the same composition can form different phases
-  depending on processing history.
+  semi-empirical Miedema estimate with known systematic error for some
+  pairs (Mn especially).
+- **Do not assume composition fixes phase.** The same composition can
+  form different phases depending on processing history; the descriptors
+  describe equilibrium driving forces only.
 
 ## Verifying your integration
 
 After wiring this in, confirm the Cantor sanity values
 (`smix=13.381`, `delta=3.164`, `vec=8.0`, `omega=5.794`,
 `s_excess=0.318`, `delta_g_max=-8.000`, `phi_king=3.533`,
-`phi_ye=34.822`) and run the test suite (`python -m pytest -q`, 241
-tests). If those match, your environment is using the canonical
-implementation correctly.
+`phi_ye=34.822`) and run the test suite (`python -m pytest -q`). If
+those match, your environment is using the canonical implementation
+correctly.
 
 ## One-shot AI jumpstart (copy-pasteable)
 
@@ -329,35 +244,6 @@ print(json.dumps({
         "ye_phi":      ye_phi.predict(cantor),
     },
 }, indent=2))
-```
-
-Expected output (truncated):
-
-```json
-{
-  "version": "1.3.0",
-  "cantor_descriptors": {
-    "smix": 13.3815...,
-    "delta": 3.1643...,
-    "vec": 8.0,
-    "melting_temperature": 1801.2,
-    "mixing_enthalpy": -4.16,
-    "omega": 5.7937...,
-    "s_excess": 0.3179...,
-    "delta_g_ss": -28.2616...,
-    "delta_g_max": -8.0,
-    "phi_king": 3.5327...,
-    "phi_ye": 34.8218...
-  },
-  "cantor_rules": {
-    "yeh_smix": "HEA",
-    "zhang_delta": "single-phase",
-    "guo_vec": "FCC",
-    "yang_omega": "single-phase",
-    "king_phi": "solid_solution",
-    "ye_phi": "solid_solution"
-  }
-}
 ```
 
 If your numbers match to four decimal places and your rule outputs

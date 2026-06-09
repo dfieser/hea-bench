@@ -1,7 +1,7 @@
 # Contributing to hea-bench
 
-Contributions are welcome, whether bug reports, new datasets, new
-descriptors or rules, additional elemental data, or documentation
+Contributions are welcome, whether bug reports, new descriptors or
+rules, additional elemental data, UI work, or documentation
 improvements.
 
 ## Reporting issues and seeking support
@@ -11,34 +11,33 @@ improvements.
   Python version and operating system, a minimal composition or
   command that reproduces the problem, and the full traceback.
 - **Questions and support:** open a GitHub issue with the
-  `question` label, or email the maintainer at `davjfies@gmail.com`.
+  `question` label, or email the maintainer at `dfieser9@gmail.com`.
 
 ## Development setup
 
 ```bash
 git clone https://github.com/dfieser/hea-bench
 cd hea-bench
-pip install -e ".[dev,data]"
-python -m pytest tests/ -q
+pip install -e ".[dev]"
+python -m pytest tests/ -q          # the parity test needs Node on PATH
 ```
 
 The core package is dependency-free. The `dev` extra adds `pytest`,
-`pytest-cov`, and `ruff`. The `data` extra adds `pandas` for tabular
-work.
+`pytest-cov`, and `ruff`.
 
 ## Tests
 
-Every numerical result reported in the documentation and in the
-paper is pinned in the test suite. When you change descriptor code,
-the consolidator, or the vendored data, run the suite and update the
-affected pinned values only after confirming the new number by an
-independent measurement. The repository convention is to measure
-first and assert second, never to write an expected value from
-memory.
+Every numerical result reported in the documentation is pinned in the
+test suite. When you change descriptor code or the vendored data, run
+the suite and update the affected pinned values only after confirming
+the new number by an independent measurement. The repository convention
+is to measure first and assert second, never to write an expected value
+from memory. The Python library and the JavaScript calculator core are
+parity-locked by `tests/test_web_parity.py`; change both together.
 
-When adding a new descriptor, rule, or loader, add tests that cover
-at least one canonical reference case (the equiatomic Cantor alloy
-CoCrFeMnNi is the standard sanity check) plus the error paths.
+When adding a new descriptor or rule, add tests that cover at least one
+canonical reference case (the equiatomic Cantor alloy CoCrFeMnNi is the
+standard sanity check) plus the error paths.
 
 ## Documentation and writing style
 
@@ -47,14 +46,13 @@ place. This is a hard rule, not a preference — readability has been a
 recurring problem.
 
 Calibrate to the audience: **a reader of the target journal**
-(Computational Materials Science). Terms such a reader would naturally
-already know (FCC, BCC, HCP, alloy, phase, entropy, enthalpy, melting
-temperature, and the like) need no explanation — do not over-explain
-them. Everything beyond that shared background — above all **jargon
-specific to this project**: its descriptors, metrics, named rules, and
-constructs (`δ`, `Ω`, `Φ`, `n_eval`, "FCC sensitivity", the held-out
-sub-benchmark, conflict rows, …) — must be minimized, especially early,
-and explained in plain context the first time it appears.
+(SoftwareX). Terms such a reader would naturally already know (FCC, BCC,
+HCP, alloy, phase, entropy, enthalpy, melting temperature, and the like)
+need no explanation — do not over-explain them. Everything beyond that
+shared background — above all **jargon specific to this project**: its
+descriptors, named rules, and symbols (`δ`, `Ω`, `Φ`, …) — must be
+minimized, especially early, and explained in plain context the first
+time it appears.
 
 - **Minimize jargon, especially at the start** of any document,
   section, abstract, or table. Lead with plain language; introduce a
@@ -93,28 +91,17 @@ applicable), and `predict(composition, ...)`. New rules should follow
 the existing module-functional pattern shown by `yang_omega.py`,
 `king_phi.py`, and `ye_phi.py`.
 
-If a new rule needs a held-out evaluation, add a rule-specific
-helper to `src/hea_bench/evaluation/holdout.py` alongside the
-existing `evaluate_*_holdout` functions. The generic
-`evaluate_binary_kfold` primitive accepts arbitrary predict / observe
-callables, so a wrapper is typically all that is required.
-
-## Adding a dataset
-
-Per-source data lives under `data/raw/<source>/` with a README that
-records the citation, the license, the acquisition date, and a
-SHA-256 of the file. Datasets under permissive licenses (CC-BY, CC0,
-MIT, Apache, BSD) are mirrored directly. Datasets without a
-redistributable license are pointer-only: commit a `fetch.py` that
-downloads the file on request, and add the file pattern to
-`.gitignore`. See `data/raw/README.md` for the policy.
+When you add or change a parity-relevant descriptor or rule, mirror it
+in `web/hea-calculator-core.js` and re-run `tests/test_web_parity.py`
+so the Python library and the calculator stay identical.
 
 ## Adding elemental coverage
 
-To extend the elemental data table, add the element to the table in
-`src/hea_bench/descriptors/data/elemental.py` with a source comment
-for each property, then run the coverage analysis to confirm the
-benchmark coverage improved as expected.
+To extend the element data table, add the element to
+`src/hea_bench/descriptors/data/elemental.py` with a source comment for
+each property (atomic radius, valence-electron count, melting point) and
+add the matching entry to the JS core's table, then add a pinned test
+for the new values.
 
 ## Pull requests
 

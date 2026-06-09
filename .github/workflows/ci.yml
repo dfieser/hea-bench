@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, v2]
   pull_request:
-    branches: [main]
+    branches: [main, v2]
 
 jobs:
   test:
@@ -30,15 +30,14 @@ jobs:
       - name: Install package with dev extras
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[dev,data]"
+          pip install -e ".[dev]"
 
       - name: Lint with ruff
         run: ruff check src tests
 
       - name: Run test suite
         run: pytest tests/ -q
-        # Tests that depend on the pointer-only Peivaste dataset skip
-        # automatically when that file is absent (it is not committed
-        # because the upstream repository declares no license). The
-        # Borg and Pei datasets are committed, so their loader tests
-        # and all benchmark-level tests run in CI.
+        # Node is installed so the Python<->JS parity test
+        # (tests/test_web_parity.py) can run the browser calculator core
+        # and assert it matches the Python library on every binary pair
+        # and the canonical multi-element fixtures.

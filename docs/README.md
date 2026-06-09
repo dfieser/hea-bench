@@ -3,8 +3,11 @@
 Design notes and specifications kept in the repository for
 implementation traceability. Library-level usage documentation lives
 in [`AGENTS.md`](../AGENTS.md), [`README.md`](../README.md), and
-[`llms.txt`](../llms.txt) at the repository root.
+[`llms.txt`](../llms.txt) at the repository root; the theory behind
+every descriptor is derived in the calculator's **Theory** tab
+(`web/index.html`).
 
-| File | What it is |
-|---|---|
-| [`v1.1-phi-spec.md`](./v1.1-phi-spec.md) | Verbatim AI-generated planning artifact for the v1.1 phi-family integration. Reference only. The resolved positions on each open question it raised are recorded in the project plan and in the actual code shipped with v1.1.0. |
+There are currently no design specs tracked here. Notes from the earlier
+phase-prediction benchmark line (including `v1.1-phi-spec.md`) were moved
+out of the repository together with that subsystem and are kept for later
+reintegration.

@@ -3,7 +3,6 @@
 The pairing is:
 
   examples/01_cantor_walkthrough.py        -> 01_cantor_walkthrough.ipynb
-  examples/02_benchmark_evaluation.py      -> 02_benchmark_evaluation.ipynb
 
 Each source script is divided into cells by  ``# %% [markdown]`` and
 ``# %%`` markers (Jupytext "percent" style). This builder runs each
@@ -27,7 +26,7 @@ import sys
 import traceback
 
 HERE = pathlib.Path(__file__).resolve().parent
-SOURCES = ["01_cantor_walkthrough.py", "02_benchmark_evaluation.py"]
+SOURCES = ["01_cantor_walkthrough.py"]
 
 
 def parse_cells(text: str) -> list[tuple[str, str]]:

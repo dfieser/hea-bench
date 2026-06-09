@@ -4,14 +4,20 @@ A self-contained browser calculator for the `hea-bench` descriptors and
 rules. It runs entirely client-side. No server, no install, no Python
 runtime in the browser.
 
+This same folder is also the frontend bundled into the native desktop
+app (`src-tauri/`), so the browser page and the desktop `.exe` are the
+identical calculator.
+
 ## How to use it
 
-Two equivalent paths:
+Three equivalent paths:
 
 - **Online:** open <https://dfieser.github.io/hea-bench/>.
 - **Offline / from a local copy:** double-click `index.html`. It opens
   in your browser and runs immediately. Everything it needs is in
   this folder.
+- **Desktop app:** build the Tauri wrapper in `../src-tauri/` for a
+  single offline executable (see the repo `PROJECT_PLAN.md`).
 
 ## What it does
 
@@ -32,12 +38,13 @@ For any composition you enter, the page reports:
 
 ## What's here
 
-- `index.html` — the calculator UI, the extended Miedema panel, and the
-  page-specific fallback logic.
-- `hea-calculator-core.js` — shared browser-side calculation core for the
-  parity-critical descriptor and rule outputs. It also exports the
-  browser-compatible Miedema chemical-term helper used for the page's
-  displayed `Hmix` / `Omega` path.
+- `index.html` — the desktop-style calculator UI (title-bar tabs,
+  two-pane workspace, Theory/Equations/References views) plus the
+  page-side Miedema formation-enthalpy decomposition logic.
+- `hea-calculator-core.js` — the shared calculation core for the
+  parity-critical descriptor and rule outputs. `Hmix` / `Omega` are
+  computed from the single vendored pair-enthalpy table, identical to
+  `hea_bench.mixing_enthalpy` / `hea_bench.omega` in the Python library.
 - `mathjax/` — bundled MathJax build for math notation rendering.
   Vendored so the page works fully offline.
 - `.nojekyll` — marks the directory so GitHub Pages serves files as-is.
@@ -58,8 +65,7 @@ For parity-critical descriptor or rule changes, update `hea-calculator-core.js`
 and then run the browser parity regression in `tests/test_web_parity.py`.
 That test executes the shared JS core under Node and compares the browser-side
 results against the matching Python APIs on every binary pair (435 cases) and
-the curated multi-element fixtures, including the calculator-specific
-`Hmix` / `Omega` path.
+the curated multi-element fixtures.
 
 For page-only UI work, edit `index.html`. The calculator stays fully offline,
 but the numerical drift risk is now guarded by the automated Python-vs-JS

@@ -106,10 +106,9 @@ print(f"  Ye φ > 20.0        :  {ye_phi.predict(cantor)}")
 # observation by Cantor *et al.* (2004) and Yeh *et al.* (2004) that
 # launched the field. So all six rules score correctly on this one.
 #
-# That perfect-on-Cantor result is **not** representative of the
-# rules' performance across the full benchmark; example 2 shows the
-# headline numbers (Zhang δ ~ 57% accuracy, Yang Ω ~ 54%, King Φ and
-# Ye φ slightly below the trivial baseline at their published cutoffs).
+# The rules are simple empirical surrogates: a clean call on the Cantor
+# alloy is not a guarantee they generalise. Treat them as fast screens,
+# not predictions.
 #
 # ## A composition the rules disagree on
 #
@@ -137,6 +136,6 @@ for al_frac in (0.1, 0.3, 0.5, 0.7, 1.0):
 #
 # ## Next steps
 #
-# Example 2 (`02_benchmark_evaluation.ipynb`) loads the consolidated
-# v0.1.0 benchmark and runs all four rules across all 7,784
-# compositions, producing the headline classifier statistics.
+# Every descriptor and rule shown here is also available in the browser
+# and desktop apps, which add the Miedema formation-enthalpy
+# decompositions. See the project README for the full surface.

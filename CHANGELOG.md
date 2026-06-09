@@ -3,15 +3,49 @@
 All notable changes to `hea-bench` are recorded here. Numbering follows
 [Semantic Versioning](https://semver.org/). Each release section pairs
 the version label with the date and links to the corresponding Zenodo
-DOI for the archived snapshot. The benchmark CSV ships under its own
-data-versioning track (`data/consolidated/<version>/`); a benchmark
-data version may move independently of the library version when the
-library gains features that do not change the underlying dataset.
+DOI for the archived snapshot.
 
 The format is loosely based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased] — v1.3.0
+## [Unreleased] — V2: descriptor-calculator repackaging
+
+Refocused the project from a phase-prediction *benchmark* to an open,
+interpretable **descriptor calculator** (the SoftwareX direction). The
+calculation core is unchanged; the Python↔JS parity test still passes.
+
+### Added
+
+- **Native desktop app** (`src-tauri/`): a Tauri wrapper that bundles the
+  browser calculator into a single offline executable.
+- **Redesigned calculator UI** (`web/index.html`): a desktop app shell —
+  title bar with Calculator / Theory / Equations / References tabs, a
+  two-pane workspace (input rail + results), a draggable rail divider, a
+  results empty state, a documentation-style Theory view with a sticky
+  section nav, and a filterable equation reference.
+
+### Changed
+
+- Corrected the stale "Implementation note" in the theory section that
+  claimed a non-existent factor-of-4 bug in ΔH_mix. The multi-component
+  sum applies the factor of 4 exactly once over equiatomic pair values;
+  replaced with an accurate provenance + Ω-singularity note (Ω is
+  parametrization-sensitive as ΔH_mix → 0; sources disagree most on Mn).
+- Package description, README, AGENTS.md, llms.txt, and CITATION refocused
+  on the descriptor-calculator tool and its three surfaces.
+
+### Removed
+
+- **Phase-prediction benchmark subsystem moved out of the public repo**
+  (recoverable; archived for later reintegration): the `benchmark/`,
+  `classifiers/`, and `evaluation/` packages, `evaluate.py`, the
+  consolidated/raw datasets under `data/`, the benchmark loader/evaluation
+  tests, the benchmark example notebook, and `docs/v1.1-phi-spec.md`. The
+  descriptor + rule library and the parity-tested calculator are unchanged.
+- Dropped the now-unused `[data]` (pandas) and `[plot]` (matplotlib)
+  optional-dependency extras; the calculator core remains dependency-free.
+
+## [1.3.0] — browser parity at 30 elements (prior benchmark line)
 
 `v1.3-baseline` branch, stacked on `v1.2-coverage`. Targets tag `v1.3.0`.
 
