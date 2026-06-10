@@ -8,6 +8,31 @@ DOI for the archived snapshot.
 The format is loosely based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.4.0] — 2026-06-10 — 37-element coverage on every surface
+
+### Added
+
+- **Calculator coverage 30 → 37 elements everywhere.** The JS core's element
+  and pair tables are now generated from the Python library by
+  `tests/data/_sync_js_tables.py` (Be, Ca, Ce, Gd, In, La, Sc join the
+  browser/desktop surfaces; the pair table grows 435 → 666 entries). The
+  parity fixture regenerated to 676 cases (666 exhaustive binaries + 10
+  curated multis); the Python↔JS parity test passes.
+- **Ω near-zero-enthalpy warning** in the calculator page: when
+  |ΔH_mix| < 2 kJ/mol the result panel warns that Ω diverges and its
+  magnitude is pair-table-sensitive (the Ω > 1.1 verdict remains robust).
+
+### Fixed
+
+- **Stale 24-element page table.** `web/index.html` carried its own
+  pre-v1.2 24-element copy of `ELEMENT_DATA` and passed it into the core,
+  silently limiting the live calculator to 24 elements (Au, Li, Mg, Re,
+  Sn, Zn never reached the UI). The page now derives its table from the
+  parity-tested core export, so the dropdowns, formula parser, and
+  calculations always match the core. Elements without page-side Miedema
+  decomposition parameters degrade gracefully (warning + panel skip), as
+  before.
+
 ## [Unreleased] — V2: descriptor-calculator repackaging
 
 Refocused the project from a phase-prediction *benchmark* to an open,

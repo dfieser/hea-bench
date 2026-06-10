@@ -171,7 +171,7 @@ descriptor + rule surface above.
 
 ## Coverage limit
 
-The element table covers **30 elements**. Compositions containing
+The element table covers **37 elements**. Compositions containing
 elements outside it (C, B, Be, Ca, Sc, and others) are not fully
 scorable: `delta`, `smix`-class geometric/melting descriptors need the
 element table, while Miedema-based descriptors fall back to the wider

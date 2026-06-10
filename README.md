@@ -30,9 +30,9 @@ For any composition it reports:
   solid-solution / amorphous, decomposed into chemical, elastic,
   structural, and topological terms.
 
-Element coverage: 30 elements (Ag Al Au Co Cr Cu Fe Hf Ir Li Mg Mn Mo Nb
-Ni Os Pd Pt Re Rh Ru Si Sn Ta Ti V W Y Zn Zr); the Miedema pair table
-covers 75.
+Element coverage: 37 elements (Ag Al Au Be Ca Ce Co Cr Cu Fe Gd Hf In Ir
+La Li Mg Mn Mo Nb Ni Os Pd Pt Re Rh Ru Sc Si Sn Ta Ti V W Y Zn Zr); the
+Miedema pair table covers 75.
 
 ## Three ways to run it
 
@@ -45,7 +45,7 @@ covers 75.
 The three surfaces share **one calculation core**. The browser/desktop
 core (`web/hea-calculator-core.js`) is a pure-JS port of the Python
 library, and `tests/test_web_parity.py` guarantees the two match on all
-435 binary pairs and the canonical multi-element fixtures.
+666 binary pairs and the canonical multi-element fixtures.
 
 ## Quick start (Python)
 
