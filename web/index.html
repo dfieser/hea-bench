@@ -5243,6 +5243,19 @@ font-family: 'Source Sans Pro'
             </div>
 
             <div class="eq-card">
+              <h3>Electronegativity mismatch \(\Delta\chi\)</h3>
+              <div class="eq-block">
+                \[\bar{\chi} = \sum_i c_i\,\chi_i\]
+              </div>
+              <div class="eq-block">
+                \[\Delta\chi = \sqrt{\sum_i c_i\,(\chi_i - \bar{\chi})^2}\]
+              </div>
+              <p class="eq-vars">
+                \(\chi_i\) = Pauling electronegativity of element \(i\)
+              </p>
+            </div>
+
+            <div class="eq-card">
               <h3>Surface concentrations</h3>
               <div class="eq-block">
                 \[c_i^{\,s} = \frac{c_i\,V_i^{2/3}}{\sum_k c_k\,V_k^{2/3}}\]
@@ -5448,6 +5461,10 @@ font-family: 'Source Sans Pro'
               <label for="custom-valence">Valence electron count (—)</label>
               <input id="custom-valence" type="number" step="1" min="0" placeholder="e.g., 8">
             </div>
+            <div>
+              <label for="custom-chi">Pauling electronegativity (optional)</label>
+              <input id="custom-chi" type="number" step="0.01" min="0" placeholder="e.g., 1.83">
+            </div>
           </div>
           <div class="custom-actions">
             <button id="custom-save" class="secondary">Save custom element</button>
@@ -5618,6 +5635,7 @@ font-family: 'Source Sans Pro'
                 <th>ΔH mix</th>
                 <th>VEC</th>
                 <th>Ω</th>
+                <th>Δχ</th>
                 <th>S_E</th>
                 <th>King Phi</th>
                 <th>Ye phi</th>
@@ -5628,7 +5646,7 @@ font-family: 'Source Sans Pro'
                 <th>Action</th>
               </tr>
             </thead>
-            <tbody id="saved-results-body"><tr><td colspan="16" style="color: #64748b;">No saved results yet.</td></tr></tbody>
+            <tbody id="saved-results-body"><tr><td colspan="17" style="color: #64748b;">No saved results yet.</td></tr></tbody>
           </table>
         </div>
       </section>
@@ -5792,9 +5810,10 @@ font-family: 'Source Sans Pro'
 
     <script src="hea-calculator-core.js"></script>
     <script>
-      const VERSION = "1.4.0";
+      const VERSION = "1.5.0";
       const VERSION_DATE = "2026-06-10";
       const VERSION_HISTORY = [
+        { version: "1.5.0", date: "2026-06-10", notes: "Electronegativity descriptors (mean chi, delta chi) on every surface, parity-tested; Miedema formation-enthalpy panel extended 24 -> 37 elements; per-element hybridization factors aligned with the de Boer parametrization" },
         { version: "1.4.0", date: "2026-06-10", notes: "Element coverage 30 -> 37 across all surfaces (666 parity-tested pairs); page element table now derives from the core; Omega near-zero-enthalpy warning" },
         { version: "1.1.0", date: "2026-05-27", notes: "Added King/Ye phi descriptors, King temperature control, and JS parity core" },
         { version: "1.0.0", date: "2026-03-18", notes: "Initial versioned release" },
@@ -5833,12 +5852,21 @@ font-family: 'Source Sans Pro'
       const MIEDEMA_PARAMS = {
         Ag: { phi_star: 4.35, nws13: 1.36, V23: 4.72, cls: "TM" },
         Al: { phi_star: 4.20, nws13: 1.39, V23: 4.64, cls: "NTM" },
+        Au: { phi_star: 5.15, nws13: 1.57, V23: 4.70, cls: "TM" },
+        Be: { phi_star: 5.05, nws13: 1.67, V23: 2.88, cls: "NTM" },
+        Ca: { phi_star: 2.55, nws13: 0.91, V23: 8.82, cls: "NTM" },
+        Ce: { phi_star: 3.18, nws13: 1.19, V23: 7.76, cls: "TM" },
         Co: { phi_star: 5.10, nws13: 1.75, V23: 3.55, cls: "TM" },
         Cr: { phi_star: 4.65, nws13: 1.73, V23: 3.74, cls: "TM" },
         Cu: { phi_star: 4.45, nws13: 1.47, V23: 3.70, cls: "TM" },
         Fe: { phi_star: 4.93, nws13: 1.77, V23: 3.69, cls: "TM" },
+        Gd: { phi_star: 3.20, nws13: 1.21, V23: 7.34, cls: "TM" },
         Hf: { phi_star: 3.60, nws13: 1.45, V23: 5.65, cls: "TM" },
+        In: { phi_star: 3.90, nws13: 1.17, V23: 6.28, cls: "NTM" },
         Ir: { phi_star: 5.55, nws13: 1.83, V23: 4.17, cls: "TM" },
+        La: { phi_star: 3.17, nws13: 1.18, V23: 7.98, cls: "TM" },
+        Li: { phi_star: 2.85, nws13: 0.98, V23: 5.53, cls: "NTM" },
+        Mg: { phi_star: 3.45, nws13: 1.17, V23: 5.81, cls: "NTM" },
         Mn: { phi_star: 4.45, nws13: 1.61, V23: 3.78, cls: "TM" },
         Mo: { phi_star: 4.65, nws13: 1.77, V23: 4.45, cls: "TM" },
         Nb: { phi_star: 4.05, nws13: 1.64, V23: 4.89, cls: "TM" },
@@ -5846,22 +5874,35 @@ font-family: 'Source Sans Pro'
         Os: { phi_star: 5.40, nws13: 1.85, V23: 4.15, cls: "TM" },
         Pd: { phi_star: 5.45, nws13: 1.67, V23: 4.29, cls: "TM" },
         Pt: { phi_star: 5.65, nws13: 1.78, V23: 4.36, cls: "TM" },
+        Re: { phi_star: 5.20, nws13: 1.85, V23: 4.28, cls: "TM" },
         Rh: { phi_star: 5.40, nws13: 1.76, V23: 4.10, cls: "TM" },
         Ru: { phi_star: 5.40, nws13: 1.83, V23: 4.60, cls: "TM" },
+        Sc: { phi_star: 3.25, nws13: 1.27, V23: 6.09, cls: "TM" },
         Si: { phi_star: 4.70, nws13: 1.50, V23: 4.20, cls: "NTM" },
+        Sn: { phi_star: 4.15, nws13: 1.24, V23: 6.43, cls: "NTM" },
         Ta: { phi_star: 4.05, nws13: 1.63, V23: 4.89, cls: "TM" },
         Ti: { phi_star: 3.80, nws13: 1.52, V23: 4.12, cls: "TM" },
         V:  { phi_star: 4.25, nws13: 1.64, V23: 4.12, cls: "TM" },
         W:  { phi_star: 4.80, nws13: 1.81, V23: 4.50, cls: "TM" },
         Y:  { phi_star: 3.20, nws13: 1.21, V23: 7.34, cls: "TM" },
+        Zn: { phi_star: 4.10, nws13: 1.32, V23: 4.38, cls: "NTM" },
         Zr: { phi_star: 3.45, nws13: 1.41, V23: 5.81, cls: "TM" },
       };
 
       /** Empirical P constants by pair type; Q/P = 9.4 universal */
       const MIEDEMA_P = { "TM-TM": 14.2, "TM-NTM": 12.35, "NTM-NTM": 10.7 };
       const MIEDEMA_QP_RATIO = 9.4;
-      /** Per-element hybridization factor r/P (NTM only; TM = 1.0) */
-      const MIEDEMA_R_OVER_P = { Al: 1.9, Si: 2.1 };
+      /**
+       * Per-element hybridization factors. The R correction for a pair is
+       * the product of the two factors times P (de Boer et al. 1988; values
+       * from the vendored matminer parameter table). Elements not listed
+       * default to 1.0.
+       */
+      const MIEDEMA_R_OVER_P = {
+        Ag: 0.3, Al: 1.9, Au: 0.3, Be: 0.4, Ca: 0.4, Ce: 0.7, Cu: 0.3,
+        Gd: 0.7, In: 1.9, La: 0.7, Li: 0.0, Mg: 0.4, Sc: 0.7, Si: 2.1,
+        Sn: 2.1, Y: 0.7, Zn: 1.4,
+      };
 
       /**
        * Extended element properties for Miedema solid-solution,
@@ -5870,7 +5911,9 @@ font-family: 'Source Sans Pro'
        * Vm: molar volume (cm³/mol), struct: equilibrium crystal structure,
        * a_vol: Miedema volume-correction constant,
        * Htrans: transformation enthalpy (kJ/mol) for semiconductor→metal.
-       * Sources: CRC Handbook, de Boer et al.(1988), Zhang et al.(2016).
+       * Sources: CRC Handbook, de Boer et al.(1988), Zhang et al.(2016);
+       * additions beyond the original 24 from the vendored matminer
+       * Miedema parameter table (same de Boer parametrization).
        */
       const ELEMENT_EXTENDED = {
         Ti: { K: 110, G: 44, Vm: 10.64, struct: "hcp", a_vol: 0.04, Htrans: 0 },
@@ -5897,6 +5940,19 @@ font-family: 'Source Sans Pro'
         Os: { K: 462, G: 222,Vm: 8.42,  struct: "hcp", a_vol: 0.04, Htrans: 0 },
         Ir: { K: 320, G: 210,Vm: 8.52,  struct: "fcc", a_vol: 0.04, Htrans: 0 },
         Pt: { K: 230, G: 61, Vm: 9.09,  struct: "fcc", a_vol: 0.04, Htrans: 0 },
+        Au: { K: 173, G: 28, Vm: 10.20, struct: "fcc", a_vol: 0.07, Htrans: 0 },
+        Li: { K: 12,  G: 4,  Vm: 13.00, struct: "bcc", a_vol: 0.14, Htrans: 0 },
+        Be: { K: 100, G: 143,Vm: 4.90,  struct: "hcp", a_vol: 0.10, Htrans: 0 },
+        Mg: { K: 35,  G: 17, Vm: 14.00, struct: "hcp", a_vol: 0.10, Htrans: 0 },
+        Ca: { K: 15,  G: 7,  Vm: 26.20, struct: "fcc", a_vol: 0.10, Htrans: 0 },
+        Sc: { K: 57,  G: 31, Vm: 15.03, struct: "hcp", a_vol: 0.07, Htrans: 0 },
+        Zn: { K: 60,  G: 37, Vm: 9.17,  struct: "hcp", a_vol: 0.10, Htrans: 0 },
+        In: { K: 41,  G: 4,  Vm: 15.75, struct: "fcc", a_vol: 0.07, Htrans: 0 },
+        Sn: { K: 111, G: 18, Vm: 16.30, struct: "bcc", a_vol: 0.04, Htrans: 0 },
+        La: { K: 24,  G: 15, Vm: 22.55, struct: "hcp", a_vol: 0.07, Htrans: 0 },
+        Ce: { K: 24,  G: 12, Vm: 21.62, struct: "fcc", a_vol: 0.07, Htrans: 0 },
+        Gd: { K: 38,  G: 22, Vm: 19.90, struct: "hcp", a_vol: 0.07, Htrans: 0 },
+        Re: { K: 372, G: 179,Vm: 8.85,  struct: "hcp", a_vol: 0.04, Htrans: 0 },
       };
 
       /**
@@ -6276,6 +6332,7 @@ font-family: 'Source Sans Pro'
       const customRadiusInput = document.getElementById("custom-radius");
       const customMeltingInput = document.getElementById("custom-melting");
       const customValenceInput = document.getElementById("custom-valence");
+      const customChiInput = document.getElementById("custom-chi");
       const customSaveBtn = document.getElementById("custom-save");
       const customCancelBtn = document.getElementById("custom-cancel");
       const customRemoveBtn = document.getElementById("custom-remove");
@@ -6343,6 +6400,8 @@ font-family: 'Source Sans Pro'
             Hmix: Number(descriptors.Hmix),
             VEC: Number(descriptors.VEC),
             Omega: Number(descriptors.Omega),
+            delta_chi: descriptors.delta_chi != null ? Number(descriptors.delta_chi) : null,
+            mean_chi: descriptors.mean_chi != null ? Number(descriptors.mean_chi) : null,
             S_excess: descriptors.S_excess != null ? Number(descriptors.S_excess) : null,
             DeltaG_ss: descriptors.DeltaG_ss != null ? Number(descriptors.DeltaG_ss) : null,
             DeltaG_max: descriptors.DeltaG_max != null ? Number(descriptors.DeltaG_max) : null,
@@ -6550,6 +6609,7 @@ font-family: 'Source Sans Pro'
             radius: item.radius,
             melting: item.melting,
             valence: item.valence,
+            chi: Number.isFinite(item.chi) ? item.chi : NaN,
           };
         });
       }
@@ -6598,12 +6658,14 @@ font-family: 'Source Sans Pro'
           customRadiusInput.value = current.radius;
           customMeltingInput.value = current.melting;
           customValenceInput.value = current.valence;
+          customChiInput.value = Number.isFinite(current.chi) ? current.chi : "";
           customRemoveBtn.disabled = false;
         } else {
           customLabelInput.value = "";
           customRadiusInput.value = "";
           customMeltingInput.value = "";
           customValenceInput.value = "";
+          customChiInput.value = "";
           customRemoveBtn.disabled = true;
         }
         customPanelEl.classList.remove("hidden");
@@ -6821,6 +6883,18 @@ font-family: 'Source Sans Pro'
             symbol: "Ω",
             units: "—",
             value: formatNumber(descriptors.Omega),
+          },
+          {
+            title: "Electronegativity mismatch",
+            symbol: "Δχ",
+            units: "Pauling",
+            value: descriptors.delta_chi != null ? formatNumber(descriptors.delta_chi) : "—",
+          },
+          {
+            title: "Mean electronegativity",
+            symbol: "χ̄",
+            units: "Pauling",
+            value: descriptors.mean_chi != null ? formatNumber(descriptors.mean_chi) : "—",
           },
           {
             title: "Mismatch entropy",
@@ -7355,7 +7429,7 @@ font-family: 'Source Sans Pro'
         savedResultsBodyEl.innerHTML = "";
         if (!savedResults.length) {
           const tr = document.createElement("tr");
-          tr.innerHTML = `<td colspan="16" style="color: #64748b;">No saved results yet.</td>`;
+          tr.innerHTML = `<td colspan="17" style="color: #64748b;">No saved results yet.</td>`;
           savedResultsBodyEl.appendChild(tr);
           return;
         }
@@ -7374,6 +7448,7 @@ font-family: 'Source Sans Pro'
             <td>${formatNumber(row.descriptors.Hmix)}</td>
             <td>${formatNumber(row.descriptors.VEC)}</td>
             <td>${formatNumber(row.descriptors.Omega)}</td>
+            <td>${row.descriptors.delta_chi != null ? formatNumber(row.descriptors.delta_chi) : '—'}</td>
             <td>${row.descriptors.S_excess != null ? formatNumber(row.descriptors.S_excess) : '—'}</td>
             <td>${row.descriptors.Phi_king != null ? formatNumber(row.descriptors.Phi_king) : '—'}</td>
             <td>${row.descriptors.Phi_ye != null ? formatNumber(row.descriptors.Phi_ye) : '—'}</td>
@@ -7411,6 +7486,8 @@ font-family: 'Source Sans Pro'
           "Mixing enthalpy (kJ/mol)",
           "Valence electron concentration (—)",
           "Omega parameter (—)",
+          "Electronegativity mismatch (Pauling)",
+          "Mean electronegativity (Pauling)",
           "Mismatch entropy S_E (J/mol·K)",
           "King Phi (—)",
           "Ye phi (—)",
@@ -7438,6 +7515,8 @@ font-family: 'Source Sans Pro'
             row.descriptors.Hmix,
             row.descriptors.VEC,
             row.descriptors.Omega,
+            row.descriptors.delta_chi ?? "",
+            row.descriptors.mean_chi ?? "",
             row.descriptors.S_excess ?? "",
             row.descriptors.Phi_king ?? "",
             row.descriptors.Phi_ye ?? "",
@@ -7544,6 +7623,8 @@ font-family: 'Source Sans Pro'
         const radius = Number(customRadiusInput.value);
         const melting = Number(customMeltingInput.value);
         const valence = Number(customValenceInput.value);
+        const chiRaw = String(customChiInput.value || "").trim();
+        const chi = chiRaw === "" ? NaN : Number(chiRaw);
 
         if (!isValidCustomLabel(label)) {
           showCustomMessage("Label must be unique (not built-in) and 1–10 characters (letters/numbers/_/-). ");
@@ -7561,6 +7642,10 @@ font-family: 'Source Sans Pro'
           showCustomMessage("Enter a valid valence electron count (≥ 0).");
           return;
         }
+        if (chiRaw !== "" && (!Number.isFinite(chi) || chi <= 0)) {
+          showCustomMessage("Electronegativity must be a positive number (or leave it blank).");
+          return;
+        }
 
         const original = customEditOriginalLabel;
         const nameConflict = customElements.some((e) => e.label === label && e.label !== original);
@@ -7573,7 +7658,9 @@ font-family: 'Source Sans Pro'
           removeCustomFromData(original);
         }
 
-        const nextRecord = { label, radius, melting, valence };
+        const nextRecord = Number.isFinite(chi)
+          ? { label, radius, melting, valence, chi }
+          : { label, radius, melting, valence };
         if (original) {
           customElements = customElements.map((e) => (e.label === original ? nextRecord : e));
         } else {

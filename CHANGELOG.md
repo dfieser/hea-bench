@@ -8,6 +8,38 @@ DOI for the archived snapshot.
 The format is loosely based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.0] — 2026-06-10 — electronegativity descriptors; full-coverage Miedema panel
+
+### Added
+
+- **Electronegativity descriptors on every surface.** `delta_chi` (Pauling
+  electronegativity mismatch) and `mean_electronegativity`, present in the
+  Python library since v1.3 but never exported at the top level or ported to
+  the calculator, are now top-level Python exports, computed by the JS core
+  (`deltaChi`, `meanElectronegativity`), shown as result cards, included in
+  the saved-results table and CSV export, documented in the Equations view,
+  and covered by the Python↔JS parity test on all 676 fixtures. The synced
+  element table now carries the Pauling values; custom elements accept an
+  optional electronegativity and degrade with a warning when it is absent.
+- **Miedema formation-enthalpy panel extended 24 → 37 elements.** The
+  page-side `MIEDEMA_PARAMS` and `ELEMENT_EXTENDED` tables now cover every
+  element the calculator supports (adds Au, Be, Ca, Ce, Gd, In, La, Li, Mg,
+  Re, Sc, Sn, Zn), sourced from the vendored matminer Miedema parameter
+  table (the de Boer 1988 parametrization, BSD-3). The compound,
+  solid-solution, and amorphous decompositions now compute for all 666
+  binary pairs instead of skipping alloys containing the 13 missing
+  elements.
+
+### Changed
+
+- **Per-element hybridization factors aligned with the source table.** The
+  R correction in the formation-enthalpy panel previously used factor 1.0
+  for every element except Al and Si. It now uses the per-element factors
+  from the vendored parameter table (Cu/Ag/Au 0.3, Sc/Y/La/Ce/Gd 0.7,
+  Zn 1.4, In 1.9, Sn 2.1, Be/Mg/Ca 0.4, Li 0.0), which slightly changes
+  the panel's decomposition values for alloys pairing Cu, Ag, or Y with Al
+  or Si. The parity-tested descriptors and rules are unaffected.
+
 ## [1.4.0] — 2026-06-10 — 37-element coverage on every surface
 
 ### Added

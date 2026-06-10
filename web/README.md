@@ -25,8 +25,9 @@ For any composition you enter, the page reports:
 
 - **Core descriptors** — mixing entropy ΔS_mix, atomic-size mismatch δ,
   mean melting temperature T_m, mixing enthalpy ΔH_mix,
-  valence-electron concentration VEC, Yang-Zhang Ω, Mansoori excess
-  entropy `S_E`, `DeltaG_ss`, `DeltaG_max`, King `Phi`, and Ye `phi`.
+  valence-electron concentration VEC, Yang-Zhang Ω, Pauling
+  electronegativity mismatch Δχ, Mansoori excess entropy `S_E`,
+  `DeltaG_ss`, `DeltaG_max`, King `Phi`, and Ye `phi`.
 - **Phase-prediction rules** — the verdicts of all six shipped rules:
   Yeh entropy, Zhang size mismatch, Guo-Liu VEC, Yang-Zhang Ω,
   King `Phi`, and Ye `phi`.
@@ -57,10 +58,12 @@ In, Ir, La, Li, Mg, Mn, Mo, Nb, Ni, Os, Pd, Pt, Re, Rh, Ru, Sc, Si, Sn,
 Ta, Ti, V, W, Y, Zn, Zr. Compositions containing any element outside
 this set surface a warning in the page rather than producing a number.
 The JS tables are generated from the Python library by
-`tests/data/_sync_js_tables.py`, so the two cannot drift. Elements
-without page-side Miedema decomposition parameters still compute every
-core descriptor and rule; only the formation-enthalpy panel skips them
-with a warning.
+`tests/data/_sync_js_tables.py`, so the two cannot drift. The Miedema
+formation-enthalpy decompositions also cover all 37 elements, using
+parameters from the repo's vendored matminer Miedema table. Custom
+user-defined elements compute every core descriptor and rule;
+electronegativity and decomposition outputs degrade with a warning
+when their parameters are not supplied.
 
 ## Updating the calculator
 

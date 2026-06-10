@@ -48,6 +48,8 @@ hb.phi_ye(cantor)      # 34.822 (Ye 2015 proxy)
 | Most-negative pair enthalpy ΔG_max | `hb.delta_g_max(comp)` | kJ/mol |
 | King capital Φ | `hb.phi_king(comp)` | dimensionless |
 | Ye lowercase φ | `hb.phi_ye(comp)` | dimensionless |
+| Electronegativity mismatch Δχ | `hb.delta_chi(comp)` | Pauling scale |
+| Mean electronegativity χ̄ | `hb.mean_electronegativity(comp)` | Pauling scale |
 
 ## Rules
 

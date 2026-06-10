@@ -73,6 +73,8 @@ return a float.
 | `hb.delta_g_max(comp)` | most-stable binary-subsystem proxy | kJ/mol | min over `4 cᵢ cⱼ ΔHᵢⱼ` |
 | `hb.phi_king(comp, temperature=None)` | King capital `Phi` | dimensionless | defaults to `T = Tm` |
 | `hb.phi_ye(comp)` | Ye lowercase `phi` | dimensionless | uses `s_excess(comp)` |
+| `hb.delta_chi(comp)` | electronegativity mismatch Δχ | Pauling scale | composition-weighted std |
+| `hb.mean_electronegativity(comp)` | mean Pauling electronegativity | Pauling scale | linear mean |
 
 ```python
 cantor = {"Co": 0.2, "Cr": 0.2, "Fe": 0.2, "Mn": 0.2, "Ni": 0.2}
@@ -87,6 +89,8 @@ hb.delta_g_ss(cantor)        # -28.262 (kJ/mol)
 hb.delta_g_max(cantor)       # -8.000  (kJ/mol)  most-negative Miedema pair
 hb.phi_king(cantor)          # 3.533
 hb.phi_ye(cantor)            # 34.822
+hb.delta_chi(cantor)         # 0.138   (Pauling scale)
+hb.mean_electronegativity(cantor)  # 1.766
 ```
 
 These values for the Cantor alloy are pinned in the regression
@@ -156,10 +160,12 @@ documented surface.
 
 ## Data layout
 
-- `src/hea_bench/descriptors/data/` — the vendored element table (30
-  elements: radius, melting point, VEC) and the matminer-derived
-  Miedema pair-enthalpy table (`pair_enthalpies.tsv`, 75 elements).
-  These are shipped inside the wheel; no fetch step is needed.
+- `src/hea_bench/descriptors/data/` — the vendored element table (37
+  elements: radius, melting point, VEC, Pauling electronegativity), the
+  matminer-derived Miedema pair-enthalpy table (`pair_enthalpies.tsv`,
+  75 elements), and the Miedema elemental-parameter table
+  (`miedema_parameters.csv`). These are shipped inside the wheel; no
+  fetch step is needed.
 - `web/hea-calculator-core.js` — the JS port of the same math + tables,
   used by the browser and desktop apps.
 
@@ -172,11 +178,12 @@ descriptor + rule surface above.
 ## Coverage limit
 
 The element table covers **37 elements**. Compositions containing
-elements outside it (C, B, Be, Ca, Sc, and others) are not fully
-scorable: `delta`, `smix`-class geometric/melting descriptors need the
-element table, while Miedema-based descriptors fall back to the wider
-75-element pair table. Carbon and boron are deliberately held out (no
-metallic radius; no 1-atm melting point for carbon).
+elements outside it (C, B, the refractory-gas formers, and most
+lanthanides) are not fully scorable: `delta`, `smix`-class
+geometric/melting descriptors need the element table, while
+Miedema-based descriptors fall back to the wider 75-element pair table.
+Carbon and boron are deliberately held out (no metallic radius; no
+1-atm melting point for carbon).
 
 ## Things not to do
 
@@ -201,7 +208,7 @@ metallic radius; no 1-atm melting point for carbon).
 After wiring this in, confirm the Cantor sanity values
 (`smix=13.381`, `delta=3.164`, `vec=8.0`, `omega=5.794`,
 `s_excess=0.318`, `delta_g_max=-8.000`, `phi_king=3.533`,
-`phi_ye=34.822`) and run the test suite (`python -m pytest -q`). If
+`phi_ye=34.822`, `delta_chi=0.1384`) and run the test suite (`python -m pytest -q`). If
 those match, your environment is using the canonical implementation
 correctly.
 
@@ -234,6 +241,8 @@ print(json.dumps({
         "delta_g_max":         hb.delta_g_max(cantor),
         "phi_king":            hb.phi_king(cantor),
         "phi_ye":              hb.phi_ye(cantor),
+        "delta_chi":           hb.delta_chi(cantor),
+        "mean_electronegativity": hb.mean_electronegativity(cantor),
     },
     "cantor_rules": {
         "yeh_smix":    yeh_smix.predict(cantor),

@@ -19,6 +19,7 @@ Quick start::
 """
 
 from .composition import Composition, normalize, parse_formula
+from .descriptors.electronegativity import delta_chi, mean_electronegativity
 from .descriptors.entropy import smix
 from .descriptors.melting import melting_temperature
 from .descriptors.miedema import mixing_enthalpy
@@ -27,7 +28,7 @@ from .descriptors.phi import delta_g_max, delta_g_ss, delta_h_ss, phi_king, phi_
 from .descriptors.size import delta
 from .descriptors.vec import vec
 
-__version__ = "1.4.0"
+__version__ = "1.5.0"
 
 __all__ = [
     "__version__",
@@ -48,4 +49,6 @@ __all__ = [
     "s_excess",
     "phi_king",
     "phi_ye",
+    "delta_chi",
+    "mean_electronegativity",
 ]

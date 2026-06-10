@@ -38,7 +38,8 @@ def element_block() -> str:
         d = ELEMENTAL_DATA[sym]
         lines.append(
             f"      {sym}: {{ radius: {_num(float(d.radius_pm))}, "
-            f"melting: {_num(float(d.melting_K))}, valence: {int(d.valence)} }}"
+            f"melting: {_num(float(d.melting_K))}, valence: {int(d.valence)}, "
+            f"chi: {_num(float(d.electronegativity))} }}"
         )
     return ",\n".join(lines)
 
@@ -57,7 +58,8 @@ def main() -> None:
     text = CORE.read_text(encoding="utf-8")
 
     elem_comment = (
-        f"    // {n}-element coverage (atomic radius, melting point, valence).\n"
+        f"    // {n}-element coverage (atomic radius, melting point, valence,\n"
+        f"    // Pauling electronegativity).\n"
         f"    // Generated from the Python library's ELEMENTAL_DATA by\n"
         f"    // tests/data/_sync_js_tables.py — do not edit by hand; the\n"
         f"    // parity test asserts the two tables agree.\n"

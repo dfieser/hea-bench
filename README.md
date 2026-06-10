@@ -22,8 +22,8 @@ For any composition it reports:
 - **Core descriptors** — mixing entropy ΔS<sub>mix</sub>, atomic-size
   mismatch δ, mean melting temperature T<sub>m</sub>, Miedema mixing
   enthalpy ΔH<sub>mix</sub>, valence-electron concentration VEC,
-  Yang–Zhang Ω, Mansoori excess entropy S<sub>E</sub>, ΔG<sub>ss</sub>,
-  ΔG<sub>max</sub>, King Φ, Ye φ.
+  Yang–Zhang Ω, Pauling electronegativity mismatch Δχ, Mansoori excess
+  entropy S<sub>E</sub>, ΔG<sub>ss</sub>, ΔG<sub>max</sub>, King Φ, Ye φ.
 - **Phase-prediction rules** — Yeh entropy, Zhang δ, Guo–Liu VEC,
   Yang–Zhang Ω, King Φ, Ye φ.
 - **Miedema formation enthalpies** (browser/desktop apps) — compound /
@@ -40,7 +40,7 @@ Miedema pair table covers 75.
 |---|---|---|
 | **Python library + CLI** | `pip install hea-bench` | done, tested |
 | **Zero-install browser app** | `web/index.html` · <https://dfieser.github.io/hea-bench/> | done, Python-parity-tested |
-| **Native desktop app** | one offline `.exe` (Tauri wrapper of the browser app) | in progress |
+| **Native desktop app** | one offline `.exe` (Tauri wrapper of the browser app) | done, built from the same parity-tested core |
 
 The three surfaces share **one calculation core**. The browser/desktop
 core (`web/hea-calculator-core.js`) is a pure-JS port of the Python
@@ -63,6 +63,7 @@ hb.delta(cantor)              # 3.164 % atomic-size mismatch
 hb.vec(cantor)                # 8.0 valence electrons
 hb.mixing_enthalpy(cantor)    # -4.16 kJ/mol  (Miedema)
 hb.omega(cantor)              # 5.79  (Yang–Zhang)
+hb.delta_chi(cantor)          # 0.138 Pauling electronegativity mismatch
 hb.s_excess(cantor)           # 0.318 J/(mol·K)  (Mansoori excess entropy)
 hb.delta_g_max(cantor)        # -8.00 kJ/mol  (most-negative Miedema pair)
 hb.phi_king(cantor)           # 3.533 (King 2016 proxy)

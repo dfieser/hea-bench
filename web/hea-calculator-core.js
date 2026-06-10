@@ -22,48 +22,49 @@
     var GUO_VEC_FCC_THRESHOLD = 8.0;
     var GUO_VEC_BCC_THRESHOLD = 6.87;
 
-    // 37-element coverage (atomic radius, melting point, valence).
+    // 37-element coverage (atomic radius, melting point, valence,
+    // Pauling electronegativity).
     // Generated from the Python library's ELEMENTAL_DATA by
     // tests/data/_sync_js_tables.py — do not edit by hand; the
     // parity test asserts the two tables agree.
     var DEFAULT_ELEMENT_DATA = {
-      Ag: { radius: 144.0, melting: 1234.93, valence: 11 },
-      Al: { radius: 143.0, melting: 933.47, valence: 3 },
-      Au: { radius: 144.0, melting: 1337.33, valence: 11 },
-      Be: { radius: 112.0, melting: 1560.0, valence: 2 },
-      Ca: { radius: 197.0, melting: 1115.0, valence: 2 },
-      Ce: { radius: 182.0, melting: 1071.0, valence: 3 },
-      Co: { radius: 125.0, melting: 1768.0, valence: 9 },
-      Cr: { radius: 129.0, melting: 2180.0, valence: 6 },
-      Cu: { radius: 128.0, melting: 1357.77, valence: 11 },
-      Fe: { radius: 126.0, melting: 1811.0, valence: 8 },
-      Gd: { radius: 180.2, melting: 1585.0, valence: 3 },
-      Hf: { radius: 159.0, melting: 2506.0, valence: 4 },
-      In: { radius: 167.0, melting: 429.7, valence: 3 },
-      Ir: { radius: 136.0, melting: 2719.0, valence: 9 },
-      La: { radius: 188.0, melting: 1193.0, valence: 3 },
-      Li: { radius: 157.0, melting: 453.65, valence: 1 },
-      Mg: { radius: 160.0, melting: 923.15, valence: 2 },
-      Mn: { radius: 135.7, melting: 1519.0, valence: 7 },
-      Mo: { radius: 139.0, melting: 2896.0, valence: 6 },
-      Nb: { radius: 147.0, melting: 2750.0, valence: 5 },
-      Ni: { radius: 125.0, melting: 1728.0, valence: 10 },
-      Os: { radius: 135.0, melting: 3306.0, valence: 8 },
-      Pd: { radius: 137.0, melting: 1828.0, valence: 10 },
-      Pt: { radius: 139.0, melting: 2041.4, valence: 10 },
-      Re: { radius: 137.0, melting: 3459.15, valence: 7 },
-      Rh: { radius: 134.0, melting: 2237.0, valence: 9 },
-      Ru: { radius: 134.0, melting: 2607.0, valence: 8 },
-      Sc: { radius: 164.0, melting: 1814.0, valence: 3 },
-      Si: { radius: 111.0, melting: 1687.0, valence: 4 },
-      Sn: { radius: 158.0, melting: 505.08, valence: 4 },
-      Ta: { radius: 147.0, melting: 3290.0, valence: 5 },
-      Ti: { radius: 147.0, melting: 1941.0, valence: 4 },
-      V: { radius: 135.0, melting: 2183.0, valence: 5 },
-      W: { radius: 141.0, melting: 3695.0, valence: 6 },
-      Y: { radius: 182.0, melting: 1799.0, valence: 3 },
-      Zn: { radius: 137.0, melting: 692.68, valence: 12 },
-      Zr: { radius: 160.0, melting: 2128.0, valence: 4 }
+      Ag: { radius: 144.0, melting: 1234.93, valence: 11, chi: 1.93 },
+      Al: { radius: 143.0, melting: 933.47, valence: 3, chi: 1.61 },
+      Au: { radius: 144.0, melting: 1337.33, valence: 11, chi: 2.54 },
+      Be: { radius: 112.0, melting: 1560.0, valence: 2, chi: 1.57 },
+      Ca: { radius: 197.0, melting: 1115.0, valence: 2, chi: 1.0 },
+      Ce: { radius: 182.0, melting: 1071.0, valence: 3, chi: 1.12 },
+      Co: { radius: 125.0, melting: 1768.0, valence: 9, chi: 1.88 },
+      Cr: { radius: 129.0, melting: 2180.0, valence: 6, chi: 1.66 },
+      Cu: { radius: 128.0, melting: 1357.77, valence: 11, chi: 1.9 },
+      Fe: { radius: 126.0, melting: 1811.0, valence: 8, chi: 1.83 },
+      Gd: { radius: 180.2, melting: 1585.0, valence: 3, chi: 1.2 },
+      Hf: { radius: 159.0, melting: 2506.0, valence: 4, chi: 1.3 },
+      In: { radius: 167.0, melting: 429.7, valence: 3, chi: 1.78 },
+      Ir: { radius: 136.0, melting: 2719.0, valence: 9, chi: 2.2 },
+      La: { radius: 188.0, melting: 1193.0, valence: 3, chi: 1.1 },
+      Li: { radius: 157.0, melting: 453.65, valence: 1, chi: 0.98 },
+      Mg: { radius: 160.0, melting: 923.15, valence: 2, chi: 1.31 },
+      Mn: { radius: 135.7, melting: 1519.0, valence: 7, chi: 1.55 },
+      Mo: { radius: 139.0, melting: 2896.0, valence: 6, chi: 2.16 },
+      Nb: { radius: 147.0, melting: 2750.0, valence: 5, chi: 1.6 },
+      Ni: { radius: 125.0, melting: 1728.0, valence: 10, chi: 1.91 },
+      Os: { radius: 135.0, melting: 3306.0, valence: 8, chi: 2.2 },
+      Pd: { radius: 137.0, melting: 1828.0, valence: 10, chi: 2.2 },
+      Pt: { radius: 139.0, melting: 2041.4, valence: 10, chi: 2.28 },
+      Re: { radius: 137.0, melting: 3459.15, valence: 7, chi: 1.9 },
+      Rh: { radius: 134.0, melting: 2237.0, valence: 9, chi: 2.28 },
+      Ru: { radius: 134.0, melting: 2607.0, valence: 8, chi: 2.2 },
+      Sc: { radius: 164.0, melting: 1814.0, valence: 3, chi: 1.36 },
+      Si: { radius: 111.0, melting: 1687.0, valence: 4, chi: 1.9 },
+      Sn: { radius: 158.0, melting: 505.08, valence: 4, chi: 1.96 },
+      Ta: { radius: 147.0, melting: 3290.0, valence: 5, chi: 1.5 },
+      Ti: { radius: 147.0, melting: 1941.0, valence: 4, chi: 1.54 },
+      V: { radius: 135.0, melting: 2183.0, valence: 5, chi: 1.63 },
+      W: { radius: 141.0, melting: 3695.0, valence: 6, chi: 2.36 },
+      Y: { radius: 182.0, melting: 1799.0, valence: 3, chi: 1.22 },
+      Zn: { radius: 137.0, melting: 692.68, valence: 12, chi: 1.65 },
+      Zr: { radius: 160.0, melting: 2128.0, valence: 4, chi: 1.33 }
     };
 
     // 666 pairs = C(37, 2). Matminer-derived Miedema binary mixing
@@ -939,6 +940,37 @@
       return sumByNorm(norm, elementData, "valence");
     }
 
+    function elementsMissingChi(norm, elementData) {
+      var missing = [];
+      var key;
+      for (key in norm) {
+        if (!hasOwn(norm, key)) {
+          continue;
+        }
+        if (!isFinite(elementData[key].chi)) {
+          missing.push(key);
+        }
+      }
+      return sortStrings(missing);
+    }
+
+    function meanChiFromNormalized(norm, elementData) {
+      return sumByNorm(norm, elementData, "chi");
+    }
+
+    function deltaChiFromNormalized(norm, elementData) {
+      var chiBar = meanChiFromNormalized(norm, elementData);
+      var inner = 0.0;
+      var key;
+      for (key in norm) {
+        if (!hasOwn(norm, key)) {
+          continue;
+        }
+        inner += norm[key] * Math.pow(elementData[key].chi - chiBar, 2);
+      }
+      return Math.sqrt(Math.max(inner, 0.0));
+    }
+
     function mansooriExcessEntropyFromNormalized(norm, packingFraction, elementData) {
       if (!(packingFraction > 0.0 && packingFraction < 1.0)) {
         throw new Error("packing_fraction must be between 0 and 1");
@@ -1095,6 +1127,19 @@
       Smix = smixFromNormalized(norm);
       delta = deltaFromNormalized(norm, elementData);
       VEC = vecFromNormalized(norm, elementData);
+
+      var chiMissing = elementsMissingChi(norm, elementData);
+      var meanChi = null;
+      var deltaChiValue = null;
+      if (chiMissing.length) {
+        warnings.push(
+          "Missing Pauling electronegativity for " + chiMissing.join(", ") +
+          "; the electronegativity descriptors are unavailable."
+        );
+      } else {
+        meanChi = meanChiFromNormalized(norm, elementData);
+        deltaChiValue = deltaChiFromNormalized(norm, elementData);
+      }
       Hmix = pairTerms.missingPairs.length ? null : pairTerms.total;
       Omega = null;
       if (Hmix !== null) {
@@ -1133,6 +1178,8 @@
         Hmix: Hmix,
         VEC: VEC,
         Omega: Omega,
+        delta_chi: deltaChiValue,
+        mean_chi: meanChi,
         H_compound: null,
         H_SS_total: null,
         H_SS_chem: null,
@@ -1181,6 +1228,32 @@
       var norm = normalizeComposition(composition);
       ensureElementData(norm, elementData);
       return vecFromNormalized(norm, elementData);
+    }
+
+    function deltaChi(composition, options) {
+      var elementData = options && options.elementData ? options.elementData : DEFAULT_ELEMENT_DATA;
+      var norm = normalizeComposition(composition);
+      ensureElementData(norm, elementData);
+      var missing = elementsMissingChi(norm, elementData);
+      if (missing.length) {
+        throw new Error(
+          "composition contains elements without electronegativity data: " + missing.join(", ")
+        );
+      }
+      return deltaChiFromNormalized(norm, elementData);
+    }
+
+    function meanElectronegativity(composition, options) {
+      var elementData = options && options.elementData ? options.elementData : DEFAULT_ELEMENT_DATA;
+      var norm = normalizeComposition(composition);
+      ensureElementData(norm, elementData);
+      var missing = elementsMissingChi(norm, elementData);
+      if (missing.length) {
+        throw new Error(
+          "composition contains elements without electronegativity data: " + missing.join(", ")
+        );
+      }
+      return meanChiFromNormalized(norm, elementData);
     }
 
     function mixingEnthalpy(composition, options) {
@@ -1344,6 +1417,8 @@
       vec: vec,
       mixingEnthalpy: mixingEnthalpy,
       omega: omega,
+      deltaChi: deltaChi,
+      meanElectronegativity: meanElectronegativity,
       sExcess: sExcess,
       deltaGSs: deltaGSs,
       deltaGMax: deltaGMax,
