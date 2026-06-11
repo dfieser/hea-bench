@@ -8,6 +8,32 @@ DOI for the archived snapshot.
 The format is loosely based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+
+- **High-entropy-oxide descriptor module (`hea_bench.oxides`), Python surface.**
+  First increment of the oxide expansion: closed-form HEO descriptors and
+  empirical formability screens for four structure families via
+  `describe_rock_salt`, `describe_perovskite`, `describe_fluorite`, and
+  `describe_pyrochlore` (spinel deferred). Computes per-sublattice
+  configurational entropy (formula / per-cation / per-site conventions),
+  Shannon-radius size disorder per sublattice, Goldschmidt `t`, octahedral
+  factor `mu`, Bartel `tau` (< 4.18 rule), the Spiridigliozzi fluorite
+  radius-dispersion criterion (sigma > 0.095 Å, eight-fold radii, sample SD —
+  reproduces the published SDs of the F-ESO samples exactly), the
+  Subramanian pyrochlore radius-ratio window, and cation electronegativity
+  statistics. A deterministic charge-neutrality solver assigns oxidation
+  states (common states first, charge-uniform sublattices preferred,
+  explicit override supported); Shannon radii resolve by oxidation state,
+  coordination number, and spin (high-spin default, low-spin toggle), with
+  documented nearest-CN fallback warnings. Data vendored from pymatgen's
+  digitization of Shannon 1976 (MIT, 95 elements, provenance + SHA pinned
+  in `src/hea_bench/oxides/data/README.md`). 19 new tests pin literature
+  anchors (Rost J14, Jiang 2018 perovskites, Spiridigliozzi F-ESO,
+  zirconate pyrochlore). The alloy surface and the browser/desktop apps are
+  untouched; the JS port and calculator Oxides mode are the next increment.
+
 ## [1.5.0] — 2026-06-10 — electronegativity descriptors; full-coverage Miedema panel
 
 ### Added

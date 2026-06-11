@@ -1,0 +1,3055 @@
+{
+ "_provenance": {
+  "extracted_by": "_vendor_oxide_data.py",
+  "pymatgen_version": "2025.10.7",
+  "radii_primary_source": "Shannon, Acta Cryst. A32, 751 (1976), effective ionic radii",
+  "source": "pymatgen periodic_table.json.gz (MIT license)",
+  "upstream": "https://github.com/materialsproject/pymatgen"
+ },
+ "elements": {
+  "Ac": {
+   "chi": 1.1,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "3": {
+     "VI": {
+      "": 1.12
+     }
+    }
+   }
+  },
+  "Ag": {
+   "chi": 1.93,
+   "common_oxidation_states": [
+    1
+   ],
+   "icsd_oxidation_states": [
+    1,
+    2,
+    3
+   ],
+   "shannon_radii": {
+    "1": {
+     "II": {
+      "": 0.67
+     },
+     "IV": {
+      "": 1.0
+     },
+     "IVSQ": {
+      "": 1.02
+     },
+     "V": {
+      "": 1.09
+     },
+     "VI": {
+      "": 1.15
+     },
+     "VII": {
+      "": 1.22
+     },
+     "VIII": {
+      "": 1.28
+     }
+    },
+    "2": {
+     "IVSQ": {
+      "": 0.79
+     },
+     "VI": {
+      "": 0.94
+     }
+    },
+    "3": {
+     "IVSQ": {
+      "": 0.67
+     },
+     "VI": {
+      "": 0.75
+     }
+    }
+   }
+  },
+  "Al": {
+   "chi": 1.61,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    3
+   ],
+   "shannon_radii": {
+    "3": {
+     "IV": {
+      "": 0.39
+     },
+     "V": {
+      "": 0.48
+     },
+     "VI": {
+      "": 0.535
+     }
+    }
+   }
+  },
+  "Am": {
+   "chi": 1.3,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "2": {
+     "IX": {
+      "": 1.31
+     },
+     "VII": {
+      "": 1.21
+     },
+     "VIII": {
+      "": 1.26
+     }
+    },
+    "3": {
+     "VI": {
+      "": 0.975
+     },
+     "VIII": {
+      "": 1.09
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.85
+     },
+     "VIII": {
+      "": 0.95
+     }
+    }
+   }
+  },
+  "As": {
+   "chi": 2.18,
+   "common_oxidation_states": [
+    -3,
+    3,
+    5
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3,
+    5,
+    -2,
+    -3,
+    -1
+   ],
+   "shannon_radii": {
+    "3": {
+     "VI": {
+      "": 0.58
+     }
+    },
+    "5": {
+     "IV": {
+      "": 0.335
+     },
+     "VI": {
+      "": 0.46
+     }
+    }
+   }
+  },
+  "At": {
+   "chi": 2.2,
+   "common_oxidation_states": [
+    -1,
+    1
+   ],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "7": {
+     "VI": {
+      "": 0.62
+     }
+    }
+   }
+  },
+  "Au": {
+   "chi": 2.54,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "1": {
+     "VI": {
+      "": 1.37
+     }
+    },
+    "3": {
+     "IVSQ": {
+      "": 0.68
+     },
+     "VI": {
+      "": 0.85
+     }
+    },
+    "5": {
+     "VI": {
+      "": 0.57
+     }
+    }
+   }
+  },
+  "B": {
+   "chi": 2.04,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    3,
+    -3
+   ],
+   "shannon_radii": {
+    "3": {
+     "III": {
+      "": 0.01
+     },
+     "IV": {
+      "": 0.11
+     },
+     "VI": {
+      "": 0.27
+     }
+    }
+   }
+  },
+  "Ba": {
+   "chi": 0.89,
+   "common_oxidation_states": [
+    2
+   ],
+   "icsd_oxidation_states": [
+    2
+   ],
+   "shannon_radii": {
+    "2": {
+     "IX": {
+      "": 1.47
+     },
+     "VI": {
+      "": 1.35
+     },
+     "VII": {
+      "": 1.38
+     },
+     "VIII": {
+      "": 1.42
+     },
+     "X": {
+      "": 1.52
+     },
+     "XI": {
+      "": 1.57
+     },
+     "XII": {
+      "": 1.61
+     }
+    }
+   }
+  },
+  "Be": {
+   "chi": 1.57,
+   "common_oxidation_states": [
+    2
+   ],
+   "icsd_oxidation_states": [
+    2
+   ],
+   "shannon_radii": {
+    "2": {
+     "III": {
+      "": 0.16
+     },
+     "IV": {
+      "": 0.27
+     },
+     "VI": {
+      "": 0.45
+     }
+    }
+   }
+  },
+  "Bi": {
+   "chi": 2.02,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    1,
+    2,
+    3,
+    5
+   ],
+   "shannon_radii": {
+    "3": {
+     "V": {
+      "": 0.96
+     },
+     "VI": {
+      "": 1.03
+     },
+     "VIII": {
+      "": 1.17
+     }
+    },
+    "5": {
+     "VI": {
+      "": 0.76
+     }
+    }
+   }
+  },
+  "Bk": {
+   "chi": 1.3,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "3": {
+     "VI": {
+      "": 0.96
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.83
+     },
+     "VIII": {
+      "": 0.93
+     }
+    }
+   }
+  },
+  "Br": {
+   "chi": 2.96,
+   "common_oxidation_states": [
+    -1,
+    1,
+    3,
+    5,
+    7
+   ],
+   "icsd_oxidation_states": [
+    5,
+    -1
+   ],
+   "shannon_radii": {
+    "-1": {
+     "VI": {
+      "": 1.96
+     }
+    },
+    "3": {
+     "IVSQ": {
+      "": 0.59
+     }
+    },
+    "5": {
+     "IIIPY": {
+      "": 0.31
+     }
+    },
+    "7": {
+     "IV": {
+      "": 0.25
+     },
+     "VI": {
+      "": 0.39
+     }
+    }
+   }
+  },
+  "C": {
+   "chi": 2.55,
+   "common_oxidation_states": [
+    -4,
+    4
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3,
+    4,
+    -4,
+    -3,
+    -2
+   ],
+   "shannon_radii": {
+    "4": {
+     "III": {
+      "": -0.08
+     },
+     "IV": {
+      "": 0.15
+     },
+     "VI": {
+      "": 0.16
+     }
+    }
+   }
+  },
+  "Ca": {
+   "chi": 1,
+   "common_oxidation_states": [
+    2
+   ],
+   "icsd_oxidation_states": [
+    2
+   ],
+   "shannon_radii": {
+    "2": {
+     "IX": {
+      "": 1.18
+     },
+     "VI": {
+      "": 1.0
+     },
+     "VII": {
+      "": 1.06
+     },
+     "VIII": {
+      "": 1.12
+     },
+     "X": {
+      "": 1.23
+     },
+     "XII": {
+      "": 1.34
+     }
+    }
+   }
+  },
+  "Cd": {
+   "chi": 1.69,
+   "common_oxidation_states": [
+    2
+   ],
+   "icsd_oxidation_states": [
+    2
+   ],
+   "shannon_radii": {
+    "2": {
+     "IV": {
+      "": 0.78
+     },
+     "V": {
+      "": 0.87
+     },
+     "VI": {
+      "": 0.95
+     },
+     "VII": {
+      "": 1.03
+     },
+     "VIII": {
+      "": 1.1
+     },
+     "XII": {
+      "": 1.31
+     }
+    }
+   }
+  },
+  "Ce": {
+   "chi": 1.12,
+   "common_oxidation_states": [
+    3,
+    4
+   ],
+   "icsd_oxidation_states": [
+    3,
+    4
+   ],
+   "shannon_radii": {
+    "3": {
+     "IX": {
+      "": 1.196
+     },
+     "VI": {
+      "": 1.01
+     },
+     "VII": {
+      "": 1.07
+     },
+     "VIII": {
+      "": 1.143
+     },
+     "X": {
+      "": 1.25
+     },
+     "XII": {
+      "": 1.34
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.87
+     },
+     "VIII": {
+      "": 0.97
+     },
+     "X": {
+      "": 1.07
+     },
+     "XII": {
+      "": 1.14
+     }
+    }
+   }
+  },
+  "Cf": {
+   "chi": 1.3,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "3": {
+     "VI": {
+      "": 0.95
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.821
+     },
+     "VIII": {
+      "": 0.92
+     }
+    }
+   }
+  },
+  "Cl": {
+   "chi": 3.16,
+   "common_oxidation_states": [
+    -1,
+    1,
+    3,
+    5,
+    7
+   ],
+   "icsd_oxidation_states": [
+    -1
+   ],
+   "shannon_radii": {
+    "-1": {
+     "VI": {
+      "": 1.81
+     }
+    },
+    "5": {
+     "IIIPY": {
+      "": 0.12
+     }
+    },
+    "7": {
+     "IV": {
+      "": 0.08
+     },
+     "VI": {
+      "": 0.27
+     }
+    }
+   }
+  },
+  "Cm": {
+   "chi": 1.3,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "3": {
+     "VI": {
+      "": 0.97
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.85
+     },
+     "VIII": {
+      "": 0.95
+     }
+    }
+   }
+  },
+  "Co": {
+   "chi": 1.88,
+   "common_oxidation_states": [
+    2,
+    3
+   ],
+   "icsd_oxidation_states": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "shannon_radii": {
+    "2": {
+     "IV": {
+      "High Spin": 0.58
+     },
+     "V": {
+      "": 0.67
+     },
+     "VI": {
+      "High Spin": 0.745,
+      "Low Spin": 0.65
+     },
+     "VIII": {
+      "": 0.9
+     }
+    },
+    "3": {
+     "VI": {
+      "High Spin": 0.61,
+      "Low Spin": 0.545
+     }
+    },
+    "4": {
+     "IV": {
+      "": 0.4
+     },
+     "VI": {
+      "High Spin": 0.53
+     }
+    }
+   }
+  },
+  "Cr": {
+   "chi": 1.66,
+   "common_oxidation_states": [
+    3,
+    6
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "shannon_radii": {
+    "2": {
+     "VI": {
+      "High Spin": 0.8,
+      "Low Spin": 0.73
+     }
+    },
+    "3": {
+     "VI": {
+      "": 0.615
+     }
+    },
+    "4": {
+     "IV": {
+      "": 0.41
+     },
+     "VI": {
+      "": 0.55
+     }
+    },
+    "5": {
+     "IV": {
+      "": 0.345
+     },
+     "VI": {
+      "": 0.49
+     },
+     "VIII": {
+      "": 0.57
+     }
+    },
+    "6": {
+     "IV": {
+      "": 0.26
+     },
+     "VI": {
+      "": 0.44
+     }
+    }
+   }
+  },
+  "Cs": {
+   "chi": 0.79,
+   "common_oxidation_states": [
+    1
+   ],
+   "icsd_oxidation_states": [
+    1
+   ],
+   "shannon_radii": {
+    "1": {
+     "IX": {
+      "": 1.78
+     },
+     "VI": {
+      "": 1.67
+     },
+     "VIII": {
+      "": 1.74
+     },
+     "X": {
+      "": 1.81
+     },
+     "XI": {
+      "": 1.85
+     },
+     "XII": {
+      "": 1.88
+     }
+    }
+   }
+  },
+  "Cu": {
+   "chi": 1.9,
+   "common_oxidation_states": [
+    2
+   ],
+   "icsd_oxidation_states": [
+    1,
+    2,
+    3
+   ],
+   "shannon_radii": {
+    "1": {
+     "II": {
+      "": 0.46
+     },
+     "IV": {
+      "": 0.6
+     },
+     "VI": {
+      "": 0.77
+     }
+    },
+    "2": {
+     "IV": {
+      "": 0.57
+     },
+     "IVSQ": {
+      "": 0.57
+     },
+     "V": {
+      "": 0.65
+     },
+     "VI": {
+      "": 0.73
+     }
+    },
+    "3": {
+     "VI": {
+      "Low Spin": 0.54
+     }
+    }
+   }
+  },
+  "D": {
+   "chi": null,
+   "common_oxidation_states": [
+    -1,
+    1
+   ],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "1": {
+     "II": {
+      "": -0.1
+     }
+    }
+   }
+  },
+  "Dy": {
+   "chi": 1.22,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    3
+   ],
+   "shannon_radii": {
+    "2": {
+     "VI": {
+      "": 1.07
+     },
+     "VII": {
+      "": 1.13
+     },
+     "VIII": {
+      "": 1.19
+     }
+    },
+    "3": {
+     "IX": {
+      "": 1.083
+     },
+     "VI": {
+      "": 0.912
+     },
+     "VII": {
+      "": 0.97
+     },
+     "VIII": {
+      "": 1.027
+     }
+    }
+   }
+  },
+  "Er": {
+   "chi": 1.24,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    3
+   ],
+   "shannon_radii": {
+    "3": {
+     "IX": {
+      "": 1.062
+     },
+     "VI": {
+      "": 0.89
+     },
+     "VII": {
+      "": 0.945
+     },
+     "VIII": {
+      "": 1.004
+     }
+    }
+   }
+  },
+  "Eu": {
+   "chi": 1.2,
+   "common_oxidation_states": [
+    2,
+    3
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3
+   ],
+   "shannon_radii": {
+    "2": {
+     "IX": {
+      "": 1.3
+     },
+     "VI": {
+      "": 1.17
+     },
+     "VII": {
+      "": 1.2
+     },
+     "VIII": {
+      "": 1.25
+     },
+     "X": {
+      "": 1.35
+     }
+    },
+    "3": {
+     "IX": {
+      "": 1.12
+     },
+     "VI": {
+      "": 0.947
+     },
+     "VIII": {
+      "": 1.066
+     }
+    }
+   }
+  },
+  "F": {
+   "chi": 3.98,
+   "common_oxidation_states": [
+    -1
+   ],
+   "icsd_oxidation_states": [
+    -1
+   ],
+   "shannon_radii": {
+    "-1": {
+     "II": {
+      "": 1.285
+     },
+     "III": {
+      "": 1.3
+     },
+     "IV": {
+      "": 1.31
+     },
+     "VI": {
+      "": 1.33
+     }
+    },
+    "7": {
+     "VI": {
+      "": 0.08
+     }
+    }
+   }
+  },
+  "Fe": {
+   "chi": 1.83,
+   "common_oxidation_states": [
+    2,
+    3
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3
+   ],
+   "shannon_radii": {
+    "2": {
+     "IV": {
+      "High Spin": 0.63
+     },
+     "IVSQ": {
+      "High Spin": 0.64
+     },
+     "VI": {
+      "High Spin": 0.78,
+      "Low Spin": 0.61
+     },
+     "VIII": {
+      "High Spin": 0.92
+     }
+    },
+    "3": {
+     "IV": {
+      "High Spin": 0.49
+     },
+     "V": {
+      "": 0.58
+     },
+     "VI": {
+      "High Spin": 0.645,
+      "Low Spin": 0.55
+     },
+     "VIII": {
+      "High Spin": 0.78
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.585
+     }
+    },
+    "6": {
+     "IV": {
+      "": 0.25
+     }
+    }
+   }
+  },
+  "Fr": {
+   "chi": 0.7,
+   "common_oxidation_states": [
+    1
+   ],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "1": {
+     "VI": {
+      "": 1.8
+     }
+    }
+   }
+  },
+  "Ga": {
+   "chi": 1.81,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3
+   ],
+   "shannon_radii": {
+    "3": {
+     "IV": {
+      "": 0.47
+     },
+     "V": {
+      "": 0.55
+     },
+     "VI": {
+      "": 0.62
+     }
+    }
+   }
+  },
+  "Gd": {
+   "chi": 1.2,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    3
+   ],
+   "shannon_radii": {
+    "3": {
+     "IX": {
+      "": 1.107
+     },
+     "VI": {
+      "": 0.938
+     },
+     "VII": {
+      "": 1.0
+     },
+     "VIII": {
+      "": 1.053
+     }
+    }
+   }
+  },
+  "Ge": {
+   "chi": 2.01,
+   "common_oxidation_states": [
+    -4,
+    2,
+    4
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3,
+    4
+   ],
+   "shannon_radii": {
+    "2": {
+     "VI": {
+      "": 0.73
+     }
+    },
+    "4": {
+     "IV": {
+      "": 0.39
+     },
+     "VI": {
+      "": 0.53
+     }
+    }
+   }
+  },
+  "H": {
+   "chi": 2.2,
+   "common_oxidation_states": [
+    -1,
+    1
+   ],
+   "icsd_oxidation_states": [
+    1,
+    -1
+   ],
+   "shannon_radii": {
+    "1": {
+     "I": {
+      "": -0.38
+     },
+     "II": {
+      "": -0.18
+     }
+    }
+   }
+  },
+  "Hf": {
+   "chi": 1.3,
+   "common_oxidation_states": [
+    4
+   ],
+   "icsd_oxidation_states": [
+    4
+   ],
+   "shannon_radii": {
+    "4": {
+     "IV": {
+      "": 0.58
+     },
+     "VI": {
+      "": 0.71
+     },
+     "VII": {
+      "": 0.76
+     },
+     "VIII": {
+      "": 0.83
+     }
+    }
+   }
+  },
+  "Hg": {
+   "chi": 2,
+   "common_oxidation_states": [
+    1,
+    2
+   ],
+   "icsd_oxidation_states": [
+    1,
+    2
+   ],
+   "shannon_radii": {
+    "1": {
+     "III": {
+      "": 0.97
+     },
+     "VI": {
+      "": 1.19
+     }
+    },
+    "2": {
+     "II": {
+      "": 0.69
+     },
+     "IV": {
+      "": 0.96
+     },
+     "VI": {
+      "": 1.02
+     },
+     "VIII": {
+      "": 1.14
+     }
+    }
+   }
+  },
+  "Ho": {
+   "chi": 1.23,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    3
+   ],
+   "shannon_radii": {
+    "3": {
+     "IX": {
+      "": 1.072
+     },
+     "VI": {
+      "": 0.901
+     },
+     "VIII": {
+      "": 1.015
+     },
+     "X": {
+      "": 1.12
+     }
+    }
+   }
+  },
+  "I": {
+   "chi": 2.66,
+   "common_oxidation_states": [
+    -1,
+    1,
+    3,
+    5,
+    7
+   ],
+   "icsd_oxidation_states": [
+    5,
+    -1
+   ],
+   "shannon_radii": {
+    "-1": {
+     "VI": {
+      "": 2.2
+     }
+    },
+    "5": {
+     "IIIPY": {
+      "": 0.44
+     },
+     "VI": {
+      "": 0.95
+     }
+    },
+    "7": {
+     "IV": {
+      "": 0.42
+     },
+     "VI": {
+      "": 0.53
+     }
+    }
+   }
+  },
+  "In": {
+   "chi": 1.78,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    1,
+    2,
+    3
+   ],
+   "shannon_radii": {
+    "3": {
+     "IV": {
+      "": 0.62
+     },
+     "VI": {
+      "": 0.8
+     },
+     "VIII": {
+      "": 0.92
+     }
+    }
+   }
+  },
+  "Ir": {
+   "chi": 2.2,
+   "common_oxidation_states": [
+    3,
+    4
+   ],
+   "icsd_oxidation_states": [
+    3,
+    4,
+    5
+   ],
+   "shannon_radii": {
+    "3": {
+     "VI": {
+      "": 0.68
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.625
+     }
+    },
+    "5": {
+     "VI": {
+      "": 0.57
+     }
+    }
+   }
+  },
+  "K": {
+   "chi": 0.82,
+   "common_oxidation_states": [
+    1
+   ],
+   "icsd_oxidation_states": [
+    1
+   ],
+   "shannon_radii": {
+    "1": {
+     "IV": {
+      "": 1.37
+     },
+     "IX": {
+      "": 1.55
+     },
+     "VI": {
+      "": 1.38
+     },
+     "VII": {
+      "": 1.46
+     },
+     "VIII": {
+      "": 1.51
+     },
+     "X": {
+      "": 1.59
+     },
+     "XII": {
+      "": 1.64
+     }
+    }
+   }
+  },
+  "La": {
+   "chi": 1.1,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3
+   ],
+   "shannon_radii": {
+    "3": {
+     "IX": {
+      "": 1.216
+     },
+     "VI": {
+      "": 1.032
+     },
+     "VII": {
+      "": 1.1
+     },
+     "VIII": {
+      "": 1.16
+     },
+     "X": {
+      "": 1.27
+     },
+     "XII": {
+      "": 1.36
+     }
+    }
+   }
+  },
+  "Li": {
+   "chi": 0.98,
+   "common_oxidation_states": [
+    1
+   ],
+   "icsd_oxidation_states": [
+    1
+   ],
+   "shannon_radii": {
+    "1": {
+     "IV": {
+      "": 0.59
+     },
+     "VI": {
+      "": 0.76
+     },
+     "VIII": {
+      "": 0.92
+     }
+    }
+   }
+  },
+  "Lu": {
+   "chi": 1.27,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    3
+   ],
+   "shannon_radii": {
+    "3": {
+     "IX": {
+      "": 1.032
+     },
+     "VI": {
+      "": 0.861
+     },
+     "VIII": {
+      "": 0.977
+     }
+    }
+   }
+  },
+  "Mg": {
+   "chi": 1.31,
+   "common_oxidation_states": [
+    2
+   ],
+   "icsd_oxidation_states": [
+    2
+   ],
+   "shannon_radii": {
+    "2": {
+     "IV": {
+      "": 0.57
+     },
+     "V": {
+      "": 0.66
+     },
+     "VI": {
+      "": 0.72
+     },
+     "VIII": {
+      "": 0.89
+     }
+    }
+   }
+  },
+  "Mn": {
+   "chi": 1.55,
+   "common_oxidation_states": [
+    2,
+    4,
+    7
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3,
+    4,
+    7
+   ],
+   "shannon_radii": {
+    "2": {
+     "IV": {
+      "High Spin": 0.66
+     },
+     "V": {
+      "High Spin": 0.75
+     },
+     "VI": {
+      "High Spin": 0.83,
+      "Low Spin": 0.67
+     },
+     "VII": {
+      "High Spin": 0.9
+     },
+     "VIII": {
+      "": 0.96
+     }
+    },
+    "3": {
+     "V": {
+      "": 0.58
+     },
+     "VI": {
+      "High Spin": 0.645,
+      "Low Spin": 0.58
+     }
+    },
+    "4": {
+     "IV": {
+      "": 0.39
+     },
+     "VI": {
+      "": 0.53
+     }
+    },
+    "5": {
+     "IV": {
+      "": 0.33
+     }
+    },
+    "6": {
+     "IV": {
+      "": 0.255
+     }
+    },
+    "7": {
+     "IV": {
+      "": 0.25
+     },
+     "VI": {
+      "": 0.46
+     }
+    }
+   }
+  },
+  "Mo": {
+   "chi": 2.16,
+   "common_oxidation_states": [
+    4,
+    6
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "shannon_radii": {
+    "3": {
+     "VI": {
+      "": 0.69
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.65
+     }
+    },
+    "5": {
+     "IV": {
+      "": 0.46
+     },
+     "VI": {
+      "": 0.61
+     }
+    },
+    "6": {
+     "IV": {
+      "": 0.41
+     },
+     "V": {
+      "": 0.5
+     },
+     "VI": {
+      "": 0.59
+     },
+     "VII": {
+      "": 0.73
+     }
+    }
+   }
+  },
+  "N": {
+   "chi": 3.04,
+   "common_oxidation_states": [
+    -3,
+    3,
+    5
+   ],
+   "icsd_oxidation_states": [
+    1,
+    3,
+    5,
+    -1,
+    -3,
+    -2
+   ],
+   "shannon_radii": {
+    "-3": {
+     "IV": {
+      "": 1.46
+     }
+    },
+    "3": {
+     "VI": {
+      "": 0.16
+     }
+    },
+    "5": {
+     "III": {
+      "": -0.104
+     },
+     "VI": {
+      "": 0.13
+     }
+    }
+   }
+  },
+  "Na": {
+   "chi": 0.93,
+   "common_oxidation_states": [
+    1
+   ],
+   "icsd_oxidation_states": [
+    1
+   ],
+   "shannon_radii": {
+    "1": {
+     "IV": {
+      "": 0.99
+     },
+     "IX": {
+      "": 1.24
+     },
+     "V": {
+      "": 1.0
+     },
+     "VI": {
+      "": 1.02
+     },
+     "VII": {
+      "": 1.12
+     },
+     "VIII": {
+      "": 1.18
+     },
+     "XII": {
+      "": 1.39
+     }
+    }
+   }
+  },
+  "Nb": {
+   "chi": 1.6,
+   "common_oxidation_states": [
+    5
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3,
+    4,
+    5
+   ],
+   "shannon_radii": {
+    "3": {
+     "VI": {
+      "": 0.72
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.68
+     },
+     "VIII": {
+      "": 0.79
+     }
+    },
+    "5": {
+     "IV": {
+      "": 0.48
+     },
+     "VI": {
+      "": 0.64
+     },
+     "VII": {
+      "": 0.69
+     },
+     "VIII": {
+      "": 0.74
+     }
+    }
+   }
+  },
+  "Nd": {
+   "chi": 1.14,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3
+   ],
+   "shannon_radii": {
+    "2": {
+     "IX": {
+      "": 1.35
+     },
+     "VIII": {
+      "": 1.29
+     }
+    },
+    "3": {
+     "IX": {
+      "": 1.163
+     },
+     "VI": {
+      "": 0.983
+     },
+     "VIII": {
+      "": 1.109
+     },
+     "XII": {
+      "": 1.27
+     }
+    }
+   }
+  },
+  "Ni": {
+   "chi": 1.91,
+   "common_oxidation_states": [
+    2
+   ],
+   "icsd_oxidation_states": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "shannon_radii": {
+    "2": {
+     "IV": {
+      "": 0.55
+     },
+     "IVSQ": {
+      "": 0.49
+     },
+     "V": {
+      "": 0.63
+     },
+     "VI": {
+      "": 0.69
+     }
+    },
+    "3": {
+     "VI": {
+      "High Spin": 0.6,
+      "Low Spin": 0.56
+     }
+    },
+    "4": {
+     "VI": {
+      "Low Spin": 0.48
+     }
+    }
+   }
+  },
+  "No": {
+   "chi": 1.3,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "2": {
+     "VI": {
+      "": 1.1
+     }
+    }
+   }
+  },
+  "Np": {
+   "chi": 1.36,
+   "common_oxidation_states": [
+    5
+   ],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "2": {
+     "VI": {
+      "": 1.1
+     }
+    },
+    "3": {
+     "VI": {
+      "": 1.01
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.87
+     },
+     "VIII": {
+      "": 0.98
+     }
+    },
+    "5": {
+     "VI": {
+      "": 0.75
+     }
+    },
+    "6": {
+     "VI": {
+      "": 0.72
+     }
+    },
+    "7": {
+     "VI": {
+      "": 0.71
+     }
+    }
+   }
+  },
+  "O": {
+   "chi": 3.44,
+   "common_oxidation_states": [
+    -2
+   ],
+   "icsd_oxidation_states": [
+    -2
+   ],
+   "shannon_radii": {
+    "-2": {
+     "II": {
+      "": 1.35
+     },
+     "III": {
+      "": 1.36
+     },
+     "IV": {
+      "": 1.38
+     },
+     "VI": {
+      "": 1.4
+     },
+     "VIII": {
+      "": 1.42
+     }
+    }
+   }
+  },
+  "Os": {
+   "chi": 2.2,
+   "common_oxidation_states": [
+    4
+   ],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "4": {
+     "VI": {
+      "": 0.63
+     }
+    },
+    "5": {
+     "VI": {
+      "": 0.575
+     }
+    },
+    "6": {
+     "V": {
+      "": 0.49
+     },
+     "VI": {
+      "": 0.545
+     }
+    },
+    "7": {
+     "VI": {
+      "": 0.525
+     }
+    },
+    "8": {
+     "IV": {
+      "": 0.39
+     }
+    }
+   }
+  },
+  "P": {
+   "chi": 2.19,
+   "common_oxidation_states": [
+    -3,
+    3,
+    5
+   ],
+   "icsd_oxidation_states": [
+    3,
+    4,
+    5,
+    -2,
+    -3,
+    -1
+   ],
+   "shannon_radii": {
+    "3": {
+     "VI": {
+      "": 0.44
+     }
+    },
+    "5": {
+     "IV": {
+      "": 0.17
+     },
+     "V": {
+      "": 0.29
+     },
+     "VI": {
+      "": 0.38
+     }
+    }
+   }
+  },
+  "Pa": {
+   "chi": 1.5,
+   "common_oxidation_states": [
+    5
+   ],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "3": {
+     "VI": {
+      "": 1.04
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.9
+     },
+     "VIII": {
+      "": 1.01
+     }
+    },
+    "5": {
+     "IX": {
+      "": 0.95
+     },
+     "VI": {
+      "": 0.78
+     },
+     "VIII": {
+      "": 0.91
+     }
+    }
+   }
+  },
+  "Pb": {
+   "chi": 2.33,
+   "common_oxidation_states": [
+    2,
+    4
+   ],
+   "icsd_oxidation_states": [
+    2,
+    4
+   ],
+   "shannon_radii": {
+    "2": {
+     "IVPY": {
+      "": 0.98
+     },
+     "IX": {
+      "": 1.35
+     },
+     "VI": {
+      "": 1.19
+     },
+     "VII": {
+      "": 1.23
+     },
+     "VIII": {
+      "": 1.29
+     },
+     "X": {
+      "": 1.4
+     },
+     "XI": {
+      "": 1.45
+     },
+     "XII": {
+      "": 1.49
+     }
+    },
+    "4": {
+     "IV": {
+      "": 0.65
+     },
+     "V": {
+      "": 0.73
+     },
+     "VI": {
+      "": 0.775
+     },
+     "VIII": {
+      "": 0.94
+     }
+    }
+   }
+  },
+  "Pd": {
+   "chi": 2.2,
+   "common_oxidation_states": [
+    2,
+    4
+   ],
+   "icsd_oxidation_states": [
+    2,
+    4
+   ],
+   "shannon_radii": {
+    "1": {
+     "II": {
+      "": 0.59
+     }
+    },
+    "2": {
+     "IVSQ": {
+      "": 0.64
+     },
+     "VI": {
+      "": 0.86
+     }
+    },
+    "3": {
+     "VI": {
+      "": 0.76
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.615
+     }
+    }
+   }
+  },
+  "Pm": {
+   "chi": 1.13,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "3": {
+     "IX": {
+      "": 1.144
+     },
+     "VI": {
+      "": 0.97
+     },
+     "VIII": {
+      "": 1.093
+     }
+    }
+   }
+  },
+  "Po": {
+   "chi": 2,
+   "common_oxidation_states": [
+    -2,
+    2,
+    4
+   ],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "4": {
+     "VI": {
+      "": 0.94
+     },
+     "VIII": {
+      "": 1.08
+     }
+    },
+    "6": {
+     "VI": {
+      "": 0.67
+     }
+    }
+   }
+  },
+  "Pr": {
+   "chi": 1.13,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    3,
+    4
+   ],
+   "shannon_radii": {
+    "3": {
+     "IX": {
+      "": 1.179
+     },
+     "VI": {
+      "": 0.99
+     },
+     "VIII": {
+      "": 1.126
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.85
+     },
+     "VIII": {
+      "": 0.96
+     }
+    }
+   }
+  },
+  "Pt": {
+   "chi": 2.28,
+   "common_oxidation_states": [
+    2,
+    4
+   ],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "2": {
+     "IVSQ": {
+      "": 0.6
+     },
+     "VI": {
+      "": 0.8
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.625
+     }
+    },
+    "5": {
+     "VI": {
+      "": 0.57
+     }
+    }
+   }
+  },
+  "Pu": {
+   "chi": 1.28,
+   "common_oxidation_states": [
+    4
+   ],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "3": {
+     "VI": {
+      "": 1.0
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.86
+     },
+     "VIII": {
+      "": 0.96
+     }
+    },
+    "5": {
+     "VI": {
+      "": 0.74
+     }
+    },
+    "6": {
+     "VI": {
+      "": 0.71
+     }
+    }
+   }
+  },
+  "Ra": {
+   "chi": 0.9,
+   "common_oxidation_states": [
+    2
+   ],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "2": {
+     "VIII": {
+      "": 1.48
+     },
+     "XII": {
+      "": 1.7
+     }
+    }
+   }
+  },
+  "Rb": {
+   "chi": 0.82,
+   "common_oxidation_states": [
+    1
+   ],
+   "icsd_oxidation_states": [
+    1
+   ],
+   "shannon_radii": {
+    "1": {
+     "IX": {
+      "": 1.63
+     },
+     "VI": {
+      "": 1.52
+     },
+     "VII": {
+      "": 1.56
+     },
+     "VIII": {
+      "": 1.61
+     },
+     "X": {
+      "": 1.66
+     },
+     "XI": {
+      "": 1.69
+     },
+     "XII": {
+      "": 1.72
+     },
+     "XIV": {
+      "": 1.83
+     }
+    }
+   }
+  },
+  "Re": {
+   "chi": 1.9,
+   "common_oxidation_states": [
+    4
+   ],
+   "icsd_oxidation_states": [
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "shannon_radii": {
+    "4": {
+     "VI": {
+      "": 0.63
+     }
+    },
+    "5": {
+     "VI": {
+      "": 0.58
+     }
+    },
+    "6": {
+     "VI": {
+      "": 0.55
+     }
+    },
+    "7": {
+     "IV": {
+      "": 0.38
+     },
+     "VI": {
+      "": 0.53
+     }
+    }
+   }
+  },
+  "Rh": {
+   "chi": 2.28,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    3,
+    4
+   ],
+   "shannon_radii": {
+    "3": {
+     "VI": {
+      "": 0.665
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.6
+     }
+    },
+    "5": {
+     "VI": {
+      "": 0.55
+     }
+    }
+   }
+  },
+  "Ru": {
+   "chi": 2.2,
+   "common_oxidation_states": [
+    3,
+    4
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "shannon_radii": {
+    "3": {
+     "VI": {
+      "": 0.68
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.62
+     }
+    },
+    "5": {
+     "VI": {
+      "": 0.565
+     }
+    },
+    "7": {
+     "IV": {
+      "": 0.38
+     }
+    },
+    "8": {
+     "IV": {
+      "": 0.36
+     }
+    }
+   }
+  },
+  "S": {
+   "chi": 2.58,
+   "common_oxidation_states": [
+    -2,
+    2,
+    4,
+    6
+   ],
+   "icsd_oxidation_states": [
+    -1,
+    2,
+    4,
+    -2,
+    6
+   ],
+   "shannon_radii": {
+    "-2": {
+     "VI": {
+      "": 1.84
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.37
+     }
+    },
+    "6": {
+     "IV": {
+      "": 0.12
+     },
+     "VI": {
+      "": 0.29
+     }
+    }
+   }
+  },
+  "Sb": {
+   "chi": 2.05,
+   "common_oxidation_states": [
+    -3,
+    3,
+    5
+   ],
+   "icsd_oxidation_states": [
+    -2,
+    3,
+    5,
+    -1,
+    -3
+   ],
+   "shannon_radii": {
+    "3": {
+     "IVPY": {
+      "": 0.76
+     },
+     "V": {
+      "": 0.8
+     },
+     "VI": {
+      "": 0.76
+     }
+    },
+    "5": {
+     "VI": {
+      "": 0.6
+     }
+    }
+   }
+  },
+  "Sc": {
+   "chi": 1.36,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3
+   ],
+   "shannon_radii": {
+    "3": {
+     "VI": {
+      "": 0.745
+     },
+     "VIII": {
+      "": 0.87
+     }
+    }
+   }
+  },
+  "Se": {
+   "chi": 2.55,
+   "common_oxidation_states": [
+    -2,
+    2,
+    4,
+    6
+   ],
+   "icsd_oxidation_states": [
+    -1,
+    4,
+    -2,
+    6
+   ],
+   "shannon_radii": {
+    "-2": {
+     "VI": {
+      "": 1.98
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.5
+     }
+    },
+    "6": {
+     "IV": {
+      "": 0.28
+     },
+     "VI": {
+      "": 0.42
+     }
+    }
+   }
+  },
+  "Si": {
+   "chi": 1.9,
+   "common_oxidation_states": [
+    -4,
+    4
+   ],
+   "icsd_oxidation_states": [
+    -4,
+    4
+   ],
+   "shannon_radii": {
+    "4": {
+     "IV": {
+      "": 0.26
+     },
+     "VI": {
+      "": 0.4
+     }
+    }
+   }
+  },
+  "Sm": {
+   "chi": 1.17,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3
+   ],
+   "shannon_radii": {
+    "2": {
+     "IX": {
+      "": 1.32
+     },
+     "VII": {
+      "": 1.22
+     },
+     "VIII": {
+      "": 1.27
+     }
+    },
+    "3": {
+     "IX": {
+      "": 1.132
+     },
+     "VI": {
+      "": 0.958
+     },
+     "VII": {
+      "": 1.02
+     },
+     "VIII": {
+      "": 1.079
+     },
+     "XII": {
+      "": 1.24
+     }
+    }
+   }
+  },
+  "Sn": {
+   "chi": 1.96,
+   "common_oxidation_states": [
+    -4,
+    2,
+    4
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3,
+    4
+   ],
+   "shannon_radii": {
+    "4": {
+     "IV": {
+      "": 0.55
+     },
+     "V": {
+      "": 0.62
+     },
+     "VI": {
+      "": 0.69
+     },
+     "VII": {
+      "": 0.75
+     },
+     "VIII": {
+      "": 0.81
+     }
+    }
+   }
+  },
+  "Sr": {
+   "chi": 0.95,
+   "common_oxidation_states": [
+    2
+   ],
+   "icsd_oxidation_states": [
+    2
+   ],
+   "shannon_radii": {
+    "2": {
+     "IX": {
+      "": 1.31
+     },
+     "VI": {
+      "": 1.18
+     },
+     "VII": {
+      "": 1.21
+     },
+     "VIII": {
+      "": 1.26
+     },
+     "X": {
+      "": 1.36
+     },
+     "XII": {
+      "": 1.44
+     }
+    }
+   }
+  },
+  "Ta": {
+   "chi": 1.5,
+   "common_oxidation_states": [
+    5
+   ],
+   "icsd_oxidation_states": [
+    3,
+    4,
+    5
+   ],
+   "shannon_radii": {
+    "3": {
+     "VI": {
+      "": 0.72
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.68
+     }
+    },
+    "5": {
+     "VI": {
+      "": 0.64
+     },
+     "VII": {
+      "": 0.69
+     },
+     "VIII": {
+      "": 0.74
+     }
+    }
+   }
+  },
+  "Tb": {
+   "chi": 1.1,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    3,
+    4
+   ],
+   "shannon_radii": {
+    "3": {
+     "IX": {
+      "": 1.095
+     },
+     "VI": {
+      "": 0.923
+     },
+     "VII": {
+      "": 0.98
+     },
+     "VIII": {
+      "": 1.04
+     }
+    },
+    "4": {
+     "VI": {
+      "": 0.76
+     },
+     "VIII": {
+      "": 0.88
+     }
+    }
+   }
+  },
+  "Tc": {
+   "chi": 1.9,
+   "common_oxidation_states": [
+    4,
+    7
+   ],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "4": {
+     "VI": {
+      "": 0.645
+     }
+    },
+    "5": {
+     "VI": {
+      "": 0.6
+     }
+    },
+    "7": {
+     "IV": {
+      "": 0.37
+     },
+     "VI": {
+      "": 0.56
+     }
+    }
+   }
+  },
+  "Te": {
+   "chi": 2.1,
+   "common_oxidation_states": [
+    -2,
+    2,
+    4,
+    6
+   ],
+   "icsd_oxidation_states": [
+    -2,
+    4,
+    -1,
+    6
+   ],
+   "shannon_radii": {
+    "-2": {
+     "VI": {
+      "": 2.21
+     }
+    },
+    "4": {
+     "III": {
+      "": 0.52
+     },
+     "IV": {
+      "": 0.66
+     },
+     "VI": {
+      "": 0.97
+     }
+    },
+    "6": {
+     "IV": {
+      "": 0.43
+     },
+     "VI": {
+      "": 0.56
+     }
+    }
+   }
+  },
+  "Th": {
+   "chi": 1.3,
+   "common_oxidation_states": [
+    4
+   ],
+   "icsd_oxidation_states": [
+    4
+   ],
+   "shannon_radii": {
+    "4": {
+     "IX": {
+      "": 1.09
+     },
+     "VI": {
+      "": 0.94
+     },
+     "VIII": {
+      "": 1.05
+     },
+     "X": {
+      "": 1.13
+     },
+     "XI": {
+      "": 1.18
+     },
+     "XII": {
+      "": 1.21
+     }
+    }
+   }
+  },
+  "Ti": {
+   "chi": 1.54,
+   "common_oxidation_states": [
+    4
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3,
+    4
+   ],
+   "shannon_radii": {
+    "2": {
+     "VI": {
+      "": 0.86
+     }
+    },
+    "3": {
+     "VI": {
+      "": 0.67
+     }
+    },
+    "4": {
+     "IV": {
+      "": 0.42
+     },
+     "V": {
+      "": 0.51
+     },
+     "VI": {
+      "": 0.605
+     },
+     "VIII": {
+      "": 0.74
+     }
+    }
+   }
+  },
+  "Tl": {
+   "chi": 1.62,
+   "common_oxidation_states": [
+    1,
+    3
+   ],
+   "icsd_oxidation_states": [
+    1,
+    3
+   ],
+   "shannon_radii": {
+    "1": {
+     "VI": {
+      "": 1.5
+     },
+     "VIII": {
+      "": 1.59
+     },
+     "XII": {
+      "": 1.7
+     }
+    },
+    "3": {
+     "IV": {
+      "": 0.75
+     },
+     "VI": {
+      "": 0.885
+     },
+     "VIII": {
+      "": 0.98
+     }
+    }
+   }
+  },
+  "Tm": {
+   "chi": 1.25,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    3
+   ],
+   "shannon_radii": {
+    "2": {
+     "VI": {
+      "": 1.03
+     },
+     "VII": {
+      "": 1.09
+     }
+    },
+    "3": {
+     "IX": {
+      "": 1.052
+     },
+     "VI": {
+      "": 0.88
+     },
+     "VIII": {
+      "": 0.994
+     }
+    }
+   }
+  },
+  "U": {
+   "chi": 1.38,
+   "common_oxidation_states": [
+    6
+   ],
+   "icsd_oxidation_states": [
+    3,
+    4,
+    5,
+    6
+   ],
+   "shannon_radii": {
+    "3": {
+     "VI": {
+      "": 1.025
+     }
+    },
+    "4": {
+     "IX": {
+      "": 1.05
+     },
+     "VI": {
+      "": 0.89
+     },
+     "VII": {
+      "": 0.95
+     },
+     "VIII": {
+      "": 1.0
+     },
+     "XII": {
+      "": 1.17
+     }
+    },
+    "5": {
+     "VI": {
+      "": 0.76
+     },
+     "VII": {
+      "": 0.84
+     }
+    },
+    "6": {
+     "II": {
+      "": 0.45
+     },
+     "IV": {
+      "": 0.52
+     },
+     "VI": {
+      "": 0.73
+     },
+     "VII": {
+      "": 0.81
+     },
+     "VIII": {
+      "": 0.86
+     }
+    }
+   }
+  },
+  "V": {
+   "chi": 1.63,
+   "common_oxidation_states": [
+    5
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3,
+    4,
+    5
+   ],
+   "shannon_radii": {
+    "2": {
+     "VI": {
+      "": 0.79
+     }
+    },
+    "3": {
+     "VI": {
+      "": 0.64
+     }
+    },
+    "4": {
+     "V": {
+      "": 0.53
+     },
+     "VI": {
+      "": 0.58
+     },
+     "VIII": {
+      "": 0.72
+     }
+    },
+    "5": {
+     "IV": {
+      "": 0.355
+     },
+     "V": {
+      "": 0.46
+     },
+     "VI": {
+      "": 0.54
+     }
+    }
+   }
+  },
+  "W": {
+   "chi": 2.36,
+   "common_oxidation_states": [
+    4,
+    6
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "shannon_radii": {
+    "4": {
+     "VI": {
+      "": 0.66
+     }
+    },
+    "5": {
+     "VI": {
+      "": 0.62
+     }
+    },
+    "6": {
+     "IV": {
+      "": 0.42
+     },
+     "V": {
+      "": 0.51
+     },
+     "VI": {
+      "": 0.6
+     }
+    }
+   }
+  },
+  "Xe": {
+   "chi": 2.6,
+   "common_oxidation_states": [],
+   "icsd_oxidation_states": [],
+   "shannon_radii": {
+    "8": {
+     "IV": {
+      "": 0.4
+     },
+     "VI": {
+      "": 0.48
+     }
+    }
+   }
+  },
+  "Y": {
+   "chi": 1.22,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    3
+   ],
+   "shannon_radii": {
+    "3": {
+     "IX": {
+      "": 1.075
+     },
+     "VI": {
+      "": 0.9
+     },
+     "VII": {
+      "": 0.96
+     },
+     "VIII": {
+      "": 1.019
+     }
+    }
+   }
+  },
+  "Yb": {
+   "chi": 1.1,
+   "common_oxidation_states": [
+    3
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3
+   ],
+   "shannon_radii": {
+    "2": {
+     "VI": {
+      "": 1.02
+     },
+     "VII": {
+      "": 1.08
+     },
+     "VIII": {
+      "": 1.14
+     }
+    },
+    "3": {
+     "IX": {
+      "": 1.042
+     },
+     "VI": {
+      "": 0.868
+     },
+     "VII": {
+      "": 0.925
+     },
+     "VIII": {
+      "": 0.985
+     }
+    }
+   }
+  },
+  "Zn": {
+   "chi": 1.65,
+   "common_oxidation_states": [
+    2
+   ],
+   "icsd_oxidation_states": [
+    2
+   ],
+   "shannon_radii": {
+    "2": {
+     "IV": {
+      "": 0.6
+     },
+     "V": {
+      "": 0.68
+     },
+     "VI": {
+      "": 0.74
+     },
+     "VIII": {
+      "": 0.9
+     }
+    }
+   }
+  },
+  "Zr": {
+   "chi": 1.33,
+   "common_oxidation_states": [
+    4
+   ],
+   "icsd_oxidation_states": [
+    2,
+    3,
+    4
+   ],
+   "shannon_radii": {
+    "4": {
+     "IV": {
+      "": 0.59
+     },
+     "IX": {
+      "": 0.89
+     },
+     "V": {
+      "": 0.66
+     },
+     "VI": {
+      "": 0.72
+     },
+     "VII": {
+      "": 0.78
+     },
+     "VIII": {
+      "": 0.84
+     }
+    }
+   }
+  }
+ }
+}

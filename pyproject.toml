@@ -63,6 +63,8 @@ packages = ["src/hea_bench"]
 "src/hea_bench/descriptors/data/pair_enthalpies.tsv"     = "hea_bench/descriptors/data/pair_enthalpies.tsv"
 "src/hea_bench/descriptors/data/miedema_parameters.csv"  = "hea_bench/descriptors/data/miedema_parameters.csv"
 "src/hea_bench/descriptors/data/LICENSE.matminer.txt"    = "hea_bench/descriptors/data/LICENSE.matminer.txt"
+"src/hea_bench/oxides/data/oxide_elements.json"          = "hea_bench/oxides/data/oxide_elements.json"
+"src/hea_bench/oxides/data/LICENSE.pymatgen.txt"         = "hea_bench/oxides/data/LICENSE.pymatgen.txt"
 
 [tool.ruff]
 line-length = 100

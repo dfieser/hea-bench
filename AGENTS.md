@@ -175,9 +175,37 @@ amorphous, split into chemical / elastic / structural / topological
 terms) in page-side code; the Python library currently exposes the
 descriptor + rule surface above.
 
+## Oxides module (experimental, Python-only)
+
+`hea_bench.oxides` extends the calculator to **high-entropy oxides**:
+closed-form descriptors and weak empirical formability screens for four
+structure families (rock salt, perovskite, fluorite, pyrochlore),
+computed over vendored Shannon (1976) ionic radii with an explicit
+charge-neutrality oxidation-state solver.
+
+```python
+from hea_bench import oxides
+j14 = oxides.describe_rock_salt({"Mg": 1, "Co": 1, "Ni": 1, "Cu": 1, "Zn": 1})
+j14["verdicts"]["entropy"]            # 'high-entropy'
+pvk = oxides.describe_perovskite({"Sr": 1}, {"Zr": 1, "Sn": 1, "Ti": 1, "Hf": 1, "Mn": 1})
+round(pvk["descriptors"]["goldschmidt_t"], 3)   # 0.979
+pvk["verdicts"]["bartel"]             # 'perovskite'  (tau = 3.723 < 4.18)
+flu = oxides.describe_fluorite({"Ce": 1, "Zr": 1, "Nd": 1, "Y": 1, "Er": 1}, oxygen=1.7)
+round(flu["descriptors"]["radius_sigma"], 4)    # 0.0976  (published value)
+```
+
+Each `describe_*` returns one dict: normalized sites, solved oxidation
+states, Shannon radii used, descriptors, verdicts, warnings. Entropy
+verdicts classify on the most-disordered sublattice (the HEO
+convention). The oxide verdicts are screens, not predictions, exactly
+like the alloy rules. This surface is Python-only for now: it is
+**not** in the JS core, the browser page, or the desktop app, and it is
+deliberately not exported at the `hea_bench` top level.
+
 ## Coverage limit
 
-The element table covers **37 elements**. Compositions containing
+The element table covers **37 elements** (alloy surface; the oxides
+module has its own 95-element Shannon table). Compositions containing
 elements outside it (C, B, the refractory-gas formers, and most
 lanthanides) are not fully scorable: `delta`, `smix`-class
 geometric/melting descriptors need the element table, while
