@@ -6,14 +6,16 @@
 # (Cantor) alloy. By the end you will have:
 #
 # 1. Parsed a composition formula
-# 2. Computed the six v0.1.0 descriptors (ΔS_mix, δ, VEC, T_m, ΔH_mix, Ω)
-# 3. Computed the v1.1 phi-family descriptors (S_E, ΔG_ss, ΔG_max,
+# 2. Computed the core descriptors (ΔS_mix, δ, VEC, T_m, ΔH_mix, Ω,
+#    Δχ, χ̄)
+# 3. Computed the phi-family descriptors (S_E, ΔG_ss, ΔG_max,
 #    King Φ, Ye φ)
 # 4. Applied all six canonical phase-prediction rules
 # 5. Compared the predictions to the experimental observation
 #
 # Cantor is the field's standard reference HEA, so every value below
-# is also pinned in the test suite as ground truth.
+# is also pinned in the test suite as ground truth. For the
+# high-entropy-oxide side of the library, see example 02.
 
 # %% [markdown]
 # ## Setup
@@ -28,10 +30,10 @@ print("hea_bench", hea_bench.__version__)
 # %% [markdown]
 # ## Parsing a composition
 #
-# `parse_formula` handles the three formula conventions used across
-# the three source datasets (Borg's space-separated proportional
-# amounts, Pei's packed compact form, and bare element strings) and
-# always returns a normalized mole-fraction dict.
+# `parse_formula` handles the common formula conventions
+# (space-separated proportional amounts, packed compact form, and
+# bare element strings) and always returns a normalized
+# mole-fraction dict.
 
 # %%
 cantor = hea_bench.parse_formula("CoCrFeMnNi")
@@ -50,7 +52,7 @@ c = hea_bench.parse_formula("Co5Cr5Fe5Mn5Ni5")              # equimolar, any sca
 print("a == b == c:", a == b == c)
 
 # %% [markdown]
-# ## Computing the six v0.1.0 descriptors
+# ## Computing the core descriptors
 
 # %%
 print(f"  Cantor descriptors")
@@ -61,11 +63,13 @@ print(f"  VEC     =  {hea_bench.vec(cantor):7.4f}     valence electrons")
 print(f"  T_m     =  {hea_bench.melting_temperature(cantor):7.2f}  K   composition-weighted ROM")
 print(f"  ΔH_mix  =  {hea_bench.mixing_enthalpy(cantor):7.4f}  kJ/mol   Miedema 4·c_i·c_j·H^pair")
 print(f"  Ω       =  {hea_bench.omega(cantor):7.4f}     T_m·ΔS_mix / |ΔH_mix|")
+print(f"  Δχ      =  {hea_bench.delta_chi(cantor):7.4f}     Pauling electronegativity mismatch")
+print(f"  χ̄       =  {hea_bench.mean_electronegativity(cantor):7.4f}     mean Pauling electronegativity")
 
 # %% [markdown]
-# ## Computing the v1.1 phi-family descriptors
+# ## Computing the phi-family descriptors
 #
-# v1.1 adds two phase-prediction descriptors that compare different
+# Two further descriptors compare competing
 # thermodynamic terms. King capital Φ asks whether the disordered
 # solid solution beats the most stable competing binary
 # intermetallic. Ye lowercase φ asks whether the configurational
@@ -138,4 +142,7 @@ for al_frac in (0.1, 0.3, 0.5, 0.7, 1.0):
 #
 # Every descriptor and rule shown here is also available in the browser
 # and desktop apps, which add the Miedema formation-enthalpy
-# decompositions. See the project README for the full surface.
+# decompositions. For high-entropy oxides (rock salt, perovskite,
+# fluorite, and pyrochlore formability descriptors over Shannon ionic
+# radii), continue with example 02. See the project README for the
+# full surface.

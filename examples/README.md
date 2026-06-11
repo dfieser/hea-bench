@@ -7,6 +7,7 @@ anything; or open it in Jupyter / VS Code to execute and edit.
 | Notebook | What it shows |
 |---|---|
 | [`01_cantor_walkthrough.ipynb`](./01_cantor_walkthrough.ipynb) | Every descriptor and every rule applied to the canonical CoCrFeMnNi alloy; the formula-parsing surface; what happens to Guo–Liu VEC predictions as Al content rises in Al<sub>x</sub>CoCrFeNi. |
+| [`02_oxides_walkthrough.ipynb`](./02_oxides_walkthrough.ipynb) | The high-entropy-oxide module on its literature anchors: (MgCoNiCuZn)O rock salt, the Jiang 2018 perovskites and their tolerance factors, the Spiridigliozzi fluorite radius-dispersion rule (reproducing the published SDs), the pyrochlore radius-ratio window, and how to override the oxidation-state solver. |
 
 ## How these notebooks are built
 

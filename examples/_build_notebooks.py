@@ -26,7 +26,7 @@ import sys
 import traceback
 
 HERE = pathlib.Path(__file__).resolve().parent
-SOURCES = ["01_cantor_walkthrough.py"]
+SOURCES = ["01_cantor_walkthrough.py", "02_oxides_walkthrough.py"]
 
 
 def parse_cells(text: str) -> list[tuple[str, str]]:

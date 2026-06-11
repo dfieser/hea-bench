@@ -8,6 +8,35 @@ DOI for the archived snapshot.
 The format is loosely based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.1] — 2026-06-10 — usability and onboarding pass
+
+### Added
+
+- **Welcome quick-start.** The calculator's empty state is now a proper
+  landing view: a one-line description of the tool and one-click starts
+  (load the alloy example, load the (MgCoNiCuZn)O oxide example, open the
+  Theory tab), plus a shortcut hint. The Oxides mode empty state gains its
+  own one-click literature example.
+- **Manual theme toggle** in the title bar cycling auto → light → dark
+  (persisted; auto follows the OS preference as before).
+- **What's-new panel.** The version badge now opens a popover listing the
+  release history.
+- **Click-to-copy result cards.** Clicking any numeric descriptor, rule,
+  Miedema, or oxide card copies its value, with a brief "copied" mark.
+- **Plain-language tooltips** on every descriptor, rule, Miedema, and oxide
+  card explaining what the quantity is and the threshold that applies.
+- **Ctrl+Enter (Cmd+Enter)** calculates from anywhere in the page, in
+  whichever mode is active.
+
+### Changed
+
+- Examples refreshed: the Cantor walkthrough no longer dates itself by
+  internal version numbers and now includes the electronegativity
+  descriptors; a new `02_oxides_walkthrough` notebook covers the oxide
+  module on its literature anchors (J14, Jiang 2018 perovskites, the
+  Spiridigliozzi fluorite samples with their published SDs, the pyrochlore
+  window, and oxidation-state overrides).
+
 ## [1.6.0] — 2026-06-10 — high-entropy-oxide support on every surface
 
 ### Added

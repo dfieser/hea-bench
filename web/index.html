@@ -31,7 +31,7 @@
       }
 
       @media (prefers-color-scheme: dark) {
-        :root {
+        :root:not([data-theme="light"]) {
           --bg: #14140f;
           --surface: #1c1c17;
           --surface-muted: #24241f;
@@ -49,6 +49,24 @@
           --shadow-panel: none;
           --glow: none;
         }
+      }
+      :root[data-theme="dark"] {
+        --bg: #14140f;
+        --surface: #1c1c17;
+        --surface-muted: #24241f;
+        --surface-subtle: #1a1a16;
+        --text: #e6e3da;
+        --text-strong: #ffffff;
+        --text-muted: #a09d92;
+        --text-muted-2: #75726a;
+        --border: #33322c;
+        --border-2: #4a4842;
+        --rule: #75726a;
+        --accent: #d97757;
+        --accent-2: #b85a3d;
+        --danger: #e08a7e;
+        --shadow-panel: none;
+        --glow: none;
       }
 
       * {
@@ -717,8 +735,9 @@
         font-size: 13px;
       }
       @media (prefers-color-scheme: dark) {
-        .warnings { color: var(--accent); }
+        :root:not([data-theme="light"]) .warnings { color: var(--accent); }
       }
+      :root[data-theme="dark"] .warnings { color: var(--accent); }
       .hidden {
         display: none;
       }
@@ -1305,6 +1324,91 @@
       body.mode-oxide .mode-alloy { display: none !important; }
       #oxide-results:empty + .results-empty { display: flex; }
       .results-area #oxide-results-panel:has(#oxide-results:empty) .actions { display: none; }
+
+      /* ---- Titlebar utility buttons (theme, what's new) ---- */
+      .titlebar__btn {
+        border: 1px solid transparent;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+        padding: 3px 8px;
+        border-radius: 6px;
+        line-height: 1.2;
+      }
+      .titlebar__btn:hover {
+        border-color: var(--border-2);
+        background: var(--surface-muted);
+      }
+
+      /* ---- What's-new popover ---- */
+      .about-popover {
+        position: absolute;
+        top: 52px;
+        right: 18px;
+        z-index: 60;
+        width: min(440px, calc(100vw - 36px));
+        max-height: 60vh;
+        overflow-y: auto;
+        background: var(--surface);
+        border: 1px solid var(--border-2);
+        border-radius: var(--radius-lg);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+        padding: 14px 16px;
+        font-family: var(--sans);
+        font-size: 13px;
+      }
+      .about-popover h3 {
+        margin: 0 0 8px;
+        font-size: 14px;
+        color: var(--text-strong);
+      }
+      .about-popover .about-entry {
+        padding: 8px 0;
+        border-top: 1px solid var(--border);
+      }
+      .about-popover .about-entry:first-of-type { border-top: 0; }
+      .about-popover .about-version {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--accent);
+        margin-right: 8px;
+      }
+      .about-popover .about-date {
+        color: var(--text-muted-2);
+        font-size: 12px;
+      }
+      .about-popover .about-notes {
+        margin: 4px 0 0;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+
+      /* ---- Click-to-copy result cards ---- */
+      .results .result-card:not(.composition-card),
+      .results-compact .result-card {
+        cursor: copy;
+        position: relative;
+      }
+      .result-card.copied::after {
+        content: "copied";
+        position: absolute;
+        top: 7px;
+        right: 9px;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.05em;
+        color: var(--accent);
+      }
+
+      /* ---- Welcome empty-state quick actions ---- */
+      .results-empty__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        margin: 4px 0 10px;
+      }
 
       /* ---- Empty state (before the first calculation) ---- */
       .results-empty {
@@ -4717,9 +4821,15 @@ font-family: 'Source Sans Pro'
           <button type="button" class="tab" data-view="refs">References</button>
         </nav>
         <div class="titlebar__meta">
-          <span id="version-badge"></span>
+          <button type="button" class="titlebar__btn" id="theme-toggle" title="Theme: auto (click to change)">◐</button>
+          <button type="button" class="titlebar__btn" id="version-badge" title="What's new"></button>
         </div>
       </header>
+
+      <div id="about-popover" class="about-popover hidden" role="dialog" aria-label="What's new">
+        <h3>What's new</h3>
+        <div id="about-history"></div>
+      </div>
 
       <div class="views">
 
@@ -5635,9 +5745,14 @@ font-family: 'Source Sans Pro'
           </div></div>
         <div class="results-empty" id="results-empty">
           <div class="results-empty__mark" aria-hidden="true">⬢</div>
-          <p class="results-empty__title">No results yet</p>
-          <p class="results-empty__hint">Choose elements and atomic percents on the left, then press <kbd>Calculate</kbd>.</p>
-          <button type="button" class="secondary" id="empty-load-example">Load example composition</button>
+          <p class="results-empty__title">Welcome to HEA-Bench</p>
+          <p class="results-empty__hint">An open, interpretable calculator of high-entropy-alloy and high-entropy-oxide descriptors. Every number is a transparent closed-form expression over citable data tables. Enter a composition on the left, or start from an example:</p>
+          <div class="results-empty__actions">
+            <button type="button" class="secondary" id="empty-load-example">Alloy: CuCoMn₁.₇₅NiFe₀.₂₅</button>
+            <button type="button" class="secondary" id="empty-load-oxide">Oxide: (MgCoNiCuZn)O</button>
+            <button type="button" class="ghost" id="empty-open-theory">Read the theory</button>
+          </div>
+          <p class="results-empty__hint">Tip: <kbd>Ctrl</kbd>+<kbd>Enter</kbd> calculates from anywhere, and clicking any result card copies its value.</p>
         </div>
       </section>
 
@@ -5741,7 +5856,10 @@ font-family: 'Source Sans Pro'
         <div class="results-empty" id="oxide-results-empty">
           <div class="results-empty__mark" aria-hidden="true">⬢</div>
           <p class="results-empty__title">No oxide results yet</p>
-          <p class="results-empty__hint">Pick a structure family and enter the cations on the left, then press <kbd>Calculate</kbd>. Or load one of the literature examples.</p>
+          <p class="results-empty__hint">Pick a structure family and enter the cations on the left, then press <kbd>Calculate</kbd>. Or start from a literature composition:</p>
+          <div class="results-empty__actions">
+            <button type="button" class="secondary" id="oxide-empty-example">Load (MgCoNiCuZn)O rock salt</button>
+          </div>
         </div>
       </section>
 
@@ -5922,9 +6040,10 @@ font-family: 'Source Sans Pro'
 
     <script src="hea-calculator-core.js"></script>
     <script>
-      const VERSION = "1.6.0";
+      const VERSION = "1.6.1";
       const VERSION_DATE = "2026-06-10";
       const VERSION_HISTORY = [
+        { version: "1.6.1", date: "2026-06-10", notes: "Quality pass: welcome quick-start with one-click examples, manual light/dark/auto theme toggle, what's-new panel on the version badge, click-to-copy result cards, plain-language tooltips on every descriptor and rule card, Ctrl+Enter calculates from anywhere" },
         { version: "1.6.0", date: "2026-06-10", notes: "High-entropy-oxide mode: rock salt, perovskite, fluorite, and pyrochlore descriptors with charge-balance oxidation-state assignment and Shannon radii (95 elements), parity-tested against the Python library; Enter-to-calculate; literature example presets" },
         { version: "1.5.0", date: "2026-06-10", notes: "Electronegativity descriptors (mean chi, delta chi) on every surface, parity-tested; Miedema formation-enthalpy panel extended 24 -> 37 elements; per-element hybridization factors aligned with the de Boer parametrization" },
         { version: "1.4.0", date: "2026-06-10", notes: "Element coverage 30 -> 37 across all surfaces (666 parity-tested pairs); page element table now derives from the core; Omega near-zero-enthalpy warning" },
@@ -7110,6 +7229,7 @@ font-family: 'Source Sans Pro'
         metricCards.forEach((card) => {
           const div = document.createElement("div");
           div.className = "result-card";
+          div.title = DESCRIPTOR_TIPS[card.title] || "";
           div.innerHTML = `
             <h3>${card.title}</h3>
             <div class="symbol">${card.symbol || ""}</div>
@@ -7126,6 +7246,7 @@ font-family: 'Source Sans Pro'
           miedemaCards.forEach((card) => {
             const div = document.createElement("div");
             div.className = "result-card result-card-compact";
+            div.title = DESCRIPTOR_TIPS[card.title] || "";
             div.innerHTML = `
               <h3>${card.title}</h3>
               <div class="symbol">${card.symbol || ""}</div>
@@ -7178,6 +7299,7 @@ font-family: 'Source Sans Pro'
         ruleCards.forEach((card) => {
           const div = document.createElement("div");
           div.className = "result-card result-card-compact";
+          div.title = DESCRIPTOR_TIPS[card.title] || "";
           div.innerHTML = `
             <h3>${card.title}</h3>
             <div class="symbol">${card.symbol || ""}</div>
@@ -7939,6 +8061,7 @@ font-family: 'Source Sans Pro'
         cards.forEach((card) => {
           const div = document.createElement("div");
           div.className = "result-card";
+          div.title = DESCRIPTOR_TIPS[card.title] || "";
           div.innerHTML = `
             <h3>${card.title}</h3>
             <div class="symbol">${card.symbol}</div>
@@ -8059,6 +8182,172 @@ font-family: 'Source Sans Pro'
       let storedMode = "alloy";
       try { storedMode = localStorage.getItem(MODE_STORAGE_KEY) || "alloy"; } catch (e) { /* storage unavailable */ }
       if (storedMode === "oxide") applyMode("oxide");
+
+      // ---------------------------------------------------------------
+      // 1.6.1 polish: descriptor tooltips, click-to-copy cards, theme
+      // toggle, what's-new popover, welcome quick-start, Ctrl+Enter.
+
+      const DESCRIPTOR_TIPS = {
+        "Mixing entropy": "Ideal configurational entropy, −R Σ xᵢ ln xᵢ. At or above 1.5R is the usual high-entropy threshold.",
+        "Atomic size difference": "Composition-weighted spread of atomic radii. Values above about 6.5% work against a single-phase solid solution.",
+        "Mean melting temperature": "Rule-of-mixtures average of the elemental melting points.",
+        "Mixing enthalpy": "Miedema-model estimate. Semi-empirical; pairs involving Mn carry the largest parametrization uncertainty.",
+        "Valence electron concentration": "Weighted mean valence-electron count. At or above 8 favors FCC, below 6.87 favors BCC.",
+        "Omega parameter": "Tm·ΔSmix / |ΔHmix| (Yang and Zhang). Above 1.1 favors a solid solution. Diverges as ΔHmix approaches zero, so read it qualitatively there.",
+        "Electronegativity mismatch": "Composition-weighted standard deviation of Pauling electronegativities. Large values favor ordered compounds.",
+        "Mean electronegativity": "Composition-weighted mean Pauling electronegativity.",
+        "Mismatch entropy": "Mansoori hard-sphere excess entropy from the size distribution; an input to the Ye phi index.",
+        "Solid-solution Gibbs proxy": "ΔHmix − T·ΔSmix at the chosen temperature. More negative means a more stable disordered solution.",
+        "Most stable binary proxy": "Most negative 4·xᵢxⱼ·ΔHᵢⱼ over all pairs, a proxy for the strongest competing binary compound.",
+        "King Phi": "Ratio of the solid-solution driving force to the strongest competing binary (King 2016). Above 1 predicts a stable solid solution.",
+        "Ye phi": "Single-parameter index combining mixing entropy, mismatch entropy, and enthalpy (Ye 2015). Above about 20 predicts a solid solution.",
+        "Compound enthalpy (Miedema+ASD)": "Ordered-compound formation enthalpy from the Miedema model with the structural-stability correction.",
+        "Solid solution enthalpy": "Disordered solid-solution formation enthalpy: chemical plus elastic plus structural terms.",
+        "SS chemical contribution": "Miedema chemical interaction term of the solid-solution enthalpy.",
+        "SS elastic mismatch": "Continuum elastic-strain energy from atomic size mismatch.",
+        "SS structural contribution": "Lattice-stability term from the valence-electron dependence of the bcc/fcc/hcp energies.",
+        "Amorphous enthalpy": "Amorphous-phase formation enthalpy: chemical term plus a topological term.",
+        "AM topological contribution": "Topological term of the amorphous-phase enthalpy, proportional to the mean melting temperature.",
+        "Yeh entropy rule": "ΔSmix at or above 1.5R counts as a high-entropy alloy (Yeh 2004); 1R to 1.5R is medium entropy.",
+        "Zhang size-mismatch rule": "Single phase predicted when δ is below 6.5% (Zhang 2008).",
+        "Guo–Liu VEC rule": "FCC at VEC ≥ 8, BCC below 6.87, mixed in between (Guo and Liu 2011).",
+        "Yang–Zhang Ω rule": "Solid solution predicted when Ω is above 1.1 (Yang and Zhang 2012).",
+        "King Phi rule": "Solid solution predicted when Φ is at least 1 at the chosen temperature (King 2016).",
+        "Ye phi rule": "Solid solution predicted when φ is at least 20 (Ye 2015).",
+        "Configurational entropy": "Sublattice-weighted ideal mixing entropy per mole of formula units. Fully ordered sublattices contribute zero.",
+        "Entropy per cation site": "The same entropy divided by the number of cation sites; the value the 1.5R threshold applies to.",
+        "Cation size disorder": "Weighted spread of Shannon ionic radii on the cation sublattice, the ionic analog of the alloy δ.",
+        "Mean cation radius": "Composition-weighted mean Shannon radius at the family's coordination number.",
+        "A-site size disorder": "Size-disorder parameter of the A sublattice from Shannon radii.",
+        "B-site size disorder": "Size-disorder parameter of the B sublattice from Shannon radii.",
+        "Combined size disorder": "Square root of the sum of the squared per-sublattice size disorders.",
+        "Mean A-site radius": "Composition-weighted mean Shannon radius of the A sublattice.",
+        "Mean B-site radius": "Composition-weighted mean Shannon radius of the B sublattice.",
+        "Radius dispersion (sample SD)": "Sample standard deviation of the eight-fold cation radii, the input of the Spiridigliozzi fluorite predictor.",
+        "Goldschmidt tolerance factor": "(r̄A + rO) / √2(r̄B + rO). Cubic perovskites cluster near t = 1.",
+        "Octahedral factor": "r̄B / rO. A stable BO₆ octahedron needs a value between 0.414 and 0.732.",
+        "Bartel tolerance factor": "Improved perovskite tolerance factor (Bartel 2019); below 4.18 predicts a perovskite.",
+        "Radius ratio": "Mean A radius over mean B radius; pyrochlores form between 1.46 and 1.78.",
+        "Mean cation electronegativity": "Composition-weighted mean Pauling electronegativity over all cations.",
+      };
+
+      // Click-to-copy on every numeric result card.
+      [
+        resultsEl,
+        miedemaResultsEl,
+        document.getElementById("rule-predictions"),
+        oxideResultsEl,
+        oxideVerdictsEl,
+      ].forEach((container) => {
+        if (!container) return;
+        container.addEventListener("click", (event) => {
+          const card = event.target.closest(".result-card");
+          if (!card || card.classList.contains("composition-card")) return;
+          const valueEl = card.querySelector("p");
+          if (!valueEl) return;
+          const text = valueEl.textContent.trim();
+          if (!text || text === "—") return;
+          navigator.clipboard.writeText(text).then(() => {
+            card.classList.add("copied");
+            setTimeout(() => card.classList.remove("copied"), 900);
+          }).catch(() => { /* clipboard unavailable */ });
+        });
+      });
+
+      // Ctrl+Enter (or Cmd+Enter) calculates in whichever mode is active.
+      document.addEventListener("keydown", (event) => {
+        if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+          if (document.body.classList.contains("mode-oxide")) {
+            handleOxideCalculate();
+          } else {
+            handleCalculate();
+          }
+        }
+      });
+
+      // Manual theme override (auto follows the OS preference).
+      const THEME_STORAGE_KEY = "hea-bench-theme";
+      const themeToggleBtn = document.getElementById("theme-toggle");
+      const THEME_SEQUENCE = ["auto", "light", "dark"];
+      const THEME_ICONS = { auto: "◐", light: "○", dark: "●" };
+      let currentTheme = "auto";
+
+      function applyTheme(theme) {
+        currentTheme = theme;
+        if (theme === "auto") {
+          document.documentElement.removeAttribute("data-theme");
+        } else {
+          document.documentElement.setAttribute("data-theme", theme);
+        }
+        themeToggleBtn.textContent = THEME_ICONS[theme];
+        themeToggleBtn.title = "Theme: " + theme + " (click to change)";
+        try { localStorage.setItem(THEME_STORAGE_KEY, theme); } catch (e) { /* storage unavailable */ }
+      }
+
+      themeToggleBtn.addEventListener("click", () => {
+        const next = THEME_SEQUENCE[(THEME_SEQUENCE.indexOf(currentTheme) + 1) % THEME_SEQUENCE.length];
+        applyTheme(next);
+      });
+      let storedTheme = "auto";
+      try { storedTheme = localStorage.getItem(THEME_STORAGE_KEY) || "auto"; } catch (e) { /* storage unavailable */ }
+      if (storedTheme !== "auto") applyTheme(storedTheme);
+
+      // What's-new popover on the version badge.
+      const aboutPopoverEl = document.getElementById("about-popover");
+      const aboutHistoryEl = document.getElementById("about-history");
+      const versionBadgeEl = document.getElementById("version-badge");
+
+      function buildAboutHistory() {
+        aboutHistoryEl.innerHTML = "";
+        VERSION_HISTORY.forEach((entry) => {
+          const div = document.createElement("div");
+          div.className = "about-entry";
+          div.innerHTML =
+            `<span class="about-version">v${entry.version}</span>` +
+            `<span class="about-date">${entry.date}</span>` +
+            `<p class="about-notes">${entry.notes}</p>`;
+          aboutHistoryEl.appendChild(div);
+        });
+      }
+
+      versionBadgeEl.addEventListener("click", (event) => {
+        event.stopPropagation();
+        if (aboutPopoverEl.classList.contains("hidden")) buildAboutHistory();
+        aboutPopoverEl.classList.toggle("hidden");
+      });
+      document.addEventListener("click", (event) => {
+        if (!aboutPopoverEl.classList.contains("hidden") &&
+            !aboutPopoverEl.contains(event.target)) {
+          aboutPopoverEl.classList.add("hidden");
+        }
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") aboutPopoverEl.classList.add("hidden");
+      });
+
+      // Welcome quick-start actions.
+      const emptyLoadOxideBtn = document.getElementById("empty-load-oxide");
+      if (emptyLoadOxideBtn) {
+        emptyLoadOxideBtn.addEventListener("click", () => {
+          applyMode("oxide");
+          oxideExampleEl.value = "j14";
+          oxideExampleEl.dispatchEvent(new Event("change"));
+        });
+      }
+      const emptyOpenTheoryBtn = document.getElementById("empty-open-theory");
+      if (emptyOpenTheoryBtn) {
+        emptyOpenTheoryBtn.addEventListener("click", () => {
+          const theoryTab = document.querySelector('.titlebar__tabs .tab[data-view="theory"]');
+          if (theoryTab) theoryTab.click();
+        });
+      }
+      const oxideEmptyExampleBtn = document.getElementById("oxide-empty-example");
+      if (oxideEmptyExampleBtn) {
+        oxideEmptyExampleBtn.addEventListener("click", () => {
+          oxideExampleEl.value = "j14";
+          oxideExampleEl.dispatchEvent(new Event("change"));
+        });
+      }
 
       customSaveBtn.addEventListener("click", () => {
         showError("");

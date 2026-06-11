@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "hea-bench"
-version = "1.6.0"
+version = "1.6.1"
 description = "An open, interpretable calculator of high-entropy-alloy thermodynamic and geometric descriptors plus the canonical empirical phase-prediction rules."
 readme = "README.md"
 license = "MIT"
