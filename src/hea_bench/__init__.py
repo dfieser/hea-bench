@@ -1,6 +1,6 @@
 """hea-bench: an open, interpretable calculator of the standard high-entropy
-alloy thermodynamic and geometric descriptors plus the canonical empirical
-phase-prediction rules.
+alloy and high-entropy oxide thermodynamic and geometric descriptors plus the
+canonical empirical phase-prediction rules (oxides in ``hea_bench.oxides``).
 
 Every quantity is a transparent closed-form expression over a curated
 element-property table — no fitted model, no black box. The same calculation
@@ -28,7 +28,7 @@ from .descriptors.phi import delta_g_max, delta_g_ss, delta_h_ss, phi_king, phi_
 from .descriptors.size import delta
 from .descriptors.vec import vec
 
-__version__ = "1.6.1"
+__version__ = "1.7.0"
 
 __all__ = [
     "__version__",

@@ -93,7 +93,8 @@ the existing module-functional pattern shown by `yang_omega.py`,
 
 When you add or change a parity-relevant descriptor or rule, mirror it
 in `web/hea-calculator-core.js` and re-run `tests/test_web_parity.py`
-so the Python library and the calculator stay identical.
+(and `tests/test_web_oxides_parity.py` for the oxide module) so the
+Python library and the calculator stay identical.
 
 ## Adding elemental coverage
 

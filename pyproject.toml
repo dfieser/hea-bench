@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "hea-bench"
-version = "1.6.1"
-description = "An open, interpretable calculator of high-entropy-alloy thermodynamic and geometric descriptors plus the canonical empirical phase-prediction rules."
+version = "1.7.0"
+description = "An open, interpretable calculator of high-entropy-alloy and high-entropy-oxide thermodynamic and geometric descriptors plus the canonical empirical phase-prediction rules."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
@@ -16,6 +16,7 @@ authors = [
 ]
 keywords = [
     "high-entropy alloys",
+    "high-entropy oxides",
     "thermodynamic descriptors",
     "Miedema model",
     "materials informatics",
@@ -23,7 +24,7 @@ keywords = [
     "alloy design",
 ]
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
@@ -49,9 +50,10 @@ dev = [
 hea-bench = "hea_bench.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/dfieser/hea-bench"
+Homepage = "https://dfieser.github.io/hea-bench/"
 Repository = "https://github.com/dfieser/hea-bench"
 Issues = "https://github.com/dfieser/hea-bench/issues"
+Archive = "https://doi.org/10.5281/zenodo.20346287"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/hea_bench"]

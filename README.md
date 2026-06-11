@@ -1,10 +1,14 @@
 # hea-bench
 
 Open, interpretable tools for computing the standard **high-entropy-alloy
-(HEA) thermodynamic and geometric descriptors** and the classic empirical
-**phase-prediction rules** — from any composition, with no fitted model and
-no black box. Every number is a transparent closed-form expression over a
-curated element-property table, validated against the primary literature.
+(HEA) and high-entropy-oxide (HEO) thermodynamic and geometric
+descriptors** and the classic empirical **phase-prediction rules** — from
+any composition, with no fitted model and no black box. Every number is a
+transparent closed-form expression over a curated element-property table,
+validated against the primary literature.
+
+**Try it now:** <https://dfieser.github.io/hea-bench/> — no install, runs
+entirely in your browser.
 
 [![DOI](https://zenodo.org/badge/1246292321.svg)](https://doi.org/10.5281/zenodo.20346287)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
@@ -47,13 +51,15 @@ table covers 94.
 | Surface | Where | Status |
 |---|---|---|
 | **Python library + CLI** | `pip install hea-bench` | done, tested |
-| **Zero-install browser app** | `web/index.html` · <https://dfieser.github.io/hea-bench/> | done, Python-parity-tested |
-| **Native desktop app** | one offline `.exe` (Tauri wrapper of the browser app) | done, built from the same parity-tested core |
+| **Zero-install browser app** | <https://dfieser.github.io/hea-bench/> · `web/calculator.html` | done, Python-parity-tested |
+| **Native desktop app** | one offline `.exe` (Tauri wrapper of the browser app), installers on the [Releases page](https://github.com/dfieser/hea-bench/releases) | done, built from the same parity-tested core |
 
 The three surfaces share **one calculation core**. The browser/desktop
 core (`web/hea-calculator-core.js`) is a pure-JS port of the Python
 library, and `tests/test_web_parity.py` guarantees the two match on all
-666 binary pairs and the canonical multi-element fixtures.
+666 binary pairs and the canonical multi-element fixtures, while
+`tests/test_web_oxides_parity.py` does the same for the oxide module,
+down to identical warning messages.
 
 ## Quick start (Python)
 
@@ -90,18 +96,47 @@ These Cantor-alloy values are pinned in the test suite as the canonical
 sanity check. The rules are simple empirical surrogates — fast screens,
 not predictions; treat their output accordingly.
 
+## Quick start (oxides)
+
+```python
+from hea_bench import oxides
+
+# Rost 2015 "J14" entropy-stabilized rock salt
+j14 = oxides.describe_rock_salt({"Mg": 1, "Co": 1, "Ni": 1, "Cu": 1, "Zn": 1})
+j14["descriptors"]["s_config"]       # 13.382 J/(mol·K) = R·ln 5
+j14["oxidation_states"]              # all 2+ by charge balance
+
+# Jiang 2018 single-phase high-entropy perovskite
+pvk = oxides.describe_perovskite({"Sr": 1}, {"Zr": 1, "Sn": 1, "Ti": 1, "Hf": 1, "Mn": 1})
+pvk["descriptors"]["goldschmidt_t"]  # 0.979, inside the 0.92–1.04 window
+pvk["verdicts"]["bartel"]            # 'perovskite' (τ = 3.72 < 4.18)
+```
+
+Each `describe_*` report carries the solved oxidation states, the
+Shannon radii actually used, every descriptor, the formability
+verdicts with their windows, and any warnings. See
+[`examples/02_oxides_walkthrough.py`](./examples/02_oxides_walkthrough.py)
+for the full tour, including the fluorite and pyrochlore screens and
+oxidation-state overrides.
+
 ## Quick start (browser, no install)
 
 A self-contained HTML calculator computes every descriptor, applies all
-six rules, and runs the Miedema decompositions entirely client-side, on
-the full element table. Two equivalent paths:
+six rules, runs the Miedema decompositions, and covers the oxide mode,
+entirely client-side. Two equivalent paths:
 
-- Open the hosted page: **<https://dfieser.github.io/hea-bench/>**
-- Or clone the repo and open `web/index.html` — no install, no terminal,
-  no server.
+- Open the hosted site: **<https://dfieser.github.io/hea-bench/>** and
+  press "Open the calculator".
+- Or clone the repo and open `web/calculator.html` — no install, no
+  terminal, no server.
 
-The parity-critical math lives in `web/hea-calculator-core.js` and is
-regression-checked against Python by `tests/test_web_parity.py`.
+The calculator ships its own documentation: a **Theory** view deriving
+every alloy and oxide formula with citations, a grouped, filterable
+**Equations** reference, and a grouped **References** bibliography.
+Deep links open a view directly (`calculator.html#theory`,
+`#equations`, `#refs`). The parity-critical math lives in
+`web/hea-calculator-core.js` and is regression-checked against Python
+by the two parity test suites.
 
 ## A note on Ω near ΔH<sub>mix</sub> ≈ 0
 
@@ -118,13 +153,15 @@ hea-bench/
 ├── src/hea_bench/
 │   ├── descriptors/     ΔS_mix, δ, VEC, T_m, ΔH_mix, Ω, S_E, φ + data tables
 │   ├── rules/           the six empirical phase-prediction rules
+│   ├── oxides/          HEO module: families, oxidation-state solver,
+│   │                    Shannon radii (94 elements, vendored from pymatgen)
 │   ├── composition.py   formula parser, normalizer
 │   ├── constants.py     R = 8.314
 │   └── cli.py           command-line entry point
-├── tests/               descriptor/rule unit tests + Python↔JS parity test
-├── web/                 self-contained HTML/JS calculator (+ vendored MathJax)
+├── tests/               unit tests + BOTH Python↔JS parity suites
+├── web/                 landing page + self-contained calculator (+ MathJax)
 ├── src-tauri/           native desktop wrapper (Rust/Tauri)
-├── examples/            worked Cantor-alloy walkthrough
+├── examples/            Cantor-alloy and oxides walkthroughs (.py + .ipynb)
 └── pyproject.toml
 ```
 
@@ -137,10 +174,15 @@ pip install -e ".[dev]"
 python -m pytest tests/ -q          # includes the Python↔JS parity test (needs Node)
 ```
 
-The HTML calculator (`web/index.html`) is an independent JavaScript
+The HTML calculator (`web/calculator.html` over
+`web/hea-calculator-core.js`) is an independent JavaScript
 implementation of the same descriptors and rules. When you modify the
-Python descriptor code, update `web/hea-calculator-core.js` to match and
-re-run `tests/test_web_parity.py` so the two surfaces don't drift.
+Python descriptor code, update the JS core to match and re-run
+`tests/test_web_parity.py` and `tests/test_web_oxides_parity.py` so the
+surfaces don't drift. The element data tables inside the JS core are
+generated from the Python library by `tests/data/_sync_js_tables.py`
+and `tests/data/_sync_js_oxide_tables.py` — regenerate, never
+hand-edit.
 
 ## License
 
@@ -154,17 +196,19 @@ under their upstream BSD-3-Clause license, preserved at
 Contributions and bug reports are welcome. See
 [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup and the
 testing convention. To report a bug or ask a question, open a GitHub
-issue; for direct contact, email the maintainer at `dfieser9@gmail.com`.
+issue; for direct contact, email the maintainer at `davjfies@gmail.com`.
 Participation is governed by the [Code of Conduct](./CODE_OF_CONDUCT.md).
 
 ## Citation
 
 Citation metadata in [`CITATION.cff`](./CITATION.cff). When citing
 hea-bench, please also cite the primary sources for the parametrizations
-it implements (de Boer et al. 1988 for the Miedema model; the rule
-papers — Yeh 2004, Zhang 2008, Guo–Liu 2011, Yang–Zhang 2012, King 2016,
-Ye 2015 — listed in `web/index.html`) and matminer for the vendored pair
-table.
+it implements: de Boer et al. 1988 for the Miedema model, the rule
+papers (Yeh 2004, Zhang 2008, Guo–Liu 2011, Yang–Zhang 2012, King 2016,
+Ye 2015), the oxide primaries (Shannon 1976, Goldschmidt 1926, Bartel
+2019, Spiridigliozzi 2021, Subramanian 1983), matminer for the vendored
+pair table, and pymatgen for the Shannon-radius digitization. The full
+grouped bibliography is in the calculator's References view.
 
 hea-bench is archived on Zenodo. The concept DOI
 [10.5281/zenodo.20346287](https://doi.org/10.5281/zenodo.20346287)

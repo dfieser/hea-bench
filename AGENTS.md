@@ -23,8 +23,9 @@ table — no fitted model, no black box.
 One calculation core, three surfaces:
 
 1. **Python library + CLI** — this package (`pip install hea-bench`).
-2. **Zero-install browser app** — `web/index.html` (also hosted at
-   <https://dfieser.github.io/hea-bench/>).
+2. **Zero-install browser app** — `web/calculator.html` (hosted at
+   <https://dfieser.github.io/hea-bench/>, where `web/index.html` is the
+   landing page).
 3. **Native desktop app** — a single offline executable that wraps the
    browser app via Tauri.
 

@@ -8,6 +8,42 @@ DOI for the archived snapshot.
 The format is loosely based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.7.0] — 2026-06-11 — landing page, named pages, redesigned docs
+
+### Added
+
+- **Project landing page.** `web/index.html` is now a real product page —
+  hero, the three surfaces, what the tool computes, the reproducibility
+  pillars, and a citation block — and is what GitHub Pages serves at the
+  site root. It launches the calculator and honors the calculator's saved
+  theme.
+- **View deep links.** `calculator.html#theory`, `#equations`, `#refs`
+  (and any theory section id such as `#sec-perovskite`) open the matching
+  view directly, so the landing page and external docs can link straight
+  into the app.
+
+### Changed
+
+- **The calculator has a name.** The app moved from `web/index.html` to
+  `web/calculator.html`; the desktop app loads it directly via the window
+  `url` in `tauri.conf.json`. Proper page titles and a vector favicon on
+  both pages, and the stale "saved from" artifact comment is gone.
+- **References view redesigned.** The flat footer-styled list is now a
+  grouped bibliography (foundations of the field, descriptors and rules,
+  the Miedema model, high-entropy oxides, methods and applications) in the
+  same documentation shell as the Theory view, with a sticky section nav,
+  scroll-spy, hanging-indent entries, and DOI links. The license,
+  third-party, and privacy notices became an "About this software"
+  section.
+- **Equation reference grouped.** The card grid is split into alloy
+  descriptors, Miedema formation enthalpies, and oxide descriptors, each
+  with a numbered section header; the filter hides empty groups. The view
+  header matches the docs shell.
+- **Versions.** Library, browser page, desktop bundle, and CITATION.cff
+  all move to 1.7.0 together. PyPI metadata updated (oxides in the
+  description and keywords, status Production/Stable, homepage now the
+  hosted landing page).
+
 ## [1.6.1] — 2026-06-10 — usability and onboarding pass
 
 ### Added

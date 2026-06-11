@@ -1,19 +1,19 @@
 # hea-bench
 
 > Open, interpretable calculator of the standard high-entropy-alloy (HEA)
-> thermodynamic and geometric descriptors plus the canonical empirical
-> phase-prediction rules. Every quantity is a transparent closed-form
-> expression over a curated element-property table — no fitted model, no
-> black box. One calculation core ships as a Python library, a zero-install
-> browser app, and a native desktop app; the browser core is parity-tested
-> against the Python library.
+> and high-entropy-oxide (HEO) thermodynamic and geometric descriptors
+> plus the canonical empirical phase-prediction rules. Every quantity is a
+> transparent closed-form expression over a curated element-property
+> table — no fitted model, no black box. One calculation core ships as a
+> Python library, a zero-install browser app, and a native desktop app;
+> the browser core is parity-tested against the Python library.
 
 `hea-bench` is composition-only and dependency-free in its core.
 Use it to (1) compute HEA descriptors as features for downstream
 models, (2) screen candidate alloys with the published empirical
 rules, or (3) compute high-entropy-oxide (HEO) formability
 descriptors via the `hea_bench.oxides` module. Currently shipping
-version 1.6.0 under MIT.
+version 1.7.0 under MIT.
 
 ## For AI agents reading this first
 
@@ -86,12 +86,15 @@ AGENTS.md for examples.
 
 ## Browser and desktop apps
 
-A self-contained HTML calculator computes the same descriptors and
-rules in client-side JavaScript with no install, and additionally
-shows the Miedema formation-enthalpy decompositions. Hosted at
-<https://dfieser.github.io/hea-bench/>; also wrapped as a single offline
+A self-contained HTML calculator (`web/calculator.html`) computes the
+same descriptors and rules in client-side JavaScript with no install,
+and additionally shows the Miedema formation-enthalpy decompositions.
+Hosted at <https://dfieser.github.io/hea-bench/> (landing page; the
+calculator is one click in, or link `calculator.html#theory`,
+`#equations`, `#refs` directly); also wrapped as a single offline
 desktop executable via Tauri. The JS core is regression-checked against
-the Python library in CI (`tests/test_web_parity.py`).
+the Python library in CI (`tests/test_web_parity.py` and
+`tests/test_web_oxides_parity.py`).
 
 ## Reference papers
 
@@ -110,11 +113,12 @@ the Python library in CI (`tests/test_web_parity.py`).
 ## Citing
 
 ```bibtex
-@software{hea_bench_1_6_0,
+@software{hea_bench_1_7_0,
   author  = {Fieser, David and Hu, Anming},
-  title   = {hea-bench: An open calculator of high-entropy-alloy thermodynamic descriptors and empirical phase-prediction rules},
-  version = {1.6.0},
+  title   = {hea-bench: An open calculator of high-entropy-alloy and high-entropy-oxide thermodynamic descriptors and empirical phase-prediction rules},
+  version = {1.7.0},
   license = {MIT},
+  doi     = {10.5281/zenodo.20346287},
   url     = {https://github.com/dfieser/hea-bench},
 }
 ```

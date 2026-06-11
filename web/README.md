@@ -1,27 +1,28 @@
-# web/ — self-contained browser calculator
+# web/ — landing page + self-contained browser calculator
 
-A self-contained browser calculator for the `hea-bench` descriptors and
-rules. It runs entirely client-side. No server, no install, no Python
-runtime in the browser.
+The browser surface of `hea-bench`. It runs entirely client-side. No
+server, no install, no Python runtime in the browser.
 
 This same folder is also the frontend bundled into the native desktop
 app (`src-tauri/`), so the browser page and the desktop `.exe` are the
-identical calculator.
+identical calculator. It is likewise what GitHub Pages deploys, so the
+folder is the site root of <https://dfieser.github.io/hea-bench/>.
 
 ## How to use it
 
 Three equivalent paths:
 
-- **Online:** open <https://dfieser.github.io/hea-bench/>.
-- **Offline / from a local copy:** double-click `index.html`. It opens
-  in your browser and runs immediately. Everything it needs is in
-  this folder.
+- **Online:** open <https://dfieser.github.io/hea-bench/> and press
+  "Open the calculator".
+- **Offline / from a local copy:** double-click `calculator.html` (or
+  `index.html` for the landing page). It opens in your browser and runs
+  immediately. Everything it needs is in this folder.
 - **Desktop app:** build the Tauri wrapper in `../src-tauri/` for a
-  single offline executable (see the repo `PROJECT_PLAN.md`).
+  single offline executable (see the repo `README.md`).
 
 ## What it does
 
-For any composition you enter, the page reports:
+For any composition you enter, the calculator reports:
 
 - **Core descriptors** — mixing entropy ΔS_mix, atomic-size mismatch δ,
   mean melting temperature T_m, mixing enthalpy ΔH_mix,
@@ -46,15 +47,27 @@ For any composition you enter, the page reports:
   is parity-tested against the Python library
   (`tests/test_web_oxides_parity.py`).
 
+The calculator also ships its own documentation: a **Theory** view that
+derives every alloy and oxide formula with citations, a grouped,
+filterable **Equations** reference, and a grouped **References**
+bibliography. Deep links open a view directly:
+`calculator.html#theory`, `#equations`, `#refs`, or any theory section
+id such as `calculator.html#sec-perovskite`.
+
 ## What's here
 
-- `index.html` — the desktop-style calculator UI (title-bar tabs,
+- `index.html` — the landing page (project overview, the three
+  surfaces, citation block). This is what the hosted site root serves.
+- `calculator.html` — the calculator app itself (title-bar tabs,
   two-pane workspace, Theory/Equations/References views) plus the
   page-side Miedema formation-enthalpy decomposition logic.
 - `hea-calculator-core.js` — the shared calculation core for the
   parity-critical descriptor and rule outputs. `Hmix` / `Omega` are
   computed from the single vendored pair-enthalpy table, identical to
   `hea_bench.mixing_enthalpy` / `hea_bench.omega` in the Python library.
+  The alloy and oxide data tables inside it are GENERATED from the
+  Python library by `tests/data/_sync_js_tables.py` and
+  `tests/data/_sync_js_oxide_tables.py`; never hand-edit those blocks.
 - `mathjax/` — bundled MathJax build for math notation rendering.
   Vendored so the page works fully offline.
 - `.nojekyll` — marks the directory so GitHub Pages serves files as-is.
@@ -66,22 +79,22 @@ The calculator covers the same 37 elements as the Python library's
 In, Ir, La, Li, Mg, Mn, Mo, Nb, Ni, Os, Pd, Pt, Re, Rh, Ru, Sc, Si, Sn,
 Ta, Ti, V, W, Y, Zn, Zr. Compositions containing any element outside
 this set surface a warning in the page rather than producing a number.
-The JS tables are generated from the Python library by
-`tests/data/_sync_js_tables.py`, so the two cannot drift. The Miedema
-formation-enthalpy decompositions also cover all 37 elements, using
-parameters from the repo's vendored matminer Miedema table. Custom
-user-defined elements compute every core descriptor and rule;
-electronegativity and decomposition outputs degrade with a warning
-when their parameters are not supplied.
+The Miedema formation-enthalpy decompositions also cover all 37
+elements, using parameters from the repo's vendored matminer Miedema
+table. The oxide mode draws on a 94-element Shannon ionic-radius table
+vendored from pymatgen. Custom user-defined elements compute every core
+descriptor and rule; electronegativity and decomposition outputs
+degrade with a warning when their parameters are not supplied.
 
 ## Updating the calculator
 
-For parity-critical descriptor or rule changes, update `hea-calculator-core.js`
-and then run the browser parity regression in `tests/test_web_parity.py`.
-That test executes the shared JS core under Node and compares the browser-side
-results against the matching Python APIs on every binary pair (666 cases) and
-the curated multi-element fixtures.
+For parity-critical descriptor or rule changes, update
+`hea-calculator-core.js` and then run the parity regressions in
+`tests/test_web_parity.py` (alloys, 666 pairs plus multi-element
+fixtures) and `tests/test_web_oxides_parity.py` (oxides, including
+exact warning strings). Both execute the shared JS core under Node and
+compare against the matching Python APIs.
 
-For page-only UI work, edit `index.html`. The calculator stays fully offline,
-but the numerical drift risk is now guarded by the automated Python-vs-JS
-parity test rather than by manual sanity checks alone.
+For page-only UI work, edit `calculator.html` (or `index.html` for the
+landing page). The calculator stays fully offline, and the numerical
+drift risk is guarded by the automated Python-vs-JS parity tests.
