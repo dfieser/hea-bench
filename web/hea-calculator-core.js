@@ -1395,6 +1395,730 @@
       }, { yeThreshold: predictionOptions.threshold }).ye_phi.verdict;
     }
 
+    // ------------------------------------------------------------------
+    // High-entropy-oxide (HEO) module — line-for-line port of the Python
+    // hea_bench.oxides package. Parity-locked by
+    // tests/test_web_oxides_parity.py; change both sides together.
+
+    var OXIDE_R = 8.314462618;
+    var OXYGEN_RADIUS = 1.4;
+    var OXIDE_MAX_COMBINATIONS = 2000000;
+    var OXIDE_CHARGE_TOLERANCE = 1e-6;
+
+    // BEGIN GENERATED: OXIDE_ELEMENT_DATA
+    // 95-element oxide table: Pauling electronegativity,
+    // common/ICSD oxidation states, and Shannon (1976) effective ionic
+    // radii (angstroms) nested as charge -> coordination number -> spin.
+    // Generated from the Python library's vendored oxide_elements.json
+    // (pymatgen 2025.10.7, MIT) by
+    // tests/data/_sync_js_oxide_tables.py — do not edit by hand; the
+    // oxide parity test asserts the two implementations agree.
+    var OXIDE_ELEMENT_DATA = {
+      Ac: { chi: 1.1, common: [3], icsd: [], radii: { "3": { "6": { "": 1.12 } } } },
+      Ag: { chi: 1.93, common: [1], icsd: [1, 2, 3], radii: { "1": { "2": { "": 0.67 }, "4": { "": 1.0 }, "5": { "": 1.09 }, "6": { "": 1.15 }, "7": { "": 1.22 }, "8": { "": 1.28 } }, "2": { "6": { "": 0.94 } }, "3": { "6": { "": 0.75 } } } },
+      Al: { chi: 1.61, common: [3], icsd: [3], radii: { "3": { "4": { "": 0.39 }, "5": { "": 0.48 }, "6": { "": 0.535 } } } },
+      Am: { chi: 1.3, common: [3], icsd: [], radii: { "2": { "7": { "": 1.21 }, "8": { "": 1.26 }, "9": { "": 1.31 } }, "3": { "6": { "": 0.975 }, "8": { "": 1.09 } }, "4": { "6": { "": 0.85 }, "8": { "": 0.95 } } } },
+      As: { chi: 2.18, common: [-3, 3, 5], icsd: [2, 3, 5, -2, -3, -1], radii: { "3": { "6": { "": 0.58 } }, "5": { "4": { "": 0.335 }, "6": { "": 0.46 } } } },
+      At: { chi: 2.2, common: [-1, 1], icsd: [], radii: { "7": { "6": { "": 0.62 } } } },
+      Au: { chi: 2.54, common: [3], icsd: [], radii: { "1": { "6": { "": 1.37 } }, "3": { "6": { "": 0.85 } }, "5": { "6": { "": 0.57 } } } },
+      B: { chi: 2.04, common: [3], icsd: [3, -3], radii: { "3": { "3": { "": 0.01 }, "4": { "": 0.11 }, "6": { "": 0.27 } } } },
+      Ba: { chi: 0.89, common: [2], icsd: [2], radii: { "2": { "6": { "": 1.35 }, "7": { "": 1.38 }, "8": { "": 1.42 }, "9": { "": 1.47 }, "10": { "": 1.52 }, "11": { "": 1.57 }, "12": { "": 1.61 } } } },
+      Be: { chi: 1.57, common: [2], icsd: [2], radii: { "2": { "3": { "": 0.16 }, "4": { "": 0.27 }, "6": { "": 0.45 } } } },
+      Bi: { chi: 2.02, common: [3], icsd: [1, 2, 3, 5], radii: { "3": { "5": { "": 0.96 }, "6": { "": 1.03 }, "8": { "": 1.17 } }, "5": { "6": { "": 0.76 } } } },
+      Bk: { chi: 1.3, common: [3], icsd: [], radii: { "3": { "6": { "": 0.96 } }, "4": { "6": { "": 0.83 }, "8": { "": 0.93 } } } },
+      Br: { chi: 2.96, common: [-1, 1, 3, 5, 7], icsd: [5, -1], radii: { "-1": { "6": { "": 1.96 } }, "7": { "4": { "": 0.25 }, "6": { "": 0.39 } } } },
+      C: { chi: 2.55, common: [-4, 4], icsd: [2, 3, 4, -4, -3, -2], radii: { "4": { "3": { "": -0.08 }, "4": { "": 0.15 }, "6": { "": 0.16 } } } },
+      Ca: { chi: 1, common: [2], icsd: [2], radii: { "2": { "6": { "": 1.0 }, "7": { "": 1.06 }, "8": { "": 1.12 }, "9": { "": 1.18 }, "10": { "": 1.23 }, "12": { "": 1.34 } } } },
+      Cd: { chi: 1.69, common: [2], icsd: [2], radii: { "2": { "4": { "": 0.78 }, "5": { "": 0.87 }, "6": { "": 0.95 }, "7": { "": 1.03 }, "8": { "": 1.1 }, "12": { "": 1.31 } } } },
+      Ce: { chi: 1.12, common: [3, 4], icsd: [3, 4], radii: { "3": { "6": { "": 1.01 }, "7": { "": 1.07 }, "8": { "": 1.143 }, "9": { "": 1.196 }, "10": { "": 1.25 }, "12": { "": 1.34 } }, "4": { "6": { "": 0.87 }, "8": { "": 0.97 }, "10": { "": 1.07 }, "12": { "": 1.14 } } } },
+      Cf: { chi: 1.3, common: [3], icsd: [], radii: { "3": { "6": { "": 0.95 } }, "4": { "6": { "": 0.821 }, "8": { "": 0.92 } } } },
+      Cl: { chi: 3.16, common: [-1, 1, 3, 5, 7], icsd: [-1], radii: { "-1": { "6": { "": 1.81 } }, "7": { "4": { "": 0.08 }, "6": { "": 0.27 } } } },
+      Cm: { chi: 1.3, common: [3], icsd: [], radii: { "3": { "6": { "": 0.97 } }, "4": { "6": { "": 0.85 }, "8": { "": 0.95 } } } },
+      Co: { chi: 1.88, common: [2, 3], icsd: [1, 2, 3, 4], radii: { "2": { "4": { "High Spin": 0.58 }, "5": { "": 0.67 }, "6": { "High Spin": 0.745, "Low Spin": 0.65 }, "8": { "": 0.9 } }, "3": { "6": { "High Spin": 0.61, "Low Spin": 0.545 } }, "4": { "4": { "": 0.4 }, "6": { "High Spin": 0.53 } } } },
+      Cr: { chi: 1.66, common: [3, 6], icsd: [2, 3, 4, 5, 6], radii: { "2": { "6": { "High Spin": 0.8, "Low Spin": 0.73 } }, "3": { "6": { "": 0.615 } }, "4": { "4": { "": 0.41 }, "6": { "": 0.55 } }, "5": { "4": { "": 0.345 }, "6": { "": 0.49 }, "8": { "": 0.57 } }, "6": { "4": { "": 0.26 }, "6": { "": 0.44 } } } },
+      Cs: { chi: 0.79, common: [1], icsd: [1], radii: { "1": { "6": { "": 1.67 }, "8": { "": 1.74 }, "9": { "": 1.78 }, "10": { "": 1.81 }, "11": { "": 1.85 }, "12": { "": 1.88 } } } },
+      Cu: { chi: 1.9, common: [2], icsd: [1, 2, 3], radii: { "1": { "2": { "": 0.46 }, "4": { "": 0.6 }, "6": { "": 0.77 } }, "2": { "4": { "": 0.57 }, "5": { "": 0.65 }, "6": { "": 0.73 } }, "3": { "6": { "Low Spin": 0.54 } } } },
+      D: { chi: null, common: [-1, 1], icsd: [], radii: { "1": { "2": { "": -0.1 } } } },
+      Dy: { chi: 1.22, common: [3], icsd: [3], radii: { "2": { "6": { "": 1.07 }, "7": { "": 1.13 }, "8": { "": 1.19 } }, "3": { "6": { "": 0.912 }, "7": { "": 0.97 }, "8": { "": 1.027 }, "9": { "": 1.083 } } } },
+      Er: { chi: 1.24, common: [3], icsd: [3], radii: { "3": { "6": { "": 0.89 }, "7": { "": 0.945 }, "8": { "": 1.004 }, "9": { "": 1.062 } } } },
+      Eu: { chi: 1.2, common: [2, 3], icsd: [2, 3], radii: { "2": { "6": { "": 1.17 }, "7": { "": 1.2 }, "8": { "": 1.25 }, "9": { "": 1.3 }, "10": { "": 1.35 } }, "3": { "6": { "": 0.947 }, "8": { "": 1.066 }, "9": { "": 1.12 } } } },
+      F: { chi: 3.98, common: [-1], icsd: [-1], radii: { "-1": { "2": { "": 1.285 }, "3": { "": 1.3 }, "4": { "": 1.31 }, "6": { "": 1.33 } }, "7": { "6": { "": 0.08 } } } },
+      Fe: { chi: 1.83, common: [2, 3], icsd: [2, 3], radii: { "2": { "4": { "High Spin": 0.63 }, "6": { "High Spin": 0.78, "Low Spin": 0.61 }, "8": { "High Spin": 0.92 } }, "3": { "4": { "High Spin": 0.49 }, "5": { "": 0.58 }, "6": { "High Spin": 0.645, "Low Spin": 0.55 }, "8": { "High Spin": 0.78 } }, "4": { "6": { "": 0.585 } }, "6": { "4": { "": 0.25 } } } },
+      Fr: { chi: 0.7, common: [1], icsd: [], radii: { "1": { "6": { "": 1.8 } } } },
+      Ga: { chi: 1.81, common: [3], icsd: [2, 3], radii: { "3": { "4": { "": 0.47 }, "5": { "": 0.55 }, "6": { "": 0.62 } } } },
+      Gd: { chi: 1.2, common: [3], icsd: [3], radii: { "3": { "6": { "": 0.938 }, "7": { "": 1.0 }, "8": { "": 1.053 }, "9": { "": 1.107 } } } },
+      Ge: { chi: 2.01, common: [-4, 2, 4], icsd: [2, 3, 4], radii: { "2": { "6": { "": 0.73 } }, "4": { "4": { "": 0.39 }, "6": { "": 0.53 } } } },
+      H: { chi: 2.2, common: [-1, 1], icsd: [1, -1], radii: { "1": { "1": { "": -0.38 }, "2": { "": -0.18 } } } },
+      Hf: { chi: 1.3, common: [4], icsd: [4], radii: { "4": { "4": { "": 0.58 }, "6": { "": 0.71 }, "7": { "": 0.76 }, "8": { "": 0.83 } } } },
+      Hg: { chi: 2, common: [1, 2], icsd: [1, 2], radii: { "1": { "3": { "": 0.97 }, "6": { "": 1.19 } }, "2": { "2": { "": 0.69 }, "4": { "": 0.96 }, "6": { "": 1.02 }, "8": { "": 1.14 } } } },
+      Ho: { chi: 1.23, common: [3], icsd: [3], radii: { "3": { "6": { "": 0.901 }, "8": { "": 1.015 }, "9": { "": 1.072 }, "10": { "": 1.12 } } } },
+      I: { chi: 2.66, common: [-1, 1, 3, 5, 7], icsd: [5, -1], radii: { "-1": { "6": { "": 2.2 } }, "5": { "6": { "": 0.95 } }, "7": { "4": { "": 0.42 }, "6": { "": 0.53 } } } },
+      In: { chi: 1.78, common: [3], icsd: [1, 2, 3], radii: { "3": { "4": { "": 0.62 }, "6": { "": 0.8 }, "8": { "": 0.92 } } } },
+      Ir: { chi: 2.2, common: [3, 4], icsd: [3, 4, 5], radii: { "3": { "6": { "": 0.68 } }, "4": { "6": { "": 0.625 } }, "5": { "6": { "": 0.57 } } } },
+      K: { chi: 0.82, common: [1], icsd: [1], radii: { "1": { "4": { "": 1.37 }, "6": { "": 1.38 }, "7": { "": 1.46 }, "8": { "": 1.51 }, "9": { "": 1.55 }, "10": { "": 1.59 }, "12": { "": 1.64 } } } },
+      La: { chi: 1.1, common: [3], icsd: [2, 3], radii: { "3": { "6": { "": 1.032 }, "7": { "": 1.1 }, "8": { "": 1.16 }, "9": { "": 1.216 }, "10": { "": 1.27 }, "12": { "": 1.36 } } } },
+      Li: { chi: 0.98, common: [1], icsd: [1], radii: { "1": { "4": { "": 0.59 }, "6": { "": 0.76 }, "8": { "": 0.92 } } } },
+      Lu: { chi: 1.27, common: [3], icsd: [3], radii: { "3": { "6": { "": 0.861 }, "8": { "": 0.977 }, "9": { "": 1.032 } } } },
+      Mg: { chi: 1.31, common: [2], icsd: [2], radii: { "2": { "4": { "": 0.57 }, "5": { "": 0.66 }, "6": { "": 0.72 }, "8": { "": 0.89 } } } },
+      Mn: { chi: 1.55, common: [2, 4, 7], icsd: [2, 3, 4, 7], radii: { "2": { "4": { "High Spin": 0.66 }, "5": { "High Spin": 0.75 }, "6": { "High Spin": 0.83, "Low Spin": 0.67 }, "7": { "High Spin": 0.9 }, "8": { "": 0.96 } }, "3": { "5": { "": 0.58 }, "6": { "High Spin": 0.645, "Low Spin": 0.58 } }, "4": { "4": { "": 0.39 }, "6": { "": 0.53 } }, "5": { "4": { "": 0.33 } }, "6": { "4": { "": 0.255 } }, "7": { "4": { "": 0.25 }, "6": { "": 0.46 } } } },
+      Mo: { chi: 2.16, common: [4, 6], icsd: [2, 3, 4, 5, 6], radii: { "3": { "6": { "": 0.69 } }, "4": { "6": { "": 0.65 } }, "5": { "4": { "": 0.46 }, "6": { "": 0.61 } }, "6": { "4": { "": 0.41 }, "5": { "": 0.5 }, "6": { "": 0.59 }, "7": { "": 0.73 } } } },
+      N: { chi: 3.04, common: [-3, 3, 5], icsd: [1, 3, 5, -1, -3, -2], radii: { "-3": { "4": { "": 1.46 } }, "3": { "6": { "": 0.16 } }, "5": { "3": { "": -0.104 }, "6": { "": 0.13 } } } },
+      Na: { chi: 0.93, common: [1], icsd: [1], radii: { "1": { "4": { "": 0.99 }, "5": { "": 1.0 }, "6": { "": 1.02 }, "7": { "": 1.12 }, "8": { "": 1.18 }, "9": { "": 1.24 }, "12": { "": 1.39 } } } },
+      Nb: { chi: 1.6, common: [5], icsd: [2, 3, 4, 5], radii: { "3": { "6": { "": 0.72 } }, "4": { "6": { "": 0.68 }, "8": { "": 0.79 } }, "5": { "4": { "": 0.48 }, "6": { "": 0.64 }, "7": { "": 0.69 }, "8": { "": 0.74 } } } },
+      Nd: { chi: 1.14, common: [3], icsd: [2, 3], radii: { "2": { "8": { "": 1.29 }, "9": { "": 1.35 } }, "3": { "6": { "": 0.983 }, "8": { "": 1.109 }, "9": { "": 1.163 }, "12": { "": 1.27 } } } },
+      Ni: { chi: 1.91, common: [2], icsd: [1, 2, 3, 4], radii: { "2": { "4": { "": 0.55 }, "5": { "": 0.63 }, "6": { "": 0.69 } }, "3": { "6": { "High Spin": 0.6, "Low Spin": 0.56 } }, "4": { "6": { "Low Spin": 0.48 } } } },
+      No: { chi: 1.3, common: [3], icsd: [], radii: { "2": { "6": { "": 1.1 } } } },
+      Np: { chi: 1.36, common: [5], icsd: [], radii: { "2": { "6": { "": 1.1 } }, "3": { "6": { "": 1.01 } }, "4": { "6": { "": 0.87 }, "8": { "": 0.98 } }, "5": { "6": { "": 0.75 } }, "6": { "6": { "": 0.72 } }, "7": { "6": { "": 0.71 } } } },
+      O: { chi: 3.44, common: [-2], icsd: [-2], radii: { "-2": { "2": { "": 1.35 }, "3": { "": 1.36 }, "4": { "": 1.38 }, "6": { "": 1.4 }, "8": { "": 1.42 } } } },
+      Os: { chi: 2.2, common: [4], icsd: [], radii: { "4": { "6": { "": 0.63 } }, "5": { "6": { "": 0.575 } }, "6": { "5": { "": 0.49 }, "6": { "": 0.545 } }, "7": { "6": { "": 0.525 } }, "8": { "4": { "": 0.39 } } } },
+      P: { chi: 2.19, common: [-3, 3, 5], icsd: [3, 4, 5, -2, -3, -1], radii: { "3": { "6": { "": 0.44 } }, "5": { "4": { "": 0.17 }, "5": { "": 0.29 }, "6": { "": 0.38 } } } },
+      Pa: { chi: 1.5, common: [5], icsd: [], radii: { "3": { "6": { "": 1.04 } }, "4": { "6": { "": 0.9 }, "8": { "": 1.01 } }, "5": { "6": { "": 0.78 }, "8": { "": 0.91 }, "9": { "": 0.95 } } } },
+      Pb: { chi: 2.33, common: [2, 4], icsd: [2, 4], radii: { "2": { "6": { "": 1.19 }, "7": { "": 1.23 }, "8": { "": 1.29 }, "9": { "": 1.35 }, "10": { "": 1.4 }, "11": { "": 1.45 }, "12": { "": 1.49 } }, "4": { "4": { "": 0.65 }, "5": { "": 0.73 }, "6": { "": 0.775 }, "8": { "": 0.94 } } } },
+      Pd: { chi: 2.2, common: [2, 4], icsd: [2, 4], radii: { "1": { "2": { "": 0.59 } }, "2": { "6": { "": 0.86 } }, "3": { "6": { "": 0.76 } }, "4": { "6": { "": 0.615 } } } },
+      Pm: { chi: 1.13, common: [3], icsd: [], radii: { "3": { "6": { "": 0.97 }, "8": { "": 1.093 }, "9": { "": 1.144 } } } },
+      Po: { chi: 2, common: [-2, 2, 4], icsd: [], radii: { "4": { "6": { "": 0.94 }, "8": { "": 1.08 } }, "6": { "6": { "": 0.67 } } } },
+      Pr: { chi: 1.13, common: [3], icsd: [3, 4], radii: { "3": { "6": { "": 0.99 }, "8": { "": 1.126 }, "9": { "": 1.179 } }, "4": { "6": { "": 0.85 }, "8": { "": 0.96 } } } },
+      Pt: { chi: 2.28, common: [2, 4], icsd: [], radii: { "2": { "6": { "": 0.8 } }, "4": { "6": { "": 0.625 } }, "5": { "6": { "": 0.57 } } } },
+      Pu: { chi: 1.28, common: [4], icsd: [], radii: { "3": { "6": { "": 1.0 } }, "4": { "6": { "": 0.86 }, "8": { "": 0.96 } }, "5": { "6": { "": 0.74 } }, "6": { "6": { "": 0.71 } } } },
+      Ra: { chi: 0.9, common: [2], icsd: [], radii: { "2": { "8": { "": 1.48 }, "12": { "": 1.7 } } } },
+      Rb: { chi: 0.82, common: [1], icsd: [1], radii: { "1": { "6": { "": 1.52 }, "7": { "": 1.56 }, "8": { "": 1.61 }, "9": { "": 1.63 }, "10": { "": 1.66 }, "11": { "": 1.69 }, "12": { "": 1.72 }, "14": { "": 1.83 } } } },
+      Re: { chi: 1.9, common: [4], icsd: [3, 4, 5, 6, 7], radii: { "4": { "6": { "": 0.63 } }, "5": { "6": { "": 0.58 } }, "6": { "6": { "": 0.55 } }, "7": { "4": { "": 0.38 }, "6": { "": 0.53 } } } },
+      Rh: { chi: 2.28, common: [3], icsd: [3, 4], radii: { "3": { "6": { "": 0.665 } }, "4": { "6": { "": 0.6 } }, "5": { "6": { "": 0.55 } } } },
+      Ru: { chi: 2.2, common: [3, 4], icsd: [2, 3, 4, 5, 6], radii: { "3": { "6": { "": 0.68 } }, "4": { "6": { "": 0.62 } }, "5": { "6": { "": 0.565 } }, "7": { "4": { "": 0.38 } }, "8": { "4": { "": 0.36 } } } },
+      S: { chi: 2.58, common: [-2, 2, 4, 6], icsd: [-1, 2, 4, -2, 6], radii: { "-2": { "6": { "": 1.84 } }, "4": { "6": { "": 0.37 } }, "6": { "4": { "": 0.12 }, "6": { "": 0.29 } } } },
+      Sb: { chi: 2.05, common: [-3, 3, 5], icsd: [-2, 3, 5, -1, -3], radii: { "3": { "5": { "": 0.8 }, "6": { "": 0.76 } }, "5": { "6": { "": 0.6 } } } },
+      Sc: { chi: 1.36, common: [3], icsd: [2, 3], radii: { "3": { "6": { "": 0.745 }, "8": { "": 0.87 } } } },
+      Se: { chi: 2.55, common: [-2, 2, 4, 6], icsd: [-1, 4, -2, 6], radii: { "-2": { "6": { "": 1.98 } }, "4": { "6": { "": 0.5 } }, "6": { "4": { "": 0.28 }, "6": { "": 0.42 } } } },
+      Si: { chi: 1.9, common: [-4, 4], icsd: [-4, 4], radii: { "4": { "4": { "": 0.26 }, "6": { "": 0.4 } } } },
+      Sm: { chi: 1.17, common: [3], icsd: [2, 3], radii: { "2": { "7": { "": 1.22 }, "8": { "": 1.27 }, "9": { "": 1.32 } }, "3": { "6": { "": 0.958 }, "7": { "": 1.02 }, "8": { "": 1.079 }, "9": { "": 1.132 }, "12": { "": 1.24 } } } },
+      Sn: { chi: 1.96, common: [-4, 2, 4], icsd: [2, 3, 4], radii: { "4": { "4": { "": 0.55 }, "5": { "": 0.62 }, "6": { "": 0.69 }, "7": { "": 0.75 }, "8": { "": 0.81 } } } },
+      Sr: { chi: 0.95, common: [2], icsd: [2], radii: { "2": { "6": { "": 1.18 }, "7": { "": 1.21 }, "8": { "": 1.26 }, "9": { "": 1.31 }, "10": { "": 1.36 }, "12": { "": 1.44 } } } },
+      Ta: { chi: 1.5, common: [5], icsd: [3, 4, 5], radii: { "3": { "6": { "": 0.72 } }, "4": { "6": { "": 0.68 } }, "5": { "6": { "": 0.64 }, "7": { "": 0.69 }, "8": { "": 0.74 } } } },
+      Tb: { chi: 1.1, common: [3], icsd: [3, 4], radii: { "3": { "6": { "": 0.923 }, "7": { "": 0.98 }, "8": { "": 1.04 }, "9": { "": 1.095 } }, "4": { "6": { "": 0.76 }, "8": { "": 0.88 } } } },
+      Tc: { chi: 1.9, common: [4, 7], icsd: [], radii: { "4": { "6": { "": 0.645 } }, "5": { "6": { "": 0.6 } }, "7": { "4": { "": 0.37 }, "6": { "": 0.56 } } } },
+      Te: { chi: 2.1, common: [-2, 2, 4, 6], icsd: [-2, 4, -1, 6], radii: { "-2": { "6": { "": 2.21 } }, "4": { "3": { "": 0.52 }, "4": { "": 0.66 }, "6": { "": 0.97 } }, "6": { "4": { "": 0.43 }, "6": { "": 0.56 } } } },
+      Th: { chi: 1.3, common: [4], icsd: [4], radii: { "4": { "6": { "": 0.94 }, "8": { "": 1.05 }, "9": { "": 1.09 }, "10": { "": 1.13 }, "11": { "": 1.18 }, "12": { "": 1.21 } } } },
+      Ti: { chi: 1.54, common: [4], icsd: [2, 3, 4], radii: { "2": { "6": { "": 0.86 } }, "3": { "6": { "": 0.67 } }, "4": { "4": { "": 0.42 }, "5": { "": 0.51 }, "6": { "": 0.605 }, "8": { "": 0.74 } } } },
+      Tl: { chi: 1.62, common: [1, 3], icsd: [1, 3], radii: { "1": { "6": { "": 1.5 }, "8": { "": 1.59 }, "12": { "": 1.7 } }, "3": { "4": { "": 0.75 }, "6": { "": 0.885 }, "8": { "": 0.98 } } } },
+      Tm: { chi: 1.25, common: [3], icsd: [3], radii: { "2": { "6": { "": 1.03 }, "7": { "": 1.09 } }, "3": { "6": { "": 0.88 }, "8": { "": 0.994 }, "9": { "": 1.052 } } } },
+      U: { chi: 1.38, common: [6], icsd: [3, 4, 5, 6], radii: { "3": { "6": { "": 1.025 } }, "4": { "6": { "": 0.89 }, "7": { "": 0.95 }, "8": { "": 1.0 }, "9": { "": 1.05 }, "12": { "": 1.17 } }, "5": { "6": { "": 0.76 }, "7": { "": 0.84 } }, "6": { "2": { "": 0.45 }, "4": { "": 0.52 }, "6": { "": 0.73 }, "7": { "": 0.81 }, "8": { "": 0.86 } } } },
+      V: { chi: 1.63, common: [5], icsd: [2, 3, 4, 5], radii: { "2": { "6": { "": 0.79 } }, "3": { "6": { "": 0.64 } }, "4": { "5": { "": 0.53 }, "6": { "": 0.58 }, "8": { "": 0.72 } }, "5": { "4": { "": 0.355 }, "5": { "": 0.46 }, "6": { "": 0.54 } } } },
+      W: { chi: 2.36, common: [4, 6], icsd: [2, 3, 4, 5, 6], radii: { "4": { "6": { "": 0.66 } }, "5": { "6": { "": 0.62 } }, "6": { "4": { "": 0.42 }, "5": { "": 0.51 }, "6": { "": 0.6 } } } },
+      Xe: { chi: 2.6, common: [], icsd: [], radii: { "8": { "4": { "": 0.4 }, "6": { "": 0.48 } } } },
+      Y: { chi: 1.22, common: [3], icsd: [3], radii: { "3": { "6": { "": 0.9 }, "7": { "": 0.96 }, "8": { "": 1.019 }, "9": { "": 1.075 } } } },
+      Yb: { chi: 1.1, common: [3], icsd: [2, 3], radii: { "2": { "6": { "": 1.02 }, "7": { "": 1.08 }, "8": { "": 1.14 } }, "3": { "6": { "": 0.868 }, "7": { "": 0.925 }, "8": { "": 0.985 }, "9": { "": 1.042 } } } },
+      Zn: { chi: 1.65, common: [2], icsd: [2], radii: { "2": { "4": { "": 0.6 }, "5": { "": 0.68 }, "6": { "": 0.74 }, "8": { "": 0.9 } } } },
+      Zr: { chi: 1.33, common: [4], icsd: [2, 3, 4], radii: { "4": { "4": { "": 0.59 }, "5": { "": 0.66 }, "6": { "": 0.72 }, "7": { "": 0.78 }, "8": { "": 0.84 }, "9": { "": 0.89 } } } }
+    };
+    // END GENERATED: OXIDE_ELEMENT_DATA
+
+    function oxideChargeLabel(charge) {
+      return (charge >= 0 ? "+" : "") + String(charge);
+    }
+
+    function oxidePlusG(value) {
+      var v = Number(value.toPrecision(6));
+      return (v >= 0 ? "+" : "") + String(v);
+    }
+
+    function oxideShannonRadius(element, charge, coordination, spin) {
+      var spinPref = spin || "high";
+      if (spinPref !== "high" && spinPref !== "low") {
+        throw new Error('spin must be "high" or "low", got ' + JSON.stringify(spin));
+      }
+      var entry = OXIDE_ELEMENT_DATA[element];
+      if (!entry) {
+        throw new Error("element '" + element + "' is not in the vendored oxide element table");
+      }
+      var byCharge = entry.radii[String(parseInt(charge, 10))];
+      if (!byCharge) {
+        var have = Object.keys(entry.radii).map(Number).sort(function (a, b) { return a - b; });
+        throw new Error(
+          "no Shannon radius for " + element + " in oxidation state " +
+          oxideChargeLabel(charge) + " (tabulated states: " + have.join(", ") + ")"
+        );
+      }
+      var warnings = [];
+      var available = Object.keys(byCharge).map(Number);
+      var usedCn;
+      if (available.indexOf(coordination) >= 0) {
+        usedCn = coordination;
+      } else {
+        var best = null;
+        available.forEach(function (n) {
+          if (best === null) { best = n; return; }
+          var dn = Math.abs(n - coordination);
+          var db = Math.abs(best - coordination);
+          if (dn < db || (dn === db && n > best)) { best = n; }
+        });
+        usedCn = best;
+        warnings.push(
+          element + oxideChargeLabel(charge) + ": no Shannon radius at CN=" + coordination +
+          "; using the nearest tabulated CN=" + usedCn
+        );
+      }
+      var spins = byCharge[String(usedCn)];
+      var wanted = spinPref === "high" ? "High Spin" : "Low Spin";
+      var radius;
+      if (Object.prototype.hasOwnProperty.call(spins, wanted)) {
+        radius = spins[wanted];
+      } else if (Object.prototype.hasOwnProperty.call(spins, "")) {
+        radius = spins[""];
+      } else {
+        var fallbackKey = Object.keys(spins).sort()[0];
+        radius = spins[fallbackKey];
+        warnings.push(
+          element + oxideChargeLabel(charge) + " CN=" + usedCn + ": no " + wanted.toLowerCase() +
+          " entry; using the " + (fallbackKey.toLowerCase() || "unspecified-spin") + " radius"
+        );
+      }
+      return { radius: radius, warnings: warnings };
+    }
+
+    function oxideCandidates(element) {
+      var entry = OXIDE_ELEMENT_DATA[element];
+      if (!entry) {
+        throw new Error("element '" + element + "' is not in the vendored oxide element table");
+      }
+      var withRadius = {};
+      Object.keys(entry.radii).forEach(function (q) {
+        var n = parseInt(q, 10);
+        if (n > 0) { withRadius[n] = true; }
+      });
+      var common = entry.common.filter(function (q) { return withRadius[q] === true; });
+      var widened = common.slice();
+      entry.icsd.forEach(function (q) {
+        if (q > 0 && withRadius[q] === true && widened.indexOf(q) < 0) { widened.push(q); }
+      });
+      Object.keys(withRadius).map(Number).sort(function (a, b) { return a - b; }).forEach(function (q) {
+        if (widened.indexOf(q) < 0) { widened.push(q); }
+      });
+      if (!widened.length) {
+        throw new Error(element + " has no positive oxidation state with a Shannon radius");
+      }
+      return { common: common, widened: widened };
+    }
+
+    function oxideAssignStates(moles, targetCharge, allowed, groups) {
+      var elements = Object.keys(moles).sort();
+      if (!elements.length) { throw new Error("moles must be non-empty"); }
+      var pins = allowed || {};
+
+      var commonLists = [];
+      var widenedLists = [];
+      elements.forEach(function (el) {
+        if (pins[el] !== undefined && pins[el] !== null) {
+          var pinned = pins[el].map(function (q) { return parseInt(q, 10); });
+          if (!pinned.length) { throw new Error("allowed['" + el + "'] must be non-empty"); }
+          commonLists.push(pinned);
+          widenedLists.push(pinned);
+        } else {
+          var cands = oxideCandidates(el);
+          commonLists.push(cands.common.length ? cands.common : cands.widened);
+          widenedLists.push(cands.widened);
+        }
+      });
+
+      function totalFor(combo) {
+        var total = 0;
+        for (var i = 0; i < elements.length; i++) { total += moles[elements[i]] * combo[i]; }
+        return total;
+      }
+
+      function eachCombo(lists, fn) {
+        var idx = lists.map(function () { return 0; });
+        for (;;) {
+          fn(idx.map(function (v, i) { return lists[i][v]; }));
+          var k = lists.length - 1;
+          for (;;) {
+            if (k < 0) { return; }
+            idx[k] += 1;
+            if (idx[k] < lists[k].length) { break; }
+            idx[k] = 0;
+            k -= 1;
+          }
+        }
+      }
+
+      function solve(lists) {
+        var nCombos = 1;
+        lists.forEach(function (list) { nCombos *= list.length; });
+        if (nCombos > OXIDE_MAX_COMBINATIONS) {
+          throw new Error(
+            "oxidation-state search space too large (" + nCombos +
+            " combinations); pin states for some elements via `allowed`"
+          );
+        }
+        var found = [];
+        eachCombo(lists, function (combo) {
+          if (Math.abs(totalFor(combo) - targetCharge) < OXIDE_CHARGE_TOLERANCE) {
+            found.push(combo.slice());
+          }
+        });
+        return found;
+      }
+
+      var warnings = [];
+      var solutions = solve(commonLists);
+      if (!solutions.length) {
+        solutions = solve(widenedLists);
+        if (solutions.length) {
+          warnings.push(
+            "no charge-neutral assignment using only common oxidation states; " +
+            "a less common state was used"
+          );
+        }
+      }
+      if (!solutions.length) {
+        var bestTotal = null;
+        eachCombo(widenedLists, function (combo) {
+          var total = totalFor(combo);
+          if (bestTotal === null ||
+              Math.abs(total - targetCharge) < Math.abs(bestTotal - targetCharge)) {
+            bestTotal = total;
+          }
+        });
+        throw new Error(
+          "no oxidation-state assignment reaches total charge " + oxidePlusG(targetCharge) +
+          " (closest achievable: " + oxidePlusG(bestTotal) + "); check the composition, " +
+          "the oxygen content, or pass explicit states via `allowed`"
+        );
+      }
+
+      var rank = {};
+      elements.forEach(function (el, j) {
+        rank[el] = {};
+        widenedLists[j].forEach(function (q, i) { rank[el][q] = i; });
+      });
+      var groupOf = {};
+      elements.forEach(function (el) {
+        groupOf[el] = groups && groups[el] !== undefined ? groups[el] : "";
+      });
+      var labels = [];
+      elements.forEach(function (el) {
+        if (labels.indexOf(groupOf[el]) < 0) { labels.push(groupOf[el]); }
+      });
+      labels.sort();
+
+      function score(combo) {
+        var states = {};
+        elements.forEach(function (el, i) { states[el] = combo[i]; });
+        var variance = 0;
+        labels.forEach(function (label) {
+          var members = elements.filter(function (el) { return groupOf[el] === label; });
+          var weight = 0;
+          members.forEach(function (el) { weight += moles[el]; });
+          var meanQ = 0;
+          members.forEach(function (el) { meanQ += moles[el] * states[el]; });
+          meanQ /= weight;
+          members.forEach(function (el) {
+            variance += moles[el] * (states[el] - meanQ) * (states[el] - meanQ);
+          });
+        });
+        var commonness = 0;
+        var chiWeighted = 0;
+        elements.forEach(function (el, i) {
+          commonness += moles[el] * rank[el][combo[i]];
+          chiWeighted += moles[el] * combo[i] * (OXIDE_ELEMENT_DATA[el].chi || 0);
+        });
+        return [variance, commonness, chiWeighted, combo];
+      }
+
+      function scoreLess(a, b) {
+        for (var i = 0; i < 3; i++) {
+          if (a[i] !== b[i]) { return a[i] < b[i]; }
+        }
+        for (var j = 0; j < a[3].length; j++) {
+          if (a[3][j] !== b[3][j]) { return a[3][j] < b[3][j]; }
+        }
+        return false;
+      }
+
+      var bestCombo = solutions[0];
+      var bestScore = score(bestCombo);
+      for (var s = 1; s < solutions.length; s++) {
+        var candidateScore = score(solutions[s]);
+        if (scoreLess(candidateScore, bestScore)) {
+          bestScore = candidateScore;
+          bestCombo = solutions[s];
+        }
+      }
+      if (solutions.length > 1) {
+        warnings.push(
+          solutions.length + " charge-neutral assignments exist; chose the most " +
+          "charge-uniform, most common one (pass `allowed` to override)"
+        );
+      }
+      var statesOut = {};
+      elements.forEach(function (el, i) { statesOut[el] = bestCombo[i]; });
+      return { states: statesOut, warnings: warnings };
+    }
+
+    function oxideNormalizeSite(fractions) {
+      var keys = Object.keys(fractions || {});
+      if (!keys.length) { throw new Error("sublattice composition must be non-empty"); }
+      var total = 0;
+      keys.forEach(function (el) {
+        var v = Number(fractions[el]);
+        if (v < 0) { throw new Error("occupancies must be non-negative"); }
+        total += v;
+      });
+      if (!(total > 0)) { throw new Error("occupancies must sum to a positive number"); }
+      var norm = {};
+      keys.forEach(function (el) {
+        var v = Number(fractions[el]);
+        if (v > 0) { norm[el] = v / total; }
+      });
+      return norm;
+    }
+
+    function oxideSublatticeEntropy(sublattices, multiplicities, per) {
+      var mode = per || "formula";
+      if (mode !== "formula" && mode !== "cation") {
+        throw new Error('per must be "formula" or "cation", got ' + JSON.stringify(per));
+      }
+      var total = 0;
+      var sites = 0;
+      Object.keys(sublattices).forEach(function (label) {
+        var a = multiplicities[label];
+        var norm = oxideNormalizeSite(sublattices[label]);
+        var sum = 0;
+        Object.keys(norm).forEach(function (el) {
+          var x = norm[el];
+          sum += -x * Math.log(x);
+        });
+        total += a * sum;
+        sites += a;
+      });
+      var entropy = OXIDE_R * total;
+      return mode === "formula" ? entropy : entropy / sites;
+    }
+
+    function oxideSizeDisorder(fractions, radii) {
+      var norm = oxideNormalizeSite(fractions);
+      var rMean = 0;
+      Object.keys(norm).forEach(function (el) { rMean += norm[el] * radii[el]; });
+      var inner = 0;
+      Object.keys(norm).forEach(function (el) {
+        var dev = 1 - radii[el] / rMean;
+        inner += norm[el] * dev * dev;
+      });
+      return 100 * Math.sqrt(Math.max(inner, 0));
+    }
+
+    function oxideCombinedSizeDisorder(deltas) {
+      var sum = 0;
+      deltas.forEach(function (d) { sum += d * d; });
+      return Math.sqrt(sum);
+    }
+
+    function oxideRadiusSampleStd(radii) {
+      if (radii.length < 2) {
+        throw new Error("need at least two cations for a standard deviation");
+      }
+      var mean = 0;
+      radii.forEach(function (r) { mean += r; });
+      mean /= radii.length;
+      var sum = 0;
+      radii.forEach(function (r) { sum += (r - mean) * (r - mean); });
+      return Math.sqrt(sum / (radii.length - 1));
+    }
+
+    function goldschmidtT(rA, rB, rO) {
+      var anion = rO === undefined ? OXYGEN_RADIUS : rO;
+      return (rA + anion) / (Math.sqrt(2) * (rB + anion));
+    }
+
+    function octahedralFactor(rB, rO) {
+      var anion = rO === undefined ? OXYGEN_RADIUS : rO;
+      return rB / anion;
+    }
+
+    function bartelTau(rA, rB, nA, rX) {
+      var anion = rX === undefined ? OXYGEN_RADIUS : rX;
+      if (rA <= rB) {
+        throw new Error(
+          "bartel_tau requires rA > rB (got rA=" + rA.toFixed(3) + ", rB=" + rB.toFixed(3) +
+          "); the larger cation belongs on the A site"
+        );
+      }
+      var ratio = rA / rB;
+      return anion / rB - nA * (nA - ratio / Math.log(ratio));
+    }
+
+    function oxideRadiusRatio(rA, rB) {
+      return rA / rB;
+    }
+
+    function oxideMeanChi(fractions) {
+      var norm = oxideNormalizeSite(fractions);
+      var missing = [];
+      Object.keys(norm).forEach(function (el) {
+        if (OXIDE_ELEMENT_DATA[el].chi === null || OXIDE_ELEMENT_DATA[el].chi === undefined) {
+          missing.push(el);
+        }
+      });
+      if (missing.length) {
+        missing.sort();
+        throw new Error("no Pauling electronegativity for: " + missing.join(", "));
+      }
+      var mean = 0;
+      Object.keys(norm).forEach(function (el) { mean += norm[el] * OXIDE_ELEMENT_DATA[el].chi; });
+      return mean;
+    }
+
+    function oxideDeltaChi(fractions) {
+      var norm = oxideNormalizeSite(fractions);
+      var chiBar = oxideMeanChi(norm);
+      var inner = 0;
+      Object.keys(norm).forEach(function (el) {
+        var dev = OXIDE_ELEMENT_DATA[el].chi - chiBar;
+        inner += norm[el] * dev * dev;
+      });
+      return Math.sqrt(Math.max(inner, 0));
+    }
+
+    function oxideRadiiFor(norm, states, coordination, spin, warnings) {
+      var radii = {};
+      Object.keys(norm).forEach(function (el) {
+        var result = oxideShannonRadius(el, states[el], coordination, spin);
+        radii[el] = result.radius;
+        result.warnings.forEach(function (w) { warnings.push(w); });
+      });
+      return radii;
+    }
+
+    function oxideEntropyVerdict(sPerSite) {
+      if (sPerSite >= 1.5 * OXIDE_R) { return "high-entropy"; }
+      if (sPerSite >= 1.36 * OXIDE_R) { return "medium-entropy"; }
+      return "low-entropy";
+    }
+
+    function oxideWindowVerdict(value, low, high) {
+      if (value < low) { return "below-window"; }
+      if (value > high) { return "above-window"; }
+      return "within-window";
+    }
+
+    function oxideChiStats(pooled, warnings) {
+      try {
+        return { mean: oxideMeanChi(pooled), delta: oxideDeltaChi(pooled) };
+      } catch (error) {
+        warnings.push(error.message);
+        return { mean: null, delta: null };
+      }
+    }
+
+    function oxideMeanRadius(norm, radii) {
+      var mean = 0;
+      Object.keys(norm).forEach(function (el) { mean += norm[el] * radii[el]; });
+      return mean;
+    }
+
+    function describeRockSalt(cations, options) {
+      var opts = options || {};
+      var spin = opts.spin || "high";
+      var norm = oxideNormalizeSite(cations);
+      var warnings = [];
+      var solved = oxideAssignStates(norm, 2.0, opts.states || null, null);
+      solved.warnings.forEach(function (w) { warnings.push(w); });
+      var radii = oxideRadiiFor(norm, solved.states, 6, spin, warnings);
+      var sFormula = oxideSublatticeEntropy({ M: norm }, { M: 1.0 }, "formula");
+      var chi = oxideChiStats(norm, warnings);
+      return {
+        family: "rock_salt",
+        sites: { M: norm },
+        oxygen_per_formula_unit: 1.0,
+        oxidation_states: solved.states,
+        coordination: { M: 6 },
+        shannon_radii: radii,
+        descriptors: {
+          s_config: sFormula,
+          s_config_per_cation: sFormula,
+          s_config_per_site: { M: sFormula },
+          delta_r: oxideSizeDisorder(norm, radii),
+          mean_radius: oxideMeanRadius(norm, radii),
+          mean_chi: chi.mean,
+          delta_chi: chi.delta
+        },
+        verdicts: { entropy: oxideEntropyVerdict(sFormula) },
+        warnings: warnings
+      };
+    }
+
+    function describeFluorite(cations, options) {
+      var opts = options || {};
+      var spin = opts.spin || "high";
+      var oxygen = opts.oxygen === undefined || opts.oxygen === null ? 2.0 : Number(opts.oxygen);
+      var norm = oxideNormalizeSite(cations);
+      var warnings = [];
+      var solved = oxideAssignStates(norm, 2.0 * oxygen, opts.states || null, null);
+      solved.warnings.forEach(function (w) { warnings.push(w); });
+      var radii = oxideRadiiFor(norm, solved.states, 8, spin, warnings);
+      var sFormula = oxideSublatticeEntropy({ M: norm }, { M: 1.0 }, "formula");
+
+      var sigma = null;
+      var sigmaVerdict = null;
+      var symbols = Object.keys(norm);
+      if (symbols.length >= 2) {
+        var fracs = symbols.map(function (el) { return norm[el]; });
+        if (Math.max.apply(null, fracs) - Math.min.apply(null, fracs) > 1e-9) {
+          warnings.push(
+            "the fluorite radius-dispersion criterion is calibrated on equimolar " +
+            "compositions; this composition is not equimolar"
+          );
+        }
+        sigma = oxideRadiusSampleStd(symbols.map(function (el) { return radii[el]; }));
+        sigmaVerdict = sigma > 0.095 ? "fluorite" : "bixbyite-or-multiphase";
+      } else {
+        warnings.push("the fluorite radius-dispersion criterion needs at least two cations");
+      }
+
+      var chi = oxideChiStats(norm, warnings);
+      return {
+        family: "fluorite",
+        sites: { M: norm },
+        oxygen_per_formula_unit: oxygen,
+        oxidation_states: solved.states,
+        coordination: { M: 8 },
+        shannon_radii: radii,
+        descriptors: {
+          s_config: sFormula,
+          s_config_per_cation: sFormula,
+          s_config_per_site: { M: sFormula },
+          delta_r: oxideSizeDisorder(norm, radii),
+          mean_radius: oxideMeanRadius(norm, radii),
+          radius_sigma: sigma,
+          mean_chi: chi.mean,
+          delta_chi: chi.delta
+        },
+        verdicts: {
+          entropy: oxideEntropyVerdict(sFormula),
+          spiridigliozzi: sigmaVerdict
+        },
+        warnings: warnings
+      };
+    }
+
+    function oxideTwoSiteReport(family, aSite, bSite, siteMultiplicity, oxygen, cnA, cnB, states, spin) {
+      var normA = oxideNormalizeSite(aSite);
+      var normB = oxideNormalizeSite(bSite);
+      var shared = Object.keys(normA).filter(function (el) {
+        return Object.prototype.hasOwnProperty.call(normB, el);
+      }).sort();
+      if (shared.length) {
+        throw new Error(
+          shared.join(", ") + " appears on both sublattices; site-resolved oxidation " +
+          "states are not supported — describe the sites separately"
+        );
+      }
+      var warnings = [];
+      var moles = {};
+      Object.keys(normA).forEach(function (el) { moles[el] = normA[el] * siteMultiplicity; });
+      Object.keys(normB).forEach(function (el) { moles[el] = normB[el] * siteMultiplicity; });
+      var groups = {};
+      Object.keys(normA).forEach(function (el) { groups[el] = "A"; });
+      Object.keys(normB).forEach(function (el) { groups[el] = "B"; });
+      var solved = oxideAssignStates(moles, 2.0 * oxygen, states || null, groups);
+      solved.warnings.forEach(function (w) { warnings.push(w); });
+      var radiiA = oxideRadiiFor(normA, solved.states, cnA, spin, warnings);
+      var radiiB = oxideRadiiFor(normB, solved.states, cnB, spin, warnings);
+
+      var mult = {};
+      mult.A = siteMultiplicity;
+      mult.B = siteMultiplicity;
+      var sFormula = oxideSublatticeEntropy({ A: normA, B: normB }, mult, "formula");
+      var sCation = sFormula / (2.0 * siteMultiplicity);
+      var sSiteA = oxideSublatticeEntropy({ A: normA }, { A: 1.0 }, "formula");
+      var sSiteB = oxideSublatticeEntropy({ B: normB }, { B: 1.0 }, "formula");
+      var chi = oxideChiStats(moles, warnings);
+
+      var deltaA = oxideSizeDisorder(normA, radiiA);
+      var deltaB = oxideSizeDisorder(normB, radiiB);
+      var allRadii = {};
+      Object.keys(radiiA).forEach(function (el) { allRadii[el] = radiiA[el]; });
+      Object.keys(radiiB).forEach(function (el) { allRadii[el] = radiiB[el]; });
+
+      var report = {
+        family: family,
+        sites: { A: normA, B: normB },
+        oxygen_per_formula_unit: oxygen,
+        oxidation_states: solved.states,
+        coordination: { A: cnA, B: cnB },
+        shannon_radii: allRadii,
+        descriptors: {
+          s_config: sFormula,
+          s_config_per_cation: sCation,
+          s_config_per_site: { A: sSiteA, B: sSiteB },
+          delta_r_a: deltaA,
+          delta_r_b: deltaB,
+          delta_r_star: oxideCombinedSizeDisorder([deltaA, deltaB]),
+          mean_radius_a: oxideMeanRadius(normA, radiiA),
+          mean_radius_b: oxideMeanRadius(normB, radiiB),
+          mean_chi: chi.mean,
+          delta_chi: chi.delta
+        },
+        verdicts: { entropy: oxideEntropyVerdict(Math.max(sSiteA, sSiteB)) },
+        warnings: warnings
+      };
+      return { report: report, normA: normA, normB: normB, states: solved.states };
+    }
+
+    function describePerovskite(aSite, bSite, options) {
+      var opts = options || {};
+      var spin = opts.spin || "high";
+      var tWindow = opts.tWindow || [0.92, 1.04];
+      var built = oxideTwoSiteReport(
+        "perovskite", aSite, bSite, 1.0, 3.0, 12, 6, opts.states || null, spin
+      );
+      var report = built.report;
+      var d = report.descriptors;
+      var nA = 0;
+      Object.keys(built.normA).forEach(function (el) {
+        nA += built.normA[el] * built.states[el];
+      });
+      var t = goldschmidtT(d.mean_radius_a, d.mean_radius_b);
+      var mu = octahedralFactor(d.mean_radius_b);
+      var tau = null;
+      var tauVerdict = null;
+      try {
+        tau = bartelTau(d.mean_radius_a, d.mean_radius_b, nA);
+        tauVerdict = tau < 4.18 ? "perovskite" : "nonperovskite";
+      } catch (error) {
+        report.warnings.push(error.message);
+      }
+      d.goldschmidt_t = t;
+      d.octahedral_mu = mu;
+      d.bartel_tau = tau;
+      d.mean_n_a = nA;
+      report.verdicts.goldschmidt = oxideWindowVerdict(t, tWindow[0], tWindow[1]);
+      report.verdicts.octahedral = oxideWindowVerdict(mu, 0.414, 0.732);
+      report.verdicts.bartel = tauVerdict;
+      return report;
+    }
+
+    function describePyrochlore(aSite, bSite, options) {
+      var opts = options || {};
+      var spin = opts.spin || "high";
+      var built = oxideTwoSiteReport(
+        "pyrochlore", aSite, bSite, 2.0, 7.0, 8, 6, opts.states || null, spin
+      );
+      var report = built.report;
+      var d = report.descriptors;
+      var ratio = oxideRadiusRatio(d.mean_radius_a, d.mean_radius_b);
+      var verdict;
+      if (ratio < 1.46) {
+        verdict = "defect-fluorite";
+      } else if (ratio > 1.78) {
+        verdict = "no-single-cubic-phase";
+      } else {
+        verdict = "pyrochlore";
+      }
+      d.radius_ratio = ratio;
+      report.verdicts.radius_ratio = verdict;
+      return report;
+    }
+
     return {
       R: R,
       KING_PHI_THRESHOLD: KING_PHI_THRESHOLD,
@@ -1429,7 +2153,23 @@
       predictGuoVec: predictGuoVec,
       predictYangOmega: predictYangOmega,
       predictKingPhi: predictKingPhi,
-      predictYePhi: predictYePhi
+      predictYePhi: predictYePhi,
+      OXIDE_ELEMENT_DATA: OXIDE_ELEMENT_DATA,
+      OXIDE_R: OXIDE_R,
+      OXYGEN_RADIUS: OXYGEN_RADIUS,
+      oxideShannonRadius: oxideShannonRadius,
+      oxideAssignStates: oxideAssignStates,
+      oxideNormalizeSite: oxideNormalizeSite,
+      oxideSublatticeEntropy: oxideSublatticeEntropy,
+      oxideSizeDisorder: oxideSizeDisorder,
+      oxideRadiusSampleStd: oxideRadiusSampleStd,
+      goldschmidtT: goldschmidtT,
+      octahedralFactor: octahedralFactor,
+      bartelTau: bartelTau,
+      describeRockSalt: describeRockSalt,
+      describeFluorite: describeFluorite,
+      describePerovskite: describePerovskite,
+      describePyrochlore: describePyrochlore
     };
   }
 );

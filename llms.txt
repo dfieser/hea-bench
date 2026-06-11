@@ -10,8 +10,10 @@
 
 `hea-bench` is composition-only and dependency-free in its core.
 Use it to (1) compute HEA descriptors as features for downstream
-models, or (2) screen candidate alloys with the published empirical
-rules. Currently shipping version 1.3.0 under MIT.
+models, (2) screen candidate alloys with the published empirical
+rules, or (3) compute high-entropy-oxide (HEO) formability
+descriptors via the `hea_bench.oxides` module. Currently shipping
+version 1.6.0 under MIT.
 
 ## For AI agents reading this first
 
@@ -67,6 +69,21 @@ historical datasets); do not treat a single prediction as ground truth.
 Note Ω diverges as ΔH_mix → 0, so it is parametrization-sensitive for
 near-ideal alloys.
 
+## Oxides module
+
+`hea_bench.oxides` extends the calculator to high-entropy oxides:
+four structure families (`describe_rock_salt`, `describe_perovskite`,
+`describe_fluorite`, `describe_pyrochlore`), each returning one dict
+with solved oxidation states (charge balance against the oxygen
+sublattice), Shannon (1976) radii, per-sublattice configurational
+entropy, size-disorder parameters, the perovskite tolerance factors
+(Goldschmidt t, octahedral μ, Bartel τ < 4.18), the Spiridigliozzi
+fluorite radius-dispersion rule (σ > 0.095 Å), the pyrochlore
+radius-ratio window (1.46–1.78), and electronegativity statistics.
+Same closed-form philosophy, 95 vendored elements, parity-tested in
+the browser core, exposed as the Oxides mode in the apps. See
+AGENTS.md for examples.
+
 ## Browser and desktop apps
 
 A self-contained HTML calculator computes the same descriptors and
@@ -93,10 +110,10 @@ the Python library in CI (`tests/test_web_parity.py`).
 ## Citing
 
 ```bibtex
-@software{hea_bench_1_3_0,
+@software{hea_bench_1_6_0,
   author  = {Fieser, David and Hu, Anming},
   title   = {hea-bench: An open calculator of high-entropy-alloy thermodynamic descriptors and empirical phase-prediction rules},
-  version = {1.3.0},
+  version = {1.6.0},
   license = {MIT},
   url     = {https://github.com/dfieser/hea-bench},
 }

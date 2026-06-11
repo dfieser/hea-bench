@@ -1274,6 +1274,38 @@
       /* hide the Warnings panel until there is something to warn about */
       .results-area .panel:has(> #warnings:empty) { display: none; }
 
+      /* ---- Alloys / Oxides mode switch ---- */
+      .mode-switch {
+        display: flex;
+        gap: 4px;
+        padding: 4px;
+        background: var(--surface-muted);
+        border: 1px solid var(--border-2);
+        border-radius: 10px;
+      }
+      .mode-btn {
+        flex: 1;
+        padding: 7px 10px;
+        border: 0;
+        background: transparent;
+        color: var(--text-muted);
+        font-family: var(--sans);
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 7px;
+        cursor: pointer;
+      }
+      .mode-btn:hover { color: var(--text); }
+      .mode-btn.is-active {
+        background: var(--surface);
+        color: var(--text);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+      }
+      body:not(.mode-oxide) .mode-oxide { display: none !important; }
+      body.mode-oxide .mode-alloy { display: none !important; }
+      #oxide-results:empty + .results-empty { display: flex; }
+      .results-area #oxide-results-panel:has(#oxide-results:empty) .actions { display: none; }
+
       /* ---- Empty state (before the first calculation) ---- */
       .results-empty {
         display: none;
@@ -5364,7 +5396,12 @@ font-family: 'Source Sans Pro'
           <div class="workspace">
             <aside class="rail">
 
-      <section class="panel">
+      <div class="mode-switch" id="mode-switch" role="tablist" aria-label="Material class">
+        <button type="button" class="mode-btn is-active" data-mode="alloy" role="tab">Alloys</button>
+        <button type="button" class="mode-btn" data-mode="oxide" role="tab">Oxides</button>
+      </div>
+
+      <section class="panel mode-alloy">
         <h2>Composition</h2>
         <div class="row" style="margin-bottom: 8px;">
           <label for="formula-input">Formula</label>
@@ -5476,7 +5513,7 @@ font-family: 'Source Sans Pro'
         </div>
       </section>
 
-      <section id="custom-elements-section" class="panel hidden">
+      <section id="custom-elements-section" class="panel mode-alloy hidden">
         <h2>Custom elements</h2>
         <div class="table-wrap">
           <table class="data" style="min-width: 720px;">
@@ -5495,7 +5532,7 @@ font-family: 'Source Sans Pro'
         <p class="small-note">Select “Custom element…” in an element dropdown to add another.</p>
       </section>
 
-      <section class="panel">
+      <section class="panel mode-alloy">
         <h2>Pair enthalpies (ΔHᵢⱼ)</h2>
         <div id="pair-enthalpy-editor" class="ratio-table">
           <div style="padding: 10px 12px; color: #64748b;">Select at least two elements to show pairs.</div>
@@ -5504,13 +5541,56 @@ font-family: 'Source Sans Pro'
         <p class="small-note">Defaults use the same vendored Miedema-derived pair table as the Python library. Override manually if needed.</p>
       </section>
 
+      <section class="panel mode-oxide" id="oxide-panel">
+        <h2>Oxide composition</h2>
+        <div class="row" style="margin-bottom: 8px;">
+          <label for="oxide-family">Structure family</label>
+          <select id="oxide-family">
+            <option value="rock_salt">Rock salt (MO)</option>
+            <option value="perovskite">Perovskite (ABO&#8323;)</option>
+            <option value="fluorite">Fluorite (MO&#8322;)</option>
+            <option value="pyrochlore">Pyrochlore (A&#8322;B&#8322;O&#8327;)</option>
+          </select>
+          <select id="oxide-example">
+            <option value="">Load example…</option>
+            <option value="j14">(MgCoNiCuZn)O rock salt (Rost 2015)</option>
+            <option value="jiang">Sr(Zr,Sn,Ti,Hf,Mn)O&#8323; perovskite (Jiang 2018)</option>
+            <option value="feso_low">(Ce,Zr,Nd,Y,Er)O&#8321;.&#8327; fluorite (low SD)</option>
+            <option value="feso_high">(Ce,Zr,La,Nd,Sm)O&#8321;.&#8327; fluorite (high SD)</option>
+            <option value="pyro">(La,Ce,Nd,Sm,Eu)&#8322;Zr&#8322;O&#8327; pyrochlore</option>
+          </select>
+        </div>
+        <div class="row" style="margin-bottom: 8px;">
+          <label for="oxide-a-site" id="oxide-a-label">Cations (six-fold)</label>
+          <input id="oxide-a-site" type="text" placeholder="e.g. MgCoNiCuZn or La0.5Ce0.5" style="flex: 1; min-width: 180px; padding: 8px; border: 1px solid var(--border-2); border-radius: 8px; background: var(--surface); color: var(--text); font-family: inherit;">
+        </div>
+        <div class="row hidden" id="oxide-b-row" style="margin-bottom: 8px;">
+          <label for="oxide-b-site" id="oxide-b-label">B-site cations (six-fold)</label>
+          <input id="oxide-b-site" type="text" placeholder="e.g. ZrSnTiHfMn" style="flex: 1; min-width: 180px; padding: 8px; border: 1px solid var(--border-2); border-radius: 8px; background: var(--surface); color: var(--text); font-family: inherit;">
+        </div>
+        <div class="row hidden" id="oxide-oxygen-row" style="margin-bottom: 8px;">
+          <label for="oxide-oxygen">Oxygen per formula unit</label>
+          <input id="oxide-oxygen" type="number" min="0.1" step="0.01" value="2.00">
+          <span class="small-note" style="margin: 0;">Rare-earth fluorites are typically oxygen-deficient (about 1.7).</span>
+        </div>
+        <div class="row" style="margin-bottom: 8px;">
+          <label for="oxide-spin">3d-metal spin state</label>
+          <select id="oxide-spin">
+            <option value="high">High spin (synthesis temperatures, default)</option>
+            <option value="low">Low spin</option>
+          </select>
+          <button id="oxide-calculate" class="primary">Calculate</button>
+        </div>
+        <p class="small-note">Subscripts are per-site fractions on any scale (the site is normalized internally). Oxidation states are assigned automatically by charge balance against the oxygen sublattice; the chosen states and the Shannon radii used are shown with the results.</p>
+      </section>
+
             </aside>
             <div class="rail-resizer" id="rail-resizer" role="separator" aria-orientation="vertical" aria-label="Resize input panel" tabindex="0"></div>
             <main class="results-area">
 
       <div id="error" class="error hidden"></div>
 
-      <section class="panel">
+      <section class="panel mode-alloy">
         <h2>Results</h2>
         <div id="results" class="results"><div class="result-card composition-card">
           <h3>Normalized composition</h3>
@@ -5561,13 +5641,13 @@ font-family: 'Source Sans Pro'
         </div>
       </section>
 
-      <section class="panel" id="rules-panel">
+      <section class="panel mode-alloy" id="rules-panel">
         <h2>Phase-prediction rules</h2>
         <p class="small-note" style="margin: -4px 0 12px;">What each canonical empirical rule predicts for this composition, applied to the descriptor values above.</p>
         <div id="rule-predictions" class="results results-compact"></div>
       </section>
 
-      <section class="panel panel-secondary" id="miedema-panel">
+      <section class="panel panel-secondary mode-alloy" id="miedema-panel">
         <h2>Miedema-model formation enthalpies</h2>
         <p class="small-note" style="margin: -4px 0 12px;">Auxiliary outputs. Compound, solid-solution, and amorphous formation enthalpies and their decompositions.</p>
         <div id="miedema-results" class="results results-compact">
@@ -5616,7 +5696,7 @@ font-family: 'Source Sans Pro'
         </div>
       </section>
 
-      <section class="panel">
+      <section class="panel mode-alloy">
         <h2>Saved results</h2>
         <div class="actions" style="margin-bottom: 12px;">
           <button id="save-result" class="secondary">Save result</button>
@@ -5649,6 +5729,26 @@ font-family: 'Source Sans Pro'
             <tbody id="saved-results-body"><tr><td colspan="17" style="color: #64748b;">No saved results yet.</td></tr></tbody>
           </table>
         </div>
+      </section>
+
+      <section class="panel mode-oxide" id="oxide-results-panel">
+        <h2>Oxide results</h2>
+        <div class="actions" style="margin-bottom: 12px;">
+          <button id="oxide-copy-json" class="ghost">Copy report (JSON)</button>
+          <div id="oxide-copy-message" class="small-note" style="margin: 0;"></div>
+        </div>
+        <div id="oxide-results" class="results"></div>
+        <div class="results-empty" id="oxide-results-empty">
+          <div class="results-empty__mark" aria-hidden="true">⬢</div>
+          <p class="results-empty__title">No oxide results yet</p>
+          <p class="results-empty__hint">Pick a structure family and enter the cations on the left, then press <kbd>Calculate</kbd>. Or load one of the literature examples.</p>
+        </div>
+      </section>
+
+      <section class="panel mode-oxide hidden" id="oxide-verdicts-panel">
+        <h2>Formability screens</h2>
+        <p class="small-note" style="margin: -4px 0 12px;">Weak empirical screens from the HEO literature, applied to the values above. They are calibrated on small datasets; treat them as hints, not predictions.</p>
+        <div id="oxide-verdicts" class="results results-compact"></div>
       </section>
 
       <section class="panel">
@@ -5812,7 +5912,7 @@ font-family: 'Source Sans Pro'
       </div>
 
       <footer class="statusbar">
-        <span>37 elements &middot; 666 Miedema pair enthalpies</span>
+        <span>37 alloy elements &middot; 666 Miedema pair enthalpies &middot; 95 oxide elements</span>
         <span class="sb-spacer"></span>
         <span>Miedema model &mdash; de Boer et al. (1988)</span>
         <span class="sb-sep">&middot;</span>
@@ -5822,9 +5922,10 @@ font-family: 'Source Sans Pro'
 
     <script src="hea-calculator-core.js"></script>
     <script>
-      const VERSION = "1.5.0";
+      const VERSION = "1.6.0";
       const VERSION_DATE = "2026-06-10";
       const VERSION_HISTORY = [
+        { version: "1.6.0", date: "2026-06-10", notes: "High-entropy-oxide mode: rock salt, perovskite, fluorite, and pyrochlore descriptors with charge-balance oxidation-state assignment and Shannon radii (95 elements), parity-tested against the Python library; Enter-to-calculate; literature example presets" },
         { version: "1.5.0", date: "2026-06-10", notes: "Electronegativity descriptors (mean chi, delta chi) on every surface, parity-tested; Miedema formation-enthalpy panel extended 24 -> 37 elements; per-element hybridization factors aligned with the de Boer parametrization" },
         { version: "1.4.0", date: "2026-06-10", notes: "Element coverage 30 -> 37 across all surfaces (666 parity-tested pairs); page element table now derives from the core; Omega near-zero-enthalpy warning" },
         { version: "1.1.0", date: "2026-05-27", notes: "Added King/Ye phi descriptors, King temperature control, and JS parity core" },
@@ -7626,6 +7727,338 @@ font-family: 'Source Sans Pro'
       });
 
       kingTemperatureInput.addEventListener("input", scheduleSaveFormState);
+
+      // Enter anywhere in the alloy inputs runs the calculation.
+      ratioTableEl.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && event.target.matches &&
+            event.target.matches("input[data-percent-index]")) {
+          handleCalculate();
+        }
+      });
+      kingTemperatureInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") handleCalculate();
+      });
+
+      // ---------------------------------------------------------------
+      // Oxides mode: high-entropy-oxide descriptors via the same
+      // parity-tested core (describeRockSalt/Perovskite/Fluorite/
+      // Pyrochlore). The mode switch only toggles which panels are
+      // visible; both modes keep their state.
+
+      const MODE_STORAGE_KEY = "hea-bench-mode";
+      const modeSwitchEl = document.getElementById("mode-switch");
+      const oxideFamilyEl = document.getElementById("oxide-family");
+      const oxideExampleEl = document.getElementById("oxide-example");
+      const oxideAInput = document.getElementById("oxide-a-site");
+      const oxideBInput = document.getElementById("oxide-b-site");
+      const oxideALabel = document.getElementById("oxide-a-label");
+      const oxideBLabel = document.getElementById("oxide-b-label");
+      const oxideBRow = document.getElementById("oxide-b-row");
+      const oxideOxygenRow = document.getElementById("oxide-oxygen-row");
+      const oxideOxygenInput = document.getElementById("oxide-oxygen");
+      const oxideSpinEl = document.getElementById("oxide-spin");
+      const oxideCalculateBtn = document.getElementById("oxide-calculate");
+      const oxideResultsEl = document.getElementById("oxide-results");
+      const oxideVerdictsPanelEl = document.getElementById("oxide-verdicts-panel");
+      const oxideVerdictsEl = document.getElementById("oxide-verdicts");
+      const oxideCopyBtn = document.getElementById("oxide-copy-json");
+      let lastOxideReport = null;
+
+      const OXIDE_FAMILY_CONFIG = {
+        rock_salt: { aLabel: "Cations (six-fold)", twoSite: false, oxygenInput: false },
+        perovskite: {
+          aLabel: "A-site cations (twelve-fold)",
+          bLabel: "B-site cations (six-fold)",
+          twoSite: true,
+          oxygenInput: false,
+        },
+        fluorite: { aLabel: "Cations (eight-fold)", twoSite: false, oxygenInput: true },
+        pyrochlore: {
+          aLabel: "A-site cations (eight-fold)",
+          bLabel: "B-site cations (six-fold)",
+          twoSite: true,
+          oxygenInput: false,
+        },
+      };
+
+      const OXIDE_FAMILY_LABELS = {
+        rock_salt: "Rock salt (MO)",
+        perovskite: "Perovskite (ABO₃)",
+        fluorite: "Fluorite (MOₓ)",
+        pyrochlore: "Pyrochlore (A₂B₂O₇)",
+      };
+
+      const OXIDE_EXAMPLES = {
+        j14: { family: "rock_salt", a: "MgCoNiCuZn" },
+        jiang: { family: "perovskite", a: "Sr", b: "ZrSnTiHfMn" },
+        feso_low: { family: "fluorite", a: "CeZrNdYEr", oxygen: "1.70" },
+        feso_high: { family: "fluorite", a: "CeZrLaNdSm", oxygen: "1.70" },
+        pyro: { family: "pyrochlore", a: "LaCeNdSmEu", b: "Zr" },
+      };
+
+      function applyMode(mode) {
+        document.body.classList.toggle("mode-oxide", mode === "oxide");
+        modeSwitchEl.querySelectorAll(".mode-btn").forEach((btn) => {
+          btn.classList.toggle("is-active", btn.getAttribute("data-mode") === mode);
+        });
+        showError("");
+        try { localStorage.setItem(MODE_STORAGE_KEY, mode); } catch (e) { /* storage unavailable */ }
+      }
+
+      function applyOxideFamily() {
+        const cfg = OXIDE_FAMILY_CONFIG[oxideFamilyEl.value];
+        oxideALabel.textContent = cfg.aLabel;
+        oxideBRow.classList.toggle("hidden", !cfg.twoSite);
+        if (cfg.twoSite) oxideBLabel.textContent = cfg.bLabel;
+        oxideOxygenRow.classList.toggle("hidden", !cfg.oxygenInput);
+      }
+
+      function readOxideSite(inputEl, label) {
+        let parsed;
+        try {
+          parsed = parseFormula(inputEl.value);
+        } catch (e) {
+          throw new Error(`${label}: ${e.message}`);
+        }
+        const site = {};
+        parsed.forEach((p) => { site[p.symbol] = (site[p.symbol] || 0) + p.percent; });
+        const unknown = Object.keys(site).filter((el) => !calcCore.OXIDE_ELEMENT_DATA[el]);
+        if (unknown.length) {
+          throw new Error(
+            `${label}: no oxide data for ${unknown.join(", ")} (not in the Shannon radius table).`
+          );
+        }
+        return site;
+      }
+
+      function handleOxideCalculate() {
+        showError("");
+        const family = oxideFamilyEl.value;
+        const cfg = OXIDE_FAMILY_CONFIG[family];
+        const options = { spin: oxideSpinEl.value };
+        let report;
+        try {
+          const aSite = readOxideSite(oxideAInput, cfg.twoSite ? "A-site" : "Cations");
+          if (cfg.oxygenInput) {
+            const oxygen = Number(oxideOxygenInput.value);
+            if (!Number.isFinite(oxygen) || oxygen <= 0) {
+              throw new Error("Oxygen per formula unit must be a positive number.");
+            }
+            options.oxygen = oxygen;
+          }
+          if (cfg.twoSite) {
+            const bSite = readOxideSite(oxideBInput, "B-site");
+            report = family === "perovskite"
+              ? calcCore.describePerovskite(aSite, bSite, options)
+              : calcCore.describePyrochlore(aSite, bSite, options);
+          } else {
+            report = family === "rock_salt"
+              ? calcCore.describeRockSalt(aSite, options)
+              : calcCore.describeFluorite(aSite, options);
+          }
+        } catch (e) {
+          showError(e.message);
+          return;
+        }
+        lastOxideReport = report;
+        renderOxideReport(report);
+        renderWarnings(report.warnings);
+      }
+
+      function oxideChargeSup(q) {
+        return q >= 0 ? `${q}+` : `${-q}−`;
+      }
+
+      function oxideMetricCard(title, symbol, value, units) {
+        return { title, symbol, value, units };
+      }
+
+      function renderOxideReport(report) {
+        oxideResultsEl.innerHTML = "";
+        oxideVerdictsEl.innerHTML = "";
+
+        const siteBlocks = Object.keys(report.sites).map((siteLabel) => {
+          const cells = Object.entries(report.sites[siteLabel]).map(([el, frac]) => {
+            const charge = report.oxidation_states[el];
+            const radius = report.shannon_radii[el];
+            return `<div class="composition-cell">` +
+              `<div class="element">${el}<sup>${oxideChargeSup(charge)}</sup></div>` +
+              `<div class="fraction">${formatNumber(frac, 4)}</div>` +
+              `<div class="fraction" style="opacity: 0.7;">${formatNumber(radius, 4)} Å</div>` +
+              `</div>`;
+          }).join("");
+          const siteName = siteLabel === "M" ? "Cation site" : `${siteLabel} site`;
+          return `<div style="margin-bottom: 6px;">` +
+            `<div class="units" style="margin-bottom: 4px;">${siteName} · CN ${report.coordination[siteLabel]}</div>` +
+            `<div class="composition-grid">${cells}</div></div>`;
+        }).join("");
+
+        const headerCard = document.createElement("div");
+        headerCard.className = "result-card composition-card";
+        headerCard.innerHTML = `
+          <h3>${OXIDE_FAMILY_LABELS[report.family]}</h3>
+          <div class="symbol">site fractions, assigned oxidation states, Shannon radii</div>
+          ${siteBlocks}
+          <div class="units">oxygen per formula unit: ${formatNumber(report.oxygen_per_formula_unit, 4)}</div>
+        `;
+        oxideResultsEl.appendChild(headerCard);
+
+        const d = report.descriptors;
+        const cards = [
+          oxideMetricCard("Configurational entropy", "ΔS config", formatNumber(d.s_config), "J/mol·K per formula unit"),
+          oxideMetricCard("Entropy per cation site", "ΔS config / cation", formatNumber(d.s_config_per_cation), "J/mol·K"),
+        ];
+        if (d.delta_r !== undefined) {
+          cards.push(oxideMetricCard("Cation size disorder", "δr", formatNumber(d.delta_r), "%"));
+          cards.push(oxideMetricCard("Mean cation radius", "r̄", formatNumber(d.mean_radius), "Å"));
+        }
+        if (d.delta_r_a !== undefined) {
+          cards.push(oxideMetricCard("A-site size disorder", "δr(A)", formatNumber(d.delta_r_a), "%"));
+          cards.push(oxideMetricCard("B-site size disorder", "δr(B)", formatNumber(d.delta_r_b), "%"));
+          cards.push(oxideMetricCard("Combined size disorder", "δr*", formatNumber(d.delta_r_star), "%"));
+          cards.push(oxideMetricCard("Mean A-site radius", "r̄(A)", formatNumber(d.mean_radius_a), "Å"));
+          cards.push(oxideMetricCard("Mean B-site radius", "r̄(B)", formatNumber(d.mean_radius_b), "Å"));
+        }
+        if (d.radius_sigma !== undefined && d.radius_sigma !== null) {
+          cards.push(oxideMetricCard("Radius dispersion (sample SD)", "σ(r)", formatNumber(d.radius_sigma), "Å, eight-fold radii"));
+        }
+        if (d.goldschmidt_t !== undefined) {
+          cards.push(oxideMetricCard("Goldschmidt tolerance factor", "t", formatNumber(d.goldschmidt_t), "—"));
+          cards.push(oxideMetricCard("Octahedral factor", "μ", formatNumber(d.octahedral_mu), "—"));
+          if (d.bartel_tau !== null) {
+            cards.push(oxideMetricCard("Bartel tolerance factor", "τ", formatNumber(d.bartel_tau), "—"));
+          }
+        }
+        if (d.radius_ratio !== undefined) {
+          cards.push(oxideMetricCard("Radius ratio", "r(A)/r(B)", formatNumber(d.radius_ratio), "—"));
+        }
+        if (d.mean_chi !== null) {
+          cards.push(oxideMetricCard("Mean cation electronegativity", "χ̄", formatNumber(d.mean_chi), "Pauling"));
+          cards.push(oxideMetricCard("Electronegativity mismatch", "Δχ", formatNumber(d.delta_chi), "Pauling"));
+        }
+        cards.forEach((card) => {
+          const div = document.createElement("div");
+          div.className = "result-card";
+          div.innerHTML = `
+            <h3>${card.title}</h3>
+            <div class="symbol">${card.symbol}</div>
+            <p>${card.value}</p>
+            <div class="units">${card.units}</div>
+          `;
+          oxideResultsEl.appendChild(div);
+        });
+
+        const verdictCards = [];
+        const entropyText = {
+          "high-entropy": ["High entropy", "most-disordered sublattice ≥ 1.5R"],
+          "medium-entropy": ["Medium entropy", "most-disordered sublattice between 1.36R and 1.5R"],
+          "low-entropy": ["Low entropy", "most-disordered sublattice < 1.36R"],
+        }[report.verdicts.entropy];
+        verdictCards.push(oxideMetricCard("Entropy classification", "ΔS vs 1.5R", entropyText[0], entropyText[1]));
+        if (report.verdicts.spiridigliozzi) {
+          const isFluorite = report.verdicts.spiridigliozzi === "fluorite";
+          verdictCards.push(oxideMetricCard(
+            "Spiridigliozzi radius-dispersion rule",
+            "σ(r) > 0.095 Å → fluorite",
+            isFluorite ? "Single-phase fluorite favored" : "Bixbyite-type or mixed phases likely",
+            `σ(r) = ${formatNumber(d.radius_sigma)} Å; calibrated on equimolar rare-earth oxides`
+          ));
+        }
+        if (report.verdicts.goldschmidt) {
+          const windowText = {
+            "within-window": "Inside the cubic window",
+            "below-window": "Below the window: tilted (orthorhombic) distortion likely",
+            "above-window": "Above the window: hexagonal stacking likely",
+          }[report.verdicts.goldschmidt];
+          verdictCards.push(oxideMetricCard(
+            "Goldschmidt window",
+            "0.92 ≤ t ≤ 1.04",
+            windowText,
+            `t = ${formatNumber(d.goldschmidt_t)}`
+          ));
+          const octText = {
+            "within-window": "Stable BO₆ octahedron",
+            "below-window": "B cation too small for a stable octahedron",
+            "above-window": "B cation too large for a stable octahedron",
+          }[report.verdicts.octahedral];
+          verdictCards.push(oxideMetricCard(
+            "Octahedral window",
+            "0.414 < μ < 0.732",
+            octText,
+            `μ = ${formatNumber(d.octahedral_mu)}`
+          ));
+          if (report.verdicts.bartel) {
+            verdictCards.push(oxideMetricCard(
+              "Bartel τ rule",
+              "τ < 4.18 → perovskite",
+              report.verdicts.bartel === "perovskite" ? "Perovskite predicted" : "Non-perovskite predicted",
+              `τ = ${formatNumber(d.bartel_tau)}; ~91% reported accuracy`
+            ));
+          }
+        }
+        if (report.verdicts.radius_ratio) {
+          const ratioText = {
+            "pyrochlore": "Pyrochlore window",
+            "defect-fluorite": "Defect fluorite likely (ratio below 1.46)",
+            "no-single-cubic-phase": "No single cubic phase expected (ratio above 1.78)",
+          }[report.verdicts.radius_ratio];
+          verdictCards.push(oxideMetricCard(
+            "Pyrochlore radius-ratio rule",
+            "1.46 < r(A)/r(B) < 1.78",
+            ratioText,
+            `r(A)/r(B) = ${formatNumber(d.radius_ratio)}`
+          ));
+        }
+        oxideVerdictsPanelEl.classList.remove("hidden");
+        verdictCards.forEach((card) => {
+          const div = document.createElement("div");
+          div.className = "result-card result-card-compact";
+          div.innerHTML = `
+            <h3>${card.title}</h3>
+            <div class="symbol">${card.symbol}</div>
+            <p>${card.value}</p>
+            <div class="units">${card.units}</div>
+          `;
+          oxideVerdictsEl.appendChild(div);
+        });
+      }
+
+      modeSwitchEl.addEventListener("click", (event) => {
+        const btn = event.target.closest(".mode-btn");
+        if (btn) applyMode(btn.getAttribute("data-mode"));
+      });
+      oxideFamilyEl.addEventListener("change", applyOxideFamily);
+      oxideExampleEl.addEventListener("change", () => {
+        const example = OXIDE_EXAMPLES[oxideExampleEl.value];
+        oxideExampleEl.value = "";
+        if (!example) return;
+        oxideFamilyEl.value = example.family;
+        applyOxideFamily();
+        oxideAInput.value = example.a;
+        oxideBInput.value = example.b || "";
+        oxideOxygenInput.value = example.oxygen || "2.00";
+        handleOxideCalculate();
+      });
+      oxideCalculateBtn.addEventListener("click", handleOxideCalculate);
+      [oxideAInput, oxideBInput, oxideOxygenInput].forEach((el) => {
+        el.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") handleOxideCalculate();
+        });
+      });
+      oxideCopyBtn.addEventListener("click", () => {
+        if (!lastOxideReport) return;
+        navigator.clipboard.writeText(JSON.stringify(lastOxideReport, null, 2)).then(() => {
+          oxideCopyBtn.textContent = "Copied!";
+          setTimeout(() => { oxideCopyBtn.textContent = "Copy report (JSON)"; }, 1500);
+        }).catch(() => {
+          showError("Failed to copy to clipboard.");
+        });
+      });
+
+      applyOxideFamily();
+      let storedMode = "alloy";
+      try { storedMode = localStorage.getItem(MODE_STORAGE_KEY) || "alloy"; } catch (e) { /* storage unavailable */ }
+      if (storedMode === "oxide") applyMode("oxide");
 
       customSaveBtn.addEventListener("click", () => {
         showError("");

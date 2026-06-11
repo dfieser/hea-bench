@@ -8,10 +8,27 @@ DOI for the archived snapshot.
 The format is loosely based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.6.0] — 2026-06-10 — high-entropy-oxide support on every surface
 
 ### Added
 
+- **Oxides mode in the browser/desktop calculator.** A mode switch in the
+  input rail toggles between Alloys and Oxides. The Oxides mode covers the
+  same four structure families as the Python module via a family selector,
+  free-text per-site cation inputs (formula syntax, any amount scale), an
+  oxygen-content field for fluorites, a high/low-spin toggle, and five
+  literature example presets (Rost J14, Jiang 2018, the two Spiridigliozzi
+  F-ESO samples, a rare-earth zirconate pyrochlore). Results show the
+  solved oxidation states and Shannon radii per site, the descriptor
+  cards, the formability screens with their windows, and a copy-as-JSON
+  button. The JS core port (`describeRockSalt`, `describePerovskite`,
+  `describeFluorite`, `describePyrochlore` + the oxidation-state solver
+  and Shannon lookup) is parity-tested against the Python implementation
+  on 16 curated fixtures, including exact warning-string agreement
+  (`tests/test_web_oxides_parity.py`); the 95-element oxide table is
+  generated into the core by `tests/data/_sync_js_oxide_tables.py`.
+- **Enter-to-calculate** in the alloy composition table, the King
+  temperature field, and all oxide inputs.
 - **High-entropy-oxide descriptor module (`hea_bench.oxides`), Python surface.**
   First increment of the oxide expansion: closed-form HEO descriptors and
   empirical formability screens for four structure families via

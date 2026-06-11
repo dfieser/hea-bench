@@ -29,10 +29,18 @@ For any composition it reports:
 - **Miedema formation enthalpies** (browser/desktop apps) — compound /
   solid-solution / amorphous, decomposed into chemical, elastic,
   structural, and topological terms.
+- **High-entropy oxides** (`hea_bench.oxides` + the apps' Oxides mode) —
+  rock-salt, perovskite, fluorite, and pyrochlore formability
+  descriptors over Shannon ionic radii with automatic charge-balance
+  oxidation-state assignment: per-sublattice configurational entropy,
+  cation size disorder, Goldschmidt t / octahedral μ / Bartel τ, the
+  fluorite radius-dispersion rule, and the pyrochlore radius-ratio
+  window.
 
-Element coverage: 37 elements (Ag Al Au Be Ca Ce Co Cr Cu Fe Gd Hf In Ir
-La Li Mg Mn Mo Nb Ni Os Pd Pt Re Rh Ru Sc Si Sn Ta Ti V W Y Zn Zr); the
-Miedema pair table covers 75.
+Element coverage: 37 elements for alloys (Ag Al Au Be Ca Ce Co Cr Cu Fe
+Gd Hf In Ir La Li Mg Mn Mo Nb Ni Os Pd Pt Re Rh Ru Sc Si Sn Ta Ti V W Y
+Zn Zr); the Miedema pair table covers 75; the oxide module's Shannon
+table covers 95.
 
 ## Three ways to run it
 

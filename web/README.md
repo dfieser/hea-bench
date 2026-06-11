@@ -36,6 +36,15 @@ For any composition you enter, the page reports:
 - **Miedema-model formation enthalpies** — compound enthalpy and the
   solid-solution and amorphous enthalpies decomposed into chemical,
   elastic, structural, and topological contributions.
+- **Oxides mode** — a mode switch at the top of the input rail flips the
+  calculator to high-entropy oxides: rock salt, perovskite, fluorite,
+  and pyrochlore families with automatic charge-balance oxidation-state
+  assignment, Shannon radii (95 elements), per-sublattice entropy and
+  size-disorder descriptors, the perovskite tolerance factors (t, μ,
+  Bartel τ), the fluorite radius-dispersion rule, the pyrochlore
+  radius-ratio window, and literature example presets. The oxide math
+  is parity-tested against the Python library
+  (`tests/test_web_oxides_parity.py`).
 
 ## What's here
 

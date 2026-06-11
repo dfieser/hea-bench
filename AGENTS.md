@@ -175,7 +175,7 @@ amorphous, split into chemical / elastic / structural / topological
 terms) in page-side code; the Python library currently exposes the
 descriptor + rule surface above.
 
-## Oxides module (experimental, Python-only)
+## Oxides module (experimental)
 
 `hea_bench.oxides` extends the calculator to **high-entropy oxides**:
 closed-form descriptors and weak empirical formability screens for four
@@ -198,9 +198,13 @@ Each `describe_*` returns one dict: normalized sites, solved oxidation
 states, Shannon radii used, descriptors, verdicts, warnings. Entropy
 verdicts classify on the most-disordered sublattice (the HEO
 convention). The oxide verdicts are screens, not predictions, exactly
-like the alloy rules. This surface is Python-only for now: it is
-**not** in the JS core, the browser page, or the desktop app, and it is
-deliberately not exported at the `hea_bench` top level.
+like the alloy rules. The JS core ports the same functions
+(`describeRockSalt`, `describePerovskite`, `describeFluorite`,
+`describePyrochlore`), parity-locked by
+`tests/test_web_oxides_parity.py`, and the calculator page exposes them
+as an **Oxides mode** (mode switch at the top of the input rail). The
+module is deliberately not exported at the `hea_bench` top level;
+import it as `from hea_bench import oxides`.
 
 ## Coverage limit
 
