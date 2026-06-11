@@ -86,6 +86,13 @@ AGENTS.md for examples.
 
 ## Browser and desktop apps
 
+An MCP server ships in the package: `pip install "hea-bench[mcp]"`,
+then `hea-bench-mcp` exposes seven deterministic tools
+(parse_composition, batch alloy_descriptors / alloy_rules,
+omega_sensitivity, oxide_report, element_coverage, about) with units,
+citation keys, and the library version stamped into every response.
+Agents should call these instead of reimplementing formulas.
+
 A self-contained HTML calculator (`web/calculator.html`) computes the
 same descriptors and rules in client-side JavaScript with no install,
 and additionally shows the Miedema formation-enthalpy decompositions.

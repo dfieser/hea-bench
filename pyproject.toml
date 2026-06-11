@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "hea-bench"
-version = "1.7.0"
+version = "1.8.0"
 description = "An open, interpretable calculator of high-entropy-alloy and high-entropy-oxide thermodynamic and geometric descriptors plus the canonical empirical phase-prediction rules."
 readme = "README.md"
 license = "MIT"
@@ -45,9 +45,15 @@ dev = [
     "pytest-cov>=4.0",
     "ruff>=0.4",
 ]
+# The MCP agent surface (hea-bench-mcp) needs the official MCP SDK; the
+# calculator core itself stays dependency-free.
+mcp = [
+    "mcp>=1.2",
+]
 
 [project.scripts]
 hea-bench = "hea_bench.cli:main"
+hea-bench-mcp = "hea_bench.mcp_server:main"
 
 [project.urls]
 Homepage = "https://dfieser.github.io/hea-bench/"

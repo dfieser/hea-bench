@@ -46,13 +46,14 @@ Gd Hf In Ir La Li Mg Mn Mo Nb Ni Os Pd Pt Re Rh Ru Sc Si Sn Ta Ti V W Y
 Zn Zr); the Miedema pair table covers 75; the oxide module's Shannon
 table covers 94.
 
-## Three ways to run it
+## Four ways to run it
 
 | Surface | Where | Status |
 |---|---|---|
 | **Python library + CLI** | `pip install hea-bench` | done, tested |
 | **Zero-install browser app** | <https://dfieser.github.io/hea-bench/> · `web/calculator.html` | done, Python-parity-tested |
 | **Native desktop app** | one offline `.exe` (Tauri wrapper of the browser app), installers on the [Releases page](https://github.com/dfieser/hea-bench/releases) | done, built from the same parity-tested core |
+| **MCP server for AI agents** | `pip install "hea-bench[mcp]"`, then `hea-bench-mcp` | done, seven tools over the same core |
 
 The three surfaces share **one calculation core**. The browser/desktop
 core (`web/hea-calculator-core.js`) is a pure-JS port of the Python
@@ -118,6 +119,34 @@ verdicts with their windows, and any warnings. See
 [`examples/02_oxides_walkthrough.py`](./examples/02_oxides_walkthrough.py)
 for the full tour, including the fluorite and pyrochlore screens and
 oxidation-state overrides.
+
+## Quick start (AI agents, MCP)
+
+LLM agents hallucinate descriptor values; this server grounds them.
+`hea_bench.mcp_server` exposes the calculator over the
+[Model Context Protocol](https://modelcontextprotocol.io/) as seven
+deterministic tools (`parse_composition`, batch `alloy_descriptors` and
+`alloy_rules`, `omega_sensitivity`, `oxide_report`, `element_coverage`,
+`about`). Every response carries units, the citation key of each
+parametrization, and the library version, so an agent's reasoning trace
+contains auditable receipts rather than bare floats.
+
+```bash
+pip install "hea-bench[mcp]"
+```
+
+Register it with any MCP client (Claude Desktop, Cursor, ...), for
+example in `claude_desktop_config.json`:
+
+```json
+{ "mcpServers": { "hea-bench": { "command": "hea-bench-mcp" } } }
+```
+
+The `omega_sensitivity` tool is worth singling out: it reports the
+per-pair Miedema contributions and how far Ω moves when the dominant
+element's pair enthalpies are shifted within the spread of published
+compilations, so an agent can ask not just for a number but for how
+much to trust it.
 
 ## Quick start (browser, no install)
 

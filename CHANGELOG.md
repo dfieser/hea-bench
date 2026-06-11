@@ -8,6 +8,24 @@ DOI for the archived snapshot.
 The format is loosely based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.8.0] — 2026-06-11 — agent surface (MCP server)
+
+### Added
+
+- **`hea-bench-mcp`, a Model Context Protocol server** (`hea_bench.mcp_server`,
+  optional extra `pip install hea-bench[mcp]`), exposing the calculator to
+  LLM agents as seven deterministic tools: `parse_composition`,
+  `alloy_descriptors` and `alloy_rules` (batch over composition lists),
+  `omega_sensitivity` (per-pair Miedema contributions and the Omega range
+  under a pair-table perturbation, pinned against the paper's
+  Co20Cu20Fe5Mn35Ni20 numbers), `oxide_report` (all four families),
+  `element_coverage`, and `about`. Every response carries units, the
+  citation key of each parametrization, and the library version, so agent
+  reasoning traces contain auditable receipts rather than bare floats.
+  The tool bodies are plain functions tested in CI without the optional
+  dependency (`tests/test_mcp_server.py`, 15 tests); the calculator core
+  remains dependency-free.
+
 ## [1.7.0] — 2026-06-11 — landing page, named pages, redesigned docs
 
 ### Added

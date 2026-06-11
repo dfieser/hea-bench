@@ -1,0 +1,32 @@
+v1.8.0: MCP agent surface (hea-bench-mcp)
+
+hea_bench.mcp_server exposes the calculator to LLM agents over the
+Model Context Protocol as seven deterministic tools:
+parse_composition, batch alloy_descriptors and alloy_rules,
+omega_sensitivity (per-pair Miedema contributions and the Omega range
+under a pair-table perturbation, pinned against the paper's
+Co20Cu20Fe5Mn35Ni20 numbers), oxide_report for all four families,
+element_coverage, and about. Every response carries units, the
+citation key of each parametrization, and the library version, so an
+agent's reasoning trace contains auditable receipts rather than bare
+floats.
+
+The tool bodies are plain functions with no MCP import, tested in CI
+without the optional dependency (tests/test_mcp_server.py, 15 tests);
+FastMCP is loaded lazily by build_server()/main(). Packaging: optional
+extra hea-bench[mcp], console script hea-bench-mcp. The calculator
+core stays dependency-free.
+
+Versions move together to 1.8.0 (library, page badge and what's-new,
+Tauri bundle, Cargo, CITATION.cff). README gains an agent quick start,
+AGENTS.md lists the fourth surface, llms.txt points agents at the
+tools instead of reimplementing formulas.
+
+Motivated by the agentic-materials literature: LLM agents for alloy
+design currently reimplement these descriptors ad hoc and document
+hallucination of property values as a core failure mode
+(arXiv:2603.11068). Design follows the MCP-for-science experience
+paper (arXiv:2508.18489): few batch tools, explicit schemas, bounded
+deterministic execution, structured errors.
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
