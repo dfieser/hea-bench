@@ -40,7 +40,7 @@ For any composition it reports:
 Element coverage: 37 elements for alloys (Ag Al Au Be Ca Ce Co Cr Cu Fe
 Gd Hf In Ir La Li Mg Mn Mo Nb Ni Os Pd Pt Re Rh Ru Sc Si Sn Ta Ti V W Y
 Zn Zr); the Miedema pair table covers 75; the oxide module's Shannon
-table covers 95.
+table covers 94.
 
 ## Three ways to run it
 

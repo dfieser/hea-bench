@@ -54,7 +54,7 @@ The format is loosely based on
   `describeFluorite`, `describePyrochlore` + the oxidation-state solver
   and Shannon lookup) is parity-tested against the Python implementation
   on 16 curated fixtures, including exact warning-string agreement
-  (`tests/test_web_oxides_parity.py`); the 95-element oxide table is
+  (`tests/test_web_oxides_parity.py`); the 94-element oxide table is
   generated into the core by `tests/data/_sync_js_oxide_tables.py`.
 - **Enter-to-calculate** in the alloy composition table, the King
   temperature field, and all oxide inputs.
@@ -74,7 +74,7 @@ The format is loosely based on
   explicit override supported); Shannon radii resolve by oxidation state,
   coordination number, and spin (high-spin default, low-spin toggle), with
   documented nearest-CN fallback warnings. Data vendored from pymatgen's
-  digitization of Shannon 1976 (MIT, 95 elements, provenance + SHA pinned
+  digitization of Shannon 1976 (MIT, 94 elements, provenance + SHA pinned
   in `src/hea_bench/oxides/data/README.md`). 19 new tests pin literature
   anchors (Rost J14, Jiang 2018 perovskites, Spiridigliozzi F-ESO,
   zirconate pyrochlore). The alloy surface and the browser/desktop apps are

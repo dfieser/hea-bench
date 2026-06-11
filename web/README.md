@@ -39,7 +39,7 @@ For any composition you enter, the page reports:
 - **Oxides mode** — a mode switch at the top of the input rail flips the
   calculator to high-entropy oxides: rock salt, perovskite, fluorite,
   and pyrochlore families with automatic charge-balance oxidation-state
-  assignment, Shannon radii (95 elements), per-sublattice entropy and
+  assignment, Shannon radii (94 elements), per-sublattice entropy and
   size-disorder descriptors, the perovskite tolerance factors (t, μ,
   Bartel τ), the fluorite radius-dispersion rule, the pyrochlore
   radius-ratio window, and literature example presets. The oxide math

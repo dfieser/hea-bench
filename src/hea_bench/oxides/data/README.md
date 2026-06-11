@@ -7,7 +7,9 @@
 
 ## What's in `oxide_elements.json`
 
-For each of the 95 elements that have Shannon-radius entries:
+For each of the 94 elements that have Shannon-radius entries
+(pymatgen's deuterium pseudo-element entry is excluded, since it is an
+isotope rather than an element):
 
 - `shannon_radii` — the Shannon (1976) **effective ionic radii** in
   angstroms (the `ionic_radius` field, on the r(O²⁻, VI) = 1.40 Å
@@ -49,7 +51,7 @@ independent end-to-end check of the radius values and conventions.
 ## File integrity (SHA-256, captured 2026-06-10)
 
 ```
-oxide_elements.json   69dc71da7a849f762661e987bebd3311de6e342d84e6fe6cae0b77b95af4760c
+oxide_elements.json   af47dfe9a9c3586049a5070e0fc8bab918a8300377e42c4a35132bf72044569e
 ```
 
 ## Re-vendoring

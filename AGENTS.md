@@ -209,7 +209,7 @@ import it as `from hea_bench import oxides`.
 ## Coverage limit
 
 The element table covers **37 elements** (alloy surface; the oxides
-module has its own 95-element Shannon table). Compositions containing
+module has its own 94-element Shannon table). Compositions containing
 elements outside it (C, B, the refractory-gas formers, and most
 lanthanides) are not fully scorable: `delta`, `smix`-class
 geometric/melting descriptors need the element table, while

@@ -59,6 +59,8 @@ def main() -> None:
     for el, props in table.items():
         if el.startswith("_"):  # metadata entries like "_unit"
             continue
+        if el in ("D", "T"):  # hydrogen isotopes, not elements
+            continue
         shannon = props.get("Shannon radii")
         if not shannon:
             continue

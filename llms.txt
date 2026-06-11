@@ -80,7 +80,7 @@ entropy, size-disorder parameters, the perovskite tolerance factors
 (Goldschmidt t, octahedral μ, Bartel τ < 4.18), the Spiridigliozzi
 fluorite radius-dispersion rule (σ > 0.095 Å), the pyrochlore
 radius-ratio window (1.46–1.78), and electronegativity statistics.
-Same closed-form philosophy, 95 vendored elements, parity-tested in
+Same closed-form philosophy, 94 vendored elements, parity-tested in
 the browser core, exposed as the Oxides mode in the apps. See
 AGENTS.md for examples.
 

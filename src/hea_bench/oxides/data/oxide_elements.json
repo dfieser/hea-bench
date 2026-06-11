@@ -760,21 +760,6 @@
     }
    }
   },
-  "D": {
-   "chi": null,
-   "common_oxidation_states": [
-    -1,
-    1
-   ],
-   "icsd_oxidation_states": [],
-   "shannon_radii": {
-    "1": {
-     "II": {
-      "": -0.1
-     }
-    }
-   }
-  },
   "Dy": {
    "chi": 1.22,
    "common_oxidation_states": [

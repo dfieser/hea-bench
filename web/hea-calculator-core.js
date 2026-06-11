@@ -1406,7 +1406,7 @@
     var OXIDE_CHARGE_TOLERANCE = 1e-6;
 
     // BEGIN GENERATED: OXIDE_ELEMENT_DATA
-    // 95-element oxide table: Pauling electronegativity,
+    // 94-element oxide table: Pauling electronegativity,
     // common/ICSD oxidation states, and Shannon (1976) effective ionic
     // radii (angstroms) nested as charge -> coordination number -> spin.
     // Generated from the Python library's vendored oxide_elements.json
@@ -1438,7 +1438,6 @@
       Cr: { chi: 1.66, common: [3, 6], icsd: [2, 3, 4, 5, 6], radii: { "2": { "6": { "High Spin": 0.8, "Low Spin": 0.73 } }, "3": { "6": { "": 0.615 } }, "4": { "4": { "": 0.41 }, "6": { "": 0.55 } }, "5": { "4": { "": 0.345 }, "6": { "": 0.49 }, "8": { "": 0.57 } }, "6": { "4": { "": 0.26 }, "6": { "": 0.44 } } } },
       Cs: { chi: 0.79, common: [1], icsd: [1], radii: { "1": { "6": { "": 1.67 }, "8": { "": 1.74 }, "9": { "": 1.78 }, "10": { "": 1.81 }, "11": { "": 1.85 }, "12": { "": 1.88 } } } },
       Cu: { chi: 1.9, common: [2], icsd: [1, 2, 3], radii: { "1": { "2": { "": 0.46 }, "4": { "": 0.6 }, "6": { "": 0.77 } }, "2": { "4": { "": 0.57 }, "5": { "": 0.65 }, "6": { "": 0.73 } }, "3": { "6": { "Low Spin": 0.54 } } } },
-      D: { chi: null, common: [-1, 1], icsd: [], radii: { "1": { "2": { "": -0.1 } } } },
       Dy: { chi: 1.22, common: [3], icsd: [3], radii: { "2": { "6": { "": 1.07 }, "7": { "": 1.13 }, "8": { "": 1.19 } }, "3": { "6": { "": 0.912 }, "7": { "": 0.97 }, "8": { "": 1.027 }, "9": { "": 1.083 } } } },
       Er: { chi: 1.24, common: [3], icsd: [3], radii: { "3": { "6": { "": 0.89 }, "7": { "": 0.945 }, "8": { "": 1.004 }, "9": { "": 1.062 } } } },
       Eu: { chi: 1.2, common: [2, 3], icsd: [2, 3], radii: { "2": { "6": { "": 1.17 }, "7": { "": 1.2 }, "8": { "": 1.25 }, "9": { "": 1.3 }, "10": { "": 1.35 } }, "3": { "6": { "": 0.947 }, "8": { "": 1.066 }, "9": { "": 1.12 } } } },
