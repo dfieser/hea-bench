@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: "hea-bench: An open calculator of high-entropy-alloy thermodynamic descriptors and empirical phase-prediction rules"
+title: "hea-bench: An open calculator of high-entropy-alloy and high-entropy-oxide thermodynamic descriptors and empirical phase-prediction rules"
 message: >-
   If you use this software, please cite it using the metadata from this file.
 type: software
@@ -20,13 +20,19 @@ abstract: >-
   alloy thermodynamic and geometric descriptors (mixing entropy, atomic-size
   mismatch, valence-electron concentration, melting temperature, Miedema
   mixing and formation enthalpies, Yang-Zhang Omega, Mansoori excess entropy,
-  King Phi, Ye phi) and the canonical empirical phase-prediction rules. Every
-  quantity is a transparent closed-form expression over a curated
-  element-property table, with no fitted model. The same calculation core
-  ships as a Python library, a zero-install browser app, and a native desktop
-  app; the browser core is parity-tested against the Python library.
+  King Phi, Ye phi) and the canonical empirical phase-prediction rules. An
+  oxides mode extends the same approach to high-entropy oxides in four
+  structure families (rock salt, perovskite, fluorite, pyrochlore), with a
+  charge-neutrality oxidation-state solver, Shannon ionic radii, sublattice
+  configurational entropy, the Goldschmidt and Bartel tolerance factors, and
+  the published fluorite and pyrochlore formability criteria. Every quantity
+  is a transparent closed-form expression over a curated element-property
+  table, with no fitted model. The same calculation core ships as a Python
+  library, a zero-install browser app, and a native desktop app; the browser
+  core is parity-tested against the Python library.
 keywords:
   - high-entropy alloys
+  - high-entropy oxides
   - thermodynamic descriptors
   - Miedema model
   - materials informatics
@@ -34,13 +40,13 @@ keywords:
   - alloy design
 license: MIT
 repository-code: 'https://github.com/dfieser/hea-bench'
-version: 0.1.0
-date-released: '2026-05-22'
-doi: 10.5281/zenodo.20346288
+version: 1.6.1
+date-released: '2026-06-10'
+doi: 10.5281/zenodo.20346287
 identifiers:
   - type: doi
     value: 10.5281/zenodo.20346287
-    description: Concept DOI (resolves to all versions of hea-bench)
+    description: Concept DOI (resolves to the latest archived version of hea-bench)
   - type: doi
     value: 10.5281/zenodo.20346288
-    description: Version DOI (this release, v0.1.0)
+    description: Version DOI of the initial v0.1.0 release

@@ -27,9 +27,20 @@ The format is loosely based on
   card explaining what the quantity is and the threshold that applies.
 - **Ctrl+Enter (Cmd+Enter)** calculates from anywhere in the page, in
   whichever mode is active.
+- **Oxide theory, equations, and references.** The Theory tab gains four
+  sections covering the oxide module (sublattice configurational entropy,
+  oxidation-state assignment and Shannon radii, the Goldschmidt/Bartel
+  perovskite factors, and the fluorite/pyrochlore criteria), the Equation
+  reference gains the corresponding eight closed-form cards, and the
+  References tab gains the nine oxide primary sources.
 
 ### Changed
 
+- **One version number across all surfaces.** The desktop bundle
+  (`tauri.conf.json`, `src-tauri/Cargo.toml`) and `CITATION.cff` now carry
+  the library version instead of an independent 0.1.0, so the Python
+  package, the browser page, the desktop executable, and the citation
+  metadata all report the same release.
 - Examples refreshed: the Cantor walkthrough no longer dates itself by
   internal version numbers and now includes the electronegativity
   descriptors; a new `02_oxides_walkthrough` notebook covers the oxide

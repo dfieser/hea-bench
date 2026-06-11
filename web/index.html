@@ -4850,20 +4850,26 @@ font-family: 'Source Sans Pro'
               <li><a href="#sec-ss">Solid-solution enthalpy</a></li>
               <li><a href="#sec-am">Amorphous-alloy enthalpy</a></li>
               <li><a href="#sec-prediction">Phase-selection criteria</a></li>
+              <li><a href="#sec-heo">High-entropy oxides &amp; sublattice entropy</a></li>
+              <li><a href="#sec-shannon">Oxidation states &amp; Shannon radii</a></li>
+              <li><a href="#sec-perovskite">Perovskite tolerance factors</a></li>
+              <li><a href="#sec-fluorite">Fluorite &amp; pyrochlore criteria</a></li>
               <li><a href="#sec-limits">Limitations and scope</a></li>
             </ol>
           </aside>
 
           <div class="docs-main">
           <p class="theory-eyebrow">Theoretical background</p>
-          <h2 class="theory-title" id="theory-title">Empirical thermodynamic descriptors for multi-component alloys</h2>
+          <h2 class="theory-title" id="theory-title">Empirical thermodynamic descriptors for multi-component alloys and oxides</h2>
           <p class="theory-lede">
             This reference derives every quantity the calculator produces &mdash; the configurational
             entropy <em>&Delta;S</em><sub>mix</sub>, atomic size mismatch <em>&delta;</em>, valence
             electron concentration VEC, the Miedema chemical mixing enthalpy <em>&Delta;H</em><sub>mix</sub>,
-            the Yang&ndash;Zhang stability parameter <em>&Omega;</em>, and Miedema-model formation
-            enthalpies for compounds, disordered solid solutions, and amorphous alloys. Each section
-            cites the primary literature.
+            the Yang&ndash;Zhang stability parameter <em>&Omega;</em>, Miedema-model formation
+            enthalpies for compounds, disordered solid solutions, and amorphous alloys, and, for
+            high-entropy oxides, the sublattice configurational entropy, the cation size-disorder
+            parameters, the Goldschmidt and Bartel tolerance factors, and the fluorite and
+            pyrochlore formability criteria. Each section cites the primary literature.
           </p>
 
           <h3 id="sec-intro"><span class="sec-num">01</span>High-entropy alloys and the role of empirical descriptors</h3>
@@ -5284,9 +5290,129 @@ font-family: 'Source Sans Pro'
               phase is favoured.</li>
           </ul>
 
-          <h3 id="sec-limits"><span class="sec-num">13</span>Limitations and scope</h3>
+          <h3 id="sec-heo"><span class="sec-num">13</span>High-entropy oxides and sublattice entropy</h3>
           <p>
-            All descriptors implemented here share three structural limitations worth keeping in
+            Rost, Sachet, Borman <em>et al.</em> (2015) showed that the five-cation rock salt
+            (Mg,Co,Ni,Cu,Zn)O is single-phase and entropy-stabilized: it transforms reversibly
+            between multiphase and single-phase states with temperature, which is direct evidence
+            that the configurational entropy term drives the stabilization. That result opened the
+            high-entropy concept to ionic compounds. The structural difference from alloys is that
+            an oxide crystal has distinct sublattices. Cations mix on one or more cation
+            sublattices while oxygen occupies its own, essentially ordered, anion sublattice, so
+            the single-lattice entropy formula of section 02 must be generalized to a sum over
+            sublattices:
+          </p>
+          <div class="display-eq">
+            \[\Delta S_{\mathrm{config}} = -R \sum_{k} a_k \sum_{i} x_{ik}\,\ln x_{ik}\]
+          </div>
+          <p>
+            where \(a_k\) is the number of sites of sublattice \(k\) per formula unit (one A and
+            one B site for ABO<sub>3</sub>, two of each for A<sub>2</sub>B<sub>2</sub>O<sub>7</sub>)
+            and \(x_{ik}\) is the site fraction of species \(i\) on sublattice \(k\). A sublattice
+            carrying a single species contributes zero, so the ordered oxygen sublattice drops out.
+            Anion disorder and oxygen vacancies are not modelled. The calculator reports the value
+            per mole of formula units and per cation site, and it classifies the composition on the
+            most-disordered sublattice, which is the HEO literature convention: a perovskite with
+            five equimolar B cations is a high-entropy oxide at \(1.61\,R\) on the B sublattice
+            even though the value per total cation site is half that. The thresholds are the usual
+            ones, high entropy at or above \(1.5\,R\) and medium entropy from \(1.36\,R\) to
+            \(1.5\,R\).
+          </p>
+
+          <h3 id="sec-shannon"><span class="sec-num">14</span>Oxidation states and Shannon ionic radii</h3>
+          <p>
+            Every geometric oxide descriptor depends on ionic radii, and an ionic radius is not a
+            single number per element. It depends on the oxidation state, the coordination number,
+            and for some 3d cations the spin state. The calculator uses the effective ionic radii
+            of Shannon (1976), on the scale fixed by \(r(\mathrm{O}^{2-},\mathrm{VI}) = 1.40\)&nbsp;&Aring;,
+            from a vendored 94-element digitization of the published tables.
+          </p>
+          <p>
+            Before any radius can be looked up, each cation needs an oxidation state. The
+            calculator assigns them by exact charge balance against the oxygen content,
+          </p>
+          <div class="display-eq">
+            \[\sum_{k} a_k \sum_{i} x_{ik}\,q_{ik} = 2\,n_{\mathrm O}\]
+          </div>
+          <p>
+            where \(q_{ik}\) is the assigned state and \(n_{\mathrm O}\) the number of oxygen atoms
+            per formula unit. The solver tries each element's common oxidation states first and
+            widens to the rarer literature-documented states only if no combination balances, with
+            a warning. When several combinations balance, it prefers chemically uniform
+            assignments, for example all trivalent cations on a pyrochlore A site rather than a
+            mixed-valence pair. Coordination numbers follow the structure family: six-fold in rock
+            salt, twelve-fold A and six-fold B in perovskite, eight-fold in fluorite, and
+            eight-fold A with six-fold B in pyrochlore. Where Shannon distinguishes spin states the
+            high-spin radius is the default, and when a radius is missing at the family's
+            coordination number the nearest tabulated coordination is used, again with a warning.
+            From these radii the cation size-disorder parameter of each sublattice is the ionic
+            analog of the alloy \(\delta\) (Manch&oacute;n-Gord&oacute;n <em>et al.</em>, 2025),
+            and the two-sublattice combination is
+            \(\delta r^{*} = \sqrt{\delta_A^2 + \delta_B^2}\).
+          </p>
+
+          <h3 id="sec-perovskite"><span class="sec-num">15</span>Perovskite tolerance factors</h3>
+          <p>
+            For an ABO<sub>3</sub> perovskite, Goldschmidt (1926) observed that the structure forms
+            when the A&ndash;O and B&ndash;O bond lengths are geometrically compatible, expressed
+            through the tolerance factor
+          </p>
+          <div class="display-eq">
+            \[t = \frac{r_A + r_{\mathrm O}}{\sqrt{2}\,(r_B + r_{\mathrm O})}\]
+          </div>
+          <p>
+            with cubic perovskites near \(t = 1\). The calculator applies the window
+            \(0.92 \leq t \leq 1.04\) compiled for high-entropy perovskites by
+            Manch&oacute;n-Gord&oacute;n <em>et al.</em> (2025); the classic textbook window is
+            0.9&ndash;1.0 and the bound is configurable. A second geometric condition is the
+            octahedral factor \(\mu = r_B / r_{\mathrm O}\), which must lie between 0.414 and 0.732
+            for a stable BO<sub>6</sub> octahedron. Bartel <em>et al.</em> (2019) constructed an
+            improved one-dimensional factor,
+          </p>
+          <div class="display-eq">
+            \[\tau = \frac{r_{\mathrm O}}{r_B} - n_A\!\left(n_A - \frac{r_A/r_B}{\ln(r_A/r_B)}\right)\]
+          </div>
+          <p>
+            with \(n_A\) the oxidation state of the A cation, predicting a perovskite when
+            \(\tau &lt; 4.18\) with about 91&nbsp;% reported accuracy over 576 experimentally
+            characterized ABX<sub>3</sub> compounds. It is defined for \(r_A &gt; r_B\). For
+            high-entropy perovskites the radii and \(n_A\) are composition-weighted sublattice
+            means. Jiang <em>et al.</em> (2018) found that the tolerance factor, not the size
+            mismatch, is what separates their single-phase high-entropy perovskites from the
+            multiphase ones, which is why these factors are the primary perovskite screen here.
+          </p>
+
+          <h3 id="sec-fluorite"><span class="sec-num">16</span>Fluorite and pyrochlore criteria</h3>
+          <p>
+            For fluorite-structured high-entropy oxides, Spiridigliozzi, Ferone, Cioffi &amp;
+            Dell'Agli (2021) found that a single descriptor separates their synthesis outcomes: the
+            sample standard deviation of the constituent cation radii, taken at eight-fold Shannon
+            coordination over the equimolar cation set,
+          </p>
+          <div class="display-eq">
+            \[\sigma = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n}\,(r_i - \bar r)^2}\]
+          </div>
+          <p>
+            with \(\sigma &gt; 0.095\)&nbsp;&Aring; predicting a single-phase, entropy-stabilized
+            fluorite and lower values giving bixbyite-type or mixed phases. The implementation here
+            reproduces the standard deviations published by the same group (Spiridigliozzi,
+            Bortolotti &amp; Dell'Agli, 2023) to every quoted digit, which pins the radius and
+            normalization conventions. The criterion was calibrated on equimolar five-cation
+            rare-earth-based oxides, so verdicts far outside that domain are extrapolations.
+          </p>
+          <p>
+            For A<sub>2</sub>B<sub>2</sub>O<sub>7</sub> pyrochlores the classic geometric screen is
+            the plain radius ratio of the two cation sites (Subramanian, Aravamudan &amp; Subba
+            Rao, 1983): a pyrochlore is expected for \(1.46 &lt; r_A/r_B &lt; 1.78\), a disordered
+            defect fluorite below the window, and no single cubic phase above it. As with the alloy
+            rules, all of these oxide criteria are weak empirical screens calibrated on small
+            historical datasets, and the calculator reports the value, the window, and the verdict
+            together so the margin is always visible.
+          </p>
+
+          <h3 id="sec-limits"><span class="sec-num">17</span>Limitations and scope</h3>
+          <p>
+            All descriptors implemented here share four structural limitations worth keeping in
             mind when reading the outputs.
           </p>
           <ol class="body-list">
@@ -5305,6 +5431,14 @@ font-family: 'Source Sans Pro'
               formation. The model performs best for transition-metal-rich alloys. It degrades
               for systems with lanthanides, actinides, or strongly covalent partners (de Boer
               <em>et al.</em>, 1988).</li>
+            <li><em>Small calibration sets for the oxide windows.</em> The oxide formability
+              windows are fitted to small historical synthesis datasets: the fluorite
+              \(\sigma\) threshold to equimolar five-cation rare-earth oxides, the
+              high-entropy-perovskite \(t\) window to a compilation of a few hundred reported
+              compositions, and the pyrochlore radius-ratio window to the classic
+              pyrochlore literature. They assume full cation mixing, the stated oxygen
+              stoichiometry, and equilibrium synthesis, and verdicts far from those domains
+              are extrapolations.</li>
           </ol>
           <p>
             For quantitative phase prediction, supplement these descriptors with a CALPHAD
@@ -5495,6 +5629,97 @@ font-family: 'Source Sans Pro'
                 \[\Delta H_{\mathrm{topo}} = \beta\!\left(c_A T_{m,A} + c_B T_{m,B}\right)\]
               </div>
               <p class="eq-vars">\(\beta \approx 3.5\;\mathrm{J\,mol^{-1}\,K^{-1}}\)</p>
+            </div>
+
+            <div class="eq-card">
+              <h3>Oxide sublattice entropy \(\Delta S_{\mathrm{config}}\)</h3>
+              <div class="eq-block">
+                \[\Delta S_{\mathrm{config}} = -R \sum_k a_k \sum_i x_{ik}\,\ln x_{ik}\]
+              </div>
+              <p class="eq-vars">
+                <span>\(a_k\) = sites of sublattice \(k\) per formula unit,</span>
+                <span>\(x_{ik}\) = site fraction on sublattice \(k\)</span><br>
+                Reported per formula unit and per cation site; the verdict uses the most-disordered sublattice
+              </p>
+            </div>
+
+            <div class="eq-card">
+              <h3>Oxide charge balance</h3>
+              <div class="eq-block">
+                \[\sum_k a_k \sum_i x_{ik}\,q_{ik} = 2\,n_{\mathrm O}\]
+              </div>
+              <p class="eq-vars">
+                <span>\(q_{ik}\) = assigned oxidation state,</span>
+                <span>\(n_{\mathrm O}\) = oxygen atoms per formula unit</span><br>
+                Common oxidation states are tried first, rarer documented states only with a warning
+              </p>
+            </div>
+
+            <div class="eq-card">
+              <h3>Cation size disorder \(\delta_r\)</h3>
+              <div class="eq-block">
+                \[\delta_r = 100\,\sqrt{\sum_i x_i \!\left(1 - \frac{r_i}{\bar r}\right)^{\!2}}\;\;(\%)\]
+              </div>
+              <div class="eq-block">
+                \[\delta r^{*} = \sqrt{\delta_A^2 + \delta_B^2}\]
+              </div>
+              <p class="eq-vars">
+                \(r_i\) = Shannon ionic radius at the sublattice's coordination number (Manch&oacute;n-Gord&oacute;n et al., 2025)
+              </p>
+            </div>
+
+            <div class="eq-card">
+              <h3>Goldschmidt tolerance factor \(t\)</h3>
+              <div class="eq-block">
+                \[t = \frac{r_A + r_{\mathrm O}}{\sqrt{2}\,(r_B + r_{\mathrm O})}\]
+              </div>
+              <p class="eq-vars">
+                <span>\(r_{\mathrm O} = 1.40\)&nbsp;&Aring; (Shannon O\(^{2-}\), CN VI),</span>
+                <span>high-entropy perovskite window \(0.92 \leq t \leq 1.04\)</span>
+              </p>
+            </div>
+
+            <div class="eq-card">
+              <h3>Octahedral factor \(\mu\)</h3>
+              <div class="eq-block">
+                \[\mu = \frac{r_B}{r_{\mathrm O}}\]
+              </div>
+              <p class="eq-vars">
+                Stable BO\(_6\) octahedron for \(0.414 &lt; \mu &lt; 0.732\)
+              </p>
+            </div>
+
+            <div class="eq-card">
+              <h3>Bartel tolerance factor \(\tau\)</h3>
+              <div class="eq-block">
+                \[\tau = \frac{r_{\mathrm O}}{r_B} - n_A\!\left(n_A - \frac{r_A/r_B}{\ln(r_A/r_B)}\right)\]
+              </div>
+              <p class="eq-vars">
+                <span>\(n_A\) = A-site oxidation state (composition-weighted mean),</span>
+                <span>perovskite predicted for \(\tau &lt; 4.18\), defined for \(r_A &gt; r_B\) (Bartel et al., 2019)</span>
+              </p>
+            </div>
+
+            <div class="eq-card">
+              <h3>Fluorite radius dispersion \(\sigma\)</h3>
+              <div class="eq-block">
+                \[\sigma = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(r_i - \bar r)^2}\]
+              </div>
+              <p class="eq-vars">
+                <span>\(r_i\) = eight-fold Shannon radii of the equimolar cation set,</span>
+                <span>single-phase fluorite for \(\sigma &gt; 0.095\)&nbsp;&Aring; (Spiridigliozzi et al., 2021)</span>
+              </p>
+            </div>
+
+            <div class="eq-card">
+              <h3>Pyrochlore radius ratio</h3>
+              <div class="eq-block">
+                \[\frac{r_A}{r_B}\,,\qquad 1.46 &lt; \frac{r_A}{r_B} &lt; 1.78\]
+              </div>
+              <p class="eq-vars">
+                <span>\(r_A\) at CN VIII, \(r_B\) at CN VI;</span>
+                <span>defect fluorite below the window, no single cubic phase above it (Subramanian et al., 1983)</span>
+              </p>
             </div>
 
             <div class="eq-empty" id="eq-empty" hidden>No equations match your filter.</div>
@@ -5886,6 +6111,10 @@ font-family: 'Source Sans Pro'
                 Bakker, H. (1998). <em>Enthalpies in alloys: Miedema&rsquo;s semi-empirical model</em> (Materials Science Foundations, Vol.&nbsp;1). Trans Tech Publications.
               </li>
               <li>
+                Bartel, C. J., Sutton, C., Goldsmith, B. R., Ouyang, R., Musgrave, C. B., Ghiringhelli, L. M., &amp; Scheffler, M. (2019). New tolerance factor to predict the stability of perovskite oxides and halides. <em>Science Advances</em>, 5(2), eaav0693.
+                <a href="https://doi.org/10.1126/sciadv.aav0693" target="_blank" rel="noopener noreferrer">https://doi.org/10.1126/sciadv.aav0693</a>
+              </li>
+              <li>
                 Cantor, B., Chang, I. T. H., Knight, P., &amp; Vincent, A. J. B. (2004). Microstructural development in equiatomic multicomponent alloys. <em>Materials Science and Engineering: A</em>, 375&ndash;377, 213&ndash;218.
                 <a href="https://doi.org/10.1016/j.msea.2003.10.257" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.msea.2003.10.257</a>
               </li>
@@ -5913,12 +6142,20 @@ font-family: 'Source Sans Pro'
                 <a href="https://doi.org/10.1080/00018735400101233" target="_blank" rel="noopener noreferrer">https://doi.org/10.1080/00018735400101233</a>
               </li>
               <li>
+                Goldschmidt, V. M. (1926). Die Gesetze der Krystallochemie. <em>Die Naturwissenschaften</em>, 14, 477&ndash;485.
+                <a href="https://doi.org/10.1007/BF01507527" target="_blank" rel="noopener noreferrer">https://doi.org/10.1007/BF01507527</a>
+              </li>
+              <li>
                 Guo, S., &amp; Liu, C. T. (2011). Phase stability in high entropy alloys: Formation of solid-solution phase or amorphous phase. <em>Progress in Natural Science: Materials International</em>, 21(6), 433&ndash;446.
                 <a href="https://doi.org/10.1016/S1002-0071(12)60080-X" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/S1002-0071(12)60080-X</a>
               </li>
               <li>
                 Hume-Rothery, W., &amp; Powell, H. M. (1934). On the theory of super-lattice structures in alloys. <em>Zeitschrift f&uuml;r Kristallographie</em>, 91(1&ndash;6), 23&ndash;47.
                 <a href="https://doi.org/10.1524/zkri.1935.91.1.23" target="_blank" rel="noopener noreferrer">https://doi.org/10.1524/zkri.1935.91.1.23</a>
+              </li>
+              <li>
+                Jiang, S., Hu, T., Gild, J., Zhou, N., Nie, J., Qin, M., Harrington, T., Vecchio, K., &amp; Luo, J. (2018). A new class of high-entropy perovskite oxides. <em>Scripta Materialia</em>, 142, 116&ndash;120.
+                <a href="https://doi.org/10.1016/j.scriptamat.2017.08.040" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.scriptamat.2017.08.040</a>
               </li>
               <li>
                 Kirklin, S., Saal, J. E., Meredig, B., Thompson, A., Doak, J. W., Aykol, M., R&uuml;hl, S., &amp; Wolverton, C. (2015). The Open Quantum Materials Database (OQMD): Assessing the accuracy of DFT formation energies. <em>npj Computational Materials</em>, 1(1), 15010.
@@ -5937,6 +6174,10 @@ font-family: 'Source Sans Pro'
                 <a href="https://doi.org/10.1016/j.actamat.2015.08.050" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.actamat.2015.08.050</a>
               </li>
               <li>
+                Manch&oacute;n-Gord&oacute;n, A. F., Panadero-Medianero, P., &amp; Bl&aacute;zquez, J. S. (2025). Descriptors for predicting single- and multi-phase formation in high-entropy oxides: A unified framework approach. <em>Materials</em>, 18(16), 3862.
+                <a href="https://doi.org/10.3390/ma18163862" target="_blank" rel="noopener noreferrer">https://doi.org/10.3390/ma18163862</a>
+              </li>
+              <li>
                 Miedema, A. R. (1973). The electronegativity parameter for transition metals: Heat of formation and charge transfer in alloys. <em>Journal of the Less-Common Metals</em>, 32(1), 117&ndash;136.
                 <a href="https://doi.org/10.1016/0022-5088(73)90078-7" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/0022-5088(73)90078-7</a>
               </li>
@@ -5953,12 +6194,32 @@ font-family: 'Source Sans Pro'
                 <a href="https://doi.org/10.1016/0364-5916(83)90030-5" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/0364-5916(83)90030-5</a>
               </li>
               <li>
+                Rost, C. M., Sachet, E., Borman, T., Moballegh, A., Dickey, E. C., Hou, D., Jones, J. L., Curtarolo, S., &amp; Maria, J.-P. (2015). Entropy-stabilized oxides. <em>Nature Communications</em>, 6, 8485.
+                <a href="https://doi.org/10.1038/ncomms9485" target="_blank" rel="noopener noreferrer">https://doi.org/10.1038/ncomms9485</a>
+              </li>
+              <li>
                 Senkov, O. N., &amp; Miracle, D. B. (2001). Effect of the atomic size distribution on glass forming ability of amorphous metallic alloys. <em>Materials Research Bulletin</em>, 36(12), 2183&ndash;2198.
                 <a href="https://doi.org/10.1016/S0025-5408(01)00715-2" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/S0025-5408(01)00715-2</a>
               </li>
               <li>
                 Senkov, O. N., Wilks, G. B., Miracle, D. B., Chuang, C. P., &amp; Liaw, P. K. (2010). Refractory high-entropy alloys. <em>Intermetallics</em>, 18(9), 1758&ndash;1765.
                 <a href="https://doi.org/10.1016/j.intermet.2010.05.014" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.intermet.2010.05.014</a>
+              </li>
+              <li>
+                Shannon, R. D. (1976). Revised effective ionic radii and systematic studies of interatomic distances in halides and chalcogenides. <em>Acta Crystallographica Section A</em>, 32, 751&ndash;767.
+                <a href="https://doi.org/10.1107/S0567739476001551" target="_blank" rel="noopener noreferrer">https://doi.org/10.1107/S0567739476001551</a>
+              </li>
+              <li>
+                Spiridigliozzi, L., Bortolotti, M., &amp; Dell&rsquo;Agli, G. (2023). On the effect of standard deviation of cationic radii on the transition temperature in fluorite-structured entropy-stabilized oxides (F-ESO). <em>Materials</em>, 16(6), 2219.
+                <a href="https://doi.org/10.3390/ma16062219" target="_blank" rel="noopener noreferrer">https://doi.org/10.3390/ma16062219</a>
+              </li>
+              <li>
+                Spiridigliozzi, L., Ferone, C., Cioffi, R., &amp; Dell&rsquo;Agli, G. (2021). A simple and effective predictor to design novel fluorite-structured high entropy oxides (HEOs). <em>Acta Materialia</em>, 202, 181&ndash;189.
+                <a href="https://doi.org/10.1016/j.actamat.2020.10.061" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.actamat.2020.10.061</a>
+              </li>
+              <li>
+                Subramanian, M. A., Aravamudan, G., &amp; Subba Rao, G. V. (1983). Oxide pyrochlores &mdash; A review. <em>Progress in Solid State Chemistry</em>, 15(2), 55&ndash;143.
+                <a href="https://doi.org/10.1016/0079-6786(83)90001-8" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/0079-6786(83)90001-8</a>
               </li>
               <li>
                 Takeuchi, A., &amp; Inoue, A. (2005). Classification of bulk metallic glasses by atomic size difference, heat of mixing and period of constituent elements and its application to characterization of the main alloying element. <em>Materials Transactions</em>, 46(12), 2817&ndash;2829.
