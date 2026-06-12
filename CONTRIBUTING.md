@@ -45,8 +45,8 @@ Write so a reader understands the document on the **first read**, in
 place. This is a hard rule, not a preference — readability has been a
 recurring problem.
 
-Calibrate to the audience: **a reader of the target journal**
-(SoftwareX). Terms such a reader would naturally already know (FCC, BCC,
+Calibrate to the audience: **a reader of a materials-informatics
+journal**. Terms such a reader would naturally already know (FCC, BCC,
 HCP, alloy, phase, entropy, enthalpy, melting temperature, and the like)
 need no explanation — do not over-explain them. Everything beyond that
 shared background — above all **jargon specific to this project**: its

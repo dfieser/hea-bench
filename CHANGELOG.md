@@ -205,7 +205,7 @@ The format is loosely based on
 ## [Unreleased] — V2: descriptor-calculator repackaging
 
 Refocused the project from a phase-prediction *benchmark* to an open,
-interpretable **descriptor calculator** (the SoftwareX direction). The
+interpretable **descriptor calculator** (the research-software direction). The
 calculation core is unchanged; the Python↔JS parity test still passes.
 
 ### Added
