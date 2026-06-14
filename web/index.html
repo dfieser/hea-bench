@@ -4793,7 +4793,7 @@ font-family: 'Source Sans Pro'
     <script>
       // A deep link (#theory, #refs, #equations, #sec-...) opens the calculator
       // immediately; a bare URL or #home shows the landing page first.
-      if (location.hash && location.hash !== '#home' && location.hash !== '#top') {
+      if (location.hash && location.hash !== '#home' && location.hash !== '#top' && location.hash !== '#legal') {
         document.body.classList.add('show-app');
       }
     </script>
@@ -4893,6 +4893,7 @@ font-family: 'Source Sans Pro'
           <nav class="topbar__links" aria-label="Project links">
             <a href="#calculator">Calculator</a>
             <a href="#theory">Theory</a>
+            <a href="#legal">Legal &amp; accessibility</a>
             <a href="https://github.com/dfieser/hea-bench">GitHub</a>
             <a href="https://doi.org/10.5281/zenodo.20346287">Zenodo</a>
           </nav>
@@ -5054,7 +5055,7 @@ font-family: 'Source Sans Pro'
         </div>
       </section>
 
-      <footer>
+      <footer id="legal">
         <div class="wrap footer__inner">
           <div class="footer__cols">
             <div class="footer__col">
@@ -5098,12 +5099,12 @@ font-family: 'Source Sans Pro'
       (function () {
         function landingHash() {
           var h = window.location.hash;
-          return h === '' || h === '#home' || h === '#top';
+          return h === '' || h === '#home' || h === '#top' || h === '#legal';
         }
         function sync() {
           if (landingHash()) {
             document.body.classList.remove('show-app');
-            window.scrollTo(0, 0);
+            if (window.location.hash !== '#legal') window.scrollTo(0, 0);
           } else {
             document.body.classList.add('show-app');
           }
