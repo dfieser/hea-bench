@@ -1,5 +1,7 @@
 # hea-bench
 
+<!-- mcp-name: io.github.dfieser/hea-bench -->
+
 Open, interpretable tools for computing the standard **high-entropy-alloy
 (HEA) and high-entropy-oxide (HEO) thermodynamic and geometric
 descriptors** and the classic empirical **phase-prediction rules** — from
