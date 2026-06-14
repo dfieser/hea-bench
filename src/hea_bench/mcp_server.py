@@ -24,6 +24,7 @@ or register it with an MCP client (Claude Desktop, Cursor, ...)::
 
 from __future__ import annotations
 
+import math
 from itertools import combinations
 
 import hea_bench as hb
@@ -93,6 +94,23 @@ def _stamp(payload: dict) -> dict:
     return payload
 
 
+def _finite(value):
+    """Return ``value`` unless it is a non-finite float, then ``None``.
+
+    JSON has no representation for infinity or NaN, and emitting a bare
+    ``Infinity`` token (which ``json.dumps`` does by default) produces
+    output that strict MCP clients reject. The King Phi proxy is the one
+    descriptor that legitimately diverges: when no binary intermetallic
+    competes with the solid solution (every pair enthalpy is
+    non-negative, e.g. HfNbTaTiZr) its denominator is zero and the value
+    is ``+inf``. The verdict is unaffected, so we null the magnitude and
+    flag it rather than break the response.
+    """
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
+    return value
+
+
 def _parse(formula: str) -> dict[str, float]:
     """Parse and normalize a composition string, with a structured error."""
     try:
@@ -143,7 +161,13 @@ def alloy_descriptors(compositions: list[str], king_temperature: float | None = 
                 descriptors[name] = {"value": None, "unit": unit, "source": source}
                 warnings.append(f"{name}: not computable for {formula!r} ({exc})")
                 continue
-            descriptors[name] = {"value": value, "unit": unit, "source": source}
+            safe = _finite(value)
+            descriptors[name] = {"value": safe, "unit": unit, "source": source}
+            if safe is None and value is not None:
+                warnings.append(
+                    f"{name}: value is unbounded for {formula!r} "
+                    f"(no competing intermetallic); the verdict is unaffected"
+                )
         results.append(
             {"input": formula, "composition": comp, "descriptors": descriptors, "warnings": warnings}
         )
@@ -166,12 +190,19 @@ def alloy_rules(compositions: list[str], king_temperature: float | None = None) 
 
         def apply(name, module, value_func, threshold, source, **kw):
             try:
+                raw = value_func(comp) if value_func else None
+                value = _finite(raw)
                 rules[name] = {
                     "verdict": module.predict(comp, **kw),
-                    "value": value_func(comp) if value_func else None,
+                    "value": value,
                     "threshold": threshold,
                     "source": source,
                 }
+                if value is None and raw is not None:
+                    warnings.append(
+                        f"{name}: value is unbounded for {formula!r} "
+                        f"(no competing intermetallic); the verdict is unaffected"
+                    )
             except Exception as exc:
                 rules[name] = {"verdict": None, "value": None, "threshold": threshold, "source": source}
                 warnings.append(f"{name}: not computable for {formula!r} ({exc})")

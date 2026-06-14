@@ -1,6 +1,6 @@
 [package]
 name = "hea-bench"
-version = "1.8.0"
+version = "2.0.0"
 description = "HEA-Bench — offline calculator of high-entropy-alloy and high-entropy-oxide thermodynamic descriptors and empirical phase-prediction rules"
 authors = ["David Fieser <dfieser9@gmail.com>"]
 license = "MIT"

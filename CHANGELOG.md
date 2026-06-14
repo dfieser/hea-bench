@@ -8,6 +8,34 @@ DOI for the archived snapshot.
 The format is loosely based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.0.0] — 2026-06-12 — first full public release
+
+First full public release. Consolidates the alloy and oxide descriptors,
+the six empirical rules, the four delivery surfaces (Python library and
+command line, zero-install browser app, offline desktop app, and the
+`hea-bench-mcp` agent server), the dual-implementation parity lock, and
+the literature anchors into one citable version. No API breaks relative
+to 1.8.0; the major bump marks the v1-to-v2 line and the first archived
+public release of the full feature set.
+
+### Fixed
+
+- **MCP server emitted invalid JSON when King Phi diverges.** For a
+  composition with no competing binary intermetallic (every Miedema pair
+  enthalpy non-negative, e.g. the refractory HEA HfNbTaTiZr) the King Phi
+  proxy is `+inf`, and `alloy_rules` / `alloy_descriptors` serialized it
+  as the bare `Infinity` token, which strict MCP clients reject. The
+  magnitude is now reported as `null` with a warning, and the verdict
+  (which does not depend on the finite magnitude) is unchanged. The
+  Python `phi_king` API still returns `math.inf`; only the JSON boundary
+  is sanitized (`tests/test_mcp_server.py`).
+
+### Added
+
+- **Yang-Zhang (2012) Table 1 literature anchors** pinned as regression
+  tests (`tests/test_yang_zhang_anchors.py`): the Miedema mixing
+  enthalpies reproduce the published values to their printed precision.
+
 ## [1.8.0] — 2026-06-11 — agent surface (MCP server)
 
 ### Added
@@ -17,8 +45,8 @@ The format is loosely based on
   LLM agents as seven deterministic tools: `parse_composition`,
   `alloy_descriptors` and `alloy_rules` (batch over composition lists),
   `omega_sensitivity` (per-pair Miedema contributions and the Omega range
-  under a pair-table perturbation, pinned against the paper's
-  Co20Cu20Fe5Mn35Ni20 numbers), `oxide_report` (all four families),
+  under a pair-table perturbation, pinned against the near-ideal alloy
+  Co20Cu20Fe5Mn35Ni20), `oxide_report` (all four families),
   `element_coverage`, and `about`. Every response carries units, the
   citation key of each parametrization, and the library version, so agent
   reasoning traces contain auditable receipts rather than bare floats.

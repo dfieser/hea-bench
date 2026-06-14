@@ -44,8 +44,8 @@ Handbook (Haynes 2016). Cerium's valence is taken as 3 (gamma-phase,
 ambient conditions) following Koskenmaki & Gschneidner (1978);
 it shifts to 4 only under high pressure or low temperature (alpha-Ce).
 These seven elements cover the dominant contributors to the unscorable
-residue identified in figure 2 of the companion manuscript (excluding
-B, C, and N, which cannot be added; see below).
+residue in the surveyed HEA compositions (excluding B, C, and N, which
+cannot be added; see below).
 
 B and C are deliberately **not** added. Boron is a metalloid with no
 metallic radius (covalent only), and carbon has no melting point at

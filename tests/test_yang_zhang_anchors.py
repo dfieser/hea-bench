@@ -2,9 +2,8 @@
 
 Pins the engine against the published per-alloy descriptor values of
 Yang & Zhang, Mater. Chem. Phys. 132, 233 (2012), Table 1 — the paper
-that defines Ω. These are the manuscript's alloy-side anchor rows
-(Table "Yang–Zhang reference alloys"), so a change that moves any of
-them must fail the build.
+that defines Ω. These are the alloy-side literature anchors, so a change
+that moves any of them must fail the build.
 
 Tolerances are quantity-specific and reflect convention boundaries,
 not slack:

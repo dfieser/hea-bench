@@ -2,8 +2,9 @@
 
 The tool bodies are plain functions, so these tests run without the
 optional ``mcp`` package installed. Values are pinned against the same
-literature anchors as the rest of the suite, including the manuscript's
-Omega-sensitivity numbers for Co20Cu20Fe5Mn35Ni20.
+literature anchors as the rest of the suite, including the
+Omega-sensitivity numbers for the near-ideal alloy
+Co20Cu20Fe5Mn35Ni20.
 """
 
 import math
@@ -81,6 +82,25 @@ def test_alloy_rules_cantor_verdicts():
     assert rules["zhang_delta"]["value"] == pytest.approx(3.164, abs=1e-3)
 
 
+def test_alloy_rules_unbounded_phi_is_json_safe():
+    """HfNbTaTiZr has no competing binary intermetallic (every pair
+    enthalpy >= 0), so King Phi diverges to +inf. The tool must null the
+    magnitude, warn, keep the verdict, and emit valid JSON (no Infinity
+    token, which strict MCP clients reject)."""
+    import json
+
+    out = alloy_rules(["HfNbTaTiZr"])
+    phi = out["results"][0]["rules"]["king_phi"]
+    assert phi["value"] is None
+    assert phi["verdict"] == "solid_solution"
+    warnings = out["results"][0]["warnings"]
+    assert any("king_phi" in w and "unbounded" in w for w in warnings)
+    # the raw descriptor genuinely diverges; the tool only sanitizes output
+    assert math.isinf(hb.phi_king({"Hf": 0.2, "Nb": 0.2, "Ta": 0.2, "Ti": 0.2, "Zr": 0.2}))
+    # strict serialization must succeed
+    json.dumps(out, allow_nan=False)
+
+
 def test_omega_sensitivity_matches_manuscript_numbers():
     out = omega_sensitivity(NEAR_IDEAL, perturbation_kj_mol=2.0)
     assert out["dominant_element"] == "Mn"
@@ -92,7 +112,7 @@ def test_omega_sensitivity_matches_manuscript_numbers():
     assert endpoints[0] == pytest.approx(8.39, abs=0.05)
     assert endpoints[1] == pytest.approx(15.11, abs=0.05)
     assert out["diverges_within_range"] is True
-    # the Mn-Ni pair dominates, exactly as in the manuscript's Fig. 6
+    # the Mn-Ni pair dominates the mixing enthalpy
     biggest = out["pair_contributions"][0]
     assert biggest["pair"] == "Mn-Ni"
     assert biggest["contribution_kj_mol"] == pytest.approx(-2.24, abs=0.01)

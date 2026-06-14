@@ -40,13 +40,15 @@ keywords:
   - alloy design
 license: MIT
 repository-code: 'https://github.com/dfieser/hea-bench'
-version: 1.8.0
-date-released: '2026-06-11'
+version: 2.0.0
+date-released: '2026-06-12'
 doi: 10.5281/zenodo.20346287
 identifiers:
   - type: doi
     value: 10.5281/zenodo.20346287
     description: Concept DOI (resolves to the latest archived version of hea-bench)
+  # After the v2.0.0 GitHub release is archived, paste the version DOI that
+  # Zenodo mints for it here (it differs from the v0.1.0 one, 20346288).
   - type: doi
     value: 10.5281/zenodo.20346288
     description: Version DOI of the initial v0.1.0 release
