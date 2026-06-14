@@ -121,7 +121,7 @@ the Python library in CI (`tests/test_web_parity.py` and
 
 ```bibtex
 @software{hea_bench_2_0_0,
-  author  = {Fieser, David and Hu, Anming},
+  author  = {Fieser, David and Dewanjee, Unmanaa and Hu, Anming},
   title   = {hea-bench: An open calculator of high-entropy-alloy and high-entropy-oxide thermodynamic descriptors and empirical phase-prediction rules},
   version = {2.0.0},
   license = {MIT},
