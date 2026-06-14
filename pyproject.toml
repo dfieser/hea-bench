@@ -61,6 +61,21 @@ Repository = "https://github.com/dfieser/hea-bench"
 Issues = "https://github.com/dfieser/hea-bench/issues"
 Archive = "https://doi.org/10.5281/zenodo.20346287"
 
+# The sdist must not sweep in the Tauri Rust build cache
+# (src-tauri/target, hundreds of MB) or the vendored web/mathjax assets.
+# Restrict it to the Python package and its data, the tests, and the
+# project metadata. pyproject.toml is always included by hatchling.
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/hea_bench",
+    "tests",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CITATION.cff",
+    "llms.txt",
+]
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/hea_bench"]
 
