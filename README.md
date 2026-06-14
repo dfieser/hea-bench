@@ -51,8 +51,8 @@ table covers 94.
 | Surface | Where | Status |
 |---|---|---|
 | **Python library + CLI** | `pip install hea-bench` | done, tested |
-| **Zero-install browser app** | <https://dfieser.github.io/hea-bench/> · `web/calculator.html` | done, Python-parity-tested |
-| **Native desktop app** | one offline `.exe` (Tauri wrapper of the browser app), installers on the [Releases page](https://github.com/dfieser/hea-bench/releases) | done, built from the same parity-tested core |
+| **Zero-install browser app** | <https://dfieser.github.io/hea-bench/> · `web/index.html` | done, Python-parity-tested |
+| **Native desktop app** | one offline `.exe`, [direct installer download](https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench-Setup-x64.exe) (Tauri wrapper of the same page) | done, built from the same parity-tested core |
 | **MCP server for AI agents** | `pip install "hea-bench[mcp]"`, then `hea-bench-mcp` | done, seven tools over the same core |
 
 The three surfaces share **one calculation core**. The browser/desktop
@@ -154,15 +154,15 @@ A self-contained HTML calculator computes every descriptor, applies all
 six rules, runs the Miedema decompositions, and covers the oxide mode,
 entirely client-side. Two equivalent paths:
 
-- Open the hosted site: **<https://dfieser.github.io/hea-bench/>** and
-  press "Open the calculator".
-- Or clone the repo and open `web/calculator.html` — no install, no
+- Open the hosted site: **<https://dfieser.github.io/hea-bench/>**. The
+  page is the calculator.
+- Or clone the repo and open `web/index.html` — no install, no
   terminal, no server.
 
 The calculator ships its own documentation: a **Theory** view deriving
 every alloy and oxide formula with citations, a grouped, filterable
 **Equations** reference, and a grouped **References** bibliography.
-Deep links open a view directly (`calculator.html#theory`,
+Deep links open a view directly (`index.html#theory`,
 `#equations`, `#refs`). The parity-critical math lives in
 `web/hea-calculator-core.js` and is regression-checked against Python
 by the two parity test suites.
@@ -203,7 +203,7 @@ pip install -e ".[dev]"
 python -m pytest tests/ -q          # includes the Python↔JS parity test (needs Node)
 ```
 
-The HTML calculator (`web/calculator.html` over
+The HTML calculator (`web/index.html` over
 `web/hea-calculator-core.js`) is an independent JavaScript
 implementation of the same descriptors and rules. When you modify the
 Python descriptor code, update the JS core to match and re-run

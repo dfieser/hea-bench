@@ -1,4 +1,4 @@
-# web/ — landing page + self-contained browser calculator
+# web/ — self-contained browser calculator
 
 The browser surface of `hea-bench`. It runs entirely client-side. No
 server, no install, no Python runtime in the browser.
@@ -12,11 +12,11 @@ folder is the site root of <https://dfieser.github.io/hea-bench/>.
 
 Three equivalent paths:
 
-- **Online:** open <https://dfieser.github.io/hea-bench/> and press
-  "Open the calculator".
-- **Offline / from a local copy:** double-click `calculator.html` (or
-  `index.html` for the landing page). It opens in your browser and runs
-  immediately. Everything it needs is in this folder.
+- **Online:** open <https://dfieser.github.io/hea-bench/>. The page is
+  the calculator.
+- **Offline / from a local copy:** double-click `index.html`. It opens
+  in your browser and runs immediately. Everything it needs is in this
+  folder.
 - **Desktop app:** build the Tauri wrapper in `../src-tauri/` for a
   single offline executable (see the repo `README.md`).
 
@@ -51,16 +51,15 @@ The calculator also ships its own documentation: a **Theory** view that
 derives every alloy and oxide formula with citations, a grouped,
 filterable **Equations** reference, and a grouped **References**
 bibliography. Deep links open a view directly:
-`calculator.html#theory`, `#equations`, `#refs`, or any theory section
-id such as `calculator.html#sec-perovskite`.
+`index.html#theory`, `#equations`, `#refs`, or any theory section
+id such as `index.html#sec-perovskite`.
 
 ## What's here
 
-- `index.html` — the landing page (project overview, the three
-  surfaces, citation block). This is what the hosted site root serves.
-- `calculator.html` — the calculator app itself (title-bar tabs,
-  two-pane workspace, Theory/Equations/References views) plus the
-  page-side Miedema formation-enthalpy decomposition logic.
+- `index.html` — the calculator app: title-bar tabs, the two-pane
+  workspace, the Theory/Equations/References views, and the page-side
+  Miedema formation-enthalpy decomposition logic. This single file is
+  what the hosted site root serves and what the desktop app loads.
 - `hea-calculator-core.js` — the shared calculation core for the
   parity-critical descriptor and rule outputs. `Hmix` / `Omega` are
   computed from the single vendored pair-enthalpy table, identical to
@@ -95,6 +94,6 @@ fixtures) and `tests/test_web_oxides_parity.py` (oxides, including
 exact warning strings). Both execute the shared JS core under Node and
 compare against the matching Python APIs.
 
-For page-only UI work, edit `calculator.html` (or `index.html` for the
-landing page). The calculator stays fully offline, and the numerical
-drift risk is guarded by the automated Python-vs-JS parity tests.
+For page-only UI work, edit `index.html`. The calculator stays fully
+offline, and the numerical drift risk is guarded by the automated
+Python-vs-JS parity tests.

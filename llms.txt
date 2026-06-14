@@ -93,13 +93,13 @@ omega_sensitivity, oxide_report, element_coverage, about) with units,
 citation keys, and the library version stamped into every response.
 Agents should call these instead of reimplementing formulas.
 
-A self-contained HTML calculator (`web/calculator.html`) computes the
+A self-contained HTML calculator (`web/index.html`) computes the
 same descriptors and rules in client-side JavaScript with no install,
 and additionally shows the Miedema formation-enthalpy decompositions.
-Hosted at <https://dfieser.github.io/hea-bench/> (landing page; the
-calculator is one click in, or link `calculator.html#theory`,
-`#equations`, `#refs` directly); also wrapped as a single offline
-desktop executable via Tauri. The JS core is regression-checked against
+Hosted at <https://dfieser.github.io/hea-bench/> (the page is the
+calculator; link `index.html#theory`, `#equations`, `#refs` directly);
+also wrapped as a single offline desktop executable via Tauri that loads
+the same page. The JS core is regression-checked against
 the Python library in CI (`tests/test_web_parity.py` and
 `tests/test_web_oxides_parity.py`).
 

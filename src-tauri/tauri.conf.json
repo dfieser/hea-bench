@@ -10,7 +10,7 @@
     "windows": [
       {
         "title": "HEA-Bench",
-        "url": "calculator.html",
+        "url": "index.html",
         "width": 1100,
         "height": 820,
         "minWidth": 640,

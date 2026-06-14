@@ -7,7 +7,7 @@ modules consume:
 |---|---|---|---|
 | `elemental.py` | Curated by hand from the legacy `validate_rules.py` (Pauling-style atomic radii, CRC melting points, standard valence-electron counts) | hea-bench's own (MIT) | importable Python dict |
 | `pair_enthalpies.tsv` | Vendored from [matminer](https://github.com/hackingmaterials/matminer)'s `MiedemaLiquidDeltaHf.tsv` | BSD-3-Clause | `pair_enthalpies.py` |
-| `miedema_parameters.csv` | Vendored from matminer's `Miedema.csv` (per-element Miedema parameters: φ\*, n_ws, V_m, valence, bulk modulus, shear modulus, T_m, structural stability) | BSD-3-Clause | source of the calculator page's Miedema decomposition tables (`MIEDEMA_PARAMS`, `ELEMENT_EXTENDED` in `web/calculator.html`); no Python loader yet |
+| `miedema_parameters.csv` | Vendored from matminer's `Miedema.csv` (per-element Miedema parameters: φ\*, n_ws, V_m, valence, bulk modulus, shear modulus, T_m, structural stability) | BSD-3-Clause | source of the calculator page's Miedema decomposition tables (`MIEDEMA_PARAMS`, `ELEMENT_EXTENDED` in `web/index.html`); no Python loader yet |
 | `LICENSE.matminer.txt` | matminer's full BSD-3-Clause license | — | — |
 
 ## What's in `pair_enthalpies.tsv`
