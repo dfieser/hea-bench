@@ -144,7 +144,7 @@
   }
   .block .block__sub { font-size: 15px; color: var(--text-muted); margin: 0 0 26px; max-width: 68ch; }
 
-  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
   @media (max-width: 760px) { .cards { grid-template-columns: 1fr; } }
   .card {
     background: var(--surface); border: 1px solid var(--border);
@@ -227,7 +227,7 @@
       HEA-Bench is an open, <strong>parity-tested</strong> calculator of the thermodynamic and
       geometric descriptors used to screen high-entropy alloys and high-entropy oxides, together
       with the canonical empirical phase-prediction rules. Every number is a transparent
-      closed-form expression over curated, literature-cited data tables. No fitted model, no
+      closed-form expression over curated, literature-cited data tables. No trained model, no
       black box, no server.
     </p>
     <div class="hero__actions">
@@ -250,11 +250,12 @@
 
 <section class="block">
   <div class="wrap">
-    <h2>One calculation core, three ways to run it</h2>
+    <h2>One calculation core, four ways to run it</h2>
     <p class="block__sub">
       The Python library is the reference implementation. The browser and desktop apps run an
       independent JavaScript port that an automated parity suite keeps identical to Python,
-      down to the warning messages, so all three surfaces give the same answer.
+      down to the warning messages, and an agent server exposes the same calculator to AI
+      tools over the Model Context Protocol. Every surface gives the same answer.
     </p>
     <div class="cards">
       <div class="card">
@@ -274,6 +275,13 @@
         <p>A single offline executable (about 14&nbsp;MB) for laboratory machines without
            internet access, with optional MSI and NSIS installers for Windows.</p>
         <a class="card__go" href="https://github.com/dfieser/hea-bench/releases">Download →</a>
+      </div>
+      <div class="card">
+        <h3>Agent (MCP) server</h3>
+        <p>Exposes the calculator to LLM agents as deterministic tool calls over the Model
+           Context Protocol. <code>pip install "hea-bench[mcp]"</code>, then run
+           <code>hea-bench-mcp</code>. Every value carries its unit, citation key, and version.</p>
+        <a class="card__go" href="https://github.com/dfieser/hea-bench/blob/main/AGENTS.md">Set it up →</a>
       </div>
     </div>
   </div>
@@ -355,7 +363,7 @@
     <div class="cite">
       <p>If HEA-Bench is useful in your work, please cite the archived software record:</p>
       <p class="cite__entry">
-        Fieser, D., &amp; Hu, A. hea-bench: An open calculator of high-entropy-alloy and
+        Fieser, D., Dewanjee, U., &amp; Hu, A. hea-bench: An open calculator of high-entropy-alloy and
         high-entropy-oxide thermodynamic descriptors and empirical phase-prediction rules.
         Zenodo. <span class="cite__doi"><a href="https://doi.org/10.5281/zenodo.20346287">doi:10.5281/zenodo.20346287</a></span>
       </p>
