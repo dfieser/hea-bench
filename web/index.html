@@ -4790,9 +4790,300 @@ font-family: 'Source Sans Pro'
   }
   </style></head>
   <body>
+    <script>
+      // A deep link (#theory, #refs, #equations, #sec-...) opens the calculator
+      // immediately; a bare URL or #home shows the landing page first.
+      if (location.hash && location.hash !== '#home' && location.hash !== '#top') {
+        document.body.classList.add('show-app');
+      }
+    </script>
+    <style id="landing-styles">
+      #landing {
+        position: fixed; inset: 0; z-index: 9000; overflow-y: auto;
+        --bg:#faf8f3; --surface:#ffffff; --surface-muted:#f3f1ea; --surface-subtle:#f7f5ee;
+        --text:#1b1b18; --text-strong:#000000; --text-muted:#5a5a52; --text-muted-2:#8a8880;
+        --border:#d9d6cc; --border-2:#c5c2b6; --rule:#1b1b18; --accent:#8b3a2f; --accent-2:#5e2a23;
+        --serif:"Charter","Iowan Old Style","Sitka Text","Cambria","Source Serif Pro","Hoefler Text",Georgia,serif;
+        --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+        --mono:"JetBrains Mono","SF Mono",Menlo,Consolas,monospace;
+        background: var(--bg); color: var(--text); font-family: var(--sans);
+        line-height: 1.55; -webkit-font-smoothing: antialiased;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) #landing {
+          --bg:#14140f; --surface:#1c1c17; --surface-muted:#24241f; --surface-subtle:#1a1a16;
+          --text:#e6e3da; --text-strong:#ffffff; --text-muted:#a09d92; --text-muted-2:#75726a;
+          --border:#33322c; --border-2:#4a4842; --rule:#75726a; --accent:#d97757; --accent-2:#b85a3d;
+        }
+      }
+      :root[data-theme="dark"] #landing {
+        --bg:#14140f; --surface:#1c1c17; --surface-muted:#24241f; --surface-subtle:#1a1a16;
+        --text:#e6e3da; --text-strong:#ffffff; --text-muted:#a09d92; --text-muted-2:#75726a;
+        --border:#33322c; --border-2:#4a4842; --rule:#75726a; --accent:#d97757; --accent-2:#b85a3d;
+      }
+      body.show-app #landing { display: none; }
+      #landing * { box-sizing: border-box; }
+      #landing a { color: var(--accent); text-decoration: none; }
+      #landing a:hover { text-decoration: underline; }
+      #landing .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+      #landing .topbar { border-bottom: 1px solid var(--border); background: var(--surface); }
+      #landing .topbar__inner { display: flex; align-items: center; gap: 14px; padding: 12px 0; }
+      #landing .topbar__logo { color: var(--accent); font-size: 18px; line-height: 1; }
+      #landing .topbar__name { font-family: var(--serif); font-weight: 700; font-size: 17px; color: var(--text-strong); letter-spacing: 0.01em; }
+      #landing .topbar__links { margin-left: auto; display: flex; gap: 18px; font-size: 13.5px; }
+      #landing .topbar__links a { color: var(--text-muted); }
+      #landing .topbar__links a:hover { color: var(--accent); text-decoration: none; }
+      #landing .hero { padding: 64px 0 40px; }
+      #landing .hero__kicker { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+      #landing .hero h1 { font-family: var(--serif); font-size: clamp(30px, 5vw, 44px); line-height: 1.12; margin: 0 0 18px; color: var(--text-strong); font-weight: 700; max-width: 21ch; }
+      #landing .hero__lede { font-size: 17px; color: var(--text-muted); max-width: 62ch; margin: 0 0 28px; }
+      #landing .hero__lede strong { color: var(--text); font-weight: 600; }
+      #landing .hero__actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+      #landing .btn { display: inline-block; padding: 11px 22px; border-radius: 3px; font-size: 15px; font-weight: 600; border: 1px solid transparent; cursor: pointer; }
+      #landing .btn--primary { background: var(--accent); color: #fff; }
+      #landing .btn--primary:hover { background: var(--accent-2); color: #fff; text-decoration: none; }
+      #landing .btn--ghost { border-color: var(--border-2); color: var(--text); background: var(--surface); }
+      #landing .btn--ghost:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+      #landing .hero__hint { font-size: 13px; color: var(--text-muted-2); margin-top: 14px; }
+      #landing .hero__hint code { font-family: var(--mono); font-size: 12.5px; background: var(--surface-muted); border: 1px solid var(--border); border-radius: 2px; padding: 1.5px 6px; }
+      #landing .strip { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface-subtle); }
+      #landing .strip__inner { display: flex; flex-wrap: wrap; gap: 8px 36px; padding: 14px 0; font-size: 13px; color: var(--text-muted); }
+      #landing .strip__inner b { color: var(--text-strong); font-weight: 700; }
+      #landing section.block { padding: 48px 0 8px; }
+      #landing .block h2 { font-family: var(--serif); font-size: 26px; color: var(--text-strong); margin: 0 0 8px; font-weight: 700; }
+      #landing .block .block__sub { font-size: 15px; color: var(--text-muted); margin: 0 0 26px; max-width: 68ch; }
+      #landing .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+      @media (max-width: 760px) { #landing .cards { grid-template-columns: 1fr; } }
+      #landing .card { background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 20px 20px 18px; display: flex; flex-direction: column; }
+      #landing .card h3 { margin: 0 0 6px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
+      #landing .card p { margin: 0 0 14px; font-size: 13.5px; color: var(--text-muted); flex: 1; }
+      #landing .card .card__go { font-size: 13.5px; font-weight: 600; }
+      #landing .card code { font-family: var(--mono); font-size: 12.5px; background: var(--surface-muted); border: 1px solid var(--border); border-radius: 2px; padding: 1.5px 6px; }
+      #landing .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      @media (max-width: 760px) { #landing .twocol { grid-template-columns: 1fr; } }
+      #landing .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 20px; }
+      #landing .panel h3 { margin: 0 0 10px; font-size: 15px; color: var(--text-strong); }
+      #landing .panel ul { margin: 0; padding-left: 18px; font-size: 13.5px; color: var(--text-muted); }
+      #landing .panel li { margin: 4px 0; }
+      #landing .panel li b { color: var(--text); font-weight: 600; }
+      #landing .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+      @media (max-width: 760px) { #landing .pillars { grid-template-columns: 1fr; } }
+      #landing .pillar { border-left: 3px solid var(--accent); padding: 2px 0 2px 16px; }
+      #landing .pillar h3 { margin: 0 0 6px; font-size: 15px; color: var(--text-strong); }
+      #landing .pillar p { margin: 0; font-size: 13.5px; color: var(--text-muted); }
+      #landing .cite { background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 20px 22px; font-size: 14px; }
+      #landing .cite p { margin: 0 0 10px; }
+      #landing .cite .cite__entry { font-family: var(--serif); font-size: 14.5px; color: var(--text); border-left: 3px solid var(--border-2); padding-left: 14px; margin: 12px 0; }
+      #landing .cite .cite__doi { font-family: var(--mono); font-size: 12.5px; }
+      #landing footer { margin-top: 56px; border-top: 1px solid var(--border); background: var(--surface); }
+      #landing .footer__inner { padding: 22px 0 30px; font-size: 12.5px; color: var(--text-muted-2); display: flex; flex-wrap: wrap; gap: 6px 28px; }
+      #landing .footer__inner a { color: var(--text-muted); }
+    </style>
+    <div id="landing">
+      <header class="topbar">
+        <div class="wrap topbar__inner">
+          <span class="topbar__logo" aria-hidden="true">⬢</span>
+          <span class="topbar__name">HEA-Bench</span>
+          <nav class="topbar__links" aria-label="Project links">
+            <a href="#calculator">Calculator</a>
+            <a href="#theory">Theory</a>
+            <a href="https://github.com/dfieser/hea-bench">GitHub</a>
+            <a href="https://doi.org/10.5281/zenodo.20346287">Zenodo</a>
+          </nav>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="wrap">
+          <div class="hero__kicker">Open research software</div>
+          <h1>The standard high-entropy alloy and oxide descriptors, computed right.</h1>
+          <p class="hero__lede">
+            HEA-Bench is an open, <strong>parity-tested</strong> calculator of the thermodynamic and
+            geometric descriptors used to screen high-entropy alloys and high-entropy oxides, together
+            with the canonical empirical phase-prediction rules. Every number is a transparent
+            closed-form expression over curated, literature-cited data tables. No trained model, no
+            black box, no server.
+          </p>
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="#calculator">Open the calculator</a>
+            <a class="btn btn--ghost" href="https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench-Setup-x64.exe">Get the desktop app</a>
+          </div>
+          <p class="hero__hint">Prefer a script? <code>pip install hea-bench</code></p>
+        </div>
+      </section>
+
+      <div class="strip">
+        <div class="wrap strip__inner">
+          <span><b>37</b> alloy elements</span>
+          <span><b>75</b>-element Miedema pair table</span>
+          <span><b>94</b>-element Shannon oxide table</span>
+          <span><b>666</b> parity-tested element pairs</span>
+          <span><b>MIT</b> licensed</span>
+        </div>
+      </div>
+
+      <section class="block">
+        <div class="wrap">
+          <h2>One calculation core, four ways to run it</h2>
+          <p class="block__sub">
+            The Python library is the reference implementation. The browser and desktop apps run an
+            independent JavaScript port that an automated parity suite keeps identical to Python,
+            down to the warning messages, and an agent server exposes the same calculator to AI
+            tools over the Model Context Protocol. Every surface gives the same answer.
+          </p>
+          <div class="cards">
+            <div class="card">
+              <h3>Browser app</h3>
+              <p>This page, zero install. Everything runs client-side, nothing is uploaded, and it
+                 works offline from a local copy of the repository.</p>
+              <a class="card__go" href="#calculator">Open the calculator →</a>
+            </div>
+            <div class="card">
+              <h3>Python library + CLI</h3>
+              <p>Dependency-free package for scripting, batch screening, and feature generation.
+                 <code>pip install hea-bench</code>, then call each descriptor as a function.</p>
+              <a class="card__go" href="https://github.com/dfieser/hea-bench#quick-start-python">Quick start →</a>
+            </div>
+            <div class="card">
+              <h3>Desktop app</h3>
+              <p>A single offline installer (about 7&nbsp;MB) for laboratory machines without
+                 internet access, with MSI and NSIS builds for Windows.</p>
+              <a class="card__go" href="https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench-Setup-x64.exe">Download →</a>
+            </div>
+            <div class="card">
+              <h3>Agent (MCP) server</h3>
+              <p>Exposes the calculator to LLM agents as deterministic tool calls over the Model
+                 Context Protocol. <code>pip install "hea-bench[mcp]"</code>, then run
+                 <code>hea-bench-mcp</code>. Every value carries its unit, citation key, and version.</p>
+              <a class="card__go" href="https://github.com/dfieser/hea-bench/blob/main/AGENTS.md">Set it up →</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="wrap">
+          <h2>What it computes</h2>
+          <p class="block__sub">
+            Enter a composition as a formula, element by element, or per sublattice. HEA-Bench
+            reports every descriptor with its formula, its parameter provenance, and the empirical
+            window it is judged against.
+          </p>
+          <div class="twocol">
+            <div class="panel">
+              <h3>High-entropy alloys</h3>
+              <ul>
+                <li><b>Core descriptors</b> — ΔS<sub>mix</sub>, atomic-size mismatch δ,
+                    VEC, mean T<sub>m</sub>, Miedema ΔH<sub>mix</sub>, Yang–Zhang Ω,
+                    Δχ, Mansoori S<sub>E</sub>, ΔG<sub>ss</sub> and ΔG<sub>max</sub>,
+                    King Φ, Ye φ</li>
+                <li><b>Six phase-prediction rules</b> — Yeh entropy, Zhang δ, Guo–Liu VEC,
+                    Yang–Zhang Ω, King Φ, Ye φ, each with its threshold and verdict</li>
+                <li><b>Miedema formation enthalpies</b> — compound, solid-solution, and
+                    amorphous, decomposed into chemical, elastic, structural, and
+                    topological terms</li>
+                <li><b>Per-pair transparency</b> — every binary Miedema contribution is
+                    shown and individually overridable</li>
+              </ul>
+            </div>
+            <div class="panel">
+              <h3>High-entropy oxides</h3>
+              <ul>
+                <li><b>Four structure families</b> — rock salt, perovskite ABO<sub>3</sub>,
+                    fluorite MO<sub>x</sub>, pyrochlore A<sub>2</sub>B<sub>2</sub>O<sub>7</sub></li>
+                <li><b>Charge-balance solver</b> — oxidation states assigned by exact
+                    neutrality against the oxygen content, then Shannon ionic radii by
+                    state, coordination, and spin</li>
+                <li><b>Formability screens</b> — sublattice configurational entropy, cation
+                    size disorder, Goldschmidt t, octahedral μ, Bartel τ, the fluorite
+                    radius-dispersion rule, the pyrochlore radius-ratio window</li>
+                <li><b>Literature anchors</b> — reproduces published reference values
+                    digit for digit, pinned in the regression suite</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="wrap">
+          <h2>Built for reproducible research</h2>
+          <div class="pillars">
+            <div class="pillar">
+              <h3>Traceable</h3>
+              <p>Stated parameter provenance, versioned data files with SHA-pinned vendoring,
+                 and a Theory view that derives every formula with citations to the primary
+                 literature.</p>
+            </div>
+            <div class="pillar">
+              <h3>Verified</h3>
+              <p>An automated parity suite locks the JavaScript port to the Python reference on
+                 all 666 element pairs and a curated oxide fixture set, and pins published
+                 literature values in the tests.</p>
+            </div>
+            <div class="pillar">
+              <h3>Honest about limits</h3>
+              <p>The rules are empirical screens, and the app says so: each verdict shows its
+                 window and margin, and the Ω instability near ΔH<sub>mix</sub> ≈ 0 is reported
+                 rather than hidden.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="wrap">
+          <h2>Cite HEA-Bench</h2>
+          <div class="cite">
+            <p>If HEA-Bench is useful in your work, please cite the archived software record:</p>
+            <p class="cite__entry">
+              Fieser, D., Dewanjee, U., &amp; Hu, A. hea-bench: An open calculator of high-entropy-alloy and
+              high-entropy-oxide thermodynamic descriptors and empirical phase-prediction rules.
+              Zenodo. <span class="cite__doi"><a href="https://doi.org/10.5281/zenodo.20346287">doi:10.5281/zenodo.20346287</a></span>
+            </p>
+            <p>Please also cite the primary sources of the parametrizations you use, listed in the
+               <a href="#refs">References</a> view and in
+               <a href="https://github.com/dfieser/hea-bench/blob/main/CITATION.cff">CITATION.cff</a>.</p>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <div class="wrap footer__inner">
+          <span>MIT licensed · fully offline · no telemetry</span>
+          <span>Descriptor values are empirical estimates for research purposes, not engineering qualification.</span>
+          <span>Contact: <a href="mailto:davjfies@gmail.com">davjfies@gmail.com</a></span>
+        </div>
+      </footer>
+    </div>
+    <script>
+      // Toggle between the landing overlay and the calculator using the URL hash.
+      (function () {
+        function landingHash() {
+          var h = window.location.hash;
+          return h === '' || h === '#home' || h === '#top';
+        }
+        function sync() {
+          if (landingHash()) {
+            document.body.classList.remove('show-app');
+            window.scrollTo(0, 0);
+          } else {
+            document.body.classList.add('show-app');
+          }
+        }
+        window.addEventListener('hashchange', sync);
+        document.addEventListener('DOMContentLoaded', function () {
+          sync();
+          document.addEventListener('click', function (e) {
+            var t = e.target.closest ? e.target.closest('[data-home]') : null;
+            if (t) { window.location.hash = 'home'; }
+          });
+        });
+      })();
+    </script>
     <div class="app">
       <header class="titlebar">
-        <div class="titlebar__brand">
+        <div class="titlebar__brand" data-home title="Back to the landing page" style="cursor:pointer">
           <span class="titlebar__logo" aria-hidden="true">⬢</span>
           <span class="titlebar__name">HEA-Bench</span>
           <span class="titlebar__sub">Thermodynamic Descriptor Calculator</span>

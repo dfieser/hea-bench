@@ -1,3 +1,7 @@
+# Desktop installers copied to the repo root by build-desktop.ps1 / CI
+/HEA-Bench-Setup-x64.exe
+/HEA-Bench-x64.msi
+
 # Python build artifacts
 __pycache__/
 *.py[cod]

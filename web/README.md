@@ -12,8 +12,8 @@ folder is the site root of <https://dfieser.github.io/hea-bench/>.
 
 Three equivalent paths:
 
-- **Online:** open <https://dfieser.github.io/hea-bench/>. The page is
-  the calculator.
+- **Online:** open <https://dfieser.github.io/hea-bench/>. It opens on
+  the landing page; press **Open the calculator** to start.
 - **Offline / from a local copy:** double-click `index.html`. It opens
   in your browser and runs immediately. Everything it needs is in this
   folder.
@@ -56,10 +56,13 @@ id such as `index.html#sec-perovskite`.
 
 ## What's here
 
-- `index.html` — the calculator app: title-bar tabs, the two-pane
-  workspace, the Theory/Equations/References views, and the page-side
-  Miedema formation-enthalpy decomposition logic. This single file is
-  what the hosted site root serves and what the desktop app loads.
+- `index.html` — the whole front end in one file: a short landing page
+  (hero, the four surfaces, citation) plus the calculator itself
+  (title-bar tabs, the two-pane workspace, the Theory/Equations/References
+  views, the Miedema decomposition). The landing shows first; **Open the
+  calculator** or any deep link such as `#theory` switches to the app via
+  the URL hash. This single file is what the hosted site serves and what
+  the desktop app loads.
 - `hea-calculator-core.js` — the shared calculation core for the
   parity-critical descriptor and rule outputs. `Hmix` / `Omega` are
   computed from the single vendored pair-enthalpy table, identical to
