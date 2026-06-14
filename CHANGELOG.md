@@ -8,6 +8,26 @@ DOI for the archived snapshot.
 The format is loosely based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.0.1] — 2026-06-14
+
+### Changed
+
+- Web front end consolidated into a single file: the landing page and the
+  calculator now live in `web/index.html` and switch by URL hash, so the
+  hosted site and the desktop app load the same one file.
+- The desktop app ships as a single portable `HEA-Bench.exe` with no
+  installer. CI rebuilds it on every page change and attaches it to the
+  latest release.
+
+### Added
+
+- Legal and accessibility information on the landing page (disclaimer,
+  privacy, a WCAG 2.1 AA accessibility statement, license) and a
+  keyboard-accessible home control.
+- Model Context Protocol registry metadata: a `server.json` and an
+  `mcp-name` marker in the README for listing as
+  `io.github.dfieser/hea-bench`.
+
 ## [2.0.0] — 2026-06-12 — first full public release
 
 First full public release. Consolidates the alloy and oxide descriptors,
