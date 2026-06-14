@@ -4876,8 +4876,14 @@ font-family: 'Source Sans Pro'
       #landing .cite .cite__entry { font-family: var(--serif); font-size: 14.5px; color: var(--text); border-left: 3px solid var(--border-2); padding-left: 14px; margin: 12px 0; }
       #landing .cite .cite__doi { font-family: var(--mono); font-size: 12.5px; }
       #landing footer { margin-top: 56px; border-top: 1px solid var(--border); background: var(--surface); }
-      #landing .footer__inner { padding: 22px 0 30px; font-size: 12.5px; color: var(--text-muted-2); display: flex; flex-wrap: wrap; gap: 6px 28px; }
-      #landing .footer__inner a { color: var(--text-muted); }
+      #landing .footer__inner { padding: 28px 0 34px; font-size: 13px; color: var(--text-muted); }
+      #landing .footer__inner a { color: var(--text-muted); text-decoration: underline; }
+      #landing .footer__cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+      @media (max-width: 760px) { #landing .footer__cols { grid-template-columns: 1fr 1fr; } }
+      @media (max-width: 480px) { #landing .footer__cols { grid-template-columns: 1fr; } }
+      #landing .footer__col h4 { margin: 0 0 6px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-strong); }
+      #landing .footer__col p { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--text-muted-2); }
+      #landing .footer__base { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 6px 24px; font-size: 12px; color: var(--text-muted-2); }
     </style>
     <div id="landing">
       <header class="topbar">
@@ -4906,7 +4912,7 @@ font-family: 'Source Sans Pro'
           </p>
           <div class="hero__actions">
             <a class="btn btn--primary" href="#calculator">Open the calculator</a>
-            <a class="btn btn--ghost" href="https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench-Setup-x64.exe">Get the desktop app</a>
+            <a class="btn btn--ghost" href="https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench.exe">Get the desktop app</a>
           </div>
           <p class="hero__hint">Prefer a script? <code>pip install hea-bench</code></p>
         </div>
@@ -4946,9 +4952,9 @@ font-family: 'Source Sans Pro'
             </div>
             <div class="card">
               <h3>Desktop app</h3>
-              <p>A single offline installer (about 7&nbsp;MB) for laboratory machines without
-                 internet access, with MSI and NSIS builds for Windows.</p>
-              <a class="card__go" href="https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench-Setup-x64.exe">Download →</a>
+              <p>A single portable executable for laboratory machines without internet access.
+                 Download it and run, no installation. Windows&nbsp;x64.</p>
+              <a class="card__go" href="https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench.exe">Download →</a>
             </div>
             <div class="card">
               <h3>Agent (MCP) server</h3>
@@ -5050,9 +5056,40 @@ font-family: 'Source Sans Pro'
 
       <footer>
         <div class="wrap footer__inner">
-          <span>MIT licensed · fully offline · no telemetry</span>
-          <span>Descriptor values are empirical estimates for research purposes, not engineering qualification.</span>
-          <span>Contact: <a href="mailto:davjfies@gmail.com">davjfies@gmail.com</a></span>
+          <div class="footer__cols">
+            <div class="footer__col">
+              <h4>Disclaimer</h4>
+              <p>HEA-Bench reports empirical estimates for research and educational use only.
+                 The descriptors and rules are semi-empirical screens with known limitations.
+                 Outputs are provided without warranty of any kind and must not be the sole
+                 basis for engineering design or material qualification; verify with validated
+                 methods such as CALPHAD, DFT, or experiment.</p>
+            </div>
+            <div class="footer__col">
+              <h4>Privacy</h4>
+              <p>The calculator runs entirely in your browser. No composition, result, or
+                 personal data is collected, transmitted, or stored on any server, and the
+                 page uses no cookies, analytics, or telemetry.</p>
+            </div>
+            <div class="footer__col">
+              <h4>Accessibility</h4>
+              <p>We aim to conform to WCAG&nbsp;2.1 Level&nbsp;AA. The interface is keyboard
+                 operable and uses semantic structure and ARIA labels. If you encounter an
+                 accessibility barrier, email
+                 <a href="mailto:davjfies@gmail.com">davjfies@gmail.com</a> and we will work
+                 to address it.</p>
+            </div>
+            <div class="footer__col">
+              <h4>License</h4>
+              <p>MIT licensed. &copy; 2026 D. Fieser, U. Dewanjee, A. Hu. Vendored data keep
+                 their upstream licenses (matminer BSD-3-Clause, pymatgen MIT). See
+                 <a href="https://github.com/dfieser/hea-bench/blob/main/LICENSE">LICENSE</a>.</p>
+            </div>
+          </div>
+          <div class="footer__base">
+            <span>MIT licensed · fully offline · no telemetry</span>
+            <span>Contact: <a href="mailto:davjfies@gmail.com">davjfies@gmail.com</a></span>
+          </div>
         </div>
       </footer>
     </div>
@@ -5072,18 +5109,22 @@ font-family: 'Source Sans Pro'
           }
         }
         window.addEventListener('hashchange', sync);
+        function goHome(e) {
+          var t = e.target.closest ? e.target.closest('[data-home]') : null;
+          if (t) { e.preventDefault(); window.location.hash = 'home'; }
+        }
         document.addEventListener('DOMContentLoaded', function () {
           sync();
-          document.addEventListener('click', function (e) {
-            var t = e.target.closest ? e.target.closest('[data-home]') : null;
-            if (t) { window.location.hash = 'home'; }
+          document.addEventListener('click', goHome);
+          document.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { goHome(e); }
           });
         });
       })();
     </script>
     <div class="app">
       <header class="titlebar">
-        <div class="titlebar__brand" data-home title="Back to the landing page" style="cursor:pointer">
+        <div class="titlebar__brand" data-home role="button" tabindex="0" aria-label="Back to the landing page" title="Back to the landing page" style="cursor:pointer">
           <span class="titlebar__logo" aria-hidden="true">⬢</span>
           <span class="titlebar__name">HEA-Bench</span>
           <span class="titlebar__sub">Thermodynamic Descriptor Calculator</span>

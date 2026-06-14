@@ -52,7 +52,7 @@ table covers 94.
 |---|---|---|
 | **Python library + CLI** | `pip install hea-bench` | done, tested |
 | **Zero-install browser app** | <https://dfieser.github.io/hea-bench/> · `web/index.html` | done, Python-parity-tested |
-| **Native desktop app** | one offline `.exe`, [direct installer download](https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench-Setup-x64.exe) (Tauri wrapper of the same page) | done, built from the same parity-tested core |
+| **Native desktop app** | a single portable `.exe`, [download (no install)](https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench.exe) (Tauri wrapper of the same page) | done, built from the same parity-tested core |
 | **MCP server for AI agents** | `pip install "hea-bench[mcp]"`, then `hea-bench-mcp` | done, seven tools over the same core |
 
 The three surfaces share **one calculation core**. The browser/desktop
