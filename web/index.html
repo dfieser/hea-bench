@@ -6681,9 +6681,10 @@ font-family: 'Source Sans Pro'
 
     <script src="hea-calculator-core.js"></script>
     <script>
-      const VERSION = "2.0.1";
-      const VERSION_DATE = "2026-06-14";
+      const VERSION = "2.0.2";
+      const VERSION_DATE = "2026-07-06";
       const VERSION_HISTORY = [
+        { version: "2.0.2", date: "2026-07-06", notes: "Release engineering: one canonical version number that every surface derives from or is stamped from, guarded by a CI drift-check, plus a single hands-off tag-driven release pipeline (PyPI over OIDC, MCP registry, GitHub Release, Zenodo archive, and desktop build). No functional or numerical change to any descriptor or rule" },
         { version: "2.0.1", date: "2026-06-14", notes: "Single-file web app: the landing page and the calculator are combined in one file, switched by the URL hash. The desktop app is now a portable no-install executable. Legal and accessibility information added to the landing page, and the home control made keyboard-accessible" },
         { version: "2.0.0", date: "2026-06-12", notes: "First full public release: alloy and oxide descriptors, the six empirical rules, the four delivery surfaces, and the hea-bench-mcp agent server, with the Python and JavaScript cores locked by an automated parity suite and the implementation anchored to published per-alloy and per-oxide literature values. Fixes a JSON-serialization fault in the MCP server when King Phi diverges (compositions with no competing binary intermetallic, e.g. HfNbTaTiZr): the magnitude is now reported as null with a warning and the verdict is unchanged" },
         { version: "1.8.0", date: "2026-06-11", notes: "Agent surface: a Model Context Protocol server (hea-bench-mcp, pip install hea-bench[mcp]) exposes the calculator to LLM agents as seven batch-oriented tools with units, citation keys, and the library version in every response, including an Omega pair-table sensitivity check" },

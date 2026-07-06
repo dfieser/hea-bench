@@ -10,6 +10,24 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.0.2] — 2026-07-06
+
+### Changed
+
+- Release engineering: the version now lives in a single place
+  (`__version__` in `hea_bench/__init__.py`). Every other surface either
+  derives from it (`pyproject.toml` via hatchling, the desktop bundle via
+  `Cargo.toml`, the CLI/MCP/tests via import) or is stamped from it by the
+  new `tools/version.py`, whose `--check` mode runs in CI and fails the
+  build on any drift.
+- Releases are now a single hands-off, tag-driven pipeline: a `vX.Y.Z` tag
+  runs the tests, publishes to PyPI over OIDC trusted publishing (no token),
+  publishes to the MCP registry, creates the GitHub Release that archives to
+  Zenodo, and builds the desktop executable. See `RELEASING.md`.
+- Citation metadata now records only the concept DOI, which always resolves
+  to the latest release, and a `.zenodo.json` pins the complete author list
+  for every archived version.
+
 ## [2.0.1] — 2026-06-14
 
 ### Changed
