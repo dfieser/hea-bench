@@ -1,0 +1,141 @@
+name: Release
+
+# One tag-driven, fully hands-off release pipeline. Cutting a release is:
+#
+#   python tools/version.py --set X.Y.Z
+#   (write the CHANGELOG.md section + the web/index.html VERSION_HISTORY entry)
+#   git commit -am "Release vX.Y.Z"
+#   git tag vX.Y.Z && git push --follow-tags
+#
+# The tag then runs, in order and with no human in the loop:
+#   1. gate    - the full CI matrix + the version-consistency drift-check
+#   2. pypi    - build and publish to PyPI over OIDC Trusted Publishing (no token)
+#   3. mcp     - once PyPI serves the version, publish server.json to the MCP registry
+#   4. release - create the GitHub Release, which fires the existing GitHub<->Zenodo
+#                integration and mints the new version DOI under the concept DOI
+#   5. desktop - build the portable Windows .exe and attach it to the release
+#
+# See RELEASING.md for the one-time setup (PyPI Trusted Publisher + the `pypi`
+# environment) and the full runbook.
+
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # Re-run the exact test matrix (pytest 3.10-3.12 + JS parity) and the
+  # version-consistency check on the tagged commit. Nothing publishes unless
+  # this is green.
+  gate:
+    uses: ./.github/workflows/ci.yml
+
+  pypi:
+    needs: gate
+    runs-on: ubuntu-latest
+    environment: pypi        # must match the PyPI trusted-publisher config
+    permissions:
+      id-token: write        # OIDC mints a short-lived token; no PYPI_API_TOKEN
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build sdist and wheel
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+      - name: Built artifacts must match the tag
+        run: |
+          v="${GITHUB_REF_NAME#v}"
+          ls "dist/hea_bench-${v}.tar.gz" "dist/hea_bench-${v}-py3-none-any.whl"
+      - name: Publish to PyPI (Trusted Publishing, no username/password)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
+      - name: Keep the built artifacts for the GitHub Release
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  mcp:
+    needs: pypi
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write        # OIDC login to the MCP registry (no secret)
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait until PyPI serves this version
+        # The registry verifies the package on PyPI at server.json's version,
+        # so it must be live and queryable before we publish.
+        run: |
+          v="${GITHUB_REF_NAME#v}"
+          for i in $(seq 1 30); do
+            if curl -fsSL "https://pypi.org/pypi/hea-bench/${v}/json" >/dev/null; then
+              echo "PyPI is serving ${v}"; exit 0
+            fi
+            echo "waiting for PyPI to serve ${v} (attempt $i)"; sleep 10
+          done
+          echo "PyPI did not serve ${v} within 5 minutes"; exit 1
+      - name: Install mcp-publisher
+        run: |
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+      - name: Authenticate with GitHub OIDC
+        run: ./mcp-publisher login github-oidc
+      - name: Publish server.json to the MCP registry
+        run: ./mcp-publisher publish
+
+  release:
+    needs: [pypi, mcp]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # create the Release and upload assets
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch the built artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: Extract this version's changelog section as release notes
+        run: |
+          v="${GITHUB_REF_NAME#v}"
+          awk -v ver="$v" '
+            $0 ~ "^## \\[" ver "\\]" { grab = 1; next }
+            grab && /^## \[/ { exit }
+            grab { print }
+          ' CHANGELOG.md > NOTES.md
+          echo "--- release notes ---"; cat NOTES.md
+      - name: Create the GitHub Release (fires the Zenodo webhook)
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: NOTES.md
+          files: dist/*
+
+  desktop:
+    needs: release
+    runs-on: windows-latest
+    permissions:
+      contents: write        # attach the exe to this tag's release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "src-tauri -> target"
+      - name: Install the Tauri CLI
+        run: cargo install tauri-cli --version "^2.0" --locked
+      - name: Build the portable executable (no installer)
+        run: cargo tauri build --no-bundle
+      - name: Attach the portable exe to this tag's release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          Copy-Item "src-tauri/target/release/hea-bench.exe" "HEA-Bench.exe"
+          gh release upload ${{ github.ref_name }} HEA-Bench.exe --clobber
