@@ -54,9 +54,3 @@ identifiers:
   - type: doi
     value: 10.5281/zenodo.20346287
     description: Concept DOI (resolves to the latest archived version of hea-bench)
-  - type: doi
-    value: 10.5281/zenodo.20692724
-    description: Version DOI of the v2.0.0 release
-  - type: doi
-    value: 10.5281/zenodo.20346288
-    description: Version DOI of the initial v0.1.0 release
