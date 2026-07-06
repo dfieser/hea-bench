@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "hea-bench"
-version = "2.0.1"
+dynamic = ["version"]
 description = "An open, interpretable calculator of high-entropy-alloy and high-entropy-oxide thermodynamic and geometric descriptors plus the canonical empirical phase-prediction rules."
 readme = "README.md"
 license = "MIT"
@@ -63,6 +63,11 @@ Archive = "https://doi.org/10.5281/zenodo.20346287"
 
 # The sdist must not sweep in the Tauri Rust build cache
 # (src-tauri/target, hundreds of MB) or the vendored web/mathjax assets.
+# The single source of truth for the version: hatchling reads __version__
+# from the package at build time, so the number is never duplicated here.
+[tool.hatch.version]
+path = "src/hea_bench/__init__.py"
+
 # Restrict it to the Python package and its data, the tests, and the
 # project metadata. pyproject.toml is always included by hatchling.
 [tool.hatch.build.targets.sdist]
