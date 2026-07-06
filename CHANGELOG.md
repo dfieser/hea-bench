@@ -10,6 +10,26 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.0.3] — 2026-07-06
+
+### Fixed
+
+- Release tooling. `tools/version.py --set` now refuses a missing version or an
+  unknown flag and re-verifies the whole tree after stamping, so a drifted
+  pattern fails loudly instead of leaving a silent partial bump. The Rust
+  lockfile (`src-tauri/Cargo.lock`) is now version-synced and drift-checked
+  like the other surfaces, and the drift-check additionally verifies that the
+  two release-date fields agree and that the `.zenodo.json` author list matches
+  `CITATION.cff`.
+- Release pipeline. The GitHub Release, and therefore the Zenodo DOI, now
+  depends only on the PyPI publish, so a transient MCP-registry failure can no
+  longer strand a published version without its archival DOI. The desktop
+  executable now builds in parallel rather than behind the other jobs, a manual
+  run from a branch ref fails fast instead of deriving a bogus version, and an
+  empty changelog section can no longer publish a release with empty notes.
+
+No functional or numerical change to any descriptor or rule.
+
 ## [2.0.2] — 2026-07-06
 
 ### Changed
