@@ -7,13 +7,16 @@ name: Release
 #   git commit -am "Release vX.Y.Z"
 #   git tag vX.Y.Z && git push --follow-tags
 #
-# The tag then runs, in order and with no human in the loop:
-#   1. gate    - the full CI matrix + the version-consistency drift-check
-#   2. pypi    - build and publish to PyPI over OIDC Trusted Publishing (no token)
-#   3. mcp     - once PyPI serves the version, publish server.json to the MCP registry
-#   4. release - create the GitHub Release, which fires the existing GitHub<->Zenodo
-#                integration and mints the new version DOI under the concept DOI
-#   5. desktop - build the portable Windows .exe and attach it to the release
+# Job graph (--> = "needs"):
+#   guard ----.
+#   gate  ----+--> pypi --> mcp                 (mcp publishes the registry)
+#             |        `--> release             (creates the Release; fires Zenodo)
+#             `--> desktop-build                (compiles the exe in parallel)
+#   desktop-attach <-- (desktop-build, release) (uploads the exe to the Release)
+#
+# The Release (and therefore the Zenodo DOI) depends ONLY on PyPI, so a flaky
+# MCP-registry publish never blocks archival. The slow Windows build runs in
+# parallel with pypi/mcp and only its tiny upload waits for the Release.
 #
 # See RELEASING.md for the one-time setup (PyPI Trusted Publisher + the `pypi`
 # environment) and the full runbook.
@@ -27,14 +30,26 @@ permissions:
   contents: read
 
 jobs:
-  # Re-run the exact test matrix (pytest 3.10-3.12 + JS parity) and the
-  # version-consistency check on the tagged commit. Nothing publishes unless
-  # this is green.
+  # Refuse a run that is not from a vX.Y.Z tag. workflow_dispatch defaults to a
+  # branch ref, from which every job would derive a bogus version; fail fast
+  # with a clear message instead.
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Only release from a vX.Y.Z tag
+        run: |
+          if [ "${GITHUB_REF_TYPE}" != "tag" ]; then
+            echo "::error::Run release.yml from a vX.Y.Z tag ref, not ${GITHUB_REF_NAME}."
+            exit 1
+          fi
+
+  # Full test matrix (pytest 3.10-3.12 + JS parity) + the version-consistency
+  # drift-check on the tagged commit.
   gate:
     uses: ./.github/workflows/ci.yml
 
   pypi:
-    needs: gate
+    needs: [guard, gate]
     runs-on: ubuntu-latest
     environment: pypi        # must match the PyPI trusted-publisher config
     permissions:
@@ -62,6 +77,8 @@ jobs:
           name: dist
           path: dist/
 
+  # Runs in parallel with `release`; a registry hiccup here does NOT block the
+  # GitHub Release or the Zenodo DOI.
   mcp:
     needs: pypi
     runs-on: ubuntu-latest
@@ -71,8 +88,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Wait until PyPI serves this version
-        # The registry verifies the package on PyPI at server.json's version,
-        # so it must be live and queryable before we publish.
         run: |
           v="${GITHUB_REF_NAME#v}"
           for i in $(seq 1 30); do
@@ -84,14 +99,40 @@ jobs:
           echo "PyPI did not serve ${v} within 5 minutes"; exit 1
       - name: Install mcp-publisher
         run: |
-          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+          curl -fL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
       - name: Authenticate with GitHub OIDC
         run: ./mcp-publisher login github-oidc
       - name: Publish server.json to the MCP registry
         run: ./mcp-publisher publish
 
+  # Compiles the exe in parallel with pypi/mcp; only the attach step below waits
+  # for the Release to exist.
+  desktop-build:
+    needs: [guard, gate]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "src-tauri -> target"
+      - name: Install the Tauri CLI
+        run: cargo install tauri-cli --version "^2.0" --locked
+      - name: Build the portable executable (no installer)
+        run: cargo tauri build --no-bundle
+      - name: Stage the portable exe
+        shell: pwsh
+        run: Copy-Item "src-tauri/target/release/hea-bench.exe" "HEA-Bench.exe"
+      - name: Keep the exe for the attach step
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop
+          path: HEA-Bench.exe
+
+  # Depends only on PyPI: a GitHub Release does not need the MCP registry.
+  # Creating the Release fires the GitHub<->Zenodo integration.
   release:
-    needs: [pypi, mcp]
+    needs: pypi
     runs-on: ubuntu-latest
     permissions:
       contents: write        # create the Release and upload assets
@@ -110,32 +151,30 @@ jobs:
             grab && /^## \[/ { exit }
             grab { print }
           ' CHANGELOG.md > NOTES.md
+          if [ ! -s NOTES.md ]; then
+            echo "No '## [${v}]' changelog section found; falling back to generated notes." >&2
+            echo "Release ${GITHUB_REF_NAME}." > NOTES.md
+          fi
           echo "--- release notes ---"; cat NOTES.md
       - name: Create the GitHub Release (fires the Zenodo webhook)
         uses: softprops/action-gh-release@v2
         with:
           body_path: NOTES.md
+          generate_release_notes: true
           files: dist/*
 
-  desktop:
-    needs: release
-    runs-on: windows-latest
+  # Attach the exe once both the parallel build and the Release exist.
+  desktop-attach:
+    needs: [desktop-build, release]
+    runs-on: ubuntu-latest
     permissions:
-      contents: write        # attach the exe to this tag's release
+      contents: write        # upload the exe asset to this tag's release
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
+      - name: Fetch the built exe
+        uses: actions/download-artifact@v4
         with:
-          workspaces: "src-tauri -> target"
-      - name: Install the Tauri CLI
-        run: cargo install tauri-cli --version "^2.0" --locked
-      - name: Build the portable executable (no installer)
-        run: cargo tauri build --no-bundle
+          name: desktop
       - name: Attach the portable exe to this tag's release
-        shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          Copy-Item "src-tauri/target/release/hea-bench.exe" "HEA-Bench.exe"
-          gh release upload ${{ github.ref_name }} HEA-Bench.exe --clobber
+        run: gh release upload "${GITHUB_REF_NAME}" HEA-Bench.exe --clobber
