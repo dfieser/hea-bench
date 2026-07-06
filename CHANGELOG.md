@@ -10,6 +10,16 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.0.4] — 2026-07-06
+
+### Changed
+
+- Build tooling. Bumped the pinned GitHub Actions (checkout, setup-python,
+  setup-node, upload/download-artifact, the Pages actions, and the GitHub
+  Release action) to their current majors, so CI and the release pipeline no
+  longer run on the deprecated Node 20 runtime. No functional or numerical
+  change to any descriptor or rule.
+
 ## [2.0.3] — 2026-07-06
 
 ### Fixed

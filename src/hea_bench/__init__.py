@@ -28,7 +28,7 @@ from .descriptors.phi import delta_g_max, delta_g_ss, delta_h_ss, phi_king, phi_
 from .descriptors.size import delta
 from .descriptors.vec import vec
 
-__version__ = "2.0.3"
+__version__ = "2.0.4"
 
 __all__ = [
     "__version__",
