@@ -1,0 +1,34 @@
+{
+  "upload_type": "software",
+  "access_right": "open",
+  "language": "eng",
+  "license": "mit",
+  "title": "hea-bench: An open calculator of high-entropy-alloy and high-entropy-oxide thermodynamic descriptors and empirical phase-prediction rules",
+  "description": "hea-bench is an open, interpretable calculator of the standard high-entropy alloy thermodynamic and geometric descriptors (mixing entropy, atomic-size mismatch, valence-electron concentration, melting temperature, Miedema mixing and formation enthalpies, Yang-Zhang Omega, Mansoori excess entropy, King Phi, Ye phi) and the canonical empirical phase-prediction rules. An oxides mode extends the same approach to high-entropy oxides in four structure families (rock salt, perovskite, fluorite, pyrochlore), with a charge-neutrality oxidation-state solver, Shannon ionic radii, sublattice configurational entropy, the Goldschmidt and Bartel tolerance factors, and the published fluorite and pyrochlore formability criteria. Every quantity is a transparent closed-form expression over a curated element-property table, with no fitted model. The same calculation core ships as a Python library, a zero-install browser app, and a native desktop app; the browser core is parity-tested against the Python library.",
+  "keywords": [
+    "high-entropy alloys",
+    "high-entropy oxides",
+    "thermodynamic descriptors",
+    "Miedema model",
+    "materials informatics",
+    "phase-prediction rules",
+    "alloy design"
+  ],
+  "creators": [
+    {
+      "name": "Fieser, David",
+      "orcid": "0009-0007-5754-4331",
+      "affiliation": "Department of Mechanical and Aerospace Engineering, University of Tennessee Knoxville"
+    },
+    {
+      "name": "Dewanjee, Unmanaa",
+      "orcid": "0009-0006-6400-9356",
+      "affiliation": "Department of Mechanical and Aerospace Engineering, University of Tennessee Knoxville"
+    },
+    {
+      "name": "Hu, Anming",
+      "orcid": "0000-0001-9794-0549",
+      "affiliation": "Department of Mechanical and Aerospace Engineering, University of Tennessee Knoxville"
+    }
+  ]
+}
