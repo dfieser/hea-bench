@@ -55,8 +55,8 @@ jobs:
     permissions:
       id-token: write        # OIDC mints a short-lived token; no PYPI_API_TOKEN
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Build sdist and wheel
@@ -72,7 +72,7 @@ jobs:
         with:
           skip-existing: true
       - name: Keep the built artifacts for the GitHub Release
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist/
@@ -86,7 +86,7 @@ jobs:
       id-token: write        # OIDC login to the MCP registry (no secret)
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Wait until PyPI serves this version
         run: |
           v="${GITHUB_REF_NAME#v}"
@@ -111,7 +111,7 @@ jobs:
     needs: [guard, gate]
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
         with:
@@ -124,7 +124,7 @@ jobs:
         shell: pwsh
         run: Copy-Item "src-tauri/target/release/hea-bench.exe" "HEA-Bench.exe"
       - name: Keep the exe for the attach step
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: desktop
           path: HEA-Bench.exe
@@ -137,9 +137,9 @@ jobs:
     permissions:
       contents: write        # create the Release and upload assets
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Fetch the built artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist
@@ -157,7 +157,7 @@ jobs:
           fi
           echo "--- release notes ---"; cat NOTES.md
       - name: Create the GitHub Release (fires the Zenodo webhook)
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           body_path: NOTES.md
           generate_release_notes: true
@@ -171,7 +171,7 @@ jobs:
       contents: write        # upload the exe asset to this tag's release
     steps:
       - name: Fetch the built exe
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: desktop
       - name: Attach the portable exe to this tag's release
