@@ -5,8 +5,19 @@ on:
     branches: [main, v2]
   pull_request:
     branches: [main, v2]
+  workflow_call:   # let release.yml reuse this test matrix as a release gate
 
 jobs:
+  version-consistency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Every version-bearing file must agree with the canonical __version__
+        run: python tools/version.py --check
+
   test:
     runs-on: ubuntu-latest
     strategy:
