@@ -4825,7 +4825,8 @@ font-family: 'Source Sans Pro'
       #landing * { box-sizing: border-box; }
       #landing a { color: var(--accent); text-decoration: none; }
       #landing a:hover { text-decoration: underline; }
-      #landing .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+      #landing .wrap { max-width: 980px; margin: 0 auto; padding: 0 40px; }
+      @media (max-width: 560px) { #landing .wrap { padding: 0 20px; } }
       #landing .topbar { border-bottom: 1px solid var(--border); background: var(--surface); }
       #landing .topbar__inner { display: flex; align-items: center; gap: 14px; padding: 12px 0; }
       #landing .topbar__logo { color: var(--accent); font-size: 18px; line-height: 1; }
