@@ -93,7 +93,9 @@ jobs:
           gh workflow run pages.yml --ref main
 
   # Turns this run red if the dispatched release pipeline fails, so nobody has
-  # to remember to go look at the other run.
+  # to remember to go look at the other run. A run that gets CANCELLED (runner
+  # eviction during queue starvation, or a stray manual click) is re-dispatched
+  # once — everything in the pipeline is idempotent, and the tag already exists.
   verify-release:
     needs: cut
     if: needs.cut.outputs.version != ''
@@ -105,40 +107,76 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           tag="v${{ needs.cut.outputs.version }}"
+          find_run() {
+            gh run list --workflow=release.yml --branch "$tag" --limit 1 --json databaseId --jq '.[0].databaseId'
+          }
           rid=""
           for i in $(seq 1 12); do
-            rid=$(gh run list --workflow=release.yml --branch "$tag" --limit 1 --json databaseId --jq '.[0].databaseId' || true)
+            rid=$(find_run || true)
             if [ -n "$rid" ]; then break; fi
             sleep 10
           done
           if [ -z "$rid" ]; then echo "::error::no release.yml run appeared for ${tag}"; exit 1; fi
           echo "watching https://github.com/${GH_REPO}/actions/runs/${rid}"
-          for i in $(seq 1 90); do
+          retried=0
+          for i in $(seq 1 150); do   # up to ~75 minutes, covering one retry
             st=$(gh run view "$rid" --json status --jq .status)
             if [ "$st" = "completed" ]; then
               cc=$(gh run view "$rid" --json conclusion --jq .conclusion)
               if [ "$cc" = "success" ]; then echo "release ${tag}: success"; exit 0; fi
+              if [ "$cc" = "cancelled" ] && [ "$retried" = 0 ]; then
+                retried=1
+                echo "::warning::release ${tag} was cancelled, not failed; re-dispatching once"
+                gh workflow run release.yml --ref "$tag"
+                sleep 20
+                nrid=""
+                for j in $(seq 1 12); do
+                  nrid=$(find_run || true)
+                  if [ -n "$nrid" ] && [ "$nrid" != "$rid" ]; then break; fi
+                  sleep 10
+                done
+                if [ -n "$nrid" ] && [ "$nrid" != "$rid" ]; then
+                  rid="$nrid"
+                  echo "watching retry https://github.com/${GH_REPO}/actions/runs/${rid}"
+                  continue
+                fi
+                echo "::error::the retry dispatch for ${tag} never appeared"; exit 1
+              fi
               echo "::error::release ${tag} finished with conclusion: ${cc}"; exit 1
             fi
             sleep 30
           done
-          echo "::error::release ${tag} did not finish within 45 minutes"; exit 1
+          echo "::error::release ${tag} did not finish within the watch window"; exit 1
 
   # Turns this run red if the deployed site is not actually serving the new
-  # version (the exact failure mode that motivated all of this).
+  # version (the exact failure mode that motivated all of this). If the pages
+  # deploy run itself died (cancelled or failed), it is re-dispatched once;
+  # the ~10-minute Pages CDN cache is what the long polling window rides out.
   verify-live:
     needs: cut
     if: needs.cut.outputs.version != ''
     runs-on: ubuntu-latest
     steps:
       - name: Wait until the live site serves the new version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           v="${{ needs.cut.outputs.version }}"
           want="const VERSION = \"${v}\""
-          for i in $(seq 1 60); do
+          retried=0
+          for i in $(seq 1 90); do   # up to ~22 minutes, covering one retry + CDN cache
             got=$(curl -fsS -H 'Cache-Control: no-cache' "https://dfieser.github.io/hea-bench/?cb=${GITHUB_RUN_ID}${i}" | grep -oE 'const VERSION = "[^"]+"' | head -1 || true)
             if [ "$got" = "$want" ]; then echo "live site serves ${v}"; exit 0; fi
+            if [ "$retried" = 0 ]; then
+              pc=$(gh run list --workflow=pages.yml --branch main --limit 1 --json conclusion --jq '.[0].conclusion // ""' || true)
+              if [ "$pc" = "cancelled" ] || [ "$pc" = "failure" ]; then
+                retried=1
+                echo "::warning::latest pages deploy concluded '${pc}'; re-dispatching the site deploy once"
+                gh workflow run pages.yml --ref main
+              fi
+            fi
             echo "attempt ${i}: live site has '${got:-no response}', want ${v}"
             sleep 15
           done
-          echo "::error::live site did not serve ${v} within 15 minutes"; exit 1
+          echo "::error::live site did not serve ${v} within the watch window"; exit 1

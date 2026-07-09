@@ -119,6 +119,21 @@ Two traps this recipe avoids, learned the hard way:
   the Pages site redeploys; PyPI, the MCP registry, the desktop exe, the
   GitHub Release, the Zenodo DOI, and the version badge all stay put.
 
+## Recovering an interrupted release
+
+If a release run dies after the tag exists (runner eviction, a cancelled
+run, an outage), nothing is lost and nothing needs reverting: the tag and
+the stamped release commit are already on `main`, and every pipeline step
+is idempotent (PyPI publishing skips already-uploaded files). Re-fire it:
+
+```bash
+gh workflow run release.yml --ref vX.Y.Z   # the four surfaces + Release + Zenodo
+gh workflow run pages.yml --ref main       # the site, if it is stale too
+```
+
+The `verify-release` and `verify-live` jobs already do this once
+automatically when they see a *cancelled* (as opposed to failed) run.
+
 ## One-time setup
 
 These are configured once, in the GitHub and PyPI web consoles. Until they are
