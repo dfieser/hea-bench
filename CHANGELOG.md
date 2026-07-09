@@ -10,6 +10,15 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.0.5] — 2026-07-08
+
+### Changed
+
+- Landing page. Widened the shared side padding on the landing page so the top
+  navigation bar and page sections are no longer crowded against the edges, with
+  a narrower fallback on small phones. Presentation only; no functional or
+  numerical change to any descriptor, rule, or API.
+
 ## [2.0.4] — 2026-07-06
 
 ### Changed

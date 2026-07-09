@@ -6682,9 +6682,10 @@ font-family: 'Source Sans Pro'
 
     <script src="hea-calculator-core.js"></script>
     <script>
-      const VERSION = "2.0.4";
-      const VERSION_DATE = "2026-07-06";
+      const VERSION = "2.0.5";
+      const VERSION_DATE = "2026-07-08";
       const VERSION_HISTORY = [
+        { version: "2.0.5", date: "2026-07-08", notes: "Landing page: widened the shared side padding so the top navigation bar and page sections are no longer crowded against the edges, with a narrower fallback on small phones. Presentation only, with no functional or numerical change to any descriptor, rule, or API" },
         { version: "2.0.4", date: "2026-07-06", notes: "Maintenance: bumped the pinned GitHub Actions off the deprecated Node 20 runtime. No functional or numerical change to any descriptor or rule" },
         { version: "2.0.3", date: "2026-07-06", notes: "Release-tooling bugfixes: the version bumper now fails loudly on a drifted pattern rather than a silent partial bump, the Rust lockfile is version-synced and drift-checked, and the release pipeline no longer lets a flaky registry publish block the archival DOI. No functional or numerical change to any descriptor or rule" },
         { version: "2.0.2", date: "2026-07-06", notes: "Release engineering: one canonical version number that every surface derives from or is stamped from, guarded by a CI drift-check, plus a single hands-off tag-driven release pipeline (PyPI over OIDC, MCP registry, GitHub Release, Zenodo archive, and desktop build). No functional or numerical change to any descriptor or rule" },
