@@ -242,6 +242,10 @@ Carbon and boron are deliberately held out (no metallic radius; no
 - **Do not assume composition fixes phase.** The same composition can
   form different phases depending on processing history; the descriptors
   describe equilibrium driving forces only.
+- **Do not tag, version-bump, or publish by hand.** Pushing to `main`
+  auto-releases every surface from the one version counter (see
+  [RELEASING.md](./RELEASING.md)); hand-made tags and partial publishes
+  are how the surfaces skew apart.
 
 ## Verifying your integration
 

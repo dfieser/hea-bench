@@ -1,0 +1,144 @@
+name: Auto release
+
+# Pushing to main IS releasing. Any push that changes a shippable surface
+# (library, web app, desktop shell, MCP manifest, packaging) automatically
+# cuts a patch release of all four surfaces from the one version counter:
+#
+#   1. tools/autorelease.py picks the version (patch bump, or exactly the
+#      version already stamped by a hand-run `tools/version.py --set` for a
+#      minor/major), stamps every surface, promotes CHANGELOG.md
+#      "## [Unreleased]" (or synthesizes notes from the pushed commit
+#      subjects), and prepends the web VERSION_HISTORY entry;
+#   2. this workflow commits "Release vX.Y.Z", pushes it, and pushes an
+#      annotated tag vX.Y.Z;
+#   3. it then dispatches release.yml on that tag (tests -> PyPI -> MCP
+#      registry -> GitHub Release -> Zenodo DOI -> desktop exe) and
+#      pages.yml on main (site redeploy with the stamped version). The
+#      dispatches are explicit because pushes made with GITHUB_TOKEN never
+#      trigger other workflows;
+#   4. verify jobs turn this run red if the release pipeline fails or the
+#      live site does not serve the new version within 15 minutes.
+#
+# Opt-outs and overrides (details in RELEASING.md):
+#   - put "[no-release]" in the head commit message to push without releasing;
+#   - run `python tools/version.py --set X.Y.0` inside the push for a
+#     minor/major bump: the bot releases exactly that version;
+#   - a push whose head commit message starts "Release v" is a manual release
+#     in flight, and the bot stands down (the hand-pushed tag drives
+#     release.yml directly).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "web/**"
+      - "src-tauri/**"
+      - "server.json"
+      - "pyproject.toml"
+
+permissions:
+  contents: write   # push the release commit and tag
+  actions: write    # dispatch release.yml and pages.yml
+
+concurrency:
+  group: auto-release
+  cancel-in-progress: false
+
+jobs:
+  cut:
+    if: >-
+      github.actor != 'github-actions[bot]' &&
+      !startsWith(github.event.head_commit.message, 'Release v') &&
+      !contains(github.event.head_commit.message, '[no-release]')
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.prep.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main        # release the branch tip, not a possibly stale push SHA
+          fetch-depth: 0   # autorelease.py needs the tags and the commit subjects
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Pick the version, stamp all surfaces, write changelog + history
+        id: prep
+        run: |
+          python tools/autorelease.py --prepare | tee prep.out
+          tail -1 prep.out >> "$GITHUB_OUTPUT"   # always `version=X.Y.Z` (or empty)
+      - name: Commit, push, and tag the release
+        if: steps.prep.outputs.version != ''
+        run: |
+          v="${{ steps.prep.outputs.version }}"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Release v${v}"
+          for i in 1 2 3; do
+            if git push origin main; then break; fi
+            if [ "$i" = 3 ]; then echo "::error::could not push the release commit"; exit 1; fi
+            git pull --rebase origin main
+          done
+          git tag -a "v${v}" -m "Release v${v}"   # after the push settles, so the tag is the pushed commit
+          git push origin "v${v}"
+          git ls-remote --exit-code --tags origin "v${v}" >/dev/null
+          echo "tagged and pushed v${v}"
+      - name: Fire the release pipeline and the site redeploy
+        if: steps.prep.outputs.version != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v="${{ steps.prep.outputs.version }}"
+          gh workflow run release.yml --ref "v${v}"
+          gh workflow run pages.yml --ref main
+
+  # Turns this run red if the dispatched release pipeline fails, so nobody has
+  # to remember to go look at the other run.
+  verify-release:
+    needs: cut
+    if: needs.cut.outputs.version != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for the release pipeline to finish green
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag="v${{ needs.cut.outputs.version }}"
+          rid=""
+          for i in $(seq 1 12); do
+            rid=$(gh run list --workflow=release.yml --branch "$tag" --limit 1 --json databaseId --jq '.[0].databaseId' || true)
+            if [ -n "$rid" ]; then break; fi
+            sleep 10
+          done
+          if [ -z "$rid" ]; then echo "::error::no release.yml run appeared for ${tag}"; exit 1; fi
+          echo "watching https://github.com/${GH_REPO}/actions/runs/${rid}"
+          for i in $(seq 1 90); do
+            st=$(gh run view "$rid" --json status --jq .status)
+            if [ "$st" = "completed" ]; then
+              cc=$(gh run view "$rid" --json conclusion --jq .conclusion)
+              if [ "$cc" = "success" ]; then echo "release ${tag}: success"; exit 0; fi
+              echo "::error::release ${tag} finished with conclusion: ${cc}"; exit 1
+            fi
+            sleep 30
+          done
+          echo "::error::release ${tag} did not finish within 45 minutes"; exit 1
+
+  # Turns this run red if the deployed site is not actually serving the new
+  # version (the exact failure mode that motivated all of this).
+  verify-live:
+    needs: cut
+    if: needs.cut.outputs.version != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait until the live site serves the new version
+        run: |
+          v="${{ needs.cut.outputs.version }}"
+          want="const VERSION = \"${v}\""
+          for i in $(seq 1 60); do
+            got=$(curl -fsS -H 'Cache-Control: no-cache' "https://dfieser.github.io/hea-bench/?cb=${GITHUB_RUN_ID}${i}" | grep -oE 'const VERSION = "[^"]+"' | head -1 || true)
+            if [ "$got" = "$want" ]; then echo "live site serves ${v}"; exit 0; fi
+            echo "attempt ${i}: live site has '${got:-no response}', want ${v}"
+            sleep 15
+          done
+          echo "::error::live site did not serve ${v} within 15 minutes"; exit 1

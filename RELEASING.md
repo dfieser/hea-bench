@@ -1,8 +1,9 @@
 # Releasing hea-bench
 
 hea-bench has **one** version number and a **single, hands-off release
-pipeline**. This document explains where the version lives, how to cut a
-release, and the one-time setup that makes it fully automatic.
+pipeline**, and since 2.0.6 the pipeline drives itself: **pushing to
+`main` is releasing**. This document explains where the version lives,
+what a push triggers, the overrides, and the one-time setup.
 
 ## The one version number
 
@@ -32,34 +33,52 @@ python tools/version.py --set 2.1.0  # bump the canonical value + restamp + date
 CI runs `--check` on every push and pull request, so the files can never
 silently drift apart.
 
-The append-only histories are **not** auto-synced; they get a new entry each
-release, by hand: the `## [x.y.z]` section in
+The two append-only histories — the `## [x.y.z]` section in
 [`CHANGELOG.md`](CHANGELOG.md) and the top row of the `VERSION_HISTORY` array
-in [`web/index.html`](web/index.html).
+in [`web/index.html`](web/index.html) — are written at release time by
+[`tools/autorelease.py`](tools/autorelease.py).
 
-## Cutting a release
+## Releases are automatic: push = release
 
-1. Bump and restamp:
-   ```bash
-   python tools/version.py --set X.Y.Z
-   ```
-2. In `CHANGELOG.md`, rename `## [Unreleased]` to `## [X.Y.Z] — <today>` and
-   add a fresh empty `## [Unreleased]` above it. The release notes on GitHub
-   are taken verbatim from this section.
-3. In `web/index.html`, prepend one entry to `VERSION_HISTORY`:
-   `{ version: "X.Y.Z", date: "<today>", notes: "..." }`.
-4. Confirm consistency and commit:
-   ```bash
-   python tools/version.py --check
-   git commit -am "Release vX.Y.Z"
-   ```
-5. Tag and push:
-   ```bash
-   git tag vX.Y.Z
-   git push --follow-tags
-   ```
+Any push to `main` that changes a shippable surface — `src/**`, `web/**`,
+`src-tauri/**`, `server.json`, or `pyproject.toml` — triggers
+[`.github/workflows/auto-release.yml`](.github/workflows/auto-release.yml),
+which with no further input:
 
-That is the whole job. The tag triggers
+1. runs `tools/autorelease.py --prepare`: bumps the patch version (or honors
+   a pre-bumped tree, see below), stamps every surface, promotes the
+   `## [Unreleased]` changelog section (or synthesizes notes from the pushed
+   commit subjects), and prepends the web `VERSION_HISTORY` entry;
+2. commits `Release vX.Y.Z`, pushes it, and pushes an annotated `vX.Y.Z` tag;
+3. dispatches `release.yml` on that tag (the full pipeline below) and
+   `pages.yml` on `main` (site redeploy), explicitly, because pushes made
+   with the workflow token never trigger other workflows on their own;
+4. then **verifies**: the run goes red if the release pipeline fails or if
+   the live site is not serving the new version within 15 minutes.
+
+So the day-to-day release procedure is, in full:
+
+```bash
+git commit -am "Fix the thing"
+git push
+```
+
+Controls, all optional:
+
+- **Skip a release**: put `[no-release]` anywhere in the head commit message
+  of the push. The changes ride along in the next release.
+- **Minor or major bump**: run `python tools/version.py --set X.Y.0` and
+  include that in your push. The bot detects the pre-bumped tree and releases
+  exactly that version instead of a patch bump.
+- **Better release notes**: write them under `## [Unreleased]` in
+  `CHANGELOG.md` before pushing; the bot promotes them verbatim. Otherwise
+  the commit subjects since the last tag become the notes.
+- **Docs, CI, tests, tools, manuscript**: pushes touching only those paths
+  never release.
+
+## The tag pipeline
+
+Whether cut by the bot or by hand, a `vX.Y.Z` tag drives
 [`.github/workflows/release.yml`](.github/workflows/release.yml), which runs
 with no further input:
 
@@ -75,6 +94,30 @@ with no further input:
    DOI under the concept DOI.
 5. **desktop** — build the portable `HEA-Bench.exe` and attach it to the
    release.
+
+## Manual fallback (only if the automation is down)
+
+The bot stands down when the head commit message starts with `Release v`, so
+a manual release never collides with an automatic one:
+
+```bash
+python tools/autorelease.py --prepare --notes "One-line what's-new text"
+git commit -am "Release vX.Y.Z"        # X.Y.Z = the version the script printed
+git tag -a vX.Y.Z -m "Release vX.Y.Z"  # ANNOTATED tag (-a), see below
+git push origin main vX.Y.Z            # push the tag BY NAME
+git ls-remote --tags origin vX.Y.Z     # confirm it is really on the remote
+```
+
+Two traps this recipe avoids, learned the hard way:
+
+- **Never rely on `git push --follow-tags`.** It only pushes *annotated*
+  tags; a plain `git tag vX.Y.Z` makes a lightweight tag, which
+  `--follow-tags` silently skips — the branch pushes, the tag stays local,
+  no release fires, and every surface silently stays on the old version.
+  Always push the tag by name and confirm with `ls-remote`.
+- **A bare commit push is not a release.** Without a tag (or the bot), only
+  the Pages site redeploys; PyPI, the MCP registry, the desktop exe, the
+  GitHub Release, the Zenodo DOI, and the version badge all stay put.
 
 ## One-time setup
 
