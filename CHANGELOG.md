@@ -10,6 +10,14 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.0.6] — 2026-07-09
+
+### Changed
+
+- Landing page: side padding now scales with the window so the top bar has real breathing room
+- Make releases autonomous: any shippable push to main cuts a full patch release
+- Add tools/autorelease.py: one-shot release preparation (version, stamps, changelog, history)
+
 ## [2.0.5] — 2026-07-08
 
 ### Changed
