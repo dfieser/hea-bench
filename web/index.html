@@ -4825,7 +4825,7 @@ font-family: 'Source Sans Pro'
       #landing * { box-sizing: border-box; }
       #landing a { color: var(--accent); text-decoration: none; }
       #landing a:hover { text-decoration: underline; }
-      #landing .wrap { max-width: 980px; margin: 0 auto; padding: 0 40px; }
+      #landing .wrap { max-width: 980px; margin: 0 auto; padding: 0 clamp(40px, 5vw, 72px); }
       @media (max-width: 560px) { #landing .wrap { padding: 0 20px; } }
       #landing .topbar { border-bottom: 1px solid var(--border); background: var(--surface); }
       #landing .topbar__inner { display: flex; align-items: center; gap: 14px; padding: 12px 0; }
@@ -4853,7 +4853,7 @@ font-family: 'Source Sans Pro'
       #landing section.block { padding: 48px 0 8px; }
       #landing .block h2 { font-family: var(--serif); font-size: 26px; color: var(--text-strong); margin: 0 0 8px; font-weight: 700; }
       #landing .block .block__sub { font-size: 15px; color: var(--text-muted); margin: 0 0 26px; max-width: 68ch; }
-      #landing .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+      #landing .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
       @media (max-width: 760px) { #landing .cards { grid-template-columns: 1fr; } }
       #landing .card { background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 20px 20px 18px; display: flex; flex-direction: column; }
       #landing .card h3 { margin: 0 0 6px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
