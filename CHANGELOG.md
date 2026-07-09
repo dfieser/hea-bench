@@ -10,6 +10,13 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.0.7] — 2026-07-09
+
+### Changed
+
+- Landing page: the top bar, stats strip, and footer now respect the page side padding
+- Auto-release: re-dispatch a cancelled downstream run once instead of only going red
+
 ## [2.0.6] — 2026-07-09
 
 ### Changed

@@ -6682,9 +6682,10 @@ font-family: 'Source Sans Pro'
 
     <script src="hea-calculator-core.js"></script>
     <script>
-      const VERSION = "2.0.6";
+      const VERSION = "2.0.7";
       const VERSION_DATE = "2026-07-09";
       const VERSION_HISTORY = [
+        { version: "2.0.7", date: "2026-07-09", notes: "Landing page: the top bar, stats strip, and footer now respect the page side padding; Auto-release: re-dispatch a cancelled downstream run once instead of only going red" },
         { version: "2.0.6", date: "2026-07-09", notes: "Landing page: side padding now scales with the window so the top bar has real breathing room; Make releases autonomous: any shippable push to main cuts a full patch release; Add tools/autorelease.py: one-shot release preparation (version, stamps, changelog, history)" },
         { version: "2.0.5", date: "2026-07-08", notes: "Landing page: widened the shared side padding so the top navigation bar and page sections are no longer crowded against the edges, with a narrower fallback on small phones. Presentation only, with no functional or numerical change to any descriptor, rule, or API" },
         { version: "2.0.4", date: "2026-07-06", notes: "Maintenance: bumped the pinned GitHub Actions off the deprecated Node 20 runtime. No functional or numerical change to any descriptor or rule" },
