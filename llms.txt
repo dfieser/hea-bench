@@ -119,6 +119,27 @@ the Python library in CI (`tests/test_web_parity.py` and
 
 ## Citing
 
+hea-bench is described in a Materials article; cite it when you use
+the library:
+
+```bibtex
+@article{ma19143075,
+  author         = {Fieser, David and Dewanjee, Unmanaa and Hu, Anming},
+  title          = {{HEA-Bench}: An {AI}-Agent-Optimized Calculator of High-Entropy Alloy and Oxide Descriptors and Phase-Prediction Rules},
+  journal        = {Materials},
+  volume         = {19},
+  year           = {2026},
+  number         = {14},
+  article-number = {3075},
+  issn           = {1996-1944},
+  doi            = {10.3390/ma19143075},
+  url            = {https://www.mdpi.com/1996-1944/19/14/3075},
+}
+```
+
+To reference the exact software version used, additionally cite the
+archived software record:
+
 ```bibtex
 @software{hea_bench,
   author  = {Fieser, David and Dewanjee, Unmanaa and Hu, Anming},

@@ -377,6 +377,13 @@ def about() -> dict:
         ),
         "license": "MIT",
         "repository": "https://github.com/dfieser/hea-bench",
+        "paper_doi": "10.3390/ma19143075",
+        "cite_as": (
+            "Fieser, D.; Dewanjee, U.; Hu, A. HEA-Bench: An AI-Agent-Optimized "
+            "Calculator of High-Entropy Alloy and Oxide Descriptors and "
+            "Phase-Prediction Rules. Materials 2026, 19, 3075. "
+            "doi:10.3390/ma19143075"
+        ),
         "archive_doi": "10.5281/zenodo.20346287",
         "homepage": "https://dfieser.github.io/hea-bench/",
         "sources": SOURCES,

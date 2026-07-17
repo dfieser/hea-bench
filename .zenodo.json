@@ -4,7 +4,15 @@
   "language": "eng",
   "license": "mit",
   "title": "hea-bench: An open calculator of high-entropy-alloy and high-entropy-oxide thermodynamic descriptors and empirical phase-prediction rules",
-  "description": "hea-bench is an open, interpretable calculator of the standard high-entropy alloy thermodynamic and geometric descriptors (mixing entropy, atomic-size mismatch, valence-electron concentration, melting temperature, Miedema mixing and formation enthalpies, Yang-Zhang Omega, Mansoori excess entropy, King Phi, Ye phi) and the canonical empirical phase-prediction rules. An oxides mode extends the same approach to high-entropy oxides in four structure families (rock salt, perovskite, fluorite, pyrochlore), with a charge-neutrality oxidation-state solver, Shannon ionic radii, sublattice configurational entropy, the Goldschmidt and Bartel tolerance factors, and the published fluorite and pyrochlore formability criteria. Every quantity is a transparent closed-form expression over a curated element-property table, with no fitted model. The same calculation core ships as a Python library, a zero-install browser app, and a native desktop app; the browser core is parity-tested against the Python library.",
+  "description": "hea-bench is an open, interpretable calculator of the standard high-entropy alloy thermodynamic and geometric descriptors (mixing entropy, atomic-size mismatch, valence-electron concentration, melting temperature, Miedema mixing and formation enthalpies, Yang-Zhang Omega, Mansoori excess entropy, King Phi, Ye phi) and the canonical empirical phase-prediction rules. An oxides mode extends the same approach to high-entropy oxides in four structure families (rock salt, perovskite, fluorite, pyrochlore), with a charge-neutrality oxidation-state solver, Shannon ionic radii, sublattice configurational entropy, the Goldschmidt and Bartel tolerance factors, and the published fluorite and pyrochlore formability criteria. Every quantity is a transparent closed-form expression over a curated element-property table, with no fitted model. The same calculation core ships as a Python library, a zero-install browser app, and a native desktop app; the browser core is parity-tested against the Python library. hea-bench is described in Fieser, D.; Dewanjee, U.; Hu, A. HEA-Bench: An AI-Agent-Optimized Calculator of High-Entropy Alloy and Oxide Descriptors and Phase-Prediction Rules. Materials 2026, 19, 3075. https://doi.org/10.3390/ma19143075",
+  "related_identifiers": [
+    {
+      "identifier": "10.3390/ma19143075",
+      "relation": "isDescribedBy",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    }
+  ],
   "keywords": [
     "high-entropy alloys",
     "high-entropy oxides",

@@ -59,6 +59,7 @@ hea-bench-mcp = "hea_bench.mcp_server:main"
 Homepage = "https://dfieser.github.io/hea-bench/"
 Repository = "https://github.com/dfieser/hea-bench"
 Issues = "https://github.com/dfieser/hea-bench/issues"
+Paper = "https://doi.org/10.3390/ma19143075"
 Archive = "https://doi.org/10.5281/zenodo.20346287"
 
 # The sdist must not sweep in the Tauri Rust build cache

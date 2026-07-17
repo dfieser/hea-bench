@@ -12,6 +12,7 @@ validated against the primary literature.
 **Try it now:** <https://dfieser.github.io/hea-bench/> — no install, runs
 entirely in your browser.
 
+[![Paper](https://img.shields.io/badge/Materials-10.3390%2Fma19143075-2f7d3b)](https://doi.org/10.3390/ma19143075)
 [![DOI](https://zenodo.org/badge/1246292321.svg)](https://doi.org/10.5281/zenodo.20346287)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 ![tests: passing](https://img.shields.io/badge/tests-passing-success)
@@ -232,18 +233,44 @@ Participation is governed by the [Code of Conduct](./CODE_OF_CONDUCT.md).
 
 ## Citation
 
-Citation metadata in [`CITATION.cff`](./CITATION.cff). When citing
-hea-bench, please also cite the primary sources for the parametrizations
-it implements: de Boer et al. 1988 for the Miedema model, the rule
-papers (Yeh 2004, Zhang 2008, Guo–Liu 2011, Yang–Zhang 2012, King 2016,
-Ye 2015), the oxide primaries (Shannon 1976, Goldschmidt 1926, Bartel
-2019, Spiridigliozzi 2021, Subramanian 1983), matminer for the vendored
-pair table, and pymatgen for the Shannon-radius digitization. The full
-grouped bibliography is in the calculator's References view.
+If you use hea-bench in your work, please cite the paper that
+describes it:
 
-hea-bench is archived on Zenodo. The concept DOI
+> Fieser, D.; Dewanjee, U.; Hu, A. HEA-Bench: An AI-Agent-Optimized
+> Calculator of High-Entropy Alloy and Oxide Descriptors and
+> Phase-Prediction Rules. *Materials* **2026**, *19*, 3075.
+> <https://doi.org/10.3390/ma19143075>
+
+```bibtex
+@article{ma19143075,
+  author         = {Fieser, David and Dewanjee, Unmanaa and Hu, Anming},
+  title          = {{HEA-Bench}: An {AI}-Agent-Optimized Calculator of High-Entropy Alloy and Oxide Descriptors and Phase-Prediction Rules},
+  journal        = {Materials},
+  volume         = {19},
+  year           = {2026},
+  number         = {14},
+  article-number = {3075},
+  issn           = {1996-1944},
+  doi            = {10.3390/ma19143075},
+  url            = {https://www.mdpi.com/1996-1944/19/14/3075},
+}
+```
+
+Machine-readable metadata, including this preferred citation, is in
+[`CITATION.cff`](./CITATION.cff) (GitHub's "Cite this repository"
+button uses it). To reference the exact software version you used,
+additionally cite the Zenodo archive: the concept DOI
 [10.5281/zenodo.20346287](https://doi.org/10.5281/zenodo.20346287)
 always resolves to the latest version.
+
+When citing hea-bench, please also cite the primary sources for the
+parametrizations it implements: de Boer et al. 1988 for the Miedema
+model, the rule papers (Yeh 2004, Zhang 2008, Guo–Liu 2011, Yang–Zhang
+2012, King 2016, Ye 2015), the oxide primaries (Shannon 1976,
+Goldschmidt 1926, Bartel 2019, Spiridigliozzi 2021, Subramanian 1983),
+matminer for the vendored pair table, and pymatgen for the
+Shannon-radius digitization. The full grouped bibliography is in the
+calculator's References view.
 
 ## Disclaimer
 
