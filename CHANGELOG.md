@@ -10,6 +10,12 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.0.8] — 2026-07-17
+
+### Changed
+
+- Cite the published Materials article everywhere
+
 ## [2.0.7] — 2026-07-09
 
 ### Changed
