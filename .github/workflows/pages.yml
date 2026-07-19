@@ -26,6 +26,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+      # SEO: the sitemap is generated at deploy time, never committed, so its
+      # lastmod is always the date the live site actually changed. Submitted
+      # once in Google Search Console as
+      # https://dfieser.github.io/hea-bench/sitemap.xml — nothing to maintain.
+      - name: Generate sitemap.xml stamped with the deploy date
+        run: |
+          {
+            echo '<?xml version="1.0" encoding="UTF-8"?>'
+            echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+            echo '  <url>'
+            echo '    <loc>https://dfieser.github.io/hea-bench/</loc>'
+            echo "    <lastmod>$(date -u +%Y-%m-%d)</lastmod>"
+            echo '  </url>'
+            echo '</urlset>'
+          } > web/sitemap.xml
+          cat web/sitemap.xml
       - name: Configure Pages
         uses: actions/configure-pages@v6
       - name: Upload web/ as Pages artifact

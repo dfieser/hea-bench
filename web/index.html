@@ -2,7 +2,76 @@
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HEA-Bench Calculator — High-Entropy Alloy &amp; Oxide Descriptors</title>
-    <meta name="description" content="Compute the standard high-entropy alloy and high-entropy oxide thermodynamic descriptors and empirical phase-prediction rules, entirely in your browser.">
+    <meta name="description" content="HEA-Bench: a free high-entropy alloy (HEA) and high-entropy oxide calculator. Compute the standard thermodynamic descriptors and empirical phase-prediction rules, entirely in your browser.">
+    <link rel="canonical" href="https://dfieser.github.io/hea-bench/">
+    <!-- Google Search Console: paste the <meta name="google-site-verification" content="..."> tag on the next line -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="HEA-Bench">
+    <meta property="og:title" content="HEA-Bench Calculator — High-Entropy Alloy &amp; Oxide Descriptors">
+    <meta property="og:description" content="Free, open calculator of the standard high-entropy alloy (HEA) and high-entropy oxide descriptors and empirical phase-prediction rules. Runs entirely in your browser.">
+    <meta property="og:url" content="https://dfieser.github.io/hea-bench/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="HEA-Bench Calculator — High-Entropy Alloy &amp; Oxide Descriptors">
+    <meta name="twitter:description" content="Free, open calculator of the standard high-entropy alloy (HEA) and high-entropy oxide descriptors and empirical phase-prediction rules. Runs entirely in your browser.">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "@id": "https://dfieser.github.io/hea-bench/#software",
+      "name": "HEA-Bench",
+      "alternateName": [
+        "HEA Bench",
+        "hea-bench",
+        "HEA-Bench Calculator",
+        "High-Entropy Alloy Descriptor Calculator",
+        "High-Entropy Oxide Descriptor Calculator"
+      ],
+      "description": "An open, parity-tested calculator of the standard high-entropy alloy (HEA) and high-entropy oxide (HEO) thermodynamic and geometric descriptors (mixing entropy, atomic-size mismatch, VEC, Miedema mixing enthalpy, Yang-Zhang Omega, King Phi, Ye phi) and the canonical empirical phase-prediction rules. Every number is a transparent closed-form expression over curated, literature-cited data tables.",
+      "url": "https://dfieser.github.io/hea-bench/",
+      "applicationCategory": "EducationalApplication",
+      "applicationSubCategory": "Scientific calculator",
+      "operatingSystem": "Any (web browser); Windows x64 (desktop app)",
+      "isAccessibleForFree": true,
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "license": "https://spdx.org/licenses/MIT.html",
+      "keywords": "high-entropy alloys, high-entropy oxides, thermodynamic descriptors, Miedema model, phase-prediction rules, materials informatics, alloy design",
+      "author": [
+        {
+          "@type": "Person",
+          "name": "David Fieser",
+          "sameAs": "https://orcid.org/0009-0007-5754-4331",
+          "affiliation": { "@type": "Organization", "name": "University of Tennessee Knoxville" }
+        },
+        {
+          "@type": "Person",
+          "name": "Unmanaa Dewanjee",
+          "sameAs": "https://orcid.org/0009-0006-6400-9356",
+          "affiliation": { "@type": "Organization", "name": "University of Tennessee Knoxville" }
+        },
+        {
+          "@type": "Person",
+          "name": "Anming Hu",
+          "sameAs": "https://orcid.org/0000-0001-9794-0549",
+          "affiliation": { "@type": "Organization", "name": "University of Tennessee Knoxville" }
+        }
+      ],
+      "citation": {
+        "@type": "ScholarlyArticle",
+        "headline": "HEA-Bench: An AI-Agent-Optimized Calculator of High-Entropy Alloy and Oxide Descriptors and Phase-Prediction Rules",
+        "author": ["David Fieser", "Unmanaa Dewanjee", "Anming Hu"],
+        "datePublished": "2026",
+        "isPartOf": { "@type": "Periodical", "name": "Materials", "issn": "1996-1944" },
+        "sameAs": "https://doi.org/10.3390/ma19143075",
+        "url": "https://www.mdpi.com/1996-1944/19/14/3075"
+      },
+      "sameAs": [
+        "https://github.com/dfieser/hea-bench",
+        "https://pypi.org/project/hea-bench/",
+        "https://doi.org/10.3390/ma19143075",
+        "https://doi.org/10.5281/zenodo.20346287"
+      ]
+    }
+    </script>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%E2%AC%A2%3C/text%3E%3C/svg%3E">
     <style>
       :root {
@@ -4908,8 +4977,8 @@ font-family: 'Source Sans Pro'
           <h1>The standard high-entropy alloy and oxide descriptors, computed right.</h1>
           <p class="hero__lede">
             HEA-Bench is an open, <strong>parity-tested</strong> calculator of the thermodynamic and
-            geometric descriptors used to screen high-entropy alloys and high-entropy oxides, together
-            with the canonical empirical phase-prediction rules. Every number is a transparent
+            geometric descriptors used to screen high-entropy alloys (HEAs) and high-entropy oxides
+            (HEOs), together with the canonical empirical phase-prediction rules. Every number is a transparent
             closed-form expression over curated, literature-cited data tables. No trained model, no
             black box, no server.
           </p>
@@ -5028,7 +5097,7 @@ font-family: 'Source Sans Pro'
               <h3>Verified</h3>
               <p>An automated parity suite locks the JavaScript port to the Python reference on
                  all 666 element pairs and a curated oxide fixture set, and pins published
-                 literature values in the tests.</p>
+                 literature values as regression benchmarks in the tests.</p>
             </div>
             <div class="pillar">
               <h3>Honest about limits</h3>
