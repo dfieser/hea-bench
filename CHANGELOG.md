@@ -10,6 +10,13 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.0.9] — 2026-07-19
+
+### Changed
+
+- Add the Google Search Console ownership verification tag
+- SEO: canonical, Open Graph, and JSON-LD software metadata on the web app, plus a deploy-time sitemap.xml
+
 ## [2.0.8] — 2026-07-17
 
 ### Changed
