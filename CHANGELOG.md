@@ -10,6 +10,13 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.0.10] — 2026-07-19
+
+### Changed
+
+- SEO: sitemap discovery hint in the page head
+- Zenodo metadata: link the live web app as a related identifier
+
 ## [2.0.9] — 2026-07-19
 
 ### Changed
