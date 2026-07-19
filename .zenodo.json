@@ -11,6 +11,11 @@
       "relation": "isDescribedBy",
       "resource_type": "publication-article",
       "scheme": "doi"
+    },
+    {
+      "identifier": "https://dfieser.github.io/hea-bench/",
+      "relation": "isSourceOf",
+      "scheme": "url"
     }
   ],
   "keywords": [
