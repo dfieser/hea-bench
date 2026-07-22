@@ -156,7 +156,7 @@ def test_oxide_report_unknown_family():
 
 def test_element_coverage_counts():
     out = element_coverage()
-    assert out["alloy_count"] == 37
+    assert out["alloy_count"] == 55
     assert out["oxide_count"] == 94
     assert "Zr" in out["alloy_descriptors_and_rules"]
     assert "La" in out["oxide_shannon_table"]

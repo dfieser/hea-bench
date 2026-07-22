@@ -57,18 +57,21 @@ def test_self_pair_is_zero() -> None:
 
 # ---- Coverage ----
 
-def test_full_pair_coverage_of_24_element_table() -> None:
-    """Every (i, j) pair from our 24-element ELEMENTAL_DATA must be in
-    the vendored Miedema table. The README's '100% pair coverage' claim
-    is enforced here so any future vendored-data drift surfaces."""
+def test_full_pair_coverage_of_55_element_table_except_th_u() -> None:
+    """Every (i, j) pair from our 55-element ELEMENTAL_DATA must be in
+    the vendored Miedema table, with exactly one known exception:
+    Th-U is absent from matminer's 2628-pair file (the only
+    actinide-actinide pair our table would need). The exception is
+    pinned exactly so any OTHER vendored-data drift still surfaces.
+    Compositions containing both Th and U raise KeyError from
+    pair_enthalpy, by design (no silent zero)."""
     our_elements = set(ELEMENTAL_DATA)
     missing = pe.missing_pairs(our_elements)
-    assert missing == set(), f"missing pairs: {sorted(missing)}"
+    assert missing == {frozenset({"Th", "U"})}, f"missing pairs: {sorted(missing)}"
 
 
-def test_table_covers_more_than_24_elements() -> None:
-    """matminer ships 75 elements; our table has 24. Confirm we get
-    meaningful headroom for Phase 2e coverage expansion."""
+def test_table_covers_more_than_our_table() -> None:
+    """matminer ships 75 elements; confirm headroom beyond our 55."""
     elems = pe.covered_elements()
     assert len(elems) >= 70  # exactly 75 today; allow some margin
 

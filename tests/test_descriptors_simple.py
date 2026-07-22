@@ -19,12 +19,13 @@ _CANTOR = {"Co": 0.2, "Cr": 0.2, "Fe": 0.2, "Mn": 0.2, "Ni": 0.2}
 
 # ---- elemental data table ----
 
-def test_table_has_37_elements() -> None:
+def test_table_has_55_elements() -> None:
     """The original 24 legacy elements plus the six v1.2 additions
-    (Mg, Zn, Sn, Re, Au, Li) plus the seven v1.3 additions
-    (Be, Ca, Ce, Gd, In, La, Sc). B, C, and N are deliberately
+    (Mg, Zn, Sn, Re, Au, Li), the seven v1.3 additions (Be, Ca, Ce,
+    Gd, In, La, Sc), and the eighteen v2.1 additions (see
+    test_element_expansion.py). B, C, and N remain deliberately
     excluded; see the elemental.py docstring."""
-    assert len(ELEMENTAL_DATA) == 37
+    assert len(ELEMENTAL_DATA) == 55
 
 
 def test_v12_v13_additions_present_bcn_absent() -> None:
