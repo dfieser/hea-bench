@@ -19,8 +19,11 @@ Quick start::
 """
 
 from .composition import Composition, normalize, parse_formula
+from .descriptors.elastic import h_elastic
 from .descriptors.electronegativity import delta_chi, mean_electronegativity
 from .descriptors.entropy import smix
+from .descriptors.gamma import wang_gamma
+from .descriptors.lam import singh_lambda
 from .descriptors.melting import melting_temperature
 from .descriptors.miedema import mixing_enthalpy
 from .descriptors.omega import omega
@@ -51,4 +54,7 @@ __all__ = [
     "phi_ye",
     "delta_chi",
     "mean_electronegativity",
+    "singh_lambda",
+    "wang_gamma",
+    "h_elastic",
 ]

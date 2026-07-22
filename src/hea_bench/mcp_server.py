@@ -36,7 +36,17 @@ from .oxides import (
     describe_pyrochlore,
     describe_rock_salt,
 )
-from .rules import guo_vec, king_phi, yang_omega, ye_phi, yeh_smix, zhang_delta
+from .rules import (
+    guo_vec,
+    king_phi,
+    senkov_kappa,
+    sheikh_ductility,
+    tsai_sigma,
+    yang_omega,
+    ye_phi,
+    yeh_smix,
+    zhang_delta,
+)
 
 #: Citation keys -> short reference strings, returned by ``about()`` and
 #: referenced by the per-value ``source`` fields.
@@ -52,7 +62,15 @@ SOURCES = {
     "deBoer1988": "de Boer et al. (1988). Cohesion in Metals. Miedema parametrization.",
     "Takeuchi2005": "Takeuchi & Inoue (2005). Mater. Trans. 46, 2817. Pair-enthalpy table.",
     "Pauling": "Pauling electronegativities from the vendored element table.",
-    "CRC": "Atomic radii and melting points from the curated 37-element table.",
+    "CRC": "Melting points (CRC Handbook) from the curated 55-element table.",
+    "LA4003": "Teatum, Gschneidner & Waber (1968). LA-4003. CN12 metallic radii.",
+    "MS2017": "Miracle & Senkov (2017). Acta Mater. 122, 448. Review; Table 3 cross-checks.",
+    "Singh2014": "Singh et al. (2014). Intermetallics 53, 112. Lambda = S_mix/delta^2.",
+    "Wang2015": "Wang et al. (2015). Scripta Mater. 94, 28. Solid-angle gamma.",
+    "SenkovMiracle2016": "Senkov & Miracle (2016). J. Alloys Compd. 658, 603. k1 vs k1_cr(T).",
+    "Andreoli2019": "Andreoli et al. (2019). Materialia 5, 100222. Elastic-strain energy.",
+    "Tsai2013": "Tsai et al. (2013). Mater. Res. Lett. 1, 207. Sigma-phase VEC window.",
+    "Sheikh2016": "Sheikh et al. (2016). J. Appl. Phys. 120, 164902. RHEA ductility VEC.",
     "Shannon1976": "Shannon (1976). Acta Cryst. A32, 751. Effective ionic radii.",
     "Goldschmidt1926": "Goldschmidt (1926). Naturwissenschaften 14, 477. Tolerance factor.",
     "Bartel2019": "Bartel et al. (2019). Sci. Adv. 5, eaav0693. tau factor.",
@@ -78,6 +96,9 @@ _DESCRIPTORS = {
     "delta_g_max": (hb.delta_g_max, "kJ/mol", "King2016"),
     "phi_king": (hb.phi_king, "dimensionless", "King2016"),
     "phi_ye": (hb.phi_ye, "dimensionless", "Ye2015"),
+    "lambda_singh": (hb.singh_lambda, "J/(mol K %^2)", "Singh2014"),
+    "gamma_wang": (hb.wang_gamma, "dimensionless", "Wang2015"),
+    "h_elastic": (hb.h_elastic, "kJ/mol", "Andreoli2019"),
 }
 
 _OXIDE_FAMILIES = {
@@ -139,12 +160,13 @@ def alloy_descriptors(compositions: list[str], king_temperature: float | None = 
 
     Each value is returned with its unit and the citation key of its
     parametrization (see ``about()`` for the key -> reference map).
-    Compositions containing elements outside the curated 37-element
+    Compositions containing elements outside the curated 55-element
     table return ``null`` for the affected descriptors plus a warning,
     never a silent wrong number.
 
     ``king_temperature`` (kelvin) optionally overrides the
-    rule-of-mixtures melting temperature used by the King Phi proxy.
+    rule-of-mixtures melting temperature used by the King Phi proxy
+    and the Senkov-Miracle kappa criterion.
     """
     results = []
     for formula in compositions:
@@ -168,6 +190,11 @@ def alloy_descriptors(compositions: list[str], king_temperature: float | None = 
                     f"{name}: value is unbounded for {formula!r} "
                     f"(no competing intermetallic); the verdict is unaffected"
                 )
+            elif value is None:
+                warnings.append(
+                    f"{name}: not computable for {formula!r} "
+                    f"(an element lacks the required per-element data)"
+                )
         results.append(
             {"input": formula, "composition": comp, "descriptors": descriptors, "warnings": warnings}
         )
@@ -175,7 +202,7 @@ def alloy_descriptors(compositions: list[str], king_temperature: float | None = 
 
 
 def alloy_rules(compositions: list[str], king_temperature: float | None = None) -> dict:
-    """Apply the six canonical empirical phase-prediction rules to a batch.
+    """Apply the nine canonical empirical phase-prediction rules to a batch.
 
     Each verdict is returned with the descriptor value it was judged on
     and the published threshold, so the margin is auditable. These rules
@@ -219,6 +246,43 @@ def alloy_rules(compositions: list[str], king_temperature: float | None = None) 
         else:
             apply("king_phi", king_phi, hb.phi_king, king_phi.DEFAULT_THRESHOLD, "King2016")
         apply("ye_phi", ye_phi, hb.phi_ye, ye_phi.DEFAULT_THRESHOLD, "Ye2015")
+
+        try:
+            kp = senkov_kappa.predict(comp, temperature=king_temperature)
+            rules["senkov_kappa"] = {
+                "verdict": kp.verdict,
+                "value": _finite(kp.k1),
+                "threshold": _finite(kp.k1_cr),
+                "temperature_K": kp.temperature_K,
+                "source": "SenkovMiracle2016",
+            }
+        except Exception as exc:
+            rules["senkov_kappa"] = {"verdict": None, "value": None, "threshold": None, "source": "SenkovMiracle2016"}
+            warnings.append(f"senkov_kappa: not computable for {formula!r} ({exc})")
+
+        try:
+            sp = tsai_sigma.predict(comp)
+            rules["tsai_sigma"] = {
+                "verdict": sp.verdict,
+                "value": sp.vec,
+                "threshold": "Cr/V present and 6.88 <= VEC <= 7.84",
+                "source": "Tsai2013",
+            }
+        except Exception as exc:
+            rules["tsai_sigma"] = {"verdict": None, "value": None, "threshold": None, "source": "Tsai2013"}
+            warnings.append(f"tsai_sigma: not computable for {formula!r} ({exc})")
+
+        try:
+            dp = sheikh_ductility.predict(comp)
+            rules["sheikh_ductility"] = {
+                "verdict": dp.verdict,
+                "value": dp.vec,
+                "threshold": "VEC < 4.5 ductile, >= 4.6 brittle (bcc RHEAs)",
+                "source": "Sheikh2016",
+            }
+        except Exception as exc:
+            rules["sheikh_ductility"] = {"verdict": None, "value": None, "threshold": None, "source": "Sheikh2016"}
+            warnings.append(f"sheikh_ductility: not computable for {formula!r} ({exc})")
 
         results.append({"input": formula, "composition": comp, "rules": rules, "warnings": warnings})
     return _stamp({"results": results})

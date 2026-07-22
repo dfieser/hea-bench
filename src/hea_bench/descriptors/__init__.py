@@ -4,7 +4,10 @@ The descriptor namespace is populated incrementally from the legacy
 calculator and the v1.1 phi-family work.
 """
 
+from .elastic import h_elastic
 from .electronegativity import delta_chi, mean_electronegativity
+from .gamma import wang_gamma
+from .lam import singh_lambda
 from .entropy import smix
 from .melting import melting_temperature
 from .miedema import mixing_enthalpy
