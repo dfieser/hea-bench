@@ -5097,9 +5097,11 @@ font-family: 'Source Sans Pro'
   </style></head>
   <body>
     <script>
-      // A deep link (#theory, #refs, #equations, #sec-...) opens the calculator
-      // immediately; a bare URL or #home shows the landing page first.
-      if (location.hash && location.hash !== '#home' && location.hash !== '#top' && location.hash !== '#legal') {
+      // A deep link (#theory, #refs, #equations, #sec-...) or a composition
+      // permalink (?comp=...) opens the calculator immediately; a bare URL
+      // or #home shows the landing page first.
+      if ((location.hash && location.hash !== '#home' && location.hash !== '#top' && location.hash !== '#legal') ||
+          /[?&](comp|kingT)=/.test(location.search)) {
         document.body.classList.add('show-app');
       }
     </script>
@@ -5414,7 +5416,12 @@ font-family: 'Source Sans Pro'
       (function () {
         function landingHash() {
           var h = window.location.hash;
-          return h === '' || h === '#home' || h === '#top' || h === '#legal';
+          if (h === '#home' || h === '#top' || h === '#legal') return true;
+          // A composition permalink (?comp=...) is a link to a result:
+          // open the calculator, not the landing page. #home still wins
+          // so the brand button works on permalink URLs too.
+          if (h === '' && /[?&](comp|kingT)=/.test(window.location.search)) return false;
+          return h === '';
         }
         function sync() {
           if (landingHash()) {
@@ -8767,6 +8774,7 @@ font-family: 'Source Sans Pro'
         // But for simplicity and consistency with the existing calculator,
         // use pairwise approach.
 
+        const missingMiedemaPairs = [];
         for (let i = 0; i < n; i++) {
           for (let j = i + 1; j < n; j++) {
             const ci = fractions[elements[i]];
@@ -8784,7 +8792,7 @@ font-family: 'Source Sans Pro'
               H_compound_total += (ci + cj) * comp.H_form;
             } else {
               hasCompound = false;
-              warnings.push(`Missing Miedema data for ${elements[i]}–${elements[j]} compound enthalpy.`);
+              missingMiedemaPairs.push(`${elements[i]}–${elements[j]}`);
             }
 
             // Solid solution
@@ -8806,6 +8814,13 @@ font-family: 'Source Sans Pro'
               hasAM = false;
             }
           }
+        }
+        if (missingMiedemaPairs.length) {
+          warnings.push(
+            missingMiedemaPairs.length === 1
+              ? `Missing Miedema data for ${missingMiedemaPairs[0]} compound enthalpy.`
+              : `Miedema decomposition unavailable: ${missingMiedemaPairs.length} element pairs lack Miedema parameters (${missingMiedemaPairs.join(", ")}). Core descriptors are unaffected; see the Data view coverage matrix.`
+          );
         }
 
         return {
@@ -9373,7 +9388,7 @@ font-family: 'Source Sans Pro'
         s += '<rect class="map-region--ss2" x="' + X(0) + '" y="' + Y(7) + '" width="' + (X(8.5) - X(0)) + '" height="' + (Y(-22) - Y(7)) + '"/>';
         s += '<rect class="map-region--ss" x="' + X(1) + '" y="' + Y(5) + '" width="' + (X(6) - X(1)) + '" height="' + (Y(-15) - Y(5)) + '"/>';
         s += '<rect class="map-region--bmg" x="' + X(9) + '" y="' + Y(-5.5) + '" width="' + (X(16) - X(9)) + '" height="' + (Y(-49) - Y(-5.5)) + '"/>';
-        s += '<text class="map-region-label" x="' + (X(1) + 6) + '" y="' + (Y(5) + 14) + '">SS · Zhang 2008</text>';
+        s += '<text class="map-region-label" x="' + (X(1) + 6) + '" y="' + (Y(-15) - 6) + '">SS · Zhang 2008</text>';
         s += '<text class="map-region-label" x="' + (X(0) + 6) + '" y="' + (Y(7) + 14) + '">SS envelope · Guo-Liu 2011</text>';
         s += '<text class="map-region-label" x="' + (X(9) + 6) + '" y="' + (Y(-5.5) + 14) + '">BMG · Guo-Liu 2011</text>';
         s += '<line class="map-axis" x1="46" x2="46" y1="10" y2="264"/><line class="map-axis" x1="46" x2="450" y1="264" y2="264"/>';
@@ -9430,10 +9445,11 @@ font-family: 'Source Sans Pro'
         s += '<text class="map-region-label" x="' + (X(0) + 6) + '" y="58">BCC &lt; 6.87 · Guo 2011</text>';
         s += '<text class="map-region-label" x="' + (X(6.87) + 5) + '" y="34">duplex</text>';
         s += '<text class="map-region-label" x="' + (X(8) + 6) + '" y="58">FCC ≥ 8 · Guo 2011</text>';
-        // Sigma window overlay (Tsai 2013).
+        // Sigma window overlay (Tsai 2013), above the band so the axis
+        // tick labels stay clear.
         s += '<g opacity="' + (sigmaActive ? "1" : "0.35") + '">';
-        s += '<rect class="map-region--warn" x="' + X(6.88) + '" y="78" width="' + (X(7.84) - X(6.88)) + '" height="14"/>';
-        s += '<text class="map-note" x="' + (X(7.84) + 8) + '" y="89">σ window 6.88-7.84 · Tsai 2013' + (sigmaActive ? "" : " (no Cr/V here)") + "</text>";
+        s += '<rect class="map-region--warn" x="' + X(6.88) + '" y="8" width="' + (X(7.84) - X(6.88)) + '" height="12"/>';
+        s += '<text class="map-note" x="' + (X(7.84) + 8) + '" y="17">σ window 6.88-7.84 · Tsai 2013' + (sigmaActive ? "" : " (no Cr/V here)") + "</text>";
         s += "</g>";
         // Sheikh ductility line (refractory bcc alloys).
         s += '<line class="map-threshold" x1="' + X(4.5) + '" x2="' + X(4.5) + '" y1="24" y2="70"/>';

@@ -10,6 +10,14 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Fixed
+
+- Composition permalinks (`?comp=...`) now open the calculator directly;
+  previously the landing overlay stayed on top of the computed result,
+  which made shared and cited links look broken.
+- Alloys outside the Miedema decomposition's parameter set now get one
+  summary warning instead of a warning per element pair.
+
 ### Added
 
 - Element coverage 37 → 55 across all surfaces: the full experimentally
