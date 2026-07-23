@@ -9,7 +9,17 @@ from pathlib import Path
 import pytest
 
 import hea_bench as hb
-from hea_bench.rules import guo_vec, king_phi, yang_omega, ye_phi, yeh_smix, zhang_delta
+from hea_bench.rules import (
+    guo_vec,
+    king_phi,
+    senkov_kappa,
+    sheikh_ductility,
+    tsai_sigma,
+    yang_omega,
+    ye_phi,
+    yeh_smix,
+    zhang_delta,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES_PATH = ROOT / "tests" / "data" / "web_parity_cases.json"
@@ -31,6 +41,9 @@ DESCRIPTOR_KEYS = (
     "Phi_king",
     "Phi_ye",
     "King_temperature_K",
+    "Lambda_singh",
+    "gamma_wang",
+    "H_elastic",
 )
 
 RULE_KEYS = (
@@ -40,6 +53,9 @@ RULE_KEYS = (
     "yang_omega",
     "king_phi",
     "ye_phi",
+    "senkov_kappa",
+    "tsai_sigma",
+    "sheikh_ductility",
 )
 
 
@@ -91,6 +107,9 @@ def _python_snapshot() -> dict[str, dict]:
             "Phi_king": hb.phi_king(composition, temperature=king_temperature),
             "Phi_ye": hb.phi_ye(composition),
             "King_temperature_K": effective_temperature,
+            "Lambda_singh": hb.singh_lambda(composition),
+            "gamma_wang": hb.wang_gamma(composition),
+            "H_elastic": hb.h_elastic(composition),
         }
 
         rules = {
@@ -108,6 +127,15 @@ def _python_snapshot() -> dict[str, dict]:
                 "verdict": king_phi.predict(composition, temperature_policy=king_temperature)
             },
             "ye_phi": {"verdict": ye_phi.predict(composition)},
+            "senkov_kappa": {
+                "verdict": senkov_kappa.predict(
+                    composition, temperature=king_temperature
+                ).verdict
+            },
+            "tsai_sigma": {"verdict": tsai_sigma.predict(composition).verdict},
+            "sheikh_ductility": {
+                "verdict": sheikh_ductility.predict(composition).verdict
+            },
         }
 
         snapshot[case["name"]] = {

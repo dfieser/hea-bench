@@ -100,6 +100,117 @@
     }
   },
   {
+    "name": "ygdtbdyho",
+    "composition": {
+      "Y": 1.0,
+      "Gd": 1.0,
+      "Tb": 1.0,
+      "Dy": 1.0,
+      "Ho": 1.0
+    }
+  },
+  {
+    "name": "gdtbdyhoer",
+    "composition": {
+      "Gd": 1.0,
+      "Tb": 1.0,
+      "Dy": 1.0,
+      "Ho": 1.0,
+      "Er": 1.0
+    }
+  },
+  {
+    "name": "gdtbdytmlu",
+    "composition": {
+      "Gd": 1.0,
+      "Tb": 1.0,
+      "Dy": 1.0,
+      "Tm": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
+    "name": "prndsmgdy",
+    "composition": {
+      "Pr": 1.0,
+      "Nd": 1.0,
+      "Sm": 1.0,
+      "Gd": 1.0,
+      "Y": 1.0
+    }
+  },
+  {
+    "name": "unbzrtimo",
+    "composition": {
+      "U": 1.0,
+      "Nb": 1.0,
+      "Zr": 1.0,
+      "Ti": 1.0,
+      "Mo": 1.0
+    }
+  },
+  {
+    "name": "nbtamowth",
+    "composition": {
+      "Nb": 1.0,
+      "Ta": 1.0,
+      "Mo": 1.0,
+      "W": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
+    "name": "snpbinbisb",
+    "composition": {
+      "Sn": 1.0,
+      "Pb": 1.0,
+      "In": 1.0,
+      "Bi": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
+    "name": "srcaybmgzn",
+    "composition": {
+      "Sr": 1.0,
+      "Ca": 1.0,
+      "Yb": 1.0,
+      "Mg": 1.0,
+      "Zn": 1.0
+    }
+  },
+  {
+    "name": "cocrfeniga",
+    "composition": {
+      "Co": 1.0,
+      "Cr": 1.0,
+      "Fe": 1.0,
+      "Ni": 1.0,
+      "Ga": 1.0
+    }
+  },
+  {
+    "name": "cocrfenige",
+    "composition": {
+      "Co": 1.0,
+      "Cr": 1.0,
+      "Fe": 1.0,
+      "Ni": 1.0,
+      "Ge": 1.0
+    }
+  },
+  {
+    "name": "unbzrtimo_1200k",
+    "composition": {
+      "U": 1.0,
+      "Nb": 1.0,
+      "Zr": 1.0,
+      "Ti": 1.0,
+      "Mo": 1.0
+    },
+    "king_temperature": 1200.0
+  },
+  {
     "name": "binary_ag_al",
     "composition": {
       "Ag": 1.0,
@@ -118,6 +229,13 @@
     "composition": {
       "Ag": 1.0,
       "Be": 1.0
+    }
+  },
+  {
+    "name": "binary_ag_bi",
+    "composition": {
+      "Ag": 1.0,
+      "Bi": 1.0
     }
   },
   {
@@ -156,10 +274,31 @@
     }
   },
   {
+    "name": "binary_ag_dy",
+    "composition": {
+      "Ag": 1.0,
+      "Dy": 1.0
+    }
+  },
+  {
+    "name": "binary_ag_er",
+    "composition": {
+      "Ag": 1.0,
+      "Er": 1.0
+    }
+  },
+  {
     "name": "binary_ag_fe",
     "composition": {
       "Ag": 1.0,
       "Fe": 1.0
+    }
+  },
+  {
+    "name": "binary_ag_ga",
+    "composition": {
+      "Ag": 1.0,
+      "Ga": 1.0
     }
   },
   {
@@ -170,10 +309,24 @@
     }
   },
   {
+    "name": "binary_ag_ge",
+    "composition": {
+      "Ag": 1.0,
+      "Ge": 1.0
+    }
+  },
+  {
     "name": "binary_ag_hf",
     "composition": {
       "Ag": 1.0,
       "Hf": 1.0
+    }
+  },
+  {
+    "name": "binary_ag_ho",
+    "composition": {
+      "Ag": 1.0,
+      "Ho": 1.0
     }
   },
   {
@@ -205,6 +358,13 @@
     }
   },
   {
+    "name": "binary_ag_lu",
+    "composition": {
+      "Ag": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
     "name": "binary_ag_mg",
     "composition": {
       "Ag": 1.0,
@@ -233,6 +393,13 @@
     }
   },
   {
+    "name": "binary_ag_nd",
+    "composition": {
+      "Ag": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
     "name": "binary_ag_ni",
     "composition": {
       "Ag": 1.0,
@@ -247,10 +414,24 @@
     }
   },
   {
+    "name": "binary_ag_pb",
+    "composition": {
+      "Ag": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_ag_pd",
     "composition": {
       "Ag": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_ag_pr",
+    "composition": {
+      "Ag": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -282,6 +463,13 @@
     }
   },
   {
+    "name": "binary_ag_sb",
+    "composition": {
+      "Ag": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_ag_sc",
     "composition": {
       "Ag": 1.0,
@@ -296,10 +484,24 @@
     }
   },
   {
+    "name": "binary_ag_sm",
+    "composition": {
+      "Ag": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_ag_sn",
     "composition": {
       "Ag": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_ag_sr",
+    "composition": {
+      "Ag": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -310,10 +512,38 @@
     }
   },
   {
+    "name": "binary_ag_tb",
+    "composition": {
+      "Ag": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_ag_th",
+    "composition": {
+      "Ag": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_ag_ti",
     "composition": {
       "Ag": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_ag_tm",
+    "composition": {
+      "Ag": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_ag_u",
+    "composition": {
+      "Ag": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -335,6 +565,13 @@
     "composition": {
       "Ag": 1.0,
       "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_ag_yb",
+    "composition": {
+      "Ag": 1.0,
+      "Yb": 1.0
     }
   },
   {
@@ -363,6 +600,13 @@
     "composition": {
       "Al": 1.0,
       "Be": 1.0
+    }
+  },
+  {
+    "name": "binary_al_bi",
+    "composition": {
+      "Al": 1.0,
+      "Bi": 1.0
     }
   },
   {
@@ -401,10 +645,31 @@
     }
   },
   {
+    "name": "binary_al_dy",
+    "composition": {
+      "Al": 1.0,
+      "Dy": 1.0
+    }
+  },
+  {
+    "name": "binary_al_er",
+    "composition": {
+      "Al": 1.0,
+      "Er": 1.0
+    }
+  },
+  {
     "name": "binary_al_fe",
     "composition": {
       "Al": 1.0,
       "Fe": 1.0
+    }
+  },
+  {
+    "name": "binary_al_ga",
+    "composition": {
+      "Al": 1.0,
+      "Ga": 1.0
     }
   },
   {
@@ -415,10 +680,24 @@
     }
   },
   {
+    "name": "binary_al_ge",
+    "composition": {
+      "Al": 1.0,
+      "Ge": 1.0
+    }
+  },
+  {
     "name": "binary_al_hf",
     "composition": {
       "Al": 1.0,
       "Hf": 1.0
+    }
+  },
+  {
+    "name": "binary_al_ho",
+    "composition": {
+      "Al": 1.0,
+      "Ho": 1.0
     }
   },
   {
@@ -450,6 +729,13 @@
     }
   },
   {
+    "name": "binary_al_lu",
+    "composition": {
+      "Al": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
     "name": "binary_al_mg",
     "composition": {
       "Al": 1.0,
@@ -478,6 +764,13 @@
     }
   },
   {
+    "name": "binary_al_nd",
+    "composition": {
+      "Al": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
     "name": "binary_al_ni",
     "composition": {
       "Al": 1.0,
@@ -492,10 +785,24 @@
     }
   },
   {
+    "name": "binary_al_pb",
+    "composition": {
+      "Al": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_al_pd",
     "composition": {
       "Al": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_al_pr",
+    "composition": {
+      "Al": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -527,6 +834,13 @@
     }
   },
   {
+    "name": "binary_al_sb",
+    "composition": {
+      "Al": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_al_sc",
     "composition": {
       "Al": 1.0,
@@ -541,10 +855,24 @@
     }
   },
   {
+    "name": "binary_al_sm",
+    "composition": {
+      "Al": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_al_sn",
     "composition": {
       "Al": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_al_sr",
+    "composition": {
+      "Al": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -555,10 +883,38 @@
     }
   },
   {
+    "name": "binary_al_tb",
+    "composition": {
+      "Al": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_al_th",
+    "composition": {
+      "Al": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_al_ti",
     "composition": {
       "Al": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_al_tm",
+    "composition": {
+      "Al": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_al_u",
+    "composition": {
+      "Al": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -583,6 +939,13 @@
     }
   },
   {
+    "name": "binary_al_yb",
+    "composition": {
+      "Al": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_al_zn",
     "composition": {
       "Al": 1.0,
@@ -601,6 +964,13 @@
     "composition": {
       "Au": 1.0,
       "Be": 1.0
+    }
+  },
+  {
+    "name": "binary_au_bi",
+    "composition": {
+      "Au": 1.0,
+      "Bi": 1.0
     }
   },
   {
@@ -639,10 +1009,31 @@
     }
   },
   {
+    "name": "binary_au_dy",
+    "composition": {
+      "Au": 1.0,
+      "Dy": 1.0
+    }
+  },
+  {
+    "name": "binary_au_er",
+    "composition": {
+      "Au": 1.0,
+      "Er": 1.0
+    }
+  },
+  {
     "name": "binary_au_fe",
     "composition": {
       "Au": 1.0,
       "Fe": 1.0
+    }
+  },
+  {
+    "name": "binary_au_ga",
+    "composition": {
+      "Au": 1.0,
+      "Ga": 1.0
     }
   },
   {
@@ -653,10 +1044,24 @@
     }
   },
   {
+    "name": "binary_au_ge",
+    "composition": {
+      "Au": 1.0,
+      "Ge": 1.0
+    }
+  },
+  {
     "name": "binary_au_hf",
     "composition": {
       "Au": 1.0,
       "Hf": 1.0
+    }
+  },
+  {
+    "name": "binary_au_ho",
+    "composition": {
+      "Au": 1.0,
+      "Ho": 1.0
     }
   },
   {
@@ -688,6 +1093,13 @@
     }
   },
   {
+    "name": "binary_au_lu",
+    "composition": {
+      "Au": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
     "name": "binary_au_mg",
     "composition": {
       "Au": 1.0,
@@ -716,6 +1128,13 @@
     }
   },
   {
+    "name": "binary_au_nd",
+    "composition": {
+      "Au": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
     "name": "binary_au_ni",
     "composition": {
       "Au": 1.0,
@@ -730,10 +1149,24 @@
     }
   },
   {
+    "name": "binary_au_pb",
+    "composition": {
+      "Au": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_au_pd",
     "composition": {
       "Au": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_au_pr",
+    "composition": {
+      "Au": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -765,6 +1198,13 @@
     }
   },
   {
+    "name": "binary_au_sb",
+    "composition": {
+      "Au": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_au_sc",
     "composition": {
       "Au": 1.0,
@@ -779,10 +1219,24 @@
     }
   },
   {
+    "name": "binary_au_sm",
+    "composition": {
+      "Au": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_au_sn",
     "composition": {
       "Au": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_au_sr",
+    "composition": {
+      "Au": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -793,10 +1247,38 @@
     }
   },
   {
+    "name": "binary_au_tb",
+    "composition": {
+      "Au": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_au_th",
+    "composition": {
+      "Au": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_au_ti",
     "composition": {
       "Au": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_au_tm",
+    "composition": {
+      "Au": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_au_u",
+    "composition": {
+      "Au": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -821,6 +1303,13 @@
     }
   },
   {
+    "name": "binary_au_yb",
+    "composition": {
+      "Au": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_au_zn",
     "composition": {
       "Au": 1.0,
@@ -832,6 +1321,13 @@
     "composition": {
       "Au": 1.0,
       "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_be_bi",
+    "composition": {
+      "Be": 1.0,
+      "Bi": 1.0
     }
   },
   {
@@ -870,10 +1366,31 @@
     }
   },
   {
+    "name": "binary_be_dy",
+    "composition": {
+      "Be": 1.0,
+      "Dy": 1.0
+    }
+  },
+  {
+    "name": "binary_be_er",
+    "composition": {
+      "Be": 1.0,
+      "Er": 1.0
+    }
+  },
+  {
     "name": "binary_be_fe",
     "composition": {
       "Be": 1.0,
       "Fe": 1.0
+    }
+  },
+  {
+    "name": "binary_be_ga",
+    "composition": {
+      "Be": 1.0,
+      "Ga": 1.0
     }
   },
   {
@@ -884,10 +1401,24 @@
     }
   },
   {
+    "name": "binary_be_ge",
+    "composition": {
+      "Be": 1.0,
+      "Ge": 1.0
+    }
+  },
+  {
     "name": "binary_be_hf",
     "composition": {
       "Be": 1.0,
       "Hf": 1.0
+    }
+  },
+  {
+    "name": "binary_be_ho",
+    "composition": {
+      "Be": 1.0,
+      "Ho": 1.0
     }
   },
   {
@@ -919,6 +1450,13 @@
     }
   },
   {
+    "name": "binary_be_lu",
+    "composition": {
+      "Be": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
     "name": "binary_be_mg",
     "composition": {
       "Be": 1.0,
@@ -947,6 +1485,13 @@
     }
   },
   {
+    "name": "binary_be_nd",
+    "composition": {
+      "Be": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
     "name": "binary_be_ni",
     "composition": {
       "Be": 1.0,
@@ -961,10 +1506,24 @@
     }
   },
   {
+    "name": "binary_be_pb",
+    "composition": {
+      "Be": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_be_pd",
     "composition": {
       "Be": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_be_pr",
+    "composition": {
+      "Be": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -996,6 +1555,13 @@
     }
   },
   {
+    "name": "binary_be_sb",
+    "composition": {
+      "Be": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_be_sc",
     "composition": {
       "Be": 1.0,
@@ -1010,10 +1576,24 @@
     }
   },
   {
+    "name": "binary_be_sm",
+    "composition": {
+      "Be": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_be_sn",
     "composition": {
       "Be": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_be_sr",
+    "composition": {
+      "Be": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -1024,10 +1604,38 @@
     }
   },
   {
+    "name": "binary_be_tb",
+    "composition": {
+      "Be": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_be_th",
+    "composition": {
+      "Be": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_be_ti",
     "composition": {
       "Be": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_be_tm",
+    "composition": {
+      "Be": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_be_u",
+    "composition": {
+      "Be": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -1052,6 +1660,13 @@
     }
   },
   {
+    "name": "binary_be_yb",
+    "composition": {
+      "Be": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_be_zn",
     "composition": {
       "Be": 1.0,
@@ -1062,6 +1677,356 @@
     "name": "binary_be_zr",
     "composition": {
       "Be": 1.0,
+      "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_ca",
+    "composition": {
+      "Bi": 1.0,
+      "Ca": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_ce",
+    "composition": {
+      "Bi": 1.0,
+      "Ce": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_co",
+    "composition": {
+      "Bi": 1.0,
+      "Co": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_cr",
+    "composition": {
+      "Bi": 1.0,
+      "Cr": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_cu",
+    "composition": {
+      "Bi": 1.0,
+      "Cu": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_dy",
+    "composition": {
+      "Bi": 1.0,
+      "Dy": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_er",
+    "composition": {
+      "Bi": 1.0,
+      "Er": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_fe",
+    "composition": {
+      "Bi": 1.0,
+      "Fe": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_ga",
+    "composition": {
+      "Bi": 1.0,
+      "Ga": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_gd",
+    "composition": {
+      "Bi": 1.0,
+      "Gd": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_ge",
+    "composition": {
+      "Bi": 1.0,
+      "Ge": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_hf",
+    "composition": {
+      "Bi": 1.0,
+      "Hf": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_ho",
+    "composition": {
+      "Bi": 1.0,
+      "Ho": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_in",
+    "composition": {
+      "Bi": 1.0,
+      "In": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_ir",
+    "composition": {
+      "Bi": 1.0,
+      "Ir": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_la",
+    "composition": {
+      "Bi": 1.0,
+      "La": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_li",
+    "composition": {
+      "Bi": 1.0,
+      "Li": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_lu",
+    "composition": {
+      "Bi": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_mg",
+    "composition": {
+      "Bi": 1.0,
+      "Mg": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_mn",
+    "composition": {
+      "Bi": 1.0,
+      "Mn": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_mo",
+    "composition": {
+      "Bi": 1.0,
+      "Mo": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_nb",
+    "composition": {
+      "Bi": 1.0,
+      "Nb": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_nd",
+    "composition": {
+      "Bi": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_ni",
+    "composition": {
+      "Bi": 1.0,
+      "Ni": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_os",
+    "composition": {
+      "Bi": 1.0,
+      "Os": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_pb",
+    "composition": {
+      "Bi": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_pd",
+    "composition": {
+      "Bi": 1.0,
+      "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_pr",
+    "composition": {
+      "Bi": 1.0,
+      "Pr": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_pt",
+    "composition": {
+      "Bi": 1.0,
+      "Pt": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_re",
+    "composition": {
+      "Bi": 1.0,
+      "Re": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_rh",
+    "composition": {
+      "Bi": 1.0,
+      "Rh": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_ru",
+    "composition": {
+      "Bi": 1.0,
+      "Ru": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_sb",
+    "composition": {
+      "Bi": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_sc",
+    "composition": {
+      "Bi": 1.0,
+      "Sc": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_si",
+    "composition": {
+      "Bi": 1.0,
+      "Si": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_sm",
+    "composition": {
+      "Bi": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_sn",
+    "composition": {
+      "Bi": 1.0,
+      "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_sr",
+    "composition": {
+      "Bi": 1.0,
+      "Sr": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_ta",
+    "composition": {
+      "Bi": 1.0,
+      "Ta": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_tb",
+    "composition": {
+      "Bi": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_th",
+    "composition": {
+      "Bi": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_ti",
+    "composition": {
+      "Bi": 1.0,
+      "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_tm",
+    "composition": {
+      "Bi": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_u",
+    "composition": {
+      "Bi": 1.0,
+      "U": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_v",
+    "composition": {
+      "Bi": 1.0,
+      "V": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_w",
+    "composition": {
+      "Bi": 1.0,
+      "W": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_y",
+    "composition": {
+      "Bi": 1.0,
+      "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_yb",
+    "composition": {
+      "Bi": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_zn",
+    "composition": {
+      "Bi": 1.0,
+      "Zn": 1.0
+    }
+  },
+  {
+    "name": "binary_bi_zr",
+    "composition": {
+      "Bi": 1.0,
       "Zr": 1.0
     }
   },
@@ -1094,10 +2059,31 @@
     }
   },
   {
+    "name": "binary_ca_dy",
+    "composition": {
+      "Ca": 1.0,
+      "Dy": 1.0
+    }
+  },
+  {
+    "name": "binary_ca_er",
+    "composition": {
+      "Ca": 1.0,
+      "Er": 1.0
+    }
+  },
+  {
     "name": "binary_ca_fe",
     "composition": {
       "Ca": 1.0,
       "Fe": 1.0
+    }
+  },
+  {
+    "name": "binary_ca_ga",
+    "composition": {
+      "Ca": 1.0,
+      "Ga": 1.0
     }
   },
   {
@@ -1108,10 +2094,24 @@
     }
   },
   {
+    "name": "binary_ca_ge",
+    "composition": {
+      "Ca": 1.0,
+      "Ge": 1.0
+    }
+  },
+  {
     "name": "binary_ca_hf",
     "composition": {
       "Ca": 1.0,
       "Hf": 1.0
+    }
+  },
+  {
+    "name": "binary_ca_ho",
+    "composition": {
+      "Ca": 1.0,
+      "Ho": 1.0
     }
   },
   {
@@ -1143,6 +2143,13 @@
     }
   },
   {
+    "name": "binary_ca_lu",
+    "composition": {
+      "Ca": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
     "name": "binary_ca_mg",
     "composition": {
       "Ca": 1.0,
@@ -1171,6 +2178,13 @@
     }
   },
   {
+    "name": "binary_ca_nd",
+    "composition": {
+      "Ca": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
     "name": "binary_ca_ni",
     "composition": {
       "Ca": 1.0,
@@ -1185,10 +2199,24 @@
     }
   },
   {
+    "name": "binary_ca_pb",
+    "composition": {
+      "Ca": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_ca_pd",
     "composition": {
       "Ca": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_ca_pr",
+    "composition": {
+      "Ca": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -1220,6 +2248,13 @@
     }
   },
   {
+    "name": "binary_ca_sb",
+    "composition": {
+      "Ca": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_ca_sc",
     "composition": {
       "Ca": 1.0,
@@ -1234,10 +2269,24 @@
     }
   },
   {
+    "name": "binary_ca_sm",
+    "composition": {
+      "Ca": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_ca_sn",
     "composition": {
       "Ca": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_ca_sr",
+    "composition": {
+      "Ca": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -1248,10 +2297,38 @@
     }
   },
   {
+    "name": "binary_ca_tb",
+    "composition": {
+      "Ca": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_ca_th",
+    "composition": {
+      "Ca": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_ca_ti",
     "composition": {
       "Ca": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_ca_tm",
+    "composition": {
+      "Ca": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_ca_u",
+    "composition": {
+      "Ca": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -1273,6 +2350,13 @@
     "composition": {
       "Ca": 1.0,
       "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_ca_yb",
+    "composition": {
+      "Ca": 1.0,
+      "Yb": 1.0
     }
   },
   {
@@ -1311,10 +2395,31 @@
     }
   },
   {
+    "name": "binary_ce_dy",
+    "composition": {
+      "Ce": 1.0,
+      "Dy": 1.0
+    }
+  },
+  {
+    "name": "binary_ce_er",
+    "composition": {
+      "Ce": 1.0,
+      "Er": 1.0
+    }
+  },
+  {
     "name": "binary_ce_fe",
     "composition": {
       "Ce": 1.0,
       "Fe": 1.0
+    }
+  },
+  {
+    "name": "binary_ce_ga",
+    "composition": {
+      "Ce": 1.0,
+      "Ga": 1.0
     }
   },
   {
@@ -1325,10 +2430,24 @@
     }
   },
   {
+    "name": "binary_ce_ge",
+    "composition": {
+      "Ce": 1.0,
+      "Ge": 1.0
+    }
+  },
+  {
     "name": "binary_ce_hf",
     "composition": {
       "Ce": 1.0,
       "Hf": 1.0
+    }
+  },
+  {
+    "name": "binary_ce_ho",
+    "composition": {
+      "Ce": 1.0,
+      "Ho": 1.0
     }
   },
   {
@@ -1360,6 +2479,13 @@
     }
   },
   {
+    "name": "binary_ce_lu",
+    "composition": {
+      "Ce": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
     "name": "binary_ce_mg",
     "composition": {
       "Ce": 1.0,
@@ -1388,6 +2514,13 @@
     }
   },
   {
+    "name": "binary_ce_nd",
+    "composition": {
+      "Ce": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
     "name": "binary_ce_ni",
     "composition": {
       "Ce": 1.0,
@@ -1402,10 +2535,24 @@
     }
   },
   {
+    "name": "binary_ce_pb",
+    "composition": {
+      "Ce": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_ce_pd",
     "composition": {
       "Ce": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_ce_pr",
+    "composition": {
+      "Ce": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -1437,6 +2584,13 @@
     }
   },
   {
+    "name": "binary_ce_sb",
+    "composition": {
+      "Ce": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_ce_sc",
     "composition": {
       "Ce": 1.0,
@@ -1451,10 +2605,24 @@
     }
   },
   {
+    "name": "binary_ce_sm",
+    "composition": {
+      "Ce": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_ce_sn",
     "composition": {
       "Ce": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_ce_sr",
+    "composition": {
+      "Ce": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -1465,10 +2633,38 @@
     }
   },
   {
+    "name": "binary_ce_tb",
+    "composition": {
+      "Ce": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_ce_th",
+    "composition": {
+      "Ce": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_ce_ti",
     "composition": {
       "Ce": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_ce_tm",
+    "composition": {
+      "Ce": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_ce_u",
+    "composition": {
+      "Ce": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -1490,6 +2686,13 @@
     "composition": {
       "Ce": 1.0,
       "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_ce_yb",
+    "composition": {
+      "Ce": 1.0,
+      "Yb": 1.0
     }
   },
   {
@@ -1521,10 +2724,31 @@
     }
   },
   {
+    "name": "binary_co_dy",
+    "composition": {
+      "Co": 1.0,
+      "Dy": 1.0
+    }
+  },
+  {
+    "name": "binary_co_er",
+    "composition": {
+      "Co": 1.0,
+      "Er": 1.0
+    }
+  },
+  {
     "name": "binary_co_fe",
     "composition": {
       "Co": 1.0,
       "Fe": 1.0
+    }
+  },
+  {
+    "name": "binary_co_ga",
+    "composition": {
+      "Co": 1.0,
+      "Ga": 1.0
     }
   },
   {
@@ -1535,10 +2759,24 @@
     }
   },
   {
+    "name": "binary_co_ge",
+    "composition": {
+      "Co": 1.0,
+      "Ge": 1.0
+    }
+  },
+  {
     "name": "binary_co_hf",
     "composition": {
       "Co": 1.0,
       "Hf": 1.0
+    }
+  },
+  {
+    "name": "binary_co_ho",
+    "composition": {
+      "Co": 1.0,
+      "Ho": 1.0
     }
   },
   {
@@ -1570,6 +2808,13 @@
     }
   },
   {
+    "name": "binary_co_lu",
+    "composition": {
+      "Co": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
     "name": "binary_co_mg",
     "composition": {
       "Co": 1.0,
@@ -1598,6 +2843,13 @@
     }
   },
   {
+    "name": "binary_co_nd",
+    "composition": {
+      "Co": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
     "name": "binary_co_ni",
     "composition": {
       "Co": 1.0,
@@ -1612,10 +2864,24 @@
     }
   },
   {
+    "name": "binary_co_pb",
+    "composition": {
+      "Co": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_co_pd",
     "composition": {
       "Co": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_co_pr",
+    "composition": {
+      "Co": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -1647,6 +2913,13 @@
     }
   },
   {
+    "name": "binary_co_sb",
+    "composition": {
+      "Co": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_co_sc",
     "composition": {
       "Co": 1.0,
@@ -1661,10 +2934,24 @@
     }
   },
   {
+    "name": "binary_co_sm",
+    "composition": {
+      "Co": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_co_sn",
     "composition": {
       "Co": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_co_sr",
+    "composition": {
+      "Co": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -1675,10 +2962,38 @@
     }
   },
   {
+    "name": "binary_co_tb",
+    "composition": {
+      "Co": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_co_th",
+    "composition": {
+      "Co": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_co_ti",
     "composition": {
       "Co": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_co_tm",
+    "composition": {
+      "Co": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_co_u",
+    "composition": {
+      "Co": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -1703,6 +3018,13 @@
     }
   },
   {
+    "name": "binary_co_yb",
+    "composition": {
+      "Co": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_co_zn",
     "composition": {
       "Co": 1.0,
@@ -1724,10 +3046,31 @@
     }
   },
   {
+    "name": "binary_cr_dy",
+    "composition": {
+      "Cr": 1.0,
+      "Dy": 1.0
+    }
+  },
+  {
+    "name": "binary_cr_er",
+    "composition": {
+      "Cr": 1.0,
+      "Er": 1.0
+    }
+  },
+  {
     "name": "binary_cr_fe",
     "composition": {
       "Cr": 1.0,
       "Fe": 1.0
+    }
+  },
+  {
+    "name": "binary_cr_ga",
+    "composition": {
+      "Cr": 1.0,
+      "Ga": 1.0
     }
   },
   {
@@ -1738,10 +3081,24 @@
     }
   },
   {
+    "name": "binary_cr_ge",
+    "composition": {
+      "Cr": 1.0,
+      "Ge": 1.0
+    }
+  },
+  {
     "name": "binary_cr_hf",
     "composition": {
       "Cr": 1.0,
       "Hf": 1.0
+    }
+  },
+  {
+    "name": "binary_cr_ho",
+    "composition": {
+      "Cr": 1.0,
+      "Ho": 1.0
     }
   },
   {
@@ -1773,6 +3130,13 @@
     }
   },
   {
+    "name": "binary_cr_lu",
+    "composition": {
+      "Cr": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
     "name": "binary_cr_mg",
     "composition": {
       "Cr": 1.0,
@@ -1801,6 +3165,13 @@
     }
   },
   {
+    "name": "binary_cr_nd",
+    "composition": {
+      "Cr": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
     "name": "binary_cr_ni",
     "composition": {
       "Cr": 1.0,
@@ -1815,10 +3186,24 @@
     }
   },
   {
+    "name": "binary_cr_pb",
+    "composition": {
+      "Cr": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_cr_pd",
     "composition": {
       "Cr": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_cr_pr",
+    "composition": {
+      "Cr": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -1850,6 +3235,13 @@
     }
   },
   {
+    "name": "binary_cr_sb",
+    "composition": {
+      "Cr": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_cr_sc",
     "composition": {
       "Cr": 1.0,
@@ -1864,10 +3256,24 @@
     }
   },
   {
+    "name": "binary_cr_sm",
+    "composition": {
+      "Cr": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_cr_sn",
     "composition": {
       "Cr": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_cr_sr",
+    "composition": {
+      "Cr": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -1878,10 +3284,38 @@
     }
   },
   {
+    "name": "binary_cr_tb",
+    "composition": {
+      "Cr": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_cr_th",
+    "composition": {
+      "Cr": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_cr_ti",
     "composition": {
       "Cr": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_cr_tm",
+    "composition": {
+      "Cr": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_cr_u",
+    "composition": {
+      "Cr": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -1906,6 +3340,13 @@
     }
   },
   {
+    "name": "binary_cr_yb",
+    "composition": {
+      "Cr": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_cr_zn",
     "composition": {
       "Cr": 1.0,
@@ -1920,10 +3361,31 @@
     }
   },
   {
+    "name": "binary_cu_dy",
+    "composition": {
+      "Cu": 1.0,
+      "Dy": 1.0
+    }
+  },
+  {
+    "name": "binary_cu_er",
+    "composition": {
+      "Cu": 1.0,
+      "Er": 1.0
+    }
+  },
+  {
     "name": "binary_cu_fe",
     "composition": {
       "Cu": 1.0,
       "Fe": 1.0
+    }
+  },
+  {
+    "name": "binary_cu_ga",
+    "composition": {
+      "Cu": 1.0,
+      "Ga": 1.0
     }
   },
   {
@@ -1934,10 +3396,24 @@
     }
   },
   {
+    "name": "binary_cu_ge",
+    "composition": {
+      "Cu": 1.0,
+      "Ge": 1.0
+    }
+  },
+  {
     "name": "binary_cu_hf",
     "composition": {
       "Cu": 1.0,
       "Hf": 1.0
+    }
+  },
+  {
+    "name": "binary_cu_ho",
+    "composition": {
+      "Cu": 1.0,
+      "Ho": 1.0
     }
   },
   {
@@ -1969,6 +3445,13 @@
     }
   },
   {
+    "name": "binary_cu_lu",
+    "composition": {
+      "Cu": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
     "name": "binary_cu_mg",
     "composition": {
       "Cu": 1.0,
@@ -1997,6 +3480,13 @@
     }
   },
   {
+    "name": "binary_cu_nd",
+    "composition": {
+      "Cu": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
     "name": "binary_cu_ni",
     "composition": {
       "Cu": 1.0,
@@ -2011,10 +3501,24 @@
     }
   },
   {
+    "name": "binary_cu_pb",
+    "composition": {
+      "Cu": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_cu_pd",
     "composition": {
       "Cu": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_cu_pr",
+    "composition": {
+      "Cu": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -2046,6 +3550,13 @@
     }
   },
   {
+    "name": "binary_cu_sb",
+    "composition": {
+      "Cu": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_cu_sc",
     "composition": {
       "Cu": 1.0,
@@ -2060,10 +3571,24 @@
     }
   },
   {
+    "name": "binary_cu_sm",
+    "composition": {
+      "Cu": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_cu_sn",
     "composition": {
       "Cu": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_cu_sr",
+    "composition": {
+      "Cu": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -2074,10 +3599,38 @@
     }
   },
   {
+    "name": "binary_cu_tb",
+    "composition": {
+      "Cu": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_cu_th",
+    "composition": {
+      "Cu": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_cu_ti",
     "composition": {
       "Cu": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_cu_tm",
+    "composition": {
+      "Cu": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_cu_u",
+    "composition": {
+      "Cu": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -2102,6 +3655,13 @@
     }
   },
   {
+    "name": "binary_cu_yb",
+    "composition": {
+      "Cu": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_cu_zn",
     "composition": {
       "Cu": 1.0,
@@ -2116,6 +3676,622 @@
     }
   },
   {
+    "name": "binary_dy_er",
+    "composition": {
+      "Dy": 1.0,
+      "Er": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_fe",
+    "composition": {
+      "Dy": 1.0,
+      "Fe": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_ga",
+    "composition": {
+      "Dy": 1.0,
+      "Ga": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_gd",
+    "composition": {
+      "Dy": 1.0,
+      "Gd": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_ge",
+    "composition": {
+      "Dy": 1.0,
+      "Ge": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_hf",
+    "composition": {
+      "Dy": 1.0,
+      "Hf": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_ho",
+    "composition": {
+      "Dy": 1.0,
+      "Ho": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_in",
+    "composition": {
+      "Dy": 1.0,
+      "In": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_ir",
+    "composition": {
+      "Dy": 1.0,
+      "Ir": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_la",
+    "composition": {
+      "Dy": 1.0,
+      "La": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_li",
+    "composition": {
+      "Dy": 1.0,
+      "Li": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_lu",
+    "composition": {
+      "Dy": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_mg",
+    "composition": {
+      "Dy": 1.0,
+      "Mg": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_mn",
+    "composition": {
+      "Dy": 1.0,
+      "Mn": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_mo",
+    "composition": {
+      "Dy": 1.0,
+      "Mo": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_nb",
+    "composition": {
+      "Dy": 1.0,
+      "Nb": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_nd",
+    "composition": {
+      "Dy": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_ni",
+    "composition": {
+      "Dy": 1.0,
+      "Ni": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_os",
+    "composition": {
+      "Dy": 1.0,
+      "Os": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_pb",
+    "composition": {
+      "Dy": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_pd",
+    "composition": {
+      "Dy": 1.0,
+      "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_pr",
+    "composition": {
+      "Dy": 1.0,
+      "Pr": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_pt",
+    "composition": {
+      "Dy": 1.0,
+      "Pt": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_re",
+    "composition": {
+      "Dy": 1.0,
+      "Re": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_rh",
+    "composition": {
+      "Dy": 1.0,
+      "Rh": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_ru",
+    "composition": {
+      "Dy": 1.0,
+      "Ru": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_sb",
+    "composition": {
+      "Dy": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_sc",
+    "composition": {
+      "Dy": 1.0,
+      "Sc": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_si",
+    "composition": {
+      "Dy": 1.0,
+      "Si": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_sm",
+    "composition": {
+      "Dy": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_sn",
+    "composition": {
+      "Dy": 1.0,
+      "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_sr",
+    "composition": {
+      "Dy": 1.0,
+      "Sr": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_ta",
+    "composition": {
+      "Dy": 1.0,
+      "Ta": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_tb",
+    "composition": {
+      "Dy": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_th",
+    "composition": {
+      "Dy": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_ti",
+    "composition": {
+      "Dy": 1.0,
+      "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_tm",
+    "composition": {
+      "Dy": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_u",
+    "composition": {
+      "Dy": 1.0,
+      "U": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_v",
+    "composition": {
+      "Dy": 1.0,
+      "V": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_w",
+    "composition": {
+      "Dy": 1.0,
+      "W": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_y",
+    "composition": {
+      "Dy": 1.0,
+      "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_yb",
+    "composition": {
+      "Dy": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_zn",
+    "composition": {
+      "Dy": 1.0,
+      "Zn": 1.0
+    }
+  },
+  {
+    "name": "binary_dy_zr",
+    "composition": {
+      "Dy": 1.0,
+      "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_er_fe",
+    "composition": {
+      "Er": 1.0,
+      "Fe": 1.0
+    }
+  },
+  {
+    "name": "binary_er_ga",
+    "composition": {
+      "Er": 1.0,
+      "Ga": 1.0
+    }
+  },
+  {
+    "name": "binary_er_gd",
+    "composition": {
+      "Er": 1.0,
+      "Gd": 1.0
+    }
+  },
+  {
+    "name": "binary_er_ge",
+    "composition": {
+      "Er": 1.0,
+      "Ge": 1.0
+    }
+  },
+  {
+    "name": "binary_er_hf",
+    "composition": {
+      "Er": 1.0,
+      "Hf": 1.0
+    }
+  },
+  {
+    "name": "binary_er_ho",
+    "composition": {
+      "Er": 1.0,
+      "Ho": 1.0
+    }
+  },
+  {
+    "name": "binary_er_in",
+    "composition": {
+      "Er": 1.0,
+      "In": 1.0
+    }
+  },
+  {
+    "name": "binary_er_ir",
+    "composition": {
+      "Er": 1.0,
+      "Ir": 1.0
+    }
+  },
+  {
+    "name": "binary_er_la",
+    "composition": {
+      "Er": 1.0,
+      "La": 1.0
+    }
+  },
+  {
+    "name": "binary_er_li",
+    "composition": {
+      "Er": 1.0,
+      "Li": 1.0
+    }
+  },
+  {
+    "name": "binary_er_lu",
+    "composition": {
+      "Er": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
+    "name": "binary_er_mg",
+    "composition": {
+      "Er": 1.0,
+      "Mg": 1.0
+    }
+  },
+  {
+    "name": "binary_er_mn",
+    "composition": {
+      "Er": 1.0,
+      "Mn": 1.0
+    }
+  },
+  {
+    "name": "binary_er_mo",
+    "composition": {
+      "Er": 1.0,
+      "Mo": 1.0
+    }
+  },
+  {
+    "name": "binary_er_nb",
+    "composition": {
+      "Er": 1.0,
+      "Nb": 1.0
+    }
+  },
+  {
+    "name": "binary_er_nd",
+    "composition": {
+      "Er": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
+    "name": "binary_er_ni",
+    "composition": {
+      "Er": 1.0,
+      "Ni": 1.0
+    }
+  },
+  {
+    "name": "binary_er_os",
+    "composition": {
+      "Er": 1.0,
+      "Os": 1.0
+    }
+  },
+  {
+    "name": "binary_er_pb",
+    "composition": {
+      "Er": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
+    "name": "binary_er_pd",
+    "composition": {
+      "Er": 1.0,
+      "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_er_pr",
+    "composition": {
+      "Er": 1.0,
+      "Pr": 1.0
+    }
+  },
+  {
+    "name": "binary_er_pt",
+    "composition": {
+      "Er": 1.0,
+      "Pt": 1.0
+    }
+  },
+  {
+    "name": "binary_er_re",
+    "composition": {
+      "Er": 1.0,
+      "Re": 1.0
+    }
+  },
+  {
+    "name": "binary_er_rh",
+    "composition": {
+      "Er": 1.0,
+      "Rh": 1.0
+    }
+  },
+  {
+    "name": "binary_er_ru",
+    "composition": {
+      "Er": 1.0,
+      "Ru": 1.0
+    }
+  },
+  {
+    "name": "binary_er_sb",
+    "composition": {
+      "Er": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
+    "name": "binary_er_sc",
+    "composition": {
+      "Er": 1.0,
+      "Sc": 1.0
+    }
+  },
+  {
+    "name": "binary_er_si",
+    "composition": {
+      "Er": 1.0,
+      "Si": 1.0
+    }
+  },
+  {
+    "name": "binary_er_sm",
+    "composition": {
+      "Er": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
+    "name": "binary_er_sn",
+    "composition": {
+      "Er": 1.0,
+      "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_er_sr",
+    "composition": {
+      "Er": 1.0,
+      "Sr": 1.0
+    }
+  },
+  {
+    "name": "binary_er_ta",
+    "composition": {
+      "Er": 1.0,
+      "Ta": 1.0
+    }
+  },
+  {
+    "name": "binary_er_tb",
+    "composition": {
+      "Er": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_er_th",
+    "composition": {
+      "Er": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
+    "name": "binary_er_ti",
+    "composition": {
+      "Er": 1.0,
+      "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_er_tm",
+    "composition": {
+      "Er": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_er_u",
+    "composition": {
+      "Er": 1.0,
+      "U": 1.0
+    }
+  },
+  {
+    "name": "binary_er_v",
+    "composition": {
+      "Er": 1.0,
+      "V": 1.0
+    }
+  },
+  {
+    "name": "binary_er_w",
+    "composition": {
+      "Er": 1.0,
+      "W": 1.0
+    }
+  },
+  {
+    "name": "binary_er_y",
+    "composition": {
+      "Er": 1.0,
+      "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_er_yb",
+    "composition": {
+      "Er": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
+    "name": "binary_er_zn",
+    "composition": {
+      "Er": 1.0,
+      "Zn": 1.0
+    }
+  },
+  {
+    "name": "binary_er_zr",
+    "composition": {
+      "Er": 1.0,
+      "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_fe_ga",
+    "composition": {
+      "Fe": 1.0,
+      "Ga": 1.0
+    }
+  },
+  {
     "name": "binary_fe_gd",
     "composition": {
       "Fe": 1.0,
@@ -2123,10 +4299,24 @@
     }
   },
   {
+    "name": "binary_fe_ge",
+    "composition": {
+      "Fe": 1.0,
+      "Ge": 1.0
+    }
+  },
+  {
     "name": "binary_fe_hf",
     "composition": {
       "Fe": 1.0,
       "Hf": 1.0
+    }
+  },
+  {
+    "name": "binary_fe_ho",
+    "composition": {
+      "Fe": 1.0,
+      "Ho": 1.0
     }
   },
   {
@@ -2158,6 +4348,13 @@
     }
   },
   {
+    "name": "binary_fe_lu",
+    "composition": {
+      "Fe": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
     "name": "binary_fe_mg",
     "composition": {
       "Fe": 1.0,
@@ -2186,6 +4383,13 @@
     }
   },
   {
+    "name": "binary_fe_nd",
+    "composition": {
+      "Fe": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
     "name": "binary_fe_ni",
     "composition": {
       "Fe": 1.0,
@@ -2200,10 +4404,24 @@
     }
   },
   {
+    "name": "binary_fe_pb",
+    "composition": {
+      "Fe": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_fe_pd",
     "composition": {
       "Fe": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_fe_pr",
+    "composition": {
+      "Fe": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -2235,6 +4453,13 @@
     }
   },
   {
+    "name": "binary_fe_sb",
+    "composition": {
+      "Fe": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_fe_sc",
     "composition": {
       "Fe": 1.0,
@@ -2249,10 +4474,24 @@
     }
   },
   {
+    "name": "binary_fe_sm",
+    "composition": {
+      "Fe": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_fe_sn",
     "composition": {
       "Fe": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_fe_sr",
+    "composition": {
+      "Fe": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -2263,10 +4502,38 @@
     }
   },
   {
+    "name": "binary_fe_tb",
+    "composition": {
+      "Fe": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_fe_th",
+    "composition": {
+      "Fe": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_fe_ti",
     "composition": {
       "Fe": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_fe_tm",
+    "composition": {
+      "Fe": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_fe_u",
+    "composition": {
+      "Fe": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -2291,6 +4558,13 @@
     }
   },
   {
+    "name": "binary_fe_yb",
+    "composition": {
+      "Fe": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_fe_zn",
     "composition": {
       "Fe": 1.0,
@@ -2305,10 +4579,311 @@
     }
   },
   {
+    "name": "binary_ga_gd",
+    "composition": {
+      "Ga": 1.0,
+      "Gd": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_ge",
+    "composition": {
+      "Ga": 1.0,
+      "Ge": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_hf",
+    "composition": {
+      "Ga": 1.0,
+      "Hf": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_ho",
+    "composition": {
+      "Ga": 1.0,
+      "Ho": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_in",
+    "composition": {
+      "Ga": 1.0,
+      "In": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_ir",
+    "composition": {
+      "Ga": 1.0,
+      "Ir": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_la",
+    "composition": {
+      "Ga": 1.0,
+      "La": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_li",
+    "composition": {
+      "Ga": 1.0,
+      "Li": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_lu",
+    "composition": {
+      "Ga": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_mg",
+    "composition": {
+      "Ga": 1.0,
+      "Mg": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_mn",
+    "composition": {
+      "Ga": 1.0,
+      "Mn": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_mo",
+    "composition": {
+      "Ga": 1.0,
+      "Mo": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_nb",
+    "composition": {
+      "Ga": 1.0,
+      "Nb": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_nd",
+    "composition": {
+      "Ga": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_ni",
+    "composition": {
+      "Ga": 1.0,
+      "Ni": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_os",
+    "composition": {
+      "Ga": 1.0,
+      "Os": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_pb",
+    "composition": {
+      "Ga": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_pd",
+    "composition": {
+      "Ga": 1.0,
+      "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_pr",
+    "composition": {
+      "Ga": 1.0,
+      "Pr": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_pt",
+    "composition": {
+      "Ga": 1.0,
+      "Pt": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_re",
+    "composition": {
+      "Ga": 1.0,
+      "Re": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_rh",
+    "composition": {
+      "Ga": 1.0,
+      "Rh": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_ru",
+    "composition": {
+      "Ga": 1.0,
+      "Ru": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_sb",
+    "composition": {
+      "Ga": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_sc",
+    "composition": {
+      "Ga": 1.0,
+      "Sc": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_si",
+    "composition": {
+      "Ga": 1.0,
+      "Si": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_sm",
+    "composition": {
+      "Ga": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_sn",
+    "composition": {
+      "Ga": 1.0,
+      "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_sr",
+    "composition": {
+      "Ga": 1.0,
+      "Sr": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_ta",
+    "composition": {
+      "Ga": 1.0,
+      "Ta": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_tb",
+    "composition": {
+      "Ga": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_th",
+    "composition": {
+      "Ga": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_ti",
+    "composition": {
+      "Ga": 1.0,
+      "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_tm",
+    "composition": {
+      "Ga": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_u",
+    "composition": {
+      "Ga": 1.0,
+      "U": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_v",
+    "composition": {
+      "Ga": 1.0,
+      "V": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_w",
+    "composition": {
+      "Ga": 1.0,
+      "W": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_y",
+    "composition": {
+      "Ga": 1.0,
+      "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_yb",
+    "composition": {
+      "Ga": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_zn",
+    "composition": {
+      "Ga": 1.0,
+      "Zn": 1.0
+    }
+  },
+  {
+    "name": "binary_ga_zr",
+    "composition": {
+      "Ga": 1.0,
+      "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_gd_ge",
+    "composition": {
+      "Gd": 1.0,
+      "Ge": 1.0
+    }
+  },
+  {
     "name": "binary_gd_hf",
     "composition": {
       "Gd": 1.0,
       "Hf": 1.0
+    }
+  },
+  {
+    "name": "binary_gd_ho",
+    "composition": {
+      "Gd": 1.0,
+      "Ho": 1.0
     }
   },
   {
@@ -2340,6 +4915,13 @@
     }
   },
   {
+    "name": "binary_gd_lu",
+    "composition": {
+      "Gd": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
     "name": "binary_gd_mg",
     "composition": {
       "Gd": 1.0,
@@ -2368,6 +4950,13 @@
     }
   },
   {
+    "name": "binary_gd_nd",
+    "composition": {
+      "Gd": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
     "name": "binary_gd_ni",
     "composition": {
       "Gd": 1.0,
@@ -2382,10 +4971,24 @@
     }
   },
   {
+    "name": "binary_gd_pb",
+    "composition": {
+      "Gd": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_gd_pd",
     "composition": {
       "Gd": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_gd_pr",
+    "composition": {
+      "Gd": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -2417,6 +5020,13 @@
     }
   },
   {
+    "name": "binary_gd_sb",
+    "composition": {
+      "Gd": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_gd_sc",
     "composition": {
       "Gd": 1.0,
@@ -2431,10 +5041,24 @@
     }
   },
   {
+    "name": "binary_gd_sm",
+    "composition": {
+      "Gd": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_gd_sn",
     "composition": {
       "Gd": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_gd_sr",
+    "composition": {
+      "Gd": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -2445,10 +5069,38 @@
     }
   },
   {
+    "name": "binary_gd_tb",
+    "composition": {
+      "Gd": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_gd_th",
+    "composition": {
+      "Gd": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_gd_ti",
     "composition": {
       "Gd": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_gd_tm",
+    "composition": {
+      "Gd": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_gd_u",
+    "composition": {
+      "Gd": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -2473,6 +5125,13 @@
     }
   },
   {
+    "name": "binary_gd_yb",
+    "composition": {
+      "Gd": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_gd_zn",
     "composition": {
       "Gd": 1.0,
@@ -2484,6 +5143,286 @@
     "composition": {
       "Gd": 1.0,
       "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_hf",
+    "composition": {
+      "Ge": 1.0,
+      "Hf": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_ho",
+    "composition": {
+      "Ge": 1.0,
+      "Ho": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_in",
+    "composition": {
+      "Ge": 1.0,
+      "In": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_ir",
+    "composition": {
+      "Ge": 1.0,
+      "Ir": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_la",
+    "composition": {
+      "Ge": 1.0,
+      "La": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_li",
+    "composition": {
+      "Ge": 1.0,
+      "Li": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_lu",
+    "composition": {
+      "Ge": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_mg",
+    "composition": {
+      "Ge": 1.0,
+      "Mg": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_mn",
+    "composition": {
+      "Ge": 1.0,
+      "Mn": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_mo",
+    "composition": {
+      "Ge": 1.0,
+      "Mo": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_nb",
+    "composition": {
+      "Ge": 1.0,
+      "Nb": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_nd",
+    "composition": {
+      "Ge": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_ni",
+    "composition": {
+      "Ge": 1.0,
+      "Ni": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_os",
+    "composition": {
+      "Ge": 1.0,
+      "Os": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_pb",
+    "composition": {
+      "Ge": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_pd",
+    "composition": {
+      "Ge": 1.0,
+      "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_pr",
+    "composition": {
+      "Ge": 1.0,
+      "Pr": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_pt",
+    "composition": {
+      "Ge": 1.0,
+      "Pt": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_re",
+    "composition": {
+      "Ge": 1.0,
+      "Re": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_rh",
+    "composition": {
+      "Ge": 1.0,
+      "Rh": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_ru",
+    "composition": {
+      "Ge": 1.0,
+      "Ru": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_sb",
+    "composition": {
+      "Ge": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_sc",
+    "composition": {
+      "Ge": 1.0,
+      "Sc": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_si",
+    "composition": {
+      "Ge": 1.0,
+      "Si": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_sm",
+    "composition": {
+      "Ge": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_sn",
+    "composition": {
+      "Ge": 1.0,
+      "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_sr",
+    "composition": {
+      "Ge": 1.0,
+      "Sr": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_ta",
+    "composition": {
+      "Ge": 1.0,
+      "Ta": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_tb",
+    "composition": {
+      "Ge": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_th",
+    "composition": {
+      "Ge": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_ti",
+    "composition": {
+      "Ge": 1.0,
+      "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_tm",
+    "composition": {
+      "Ge": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_u",
+    "composition": {
+      "Ge": 1.0,
+      "U": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_v",
+    "composition": {
+      "Ge": 1.0,
+      "V": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_w",
+    "composition": {
+      "Ge": 1.0,
+      "W": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_y",
+    "composition": {
+      "Ge": 1.0,
+      "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_yb",
+    "composition": {
+      "Ge": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_zn",
+    "composition": {
+      "Ge": 1.0,
+      "Zn": 1.0
+    }
+  },
+  {
+    "name": "binary_ge_zr",
+    "composition": {
+      "Ge": 1.0,
+      "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_hf_ho",
+    "composition": {
+      "Hf": 1.0,
+      "Ho": 1.0
     }
   },
   {
@@ -2515,6 +5454,13 @@
     }
   },
   {
+    "name": "binary_hf_lu",
+    "composition": {
+      "Hf": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
     "name": "binary_hf_mg",
     "composition": {
       "Hf": 1.0,
@@ -2543,6 +5489,13 @@
     }
   },
   {
+    "name": "binary_hf_nd",
+    "composition": {
+      "Hf": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
     "name": "binary_hf_ni",
     "composition": {
       "Hf": 1.0,
@@ -2557,10 +5510,24 @@
     }
   },
   {
+    "name": "binary_hf_pb",
+    "composition": {
+      "Hf": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_hf_pd",
     "composition": {
       "Hf": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_hf_pr",
+    "composition": {
+      "Hf": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -2592,6 +5559,13 @@
     }
   },
   {
+    "name": "binary_hf_sb",
+    "composition": {
+      "Hf": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_hf_sc",
     "composition": {
       "Hf": 1.0,
@@ -2606,10 +5580,24 @@
     }
   },
   {
+    "name": "binary_hf_sm",
+    "composition": {
+      "Hf": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_hf_sn",
     "composition": {
       "Hf": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_hf_sr",
+    "composition": {
+      "Hf": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -2620,10 +5608,38 @@
     }
   },
   {
+    "name": "binary_hf_tb",
+    "composition": {
+      "Hf": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_hf_th",
+    "composition": {
+      "Hf": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_hf_ti",
     "composition": {
       "Hf": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_hf_tm",
+    "composition": {
+      "Hf": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_hf_u",
+    "composition": {
+      "Hf": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -2648,6 +5664,13 @@
     }
   },
   {
+    "name": "binary_hf_yb",
+    "composition": {
+      "Hf": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_hf_zn",
     "composition": {
       "Hf": 1.0,
@@ -2658,6 +5681,265 @@
     "name": "binary_hf_zr",
     "composition": {
       "Hf": 1.0,
+      "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_in",
+    "composition": {
+      "Ho": 1.0,
+      "In": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_ir",
+    "composition": {
+      "Ho": 1.0,
+      "Ir": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_la",
+    "composition": {
+      "Ho": 1.0,
+      "La": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_li",
+    "composition": {
+      "Ho": 1.0,
+      "Li": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_lu",
+    "composition": {
+      "Ho": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_mg",
+    "composition": {
+      "Ho": 1.0,
+      "Mg": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_mn",
+    "composition": {
+      "Ho": 1.0,
+      "Mn": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_mo",
+    "composition": {
+      "Ho": 1.0,
+      "Mo": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_nb",
+    "composition": {
+      "Ho": 1.0,
+      "Nb": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_nd",
+    "composition": {
+      "Ho": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_ni",
+    "composition": {
+      "Ho": 1.0,
+      "Ni": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_os",
+    "composition": {
+      "Ho": 1.0,
+      "Os": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_pb",
+    "composition": {
+      "Ho": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_pd",
+    "composition": {
+      "Ho": 1.0,
+      "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_pr",
+    "composition": {
+      "Ho": 1.0,
+      "Pr": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_pt",
+    "composition": {
+      "Ho": 1.0,
+      "Pt": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_re",
+    "composition": {
+      "Ho": 1.0,
+      "Re": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_rh",
+    "composition": {
+      "Ho": 1.0,
+      "Rh": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_ru",
+    "composition": {
+      "Ho": 1.0,
+      "Ru": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_sb",
+    "composition": {
+      "Ho": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_sc",
+    "composition": {
+      "Ho": 1.0,
+      "Sc": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_si",
+    "composition": {
+      "Ho": 1.0,
+      "Si": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_sm",
+    "composition": {
+      "Ho": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_sn",
+    "composition": {
+      "Ho": 1.0,
+      "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_sr",
+    "composition": {
+      "Ho": 1.0,
+      "Sr": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_ta",
+    "composition": {
+      "Ho": 1.0,
+      "Ta": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_tb",
+    "composition": {
+      "Ho": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_th",
+    "composition": {
+      "Ho": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_ti",
+    "composition": {
+      "Ho": 1.0,
+      "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_tm",
+    "composition": {
+      "Ho": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_u",
+    "composition": {
+      "Ho": 1.0,
+      "U": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_v",
+    "composition": {
+      "Ho": 1.0,
+      "V": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_w",
+    "composition": {
+      "Ho": 1.0,
+      "W": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_y",
+    "composition": {
+      "Ho": 1.0,
+      "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_yb",
+    "composition": {
+      "Ho": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_zn",
+    "composition": {
+      "Ho": 1.0,
+      "Zn": 1.0
+    }
+  },
+  {
+    "name": "binary_ho_zr",
+    "composition": {
+      "Ho": 1.0,
       "Zr": 1.0
     }
   },
@@ -2680,6 +5962,13 @@
     "composition": {
       "In": 1.0,
       "Li": 1.0
+    }
+  },
+  {
+    "name": "binary_in_lu",
+    "composition": {
+      "In": 1.0,
+      "Lu": 1.0
     }
   },
   {
@@ -2711,6 +6000,13 @@
     }
   },
   {
+    "name": "binary_in_nd",
+    "composition": {
+      "In": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
     "name": "binary_in_ni",
     "composition": {
       "In": 1.0,
@@ -2725,10 +6021,24 @@
     }
   },
   {
+    "name": "binary_in_pb",
+    "composition": {
+      "In": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_in_pd",
     "composition": {
       "In": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_in_pr",
+    "composition": {
+      "In": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -2760,6 +6070,13 @@
     }
   },
   {
+    "name": "binary_in_sb",
+    "composition": {
+      "In": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_in_sc",
     "composition": {
       "In": 1.0,
@@ -2774,10 +6091,24 @@
     }
   },
   {
+    "name": "binary_in_sm",
+    "composition": {
+      "In": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_in_sn",
     "composition": {
       "In": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_in_sr",
+    "composition": {
+      "In": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -2788,10 +6119,38 @@
     }
   },
   {
+    "name": "binary_in_tb",
+    "composition": {
+      "In": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_in_th",
+    "composition": {
+      "In": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_in_ti",
     "composition": {
       "In": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_in_tm",
+    "composition": {
+      "In": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_in_u",
+    "composition": {
+      "In": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -2813,6 +6172,13 @@
     "composition": {
       "In": 1.0,
       "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_in_yb",
+    "composition": {
+      "In": 1.0,
+      "Yb": 1.0
     }
   },
   {
@@ -2844,6 +6210,13 @@
     }
   },
   {
+    "name": "binary_ir_lu",
+    "composition": {
+      "Ir": 1.0,
+      "Lu": 1.0
+    }
+  },
+  {
     "name": "binary_ir_mg",
     "composition": {
       "Ir": 1.0,
@@ -2872,6 +6245,13 @@
     }
   },
   {
+    "name": "binary_ir_nd",
+    "composition": {
+      "Ir": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
     "name": "binary_ir_ni",
     "composition": {
       "Ir": 1.0,
@@ -2886,10 +6266,24 @@
     }
   },
   {
+    "name": "binary_ir_pb",
+    "composition": {
+      "Ir": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_ir_pd",
     "composition": {
       "Ir": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_ir_pr",
+    "composition": {
+      "Ir": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -2921,6 +6315,13 @@
     }
   },
   {
+    "name": "binary_ir_sb",
+    "composition": {
+      "Ir": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_ir_sc",
     "composition": {
       "Ir": 1.0,
@@ -2935,10 +6336,24 @@
     }
   },
   {
+    "name": "binary_ir_sm",
+    "composition": {
+      "Ir": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_ir_sn",
     "composition": {
       "Ir": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_ir_sr",
+    "composition": {
+      "Ir": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -2949,10 +6364,38 @@
     }
   },
   {
+    "name": "binary_ir_tb",
+    "composition": {
+      "Ir": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_ir_th",
+    "composition": {
+      "Ir": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_ir_ti",
     "composition": {
       "Ir": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_ir_tm",
+    "composition": {
+      "Ir": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_ir_u",
+    "composition": {
+      "Ir": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -2977,6 +6420,13 @@
     }
   },
   {
+    "name": "binary_ir_yb",
+    "composition": {
+      "Ir": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_ir_zn",
     "composition": {
       "Ir": 1.0,
@@ -2995,6 +6445,13 @@
     "composition": {
       "La": 1.0,
       "Li": 1.0
+    }
+  },
+  {
+    "name": "binary_la_lu",
+    "composition": {
+      "La": 1.0,
+      "Lu": 1.0
     }
   },
   {
@@ -3026,6 +6483,13 @@
     }
   },
   {
+    "name": "binary_la_nd",
+    "composition": {
+      "La": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
     "name": "binary_la_ni",
     "composition": {
       "La": 1.0,
@@ -3040,10 +6504,24 @@
     }
   },
   {
+    "name": "binary_la_pb",
+    "composition": {
+      "La": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_la_pd",
     "composition": {
       "La": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_la_pr",
+    "composition": {
+      "La": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -3075,6 +6553,13 @@
     }
   },
   {
+    "name": "binary_la_sb",
+    "composition": {
+      "La": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_la_sc",
     "composition": {
       "La": 1.0,
@@ -3089,10 +6574,24 @@
     }
   },
   {
+    "name": "binary_la_sm",
+    "composition": {
+      "La": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_la_sn",
     "composition": {
       "La": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_la_sr",
+    "composition": {
+      "La": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -3103,10 +6602,38 @@
     }
   },
   {
+    "name": "binary_la_tb",
+    "composition": {
+      "La": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_la_th",
+    "composition": {
+      "La": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_la_ti",
     "composition": {
       "La": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_la_tm",
+    "composition": {
+      "La": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_la_u",
+    "composition": {
+      "La": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -3131,6 +6658,13 @@
     }
   },
   {
+    "name": "binary_la_yb",
+    "composition": {
+      "La": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_la_zn",
     "composition": {
       "La": 1.0,
@@ -3142,6 +6676,13 @@
     "composition": {
       "La": 1.0,
       "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_li_lu",
+    "composition": {
+      "Li": 1.0,
+      "Lu": 1.0
     }
   },
   {
@@ -3173,6 +6714,13 @@
     }
   },
   {
+    "name": "binary_li_nd",
+    "composition": {
+      "Li": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
     "name": "binary_li_ni",
     "composition": {
       "Li": 1.0,
@@ -3187,10 +6735,24 @@
     }
   },
   {
+    "name": "binary_li_pb",
+    "composition": {
+      "Li": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_li_pd",
     "composition": {
       "Li": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_li_pr",
+    "composition": {
+      "Li": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -3222,6 +6784,13 @@
     }
   },
   {
+    "name": "binary_li_sb",
+    "composition": {
+      "Li": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_li_sc",
     "composition": {
       "Li": 1.0,
@@ -3236,10 +6805,24 @@
     }
   },
   {
+    "name": "binary_li_sm",
+    "composition": {
+      "Li": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_li_sn",
     "composition": {
       "Li": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_li_sr",
+    "composition": {
+      "Li": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -3250,10 +6833,38 @@
     }
   },
   {
+    "name": "binary_li_tb",
+    "composition": {
+      "Li": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_li_th",
+    "composition": {
+      "Li": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_li_ti",
     "composition": {
       "Li": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_li_tm",
+    "composition": {
+      "Li": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_li_u",
+    "composition": {
+      "Li": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -3278,6 +6889,13 @@
     }
   },
   {
+    "name": "binary_li_yb",
+    "composition": {
+      "Li": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_li_zn",
     "composition": {
       "Li": 1.0,
@@ -3288,6 +6906,230 @@
     "name": "binary_li_zr",
     "composition": {
       "Li": 1.0,
+      "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_mg",
+    "composition": {
+      "Lu": 1.0,
+      "Mg": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_mn",
+    "composition": {
+      "Lu": 1.0,
+      "Mn": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_mo",
+    "composition": {
+      "Lu": 1.0,
+      "Mo": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_nb",
+    "composition": {
+      "Lu": 1.0,
+      "Nb": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_nd",
+    "composition": {
+      "Lu": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_ni",
+    "composition": {
+      "Lu": 1.0,
+      "Ni": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_os",
+    "composition": {
+      "Lu": 1.0,
+      "Os": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_pb",
+    "composition": {
+      "Lu": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_pd",
+    "composition": {
+      "Lu": 1.0,
+      "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_pr",
+    "composition": {
+      "Lu": 1.0,
+      "Pr": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_pt",
+    "composition": {
+      "Lu": 1.0,
+      "Pt": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_re",
+    "composition": {
+      "Lu": 1.0,
+      "Re": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_rh",
+    "composition": {
+      "Lu": 1.0,
+      "Rh": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_ru",
+    "composition": {
+      "Lu": 1.0,
+      "Ru": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_sb",
+    "composition": {
+      "Lu": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_sc",
+    "composition": {
+      "Lu": 1.0,
+      "Sc": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_si",
+    "composition": {
+      "Lu": 1.0,
+      "Si": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_sm",
+    "composition": {
+      "Lu": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_sn",
+    "composition": {
+      "Lu": 1.0,
+      "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_sr",
+    "composition": {
+      "Lu": 1.0,
+      "Sr": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_ta",
+    "composition": {
+      "Lu": 1.0,
+      "Ta": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_tb",
+    "composition": {
+      "Lu": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_th",
+    "composition": {
+      "Lu": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_ti",
+    "composition": {
+      "Lu": 1.0,
+      "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_tm",
+    "composition": {
+      "Lu": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_u",
+    "composition": {
+      "Lu": 1.0,
+      "U": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_v",
+    "composition": {
+      "Lu": 1.0,
+      "V": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_w",
+    "composition": {
+      "Lu": 1.0,
+      "W": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_y",
+    "composition": {
+      "Lu": 1.0,
+      "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_yb",
+    "composition": {
+      "Lu": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_zn",
+    "composition": {
+      "Lu": 1.0,
+      "Zn": 1.0
+    }
+  },
+  {
+    "name": "binary_lu_zr",
+    "composition": {
+      "Lu": 1.0,
       "Zr": 1.0
     }
   },
@@ -3313,6 +7155,13 @@
     }
   },
   {
+    "name": "binary_mg_nd",
+    "composition": {
+      "Mg": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
     "name": "binary_mg_ni",
     "composition": {
       "Mg": 1.0,
@@ -3327,10 +7176,24 @@
     }
   },
   {
+    "name": "binary_mg_pb",
+    "composition": {
+      "Mg": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_mg_pd",
     "composition": {
       "Mg": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_mg_pr",
+    "composition": {
+      "Mg": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -3362,6 +7225,13 @@
     }
   },
   {
+    "name": "binary_mg_sb",
+    "composition": {
+      "Mg": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_mg_sc",
     "composition": {
       "Mg": 1.0,
@@ -3376,10 +7246,24 @@
     }
   },
   {
+    "name": "binary_mg_sm",
+    "composition": {
+      "Mg": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_mg_sn",
     "composition": {
       "Mg": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_mg_sr",
+    "composition": {
+      "Mg": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -3390,10 +7274,38 @@
     }
   },
   {
+    "name": "binary_mg_tb",
+    "composition": {
+      "Mg": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_mg_th",
+    "composition": {
+      "Mg": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_mg_ti",
     "composition": {
       "Mg": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_mg_tm",
+    "composition": {
+      "Mg": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_mg_u",
+    "composition": {
+      "Mg": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -3415,6 +7327,13 @@
     "composition": {
       "Mg": 1.0,
       "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_mg_yb",
+    "composition": {
+      "Mg": 1.0,
+      "Yb": 1.0
     }
   },
   {
@@ -3446,6 +7365,13 @@
     }
   },
   {
+    "name": "binary_mn_nd",
+    "composition": {
+      "Mn": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
     "name": "binary_mn_ni",
     "composition": {
       "Mn": 1.0,
@@ -3460,10 +7386,24 @@
     }
   },
   {
+    "name": "binary_mn_pb",
+    "composition": {
+      "Mn": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_mn_pd",
     "composition": {
       "Mn": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_mn_pr",
+    "composition": {
+      "Mn": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -3495,6 +7435,13 @@
     }
   },
   {
+    "name": "binary_mn_sb",
+    "composition": {
+      "Mn": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_mn_sc",
     "composition": {
       "Mn": 1.0,
@@ -3509,10 +7456,24 @@
     }
   },
   {
+    "name": "binary_mn_sm",
+    "composition": {
+      "Mn": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_mn_sn",
     "composition": {
       "Mn": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_mn_sr",
+    "composition": {
+      "Mn": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -3523,10 +7484,38 @@
     }
   },
   {
+    "name": "binary_mn_tb",
+    "composition": {
+      "Mn": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_mn_th",
+    "composition": {
+      "Mn": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_mn_ti",
     "composition": {
       "Mn": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_mn_tm",
+    "composition": {
+      "Mn": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_mn_u",
+    "composition": {
+      "Mn": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -3551,6 +7540,13 @@
     }
   },
   {
+    "name": "binary_mn_yb",
+    "composition": {
+      "Mn": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_mn_zn",
     "composition": {
       "Mn": 1.0,
@@ -3572,6 +7568,13 @@
     }
   },
   {
+    "name": "binary_mo_nd",
+    "composition": {
+      "Mo": 1.0,
+      "Nd": 1.0
+    }
+  },
+  {
     "name": "binary_mo_ni",
     "composition": {
       "Mo": 1.0,
@@ -3586,10 +7589,24 @@
     }
   },
   {
+    "name": "binary_mo_pb",
+    "composition": {
+      "Mo": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_mo_pd",
     "composition": {
       "Mo": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_mo_pr",
+    "composition": {
+      "Mo": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -3621,6 +7638,13 @@
     }
   },
   {
+    "name": "binary_mo_sb",
+    "composition": {
+      "Mo": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_mo_sc",
     "composition": {
       "Mo": 1.0,
@@ -3635,10 +7659,24 @@
     }
   },
   {
+    "name": "binary_mo_sm",
+    "composition": {
+      "Mo": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_mo_sn",
     "composition": {
       "Mo": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_mo_sr",
+    "composition": {
+      "Mo": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -3649,10 +7687,38 @@
     }
   },
   {
+    "name": "binary_mo_tb",
+    "composition": {
+      "Mo": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_mo_th",
+    "composition": {
+      "Mo": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_mo_ti",
     "composition": {
       "Mo": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_mo_tm",
+    "composition": {
+      "Mo": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_mo_u",
+    "composition": {
+      "Mo": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -3677,6 +7743,13 @@
     }
   },
   {
+    "name": "binary_mo_yb",
+    "composition": {
+      "Mo": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_mo_zn",
     "composition": {
       "Mo": 1.0,
@@ -3688,6 +7761,13 @@
     "composition": {
       "Mo": 1.0,
       "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_nb_nd",
+    "composition": {
+      "Nb": 1.0,
+      "Nd": 1.0
     }
   },
   {
@@ -3705,10 +7785,24 @@
     }
   },
   {
+    "name": "binary_nb_pb",
+    "composition": {
+      "Nb": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_nb_pd",
     "composition": {
       "Nb": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_nb_pr",
+    "composition": {
+      "Nb": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -3740,6 +7834,13 @@
     }
   },
   {
+    "name": "binary_nb_sb",
+    "composition": {
+      "Nb": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_nb_sc",
     "composition": {
       "Nb": 1.0,
@@ -3754,10 +7855,24 @@
     }
   },
   {
+    "name": "binary_nb_sm",
+    "composition": {
+      "Nb": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_nb_sn",
     "composition": {
       "Nb": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_nb_sr",
+    "composition": {
+      "Nb": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -3768,10 +7883,38 @@
     }
   },
   {
+    "name": "binary_nb_tb",
+    "composition": {
+      "Nb": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_nb_th",
+    "composition": {
+      "Nb": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_nb_ti",
     "composition": {
       "Nb": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_nb_tm",
+    "composition": {
+      "Nb": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_nb_u",
+    "composition": {
+      "Nb": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -3796,6 +7939,13 @@
     }
   },
   {
+    "name": "binary_nb_yb",
+    "composition": {
+      "Nb": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_nb_zn",
     "composition": {
       "Nb": 1.0,
@@ -3810,6 +7960,195 @@
     }
   },
   {
+    "name": "binary_nd_ni",
+    "composition": {
+      "Nd": 1.0,
+      "Ni": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_os",
+    "composition": {
+      "Nd": 1.0,
+      "Os": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_pb",
+    "composition": {
+      "Nd": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_pd",
+    "composition": {
+      "Nd": 1.0,
+      "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_pr",
+    "composition": {
+      "Nd": 1.0,
+      "Pr": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_pt",
+    "composition": {
+      "Nd": 1.0,
+      "Pt": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_re",
+    "composition": {
+      "Nd": 1.0,
+      "Re": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_rh",
+    "composition": {
+      "Nd": 1.0,
+      "Rh": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_ru",
+    "composition": {
+      "Nd": 1.0,
+      "Ru": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_sb",
+    "composition": {
+      "Nd": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_sc",
+    "composition": {
+      "Nd": 1.0,
+      "Sc": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_si",
+    "composition": {
+      "Nd": 1.0,
+      "Si": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_sm",
+    "composition": {
+      "Nd": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_sn",
+    "composition": {
+      "Nd": 1.0,
+      "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_sr",
+    "composition": {
+      "Nd": 1.0,
+      "Sr": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_ta",
+    "composition": {
+      "Nd": 1.0,
+      "Ta": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_tb",
+    "composition": {
+      "Nd": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_th",
+    "composition": {
+      "Nd": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_ti",
+    "composition": {
+      "Nd": 1.0,
+      "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_tm",
+    "composition": {
+      "Nd": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_u",
+    "composition": {
+      "Nd": 1.0,
+      "U": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_v",
+    "composition": {
+      "Nd": 1.0,
+      "V": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_w",
+    "composition": {
+      "Nd": 1.0,
+      "W": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_y",
+    "composition": {
+      "Nd": 1.0,
+      "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_yb",
+    "composition": {
+      "Nd": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_zn",
+    "composition": {
+      "Nd": 1.0,
+      "Zn": 1.0
+    }
+  },
+  {
+    "name": "binary_nd_zr",
+    "composition": {
+      "Nd": 1.0,
+      "Zr": 1.0
+    }
+  },
+  {
     "name": "binary_ni_os",
     "composition": {
       "Ni": 1.0,
@@ -3817,10 +8156,24 @@
     }
   },
   {
+    "name": "binary_ni_pb",
+    "composition": {
+      "Ni": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_ni_pd",
     "composition": {
       "Ni": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_ni_pr",
+    "composition": {
+      "Ni": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -3852,6 +8205,13 @@
     }
   },
   {
+    "name": "binary_ni_sb",
+    "composition": {
+      "Ni": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_ni_sc",
     "composition": {
       "Ni": 1.0,
@@ -3866,10 +8226,24 @@
     }
   },
   {
+    "name": "binary_ni_sm",
+    "composition": {
+      "Ni": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_ni_sn",
     "composition": {
       "Ni": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_ni_sr",
+    "composition": {
+      "Ni": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -3880,10 +8254,38 @@
     }
   },
   {
+    "name": "binary_ni_tb",
+    "composition": {
+      "Ni": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_ni_th",
+    "composition": {
+      "Ni": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_ni_ti",
     "composition": {
       "Ni": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_ni_tm",
+    "composition": {
+      "Ni": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_ni_u",
+    "composition": {
+      "Ni": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -3908,6 +8310,13 @@
     }
   },
   {
+    "name": "binary_ni_yb",
+    "composition": {
+      "Ni": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_ni_zn",
     "composition": {
       "Ni": 1.0,
@@ -3922,10 +8331,24 @@
     }
   },
   {
+    "name": "binary_os_pb",
+    "composition": {
+      "Os": 1.0,
+      "Pb": 1.0
+    }
+  },
+  {
     "name": "binary_os_pd",
     "composition": {
       "Os": 1.0,
       "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_os_pr",
+    "composition": {
+      "Os": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -3957,6 +8380,13 @@
     }
   },
   {
+    "name": "binary_os_sb",
+    "composition": {
+      "Os": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_os_sc",
     "composition": {
       "Os": 1.0,
@@ -3971,10 +8401,24 @@
     }
   },
   {
+    "name": "binary_os_sm",
+    "composition": {
+      "Os": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_os_sn",
     "composition": {
       "Os": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_os_sr",
+    "composition": {
+      "Os": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -3985,10 +8429,38 @@
     }
   },
   {
+    "name": "binary_os_tb",
+    "composition": {
+      "Os": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_os_th",
+    "composition": {
+      "Os": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_os_ti",
     "composition": {
       "Os": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_os_tm",
+    "composition": {
+      "Os": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_os_u",
+    "composition": {
+      "Os": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -4013,6 +8485,13 @@
     }
   },
   {
+    "name": "binary_os_yb",
+    "composition": {
+      "Os": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_os_zn",
     "composition": {
       "Os": 1.0,
@@ -4024,6 +8503,181 @@
     "composition": {
       "Os": 1.0,
       "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_pd",
+    "composition": {
+      "Pb": 1.0,
+      "Pd": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_pr",
+    "composition": {
+      "Pb": 1.0,
+      "Pr": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_pt",
+    "composition": {
+      "Pb": 1.0,
+      "Pt": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_re",
+    "composition": {
+      "Pb": 1.0,
+      "Re": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_rh",
+    "composition": {
+      "Pb": 1.0,
+      "Rh": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_ru",
+    "composition": {
+      "Pb": 1.0,
+      "Ru": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_sb",
+    "composition": {
+      "Pb": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_sc",
+    "composition": {
+      "Pb": 1.0,
+      "Sc": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_si",
+    "composition": {
+      "Pb": 1.0,
+      "Si": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_sm",
+    "composition": {
+      "Pb": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_sn",
+    "composition": {
+      "Pb": 1.0,
+      "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_sr",
+    "composition": {
+      "Pb": 1.0,
+      "Sr": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_ta",
+    "composition": {
+      "Pb": 1.0,
+      "Ta": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_tb",
+    "composition": {
+      "Pb": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_th",
+    "composition": {
+      "Pb": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_ti",
+    "composition": {
+      "Pb": 1.0,
+      "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_tm",
+    "composition": {
+      "Pb": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_u",
+    "composition": {
+      "Pb": 1.0,
+      "U": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_v",
+    "composition": {
+      "Pb": 1.0,
+      "V": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_w",
+    "composition": {
+      "Pb": 1.0,
+      "W": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_y",
+    "composition": {
+      "Pb": 1.0,
+      "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_yb",
+    "composition": {
+      "Pb": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_zn",
+    "composition": {
+      "Pb": 1.0,
+      "Zn": 1.0
+    }
+  },
+  {
+    "name": "binary_pb_zr",
+    "composition": {
+      "Pb": 1.0,
+      "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_pd_pr",
+    "composition": {
+      "Pd": 1.0,
+      "Pr": 1.0
     }
   },
   {
@@ -4055,6 +8709,13 @@
     }
   },
   {
+    "name": "binary_pd_sb",
+    "composition": {
+      "Pd": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_pd_sc",
     "composition": {
       "Pd": 1.0,
@@ -4069,10 +8730,24 @@
     }
   },
   {
+    "name": "binary_pd_sm",
+    "composition": {
+      "Pd": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_pd_sn",
     "composition": {
       "Pd": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_pd_sr",
+    "composition": {
+      "Pd": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -4083,10 +8758,38 @@
     }
   },
   {
+    "name": "binary_pd_tb",
+    "composition": {
+      "Pd": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_pd_th",
+    "composition": {
+      "Pd": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_pd_ti",
     "composition": {
       "Pd": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_pd_tm",
+    "composition": {
+      "Pd": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_pd_u",
+    "composition": {
+      "Pd": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -4111,6 +8814,13 @@
     }
   },
   {
+    "name": "binary_pd_yb",
+    "composition": {
+      "Pd": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_pd_zn",
     "composition": {
       "Pd": 1.0,
@@ -4121,6 +8831,160 @@
     "name": "binary_pd_zr",
     "composition": {
       "Pd": 1.0,
+      "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_pt",
+    "composition": {
+      "Pr": 1.0,
+      "Pt": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_re",
+    "composition": {
+      "Pr": 1.0,
+      "Re": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_rh",
+    "composition": {
+      "Pr": 1.0,
+      "Rh": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_ru",
+    "composition": {
+      "Pr": 1.0,
+      "Ru": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_sb",
+    "composition": {
+      "Pr": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_sc",
+    "composition": {
+      "Pr": 1.0,
+      "Sc": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_si",
+    "composition": {
+      "Pr": 1.0,
+      "Si": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_sm",
+    "composition": {
+      "Pr": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_sn",
+    "composition": {
+      "Pr": 1.0,
+      "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_sr",
+    "composition": {
+      "Pr": 1.0,
+      "Sr": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_ta",
+    "composition": {
+      "Pr": 1.0,
+      "Ta": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_tb",
+    "composition": {
+      "Pr": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_th",
+    "composition": {
+      "Pr": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_ti",
+    "composition": {
+      "Pr": 1.0,
+      "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_tm",
+    "composition": {
+      "Pr": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_u",
+    "composition": {
+      "Pr": 1.0,
+      "U": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_v",
+    "composition": {
+      "Pr": 1.0,
+      "V": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_w",
+    "composition": {
+      "Pr": 1.0,
+      "W": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_y",
+    "composition": {
+      "Pr": 1.0,
+      "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_yb",
+    "composition": {
+      "Pr": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_zn",
+    "composition": {
+      "Pr": 1.0,
+      "Zn": 1.0
+    }
+  },
+  {
+    "name": "binary_pr_zr",
+    "composition": {
+      "Pr": 1.0,
       "Zr": 1.0
     }
   },
@@ -4146,6 +9010,13 @@
     }
   },
   {
+    "name": "binary_pt_sb",
+    "composition": {
+      "Pt": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_pt_sc",
     "composition": {
       "Pt": 1.0,
@@ -4160,10 +9031,24 @@
     }
   },
   {
+    "name": "binary_pt_sm",
+    "composition": {
+      "Pt": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_pt_sn",
     "composition": {
       "Pt": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_pt_sr",
+    "composition": {
+      "Pt": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -4174,10 +9059,38 @@
     }
   },
   {
+    "name": "binary_pt_tb",
+    "composition": {
+      "Pt": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_pt_th",
+    "composition": {
+      "Pt": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_pt_ti",
     "composition": {
       "Pt": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_pt_tm",
+    "composition": {
+      "Pt": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_pt_u",
+    "composition": {
+      "Pt": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -4199,6 +9112,13 @@
     "composition": {
       "Pt": 1.0,
       "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_pt_yb",
+    "composition": {
+      "Pt": 1.0,
+      "Yb": 1.0
     }
   },
   {
@@ -4230,6 +9150,13 @@
     }
   },
   {
+    "name": "binary_re_sb",
+    "composition": {
+      "Re": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_re_sc",
     "composition": {
       "Re": 1.0,
@@ -4244,10 +9171,24 @@
     }
   },
   {
+    "name": "binary_re_sm",
+    "composition": {
+      "Re": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_re_sn",
     "composition": {
       "Re": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_re_sr",
+    "composition": {
+      "Re": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -4258,10 +9199,38 @@
     }
   },
   {
+    "name": "binary_re_tb",
+    "composition": {
+      "Re": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_re_th",
+    "composition": {
+      "Re": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_re_ti",
     "composition": {
       "Re": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_re_tm",
+    "composition": {
+      "Re": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_re_u",
+    "composition": {
+      "Re": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -4286,6 +9255,13 @@
     }
   },
   {
+    "name": "binary_re_yb",
+    "composition": {
+      "Re": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_re_zn",
     "composition": {
       "Re": 1.0,
@@ -4307,6 +9283,13 @@
     }
   },
   {
+    "name": "binary_rh_sb",
+    "composition": {
+      "Rh": 1.0,
+      "Sb": 1.0
+    }
+  },
+  {
     "name": "binary_rh_sc",
     "composition": {
       "Rh": 1.0,
@@ -4321,10 +9304,24 @@
     }
   },
   {
+    "name": "binary_rh_sm",
+    "composition": {
+      "Rh": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_rh_sn",
     "composition": {
       "Rh": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_rh_sr",
+    "composition": {
+      "Rh": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -4335,10 +9332,38 @@
     }
   },
   {
+    "name": "binary_rh_tb",
+    "composition": {
+      "Rh": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_rh_th",
+    "composition": {
+      "Rh": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_rh_ti",
     "composition": {
       "Rh": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_rh_tm",
+    "composition": {
+      "Rh": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_rh_u",
+    "composition": {
+      "Rh": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -4363,6 +9388,13 @@
     }
   },
   {
+    "name": "binary_rh_yb",
+    "composition": {
+      "Rh": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_rh_zn",
     "composition": {
       "Rh": 1.0,
@@ -4374,6 +9406,13 @@
     "composition": {
       "Rh": 1.0,
       "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_ru_sb",
+    "composition": {
+      "Ru": 1.0,
+      "Sb": 1.0
     }
   },
   {
@@ -4391,10 +9430,24 @@
     }
   },
   {
+    "name": "binary_ru_sm",
+    "composition": {
+      "Ru": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_ru_sn",
     "composition": {
       "Ru": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_ru_sr",
+    "composition": {
+      "Ru": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -4405,10 +9458,38 @@
     }
   },
   {
+    "name": "binary_ru_tb",
+    "composition": {
+      "Ru": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_ru_th",
+    "composition": {
+      "Ru": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_ru_ti",
     "composition": {
       "Ru": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_ru_tm",
+    "composition": {
+      "Ru": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_ru_u",
+    "composition": {
+      "Ru": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -4433,6 +9514,13 @@
     }
   },
   {
+    "name": "binary_ru_yb",
+    "composition": {
+      "Ru": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_ru_zn",
     "composition": {
       "Ru": 1.0,
@@ -4447,10 +9535,136 @@
     }
   },
   {
+    "name": "binary_sb_sc",
+    "composition": {
+      "Sb": 1.0,
+      "Sc": 1.0
+    }
+  },
+  {
+    "name": "binary_sb_si",
+    "composition": {
+      "Sb": 1.0,
+      "Si": 1.0
+    }
+  },
+  {
+    "name": "binary_sb_sm",
+    "composition": {
+      "Sb": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
+    "name": "binary_sb_sn",
+    "composition": {
+      "Sb": 1.0,
+      "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_sb_sr",
+    "composition": {
+      "Sb": 1.0,
+      "Sr": 1.0
+    }
+  },
+  {
+    "name": "binary_sb_ta",
+    "composition": {
+      "Sb": 1.0,
+      "Ta": 1.0
+    }
+  },
+  {
+    "name": "binary_sb_tb",
+    "composition": {
+      "Sb": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_sb_th",
+    "composition": {
+      "Sb": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
+    "name": "binary_sb_ti",
+    "composition": {
+      "Sb": 1.0,
+      "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_sb_tm",
+    "composition": {
+      "Sb": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_sb_u",
+    "composition": {
+      "Sb": 1.0,
+      "U": 1.0
+    }
+  },
+  {
+    "name": "binary_sb_v",
+    "composition": {
+      "Sb": 1.0,
+      "V": 1.0
+    }
+  },
+  {
+    "name": "binary_sb_w",
+    "composition": {
+      "Sb": 1.0,
+      "W": 1.0
+    }
+  },
+  {
+    "name": "binary_sb_y",
+    "composition": {
+      "Sb": 1.0,
+      "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_sb_yb",
+    "composition": {
+      "Sb": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
+    "name": "binary_sb_zn",
+    "composition": {
+      "Sb": 1.0,
+      "Zn": 1.0
+    }
+  },
+  {
+    "name": "binary_sb_zr",
+    "composition": {
+      "Sb": 1.0,
+      "Zr": 1.0
+    }
+  },
+  {
     "name": "binary_sc_si",
     "composition": {
       "Sc": 1.0,
       "Si": 1.0
+    }
+  },
+  {
+    "name": "binary_sc_sm",
+    "composition": {
+      "Sc": 1.0,
+      "Sm": 1.0
     }
   },
   {
@@ -4461,6 +9675,13 @@
     }
   },
   {
+    "name": "binary_sc_sr",
+    "composition": {
+      "Sc": 1.0,
+      "Sr": 1.0
+    }
+  },
+  {
     "name": "binary_sc_ta",
     "composition": {
       "Sc": 1.0,
@@ -4468,10 +9689,38 @@
     }
   },
   {
+    "name": "binary_sc_tb",
+    "composition": {
+      "Sc": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_sc_th",
+    "composition": {
+      "Sc": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_sc_ti",
     "composition": {
       "Sc": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_sc_tm",
+    "composition": {
+      "Sc": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_sc_u",
+    "composition": {
+      "Sc": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -4496,6 +9745,13 @@
     }
   },
   {
+    "name": "binary_sc_yb",
+    "composition": {
+      "Sc": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_sc_zn",
     "composition": {
       "Sc": 1.0,
@@ -4510,10 +9766,24 @@
     }
   },
   {
+    "name": "binary_si_sm",
+    "composition": {
+      "Si": 1.0,
+      "Sm": 1.0
+    }
+  },
+  {
     "name": "binary_si_sn",
     "composition": {
       "Si": 1.0,
       "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_si_sr",
+    "composition": {
+      "Si": 1.0,
+      "Sr": 1.0
     }
   },
   {
@@ -4524,10 +9794,38 @@
     }
   },
   {
+    "name": "binary_si_tb",
+    "composition": {
+      "Si": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_si_th",
+    "composition": {
+      "Si": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_si_ti",
     "composition": {
       "Si": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_si_tm",
+    "composition": {
+      "Si": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_si_u",
+    "composition": {
+      "Si": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -4552,6 +9850,13 @@
     }
   },
   {
+    "name": "binary_si_yb",
+    "composition": {
+      "Si": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_si_zn",
     "composition": {
       "Si": 1.0,
@@ -4566,6 +9871,111 @@
     }
   },
   {
+    "name": "binary_sm_sn",
+    "composition": {
+      "Sm": 1.0,
+      "Sn": 1.0
+    }
+  },
+  {
+    "name": "binary_sm_sr",
+    "composition": {
+      "Sm": 1.0,
+      "Sr": 1.0
+    }
+  },
+  {
+    "name": "binary_sm_ta",
+    "composition": {
+      "Sm": 1.0,
+      "Ta": 1.0
+    }
+  },
+  {
+    "name": "binary_sm_tb",
+    "composition": {
+      "Sm": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_sm_th",
+    "composition": {
+      "Sm": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
+    "name": "binary_sm_ti",
+    "composition": {
+      "Sm": 1.0,
+      "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_sm_tm",
+    "composition": {
+      "Sm": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_sm_u",
+    "composition": {
+      "Sm": 1.0,
+      "U": 1.0
+    }
+  },
+  {
+    "name": "binary_sm_v",
+    "composition": {
+      "Sm": 1.0,
+      "V": 1.0
+    }
+  },
+  {
+    "name": "binary_sm_w",
+    "composition": {
+      "Sm": 1.0,
+      "W": 1.0
+    }
+  },
+  {
+    "name": "binary_sm_y",
+    "composition": {
+      "Sm": 1.0,
+      "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_sm_yb",
+    "composition": {
+      "Sm": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
+    "name": "binary_sm_zn",
+    "composition": {
+      "Sm": 1.0,
+      "Zn": 1.0
+    }
+  },
+  {
+    "name": "binary_sm_zr",
+    "composition": {
+      "Sm": 1.0,
+      "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_sn_sr",
+    "composition": {
+      "Sn": 1.0,
+      "Sr": 1.0
+    }
+  },
+  {
     "name": "binary_sn_ta",
     "composition": {
       "Sn": 1.0,
@@ -4573,10 +9983,38 @@
     }
   },
   {
+    "name": "binary_sn_tb",
+    "composition": {
+      "Sn": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_sn_th",
+    "composition": {
+      "Sn": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_sn_ti",
     "composition": {
       "Sn": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_sn_tm",
+    "composition": {
+      "Sn": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_sn_u",
+    "composition": {
+      "Sn": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -4601,6 +10039,13 @@
     }
   },
   {
+    "name": "binary_sn_yb",
+    "composition": {
+      "Sn": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_sn_zn",
     "composition": {
       "Sn": 1.0,
@@ -4615,10 +10060,122 @@
     }
   },
   {
+    "name": "binary_sr_ta",
+    "composition": {
+      "Sr": 1.0,
+      "Ta": 1.0
+    }
+  },
+  {
+    "name": "binary_sr_tb",
+    "composition": {
+      "Sr": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_sr_th",
+    "composition": {
+      "Sr": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
+    "name": "binary_sr_ti",
+    "composition": {
+      "Sr": 1.0,
+      "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_sr_tm",
+    "composition": {
+      "Sr": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_sr_u",
+    "composition": {
+      "Sr": 1.0,
+      "U": 1.0
+    }
+  },
+  {
+    "name": "binary_sr_v",
+    "composition": {
+      "Sr": 1.0,
+      "V": 1.0
+    }
+  },
+  {
+    "name": "binary_sr_w",
+    "composition": {
+      "Sr": 1.0,
+      "W": 1.0
+    }
+  },
+  {
+    "name": "binary_sr_y",
+    "composition": {
+      "Sr": 1.0,
+      "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_sr_yb",
+    "composition": {
+      "Sr": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
+    "name": "binary_sr_zn",
+    "composition": {
+      "Sr": 1.0,
+      "Zn": 1.0
+    }
+  },
+  {
+    "name": "binary_sr_zr",
+    "composition": {
+      "Sr": 1.0,
+      "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_ta_tb",
+    "composition": {
+      "Ta": 1.0,
+      "Tb": 1.0
+    }
+  },
+  {
+    "name": "binary_ta_th",
+    "composition": {
+      "Ta": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
     "name": "binary_ta_ti",
     "composition": {
       "Ta": 1.0,
       "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_ta_tm",
+    "composition": {
+      "Ta": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_ta_u",
+    "composition": {
+      "Ta": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -4643,6 +10200,13 @@
     }
   },
   {
+    "name": "binary_ta_yb",
+    "composition": {
+      "Ta": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_ta_zn",
     "composition": {
       "Ta": 1.0,
@@ -4654,6 +10218,146 @@
     "composition": {
       "Ta": 1.0,
       "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_tb_th",
+    "composition": {
+      "Tb": 1.0,
+      "Th": 1.0
+    }
+  },
+  {
+    "name": "binary_tb_ti",
+    "composition": {
+      "Tb": 1.0,
+      "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_tb_tm",
+    "composition": {
+      "Tb": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_tb_u",
+    "composition": {
+      "Tb": 1.0,
+      "U": 1.0
+    }
+  },
+  {
+    "name": "binary_tb_v",
+    "composition": {
+      "Tb": 1.0,
+      "V": 1.0
+    }
+  },
+  {
+    "name": "binary_tb_w",
+    "composition": {
+      "Tb": 1.0,
+      "W": 1.0
+    }
+  },
+  {
+    "name": "binary_tb_y",
+    "composition": {
+      "Tb": 1.0,
+      "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_tb_yb",
+    "composition": {
+      "Tb": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
+    "name": "binary_tb_zn",
+    "composition": {
+      "Tb": 1.0,
+      "Zn": 1.0
+    }
+  },
+  {
+    "name": "binary_tb_zr",
+    "composition": {
+      "Tb": 1.0,
+      "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_th_ti",
+    "composition": {
+      "Th": 1.0,
+      "Ti": 1.0
+    }
+  },
+  {
+    "name": "binary_th_tm",
+    "composition": {
+      "Th": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_th_v",
+    "composition": {
+      "Th": 1.0,
+      "V": 1.0
+    }
+  },
+  {
+    "name": "binary_th_w",
+    "composition": {
+      "Th": 1.0,
+      "W": 1.0
+    }
+  },
+  {
+    "name": "binary_th_y",
+    "composition": {
+      "Th": 1.0,
+      "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_th_yb",
+    "composition": {
+      "Th": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
+    "name": "binary_th_zn",
+    "composition": {
+      "Th": 1.0,
+      "Zn": 1.0
+    }
+  },
+  {
+    "name": "binary_th_zr",
+    "composition": {
+      "Th": 1.0,
+      "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_ti_tm",
+    "composition": {
+      "Ti": 1.0,
+      "Tm": 1.0
+    }
+  },
+  {
+    "name": "binary_ti_u",
+    "composition": {
+      "Ti": 1.0,
+      "U": 1.0
     }
   },
   {
@@ -4678,6 +10382,13 @@
     }
   },
   {
+    "name": "binary_ti_yb",
+    "composition": {
+      "Ti": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_ti_zn",
     "composition": {
       "Ti": 1.0,
@@ -4688,6 +10399,97 @@
     "name": "binary_ti_zr",
     "composition": {
       "Ti": 1.0,
+      "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_tm_u",
+    "composition": {
+      "Tm": 1.0,
+      "U": 1.0
+    }
+  },
+  {
+    "name": "binary_tm_v",
+    "composition": {
+      "Tm": 1.0,
+      "V": 1.0
+    }
+  },
+  {
+    "name": "binary_tm_w",
+    "composition": {
+      "Tm": 1.0,
+      "W": 1.0
+    }
+  },
+  {
+    "name": "binary_tm_y",
+    "composition": {
+      "Tm": 1.0,
+      "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_tm_yb",
+    "composition": {
+      "Tm": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
+    "name": "binary_tm_zn",
+    "composition": {
+      "Tm": 1.0,
+      "Zn": 1.0
+    }
+  },
+  {
+    "name": "binary_tm_zr",
+    "composition": {
+      "Tm": 1.0,
+      "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_u_v",
+    "composition": {
+      "U": 1.0,
+      "V": 1.0
+    }
+  },
+  {
+    "name": "binary_u_w",
+    "composition": {
+      "U": 1.0,
+      "W": 1.0
+    }
+  },
+  {
+    "name": "binary_u_y",
+    "composition": {
+      "U": 1.0,
+      "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_u_yb",
+    "composition": {
+      "U": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
+    "name": "binary_u_zn",
+    "composition": {
+      "U": 1.0,
+      "Zn": 1.0
+    }
+  },
+  {
+    "name": "binary_u_zr",
+    "composition": {
+      "U": 1.0,
       "Zr": 1.0
     }
   },
@@ -4703,6 +10505,13 @@
     "composition": {
       "V": 1.0,
       "Y": 1.0
+    }
+  },
+  {
+    "name": "binary_v_yb",
+    "composition": {
+      "V": 1.0,
+      "Yb": 1.0
     }
   },
   {
@@ -4727,6 +10536,13 @@
     }
   },
   {
+    "name": "binary_w_yb",
+    "composition": {
+      "W": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_w_zn",
     "composition": {
       "W": 1.0,
@@ -4741,6 +10557,13 @@
     }
   },
   {
+    "name": "binary_y_yb",
+    "composition": {
+      "Y": 1.0,
+      "Yb": 1.0
+    }
+  },
+  {
     "name": "binary_y_zn",
     "composition": {
       "Y": 1.0,
@@ -4751,6 +10574,20 @@
     "name": "binary_y_zr",
     "composition": {
       "Y": 1.0,
+      "Zr": 1.0
+    }
+  },
+  {
+    "name": "binary_yb_zn",
+    "composition": {
+      "Yb": 1.0,
+      "Zn": 1.0
+    }
+  },
+  {
+    "name": "binary_yb_zr",
+    "composition": {
+      "Yb": 1.0,
       "Zr": 1.0
     }
   },
