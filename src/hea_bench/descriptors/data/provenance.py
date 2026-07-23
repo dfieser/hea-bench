@@ -110,6 +110,16 @@ REFERENCES: dict[str, Ref] = {
     "housecroft2018": Ref("Housecroft, C. E. & Sharpe, A. G.", "Inorganic Chemistry, 5th ed., Appendix 6 (metallic radii, CN12)", "Pearson", 2018, url="https://www.pearson.com/en-gb/subject-catalog/p/inorganic-chemistry/P200000004526"),
     "matminer2018": Ref("Ward, L., Dunn, A., Faghaninia, A. et al.", "Matminer: an open source toolkit for materials data mining", "Comput. Mater. Sci. 152, 60", 2018, doi="10.1016/j.commatsci.2018.05.018"),
     "koskenmaki1978": Ref("Koskenmaki, D. C. & Gschneidner, K. A., Jr.", "Cerium (Handbook on the Physics and Chemistry of Rare Earths, Vol. 1, Ch. 4)", "North-Holland", 1978, doi="10.1016/S0168-1273(78)01008-9"),
+    # --- high-entropy oxides ---
+    "rost2015": Ref("Rost, C. M. et al.", "Entropy-stabilized oxides", "Nat. Commun. 6, 8485", 2015, doi="10.1038/ncomms9485"),
+    "shannon1976": Ref("Shannon, R. D.", "Revised effective ionic radii and systematic studies of interatomic distances in halides and chalcogenides", "Acta Crystallogr. A 32, 751", 1976, doi="10.1107/S0567739476001551"),
+    "goldschmidt1926": Ref("Goldschmidt, V. M.", "Die Gesetze der Krystallochemie", "Naturwissenschaften 14, 477", 1926, doi="10.1007/BF01507527"),
+    "bartel2019": Ref("Bartel, C. J. et al.", "New tolerance factor to predict the stability of perovskite oxides and halides", "Sci. Adv. 5, eaav0693", 2019, doi="10.1126/sciadv.aav0693"),
+    "jiang2018": Ref("Jiang, S. et al.", "A new class of high-entropy perovskite oxides", "Scripta Mater. 142, 116", 2018, doi="10.1016/j.scriptamat.2017.08.040"),
+    "spiridigliozzi2021": Ref("Spiridigliozzi, L., Ferone, C., Cioffi, R. & Dell'Agli, G.", "A simple and effective predictor to design novel fluorite-structured high entropy oxides (HEOs)", "Acta Mater. 202, 181", 2021, doi="10.1016/j.actamat.2020.10.061"),
+    "spiridigliozzi2023": Ref("Spiridigliozzi, L., Bortolotti, M. & Dell'Agli, G.", "On the effect of standard deviation of cationic radii on the transition temperature in fluorite-structured entropy-stabilized oxides", "Materials 16, 2219", 2023, doi="10.3390/ma16062219"),
+    "subramanian1983": Ref("Subramanian, M. A., Aravamudan, G. & Subba Rao, G. V.", "Oxide pyrochlores - a review", "Prog. Solid State Chem. 15, 55", 1983, doi="10.1016/0079-6786(83)90001-8"),
+    "manchon2025": Ref("Manchon-Gordon, A. F., Panadero-Medianero, P. & Blazquez, J. S.", "Descriptors for predicting single- and multi-phase formation in high-entropy oxides", "Materials 18, 3862", 2025, doi="10.3390/ma18163862"),
     # --- software / archive ---
     "heabench2026": Ref("Fieser, D.", "HEA-Bench: an open, parity-tested calculator of high-entropy alloy and oxide descriptors", "Materials 19, 3075", 2026, doi="10.3390/ma19143075"),
     "zenodo": Ref("Fieser, D.", "HEA-Bench (all versions)", "Zenodo concept record", 2026, doi="10.5281/zenodo.20346287"),

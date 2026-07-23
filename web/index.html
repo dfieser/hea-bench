@@ -667,6 +667,100 @@
       .map-point--offscale { fill: none; stroke: var(--accent); stroke-width: 2; }
       .map-point-label { fill: var(--text); font-weight: 600; }
       .anchor-flash { outline: 2px solid var(--accent); outline-offset: 3px; transition: outline-color 1.2s ease; }
+      /* ---- Provenance drawer ("where does this number come from?") ---- */
+      .result-card { position: relative; }
+      .prov-btn {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 22px;
+        height: 22px;
+        border: none;
+        border-radius: 50%;
+        background: transparent;
+        color: var(--text-muted-2);
+        font-size: 13px;
+        line-height: 1;
+        cursor: pointer;
+        padding: 0;
+      }
+      .prov-btn:hover, .prov-btn:focus-visible { color: var(--accent); background: var(--surface-muted); }
+      .prov-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+      .prov-drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: min(430px, 94vw);
+        background: var(--surface);
+        border-left: 1px solid var(--border-2);
+        box-shadow: -12px 0 32px rgba(0, 0, 0, 0.12);
+        z-index: 60;
+        display: flex;
+        flex-direction: column;
+        transform: translateX(102%);
+        transition: transform 0.22s ease;
+        visibility: hidden;
+      }
+      @media (prefers-reduced-motion: reduce) { .prov-drawer { transition: none; } }
+      .prov-drawer.is-open { transform: translateX(0); visibility: visible; }
+      .prov-drawer__head {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        padding: 14px 16px 10px;
+        border-bottom: 1px solid var(--border);
+      }
+      .prov-drawer__title { font-size: 14px; font-weight: 600; margin: 0; flex: 1; }
+      .prov-drawer__symbol { font-family: var(--mono, monospace); color: var(--text-muted); font-size: 12.5px; }
+      .prov-drawer__close {
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text-muted);
+        border-radius: 3px;
+        width: 26px;
+        height: 26px;
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+      }
+      .prov-drawer__close:hover, .prov-drawer__close:focus-visible { color: var(--accent); border-color: var(--accent); }
+      .prov-drawer__body { overflow-y: auto; padding: 12px 16px 20px; flex: 1; }
+      .prov-sec { margin: 0 0 16px; }
+      .prov-sec h4 {
+        margin: 0 0 6px;
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        font-weight: 600;
+      }
+      .prov-value { font-family: var(--mono, monospace); font-size: 18px; }
+      .prov-value .prov-units { font-size: 12px; color: var(--text-muted); margin-left: 6px; }
+      .prov-eq { overflow-x: auto; padding: 4px 0; }
+      .prov-inputs { width: 100%; border-collapse: collapse; font-size: 12px; }
+      .prov-inputs th, .prov-inputs td { text-align: left; padding: 3px 8px 3px 0; border-bottom: 1px solid var(--border); }
+      .prov-inputs th { color: var(--text-muted); font-weight: 600; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; }
+      .prov-inputs td { font-family: var(--mono, monospace); }
+      .prov-inputs .prov-src { font-family: inherit; color: var(--text-muted); font-size: 11px; }
+      .prov-inputs tr.prov-edited td { color: var(--accent); }
+      .prov-note { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin: 6px 0 0; }
+      .prov-refs { list-style: none; margin: 0; padding: 0; font-size: 12px; }
+      .prov-refs li { margin: 0 0 8px; line-height: 1.45; }
+      .prov-refs a { color: inherit; }
+      .prov-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+      .prov-links a, .prov-actions button {
+        font-size: 11.5px;
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        padding: 4px 9px;
+        background: var(--surface);
+        color: var(--text);
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .prov-links a:hover, .prov-actions button:hover { border-color: var(--accent); color: var(--accent); }
+      .prov-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
       .result-card-compact {
         padding: 10px 12px;
         background: var(--surface);
@@ -6579,6 +6673,15 @@ font-family: 'Source Sans Pro'
           </div>
         </div>
 
+        <aside class="prov-drawer" id="prov-drawer" role="dialog" aria-modal="false" aria-labelledby="prov-drawer-title" hidden>
+          <div class="prov-drawer__head">
+            <h3 class="prov-drawer__title" id="prov-drawer-title"></h3>
+            <span class="prov-drawer__symbol" id="prov-drawer-symbol"></span>
+            <button type="button" class="prov-drawer__close" id="prov-drawer-close" aria-label="Close provenance panel">×</button>
+          </div>
+          <div class="prov-drawer__body" id="prov-drawer-body"></div>
+        </aside>
+
         <div class="view" data-view-panel="refs">
         <section class="theory-section docs" aria-labelledby="refs-title">
           <aside class="docs-nav" aria-label="On this page">
@@ -6875,6 +6978,980 @@ font-family: 'Source Sans Pro'
        * V23: two-thirds power of molar volume (cm^2), Miedema-adjusted
        * cls: "TM" = transition metal, "NTM" = non-transition metal
        */
+      // BEGIN GENERATED: PROVENANCE_TABLES
+      // Generated from src/hea_bench/descriptors/data/provenance.py by
+      // tests/data/_sync_js_provenance.py. Do not edit by hand.
+      const REFERENCES_JS = {
+        "andreoli2019": {
+          "authors": "Andreoli, A. F., Orava, J., Liaw, P. K., Weber, H., de Oliveira, M. F., Nielsch, K. & Kaban, I.",
+          "title": "The elastic-strain energy criterion of phase formation for complex concentrated alloys",
+          "venue": "Materialia 5, 100222",
+          "year": 2019,
+          "doi": "10.1016/j.mtla.2019.100222",
+          "url": "https://doi.org/10.1016/j.mtla.2019.100222",
+          "bibtex": "@article{andreoli2019,\n  author = {Andreoli, A. F., Orava, J., Liaw, P. K., Weber, H., de Oliveira, M. F., Nielsch, K. and Kaban, I.},\n  title = {The elastic-strain energy criterion of phase formation for complex concentrated alloys},\n  journal = {Materialia 5, 100222},\n  year = {2019},\n  doi = {10.1016/j.mtla.2019.100222},\n}"
+        },
+        "bakker1998": {
+          "authors": "Bakker, H.",
+          "title": "Enthalpies in Alloys: Miedema's Semi-Empirical Model",
+          "venue": "Trans Tech Publications",
+          "year": 1998,
+          "doi": "",
+          "url": "https://www.scientific.net/MSFo.1",
+          "bibtex": "@misc{bakker1998,\n  author = {Bakker, H.},\n  title = {Enthalpies in Alloys: Miedema's Semi-Empirical Model},\n  howpublished = {Trans Tech Publications},\n  year = {1998},\n  url = {https://www.scientific.net/MSFo.1},\n}"
+        },
+        "bartel2019": {
+          "authors": "Bartel, C. J. et al.",
+          "title": "New tolerance factor to predict the stability of perovskite oxides and halides",
+          "venue": "Sci. Adv. 5, eaav0693",
+          "year": 2019,
+          "doi": "10.1126/sciadv.aav0693",
+          "url": "https://doi.org/10.1126/sciadv.aav0693",
+          "bibtex": "@article{bartel2019,\n  author = {Bartel, C. J. et al.},\n  title = {New tolerance factor to predict the stability of perovskite oxides and halides},\n  journal = {Sci. Adv. 5, eaav0693},\n  year = {2019},\n  doi = {10.1126/sciadv.aav0693},\n}"
+        },
+        "cantor2004": {
+          "authors": "Cantor, B., Chang, I. T. H., Knight, P. & Vincent, A. J. B.",
+          "title": "Microstructural development in equiatomic multicomponent alloys",
+          "venue": "Mater. Sci. Eng. A 375-377, 213",
+          "year": 2004,
+          "doi": "10.1016/j.msea.2003.10.257",
+          "url": "https://doi.org/10.1016/j.msea.2003.10.257",
+          "bibtex": "@article{cantor2004,\n  author = {Cantor, B., Chang, I. T. H., Knight, P. and Vincent, A. J. B.},\n  title = {Microstructural development in equiatomic multicomponent alloys},\n  journal = {Mater. Sci. Eng. A 375-377, 213},\n  year = {2004},\n  doi = {10.1016/j.msea.2003.10.257},\n}"
+        },
+        "crc": {
+          "authors": "Haynes, W. M. (ed.)",
+          "title": "CRC Handbook of Chemistry and Physics, 97th ed.",
+          "venue": "CRC Press, Boca Raton",
+          "year": 2016,
+          "doi": "",
+          "url": "https://www.routledge.com/CRC-Handbook-of-Chemistry-and-Physics/Haynes/p/book/9781498754286",
+          "bibtex": "@misc{crc,\n  author = {Haynes, W. M. (ed.)},\n  title = {CRC Handbook of Chemistry and Physics, 97th ed.},\n  howpublished = {CRC Press, Boca Raton},\n  year = {2016},\n  url = {https://www.routledge.com/CRC-Handbook-of-Chemistry-and-Physics/Haynes/p/book/9781498754286},\n}"
+        },
+        "deboer1988": {
+          "authors": "de Boer, F. R., Boom, R., Mattens, W. C. M., Miedema, A. R. & Niessen, A. K.",
+          "title": "Cohesion in Metals: Transition Metal Alloys",
+          "venue": "North-Holland, Amsterdam",
+          "year": 1988,
+          "doi": "",
+          "url": "https://search.worldcat.org/title/17743197",
+          "bibtex": "@misc{deboer1988,\n  author = {de Boer, F. R., Boom, R., Mattens, W. C. M., Miedema, A. R. and Niessen, A. K.},\n  title = {Cohesion in Metals: Transition Metal Alloys},\n  howpublished = {North-Holland, Amsterdam},\n  year = {1988},\n  url = {https://search.worldcat.org/title/17743197},\n}"
+        },
+        "eshelby1957": {
+          "authors": "Eshelby, J. D.",
+          "title": "The determination of the elastic field of an ellipsoidal inclusion",
+          "venue": "Proc. R. Soc. A 241, 376",
+          "year": 1957,
+          "doi": "10.1098/rspa.1957.0133",
+          "url": "https://doi.org/10.1098/rspa.1957.0133",
+          "bibtex": "@article{eshelby1957,\n  author = {Eshelby, J. D.},\n  title = {The determination of the elastic field of an ellipsoidal inclusion},\n  journal = {Proc. R. Soc. A 241, 376},\n  year = {1957},\n  doi = {10.1098/rspa.1957.0133},\n}"
+        },
+        "friedel1954": {
+          "authors": "Friedel, J.",
+          "title": "Electronic structure of primary solid solutions in metals",
+          "venue": "Adv. Phys. 3, 446",
+          "year": 1954,
+          "doi": "10.1080/00018735400101233",
+          "url": "https://doi.org/10.1080/00018735400101233",
+          "bibtex": "@article{friedel1954,\n  author = {Friedel, J.},\n  title = {Electronic structure of primary solid solutions in metals},\n  journal = {Adv. Phys. 3, 446},\n  year = {1954},\n  doi = {10.1080/00018735400101233},\n}"
+        },
+        "goldschmidt1926": {
+          "authors": "Goldschmidt, V. M.",
+          "title": "Die Gesetze der Krystallochemie",
+          "venue": "Naturwissenschaften 14, 477",
+          "year": 1926,
+          "doi": "10.1007/BF01507527",
+          "url": "https://doi.org/10.1007/BF01507527",
+          "bibtex": "@article{goldschmidt1926,\n  author = {Goldschmidt, V. M.},\n  title = {Die Gesetze der Krystallochemie},\n  journal = {Naturwissenschaften 14, 477},\n  year = {1926},\n  doi = {10.1007/BF01507527},\n}"
+        },
+        "gschneidner1966": {
+          "authors": "Gschneidner, K. A., Jr.",
+          "title": "Physical properties of the rare earth metals",
+          "venue": "Trans. Vacuum Metallurgy Conf. 1965, Am. Vac. Soc.",
+          "year": 1966,
+          "doi": "",
+          "url": "https://www.osti.gov/biblio/4789465",
+          "bibtex": "@misc{gschneidner1966,\n  author = {Gschneidner, K. A., Jr.},\n  title = {Physical properties of the rare earth metals},\n  howpublished = {Trans. Vacuum Metallurgy Conf. 1965, Am. Vac. Soc.},\n  year = {1966},\n  url = {https://www.osti.gov/biblio/4789465},\n}"
+        },
+        "guo2011pnsmi": {
+          "authors": "Guo, S. & Liu, C. T.",
+          "title": "Phase stability in high entropy alloys: formation of solid-solution phase or amorphous phase",
+          "venue": "Prog. Nat. Sci.: Mater. Int. 21, 433",
+          "year": 2011,
+          "doi": "10.1016/S1002-0071(12)60080-X",
+          "url": "https://doi.org/10.1016/S1002-0071(12)60080-X",
+          "bibtex": "@article{guo2011pnsmi,\n  author = {Guo, S. and Liu, C. T.},\n  title = {Phase stability in high entropy alloys: formation of solid-solution phase or amorphous phase},\n  journal = {Prog. Nat. Sci.: Mater. Int. 21, 433},\n  year = {2011},\n  doi = {10.1016/S1002-0071(12)60080-X},\n}"
+        },
+        "guo2011vec": {
+          "authors": "Guo, S., Ng, C., Lu, J. & Liu, C. T.",
+          "title": "Effect of valence electron concentration on stability of fcc or bcc phase in high entropy alloys",
+          "venue": "J. Appl. Phys. 109, 103505",
+          "year": 2011,
+          "doi": "10.1063/1.3587228",
+          "url": "https://doi.org/10.1063/1.3587228",
+          "bibtex": "@article{guo2011vec,\n  author = {Guo, S., Ng, C., Lu, J. and Liu, C. T.},\n  title = {Effect of valence electron concentration on stability of fcc or bcc phase in high entropy alloys},\n  journal = {J. Appl. Phys. 109, 103505},\n  year = {2011},\n  doi = {10.1063/1.3587228},\n}"
+        },
+        "heabench2026": {
+          "authors": "Fieser, D.",
+          "title": "HEA-Bench: an open, parity-tested calculator of high-entropy alloy and oxide descriptors",
+          "venue": "Materials 19, 3075",
+          "year": 2026,
+          "doi": "10.3390/ma19143075",
+          "url": "https://doi.org/10.3390/ma19143075",
+          "bibtex": "@article{heabench2026,\n  author = {Fieser, D.},\n  title = {HEA-Bench: an open, parity-tested calculator of high-entropy alloy and oxide descriptors},\n  journal = {Materials 19, 3075},\n  year = {2026},\n  doi = {10.3390/ma19143075},\n}"
+        },
+        "housecroft2018": {
+          "authors": "Housecroft, C. E. & Sharpe, A. G.",
+          "title": "Inorganic Chemistry, 5th ed., Appendix 6 (metallic radii, CN12)",
+          "venue": "Pearson",
+          "year": 2018,
+          "doi": "",
+          "url": "https://www.pearson.com/en-gb/subject-catalog/p/inorganic-chemistry/P200000004526",
+          "bibtex": "@misc{housecroft2018,\n  author = {Housecroft, C. E. and Sharpe, A. G.},\n  title = {Inorganic Chemistry, 5th ed., Appendix 6 (metallic radii, CN12)},\n  howpublished = {Pearson},\n  year = {2018},\n  url = {https://www.pearson.com/en-gb/subject-catalog/p/inorganic-chemistry/P200000004526},\n}"
+        },
+        "humerothery1934": {
+          "authors": "Hume-Rothery, W. & Powell, H. M.",
+          "title": "On the theory of super-lattice structures in alloys",
+          "venue": "Z. Kristallogr. 91, 23",
+          "year": 1934,
+          "doi": "10.1524/zkri.1935.91.1.23",
+          "url": "https://doi.org/10.1524/zkri.1935.91.1.23",
+          "bibtex": "@article{humerothery1934,\n  author = {Hume-Rothery, W. and Powell, H. M.},\n  title = {On the theory of super-lattice structures in alloys},\n  journal = {Z. Kristallogr. 91, 23},\n  year = {1934},\n  doi = {10.1524/zkri.1935.91.1.23},\n}"
+        },
+        "jiang2018": {
+          "authors": "Jiang, S. et al.",
+          "title": "A new class of high-entropy perovskite oxides",
+          "venue": "Scripta Mater. 142, 116",
+          "year": 2018,
+          "doi": "10.1016/j.scriptamat.2017.08.040",
+          "url": "https://doi.org/10.1016/j.scriptamat.2017.08.040",
+          "bibtex": "@article{jiang2018,\n  author = {Jiang, S. et al.},\n  title = {A new class of high-entropy perovskite oxides},\n  journal = {Scripta Mater. 142, 116},\n  year = {2018},\n  doi = {10.1016/j.scriptamat.2017.08.040},\n}"
+        },
+        "king2016": {
+          "authors": "King, D. J. M., Middleburgh, S. C., McGregor, A. G. & Cortie, M. B.",
+          "title": "Predicting the formation and stability of single phase high-entropy alloys",
+          "venue": "Acta Mater. 104, 172",
+          "year": 2016,
+          "doi": "10.1016/j.actamat.2015.11.040",
+          "url": "https://doi.org/10.1016/j.actamat.2015.11.040",
+          "bibtex": "@article{king2016,\n  author = {King, D. J. M., Middleburgh, S. C., McGregor, A. G. and Cortie, M. B.},\n  title = {Predicting the formation and stability of single phase high-entropy alloys},\n  journal = {Acta Mater. 104, 172},\n  year = {2016},\n  doi = {10.1016/j.actamat.2015.11.040},\n}"
+        },
+        "koskenmaki1978": {
+          "authors": "Koskenmaki, D. C. & Gschneidner, K. A., Jr.",
+          "title": "Cerium (Handbook on the Physics and Chemistry of Rare Earths, Vol. 1, Ch. 4)",
+          "venue": "North-Holland",
+          "year": 1978,
+          "doi": "10.1016/S0168-1273(78)01008-9",
+          "url": "https://doi.org/10.1016/S0168-1273(78)01008-9",
+          "bibtex": "@article{koskenmaki1978,\n  author = {Koskenmaki, D. C. and Gschneidner, K. A., Jr.},\n  title = {Cerium (Handbook on the Physics and Chemistry of Rare Earths, Vol. 1, Ch. 4)},\n  journal = {North-Holland},\n  year = {1978},\n  doi = {10.1016/S0168-1273(78)01008-9},\n}"
+        },
+        "la4003": {
+          "authors": "Teatum, E. T., Gschneidner, K. A., Jr. & Waber, J. T.",
+          "title": "Compilation of calculated data useful in predicting metallurgical behavior of the elements in binary alloy systems",
+          "venue": "Los Alamos report LA-4003 (supersedes LA-2345)",
+          "year": 1968,
+          "doi": "",
+          "url": "https://www.osti.gov/biblio/4789465",
+          "bibtex": "@misc{la4003,\n  author = {Teatum, E. T., Gschneidner, K. A., Jr. and Waber, J. T.},\n  title = {Compilation of calculated data useful in predicting metallurgical behavior of the elements in binary alloy systems},\n  howpublished = {Los Alamos report LA-4003 (supersedes LA-2345)},\n  year = {1968},\n  url = {https://www.osti.gov/biblio/4789465},\n}"
+        },
+        "loeff1988": {
+          "authors": "Loeff, P. I., Weeber, A. W. & Miedema, A. R.",
+          "title": "Diagrams of formation enthalpies of amorphous alloys",
+          "venue": "J. Less-Common Met. 140, 299",
+          "year": 1988,
+          "doi": "10.1016/0022-5088(88)90391-8",
+          "url": "https://doi.org/10.1016/0022-5088(88)90391-8",
+          "bibtex": "@article{loeff1988,\n  author = {Loeff, P. I., Weeber, A. W. and Miedema, A. R.},\n  title = {Diagrams of formation enthalpies of amorphous alloys},\n  journal = {J. Less-Common Met. 140, 299},\n  year = {1988},\n  doi = {10.1016/0022-5088(88)90391-8},\n}"
+        },
+        "manchon2025": {
+          "authors": "Manchon-Gordon, A. F., Panadero-Medianero, P. & Blazquez, J. S.",
+          "title": "Descriptors for predicting single- and multi-phase formation in high-entropy oxides",
+          "venue": "Materials 18, 3862",
+          "year": 2025,
+          "doi": "10.3390/ma18163862",
+          "url": "https://doi.org/10.3390/ma18163862",
+          "bibtex": "@article{manchon2025,\n  author = {Manchon-Gordon, A. F., Panadero-Medianero, P. and Blazquez, J. S.},\n  title = {Descriptors for predicting single- and multi-phase formation in high-entropy oxides},\n  journal = {Materials 18, 3862},\n  year = {2025},\n  doi = {10.3390/ma18163862},\n}"
+        },
+        "mansoori1971": {
+          "authors": "Mansoori, G. A., Carnahan, N. F., Starling, K. E. & Leland, T. W.",
+          "title": "Equilibrium thermodynamic properties of the mixture of hard spheres",
+          "venue": "J. Chem. Phys. 54, 1523",
+          "year": 1971,
+          "doi": "10.1063/1.1675048",
+          "url": "https://doi.org/10.1063/1.1675048",
+          "bibtex": "@article{mansoori1971,\n  author = {Mansoori, G. A., Carnahan, N. F., Starling, K. E. and Leland, T. W.},\n  title = {Equilibrium thermodynamic properties of the mixture of hard spheres},\n  journal = {J. Chem. Phys. 54, 1523},\n  year = {1971},\n  doi = {10.1063/1.1675048},\n}"
+        },
+        "matminer2018": {
+          "authors": "Ward, L., Dunn, A., Faghaninia, A. et al.",
+          "title": "Matminer: an open source toolkit for materials data mining",
+          "venue": "Comput. Mater. Sci. 152, 60",
+          "year": 2018,
+          "doi": "10.1016/j.commatsci.2018.05.018",
+          "url": "https://doi.org/10.1016/j.commatsci.2018.05.018",
+          "bibtex": "@article{matminer2018,\n  author = {Ward, L., Dunn, A., Faghaninia, A. et al.},\n  title = {Matminer: an open source toolkit for materials data mining},\n  journal = {Comput. Mater. Sci. 152, 60},\n  year = {2018},\n  doi = {10.1016/j.commatsci.2018.05.018},\n}"
+        },
+        "miedema1973": {
+          "authors": "Miedema, A. R.",
+          "title": "The electronegativity parameter for transition metals",
+          "venue": "J. Less-Common Met. 32, 117",
+          "year": 1973,
+          "doi": "10.1016/0022-5088(73)90078-7",
+          "url": "https://doi.org/10.1016/0022-5088(73)90078-7",
+          "bibtex": "@article{miedema1973,\n  author = {Miedema, A. R.},\n  title = {The electronegativity parameter for transition metals},\n  journal = {J. Less-Common Met. 32, 117},\n  year = {1973},\n  doi = {10.1016/0022-5088(73)90078-7},\n}"
+        },
+        "miedema1980": {
+          "authors": "Miedema, A. R., de Chatel, P. F. & de Boer, F. R.",
+          "title": "Cohesion in alloys - fundamentals of a semi-empirical model",
+          "venue": "Physica B+C 100, 1",
+          "year": 1980,
+          "doi": "10.1016/0378-4363(80)90054-6",
+          "url": "https://doi.org/10.1016/0378-4363(80)90054-6",
+          "bibtex": "@article{miedema1980,\n  author = {Miedema, A. R., de Chatel, P. F. and de Boer, F. R.},\n  title = {Cohesion in alloys - fundamentals of a semi-empirical model},\n  journal = {Physica B+C 100, 1},\n  year = {1980},\n  doi = {10.1016/0378-4363(80)90054-6},\n}"
+        },
+        "ms2017": {
+          "authors": "Miracle, D. B. & Senkov, O. N.",
+          "title": "A critical review of high entropy alloys and related concepts",
+          "venue": "Acta Mater. 122, 448 (Table 3)",
+          "year": 2017,
+          "doi": "10.1016/j.actamat.2016.08.081",
+          "url": "https://doi.org/10.1016/j.actamat.2016.08.081",
+          "bibtex": "@article{ms2017,\n  author = {Miracle, D. B. and Senkov, O. N.},\n  title = {A critical review of high entropy alloys and related concepts},\n  journal = {Acta Mater. 122, 448 (Table 3)},\n  year = {2017},\n  doi = {10.1016/j.actamat.2016.08.081},\n}"
+        },
+        "murty2019": {
+          "authors": "Murty, B. S., Yeh, J.-W., Ranganathan, S. & Bhattacharjee, P. P.",
+          "title": "High-Entropy Alloys (2nd ed.)",
+          "venue": "Elsevier",
+          "year": 2019,
+          "doi": "10.1016/C2017-0-03317-7",
+          "url": "https://doi.org/10.1016/C2017-0-03317-7",
+          "bibtex": "@article{murty2019,\n  author = {Murty, B. S., Yeh, J.-W., Ranganathan, S. and Bhattacharjee, P. P.},\n  title = {High-Entropy Alloys (2nd ed.)},\n  journal = {Elsevier},\n  year = {2019},\n  doi = {10.1016/C2017-0-03317-7},\n}"
+        },
+        "niessen1983": {
+          "authors": "Niessen, A. K. et al.",
+          "title": "Model predictions for the enthalpy of formation of transition metal alloys II",
+          "venue": "CALPHAD 7, 51",
+          "year": 1983,
+          "doi": "10.1016/0364-5916(83)90030-5",
+          "url": "https://doi.org/10.1016/0364-5916(83)90030-5",
+          "bibtex": "@article{niessen1983,\n  author = {Niessen, A. K. et al.},\n  title = {Model predictions for the enthalpy of formation of transition metal alloys II},\n  journal = {CALPHAD 7, 51},\n  year = {1983},\n  doi = {10.1016/0364-5916(83)90030-5},\n}"
+        },
+        "pauling1960": {
+          "authors": "Pauling, L.",
+          "title": "The Nature of the Chemical Bond, 3rd ed.",
+          "venue": "Cornell University Press",
+          "year": 1960,
+          "doi": "",
+          "url": "https://search.worldcat.org/title/545520",
+          "bibtex": "@misc{pauling1960,\n  author = {Pauling, L.},\n  title = {The Nature of the Chemical Bond, 3rd ed.},\n  howpublished = {Cornell University Press},\n  year = {1960},\n  url = {https://search.worldcat.org/title/545520},\n}"
+        },
+        "pickering2016": {
+          "authors": "Pickering, E. J. & Jones, N. G.",
+          "title": "High-entropy alloys: a critical assessment of their founding principles and future prospects",
+          "venue": "Int. Mater. Rev. 61, 183",
+          "year": 2016,
+          "doi": "10.1080/09506608.2016.1180020",
+          "url": "https://doi.org/10.1080/09506608.2016.1180020",
+          "bibtex": "@article{pickering2016,\n  author = {Pickering, E. J. and Jones, N. G.},\n  title = {High-entropy alloys: a critical assessment of their founding principles and future prospects},\n  journal = {Int. Mater. Rev. 61, 183},\n  year = {2016},\n  doi = {10.1080/09506608.2016.1180020},\n}"
+        },
+        "rost2015": {
+          "authors": "Rost, C. M. et al.",
+          "title": "Entropy-stabilized oxides",
+          "venue": "Nat. Commun. 6, 8485",
+          "year": 2015,
+          "doi": "10.1038/ncomms9485",
+          "url": "https://doi.org/10.1038/ncomms9485",
+          "bibtex": "@article{rost2015,\n  author = {Rost, C. M. et al.},\n  title = {Entropy-stabilized oxides},\n  journal = {Nat. Commun. 6, 8485},\n  year = {2015},\n  doi = {10.1038/ncomms9485},\n}"
+        },
+        "senkov2010": {
+          "authors": "Senkov, O. N., Wilks, G. B., Miracle, D. B., Chuang, C. P. & Liaw, P. K.",
+          "title": "Refractory high-entropy alloys",
+          "venue": "Intermetallics 18, 1758",
+          "year": 2010,
+          "doi": "10.1016/j.intermet.2010.05.014",
+          "url": "https://doi.org/10.1016/j.intermet.2010.05.014",
+          "bibtex": "@article{senkov2010,\n  author = {Senkov, O. N., Wilks, G. B., Miracle, D. B., Chuang, C. P. and Liaw, P. K.},\n  title = {Refractory high-entropy alloys},\n  journal = {Intermetallics 18, 1758},\n  year = {2010},\n  doi = {10.1016/j.intermet.2010.05.014},\n}"
+        },
+        "senkov2016": {
+          "authors": "Senkov, O. N. & Miracle, D. B.",
+          "title": "A new thermodynamic parameter to predict formation of solid solution or intermetallic phases in high entropy alloys",
+          "venue": "J. Alloys Compd. 658, 603",
+          "year": 2016,
+          "doi": "10.1016/j.jallcom.2015.10.279",
+          "url": "https://doi.org/10.1016/j.jallcom.2015.10.279",
+          "bibtex": "@article{senkov2016,\n  author = {Senkov, O. N. and Miracle, D. B.},\n  title = {A new thermodynamic parameter to predict formation of solid solution or intermetallic phases in high entropy alloys},\n  journal = {J. Alloys Compd. 658, 603},\n  year = {2016},\n  doi = {10.1016/j.jallcom.2015.10.279},\n}"
+        },
+        "senkovmiracle2001": {
+          "authors": "Senkov, O. N. & Miracle, D. B.",
+          "title": "Effect of the atomic size distribution on glass forming ability of amorphous metallic alloys",
+          "venue": "Mater. Res. Bull. 36, 2183",
+          "year": 2001,
+          "doi": "10.1016/S0025-5408(01)00715-2",
+          "url": "https://doi.org/10.1016/S0025-5408(01)00715-2",
+          "bibtex": "@article{senkovmiracle2001,\n  author = {Senkov, O. N. and Miracle, D. B.},\n  title = {Effect of the atomic size distribution on glass forming ability of amorphous metallic alloys},\n  journal = {Mater. Res. Bull. 36, 2183},\n  year = {2001},\n  doi = {10.1016/S0025-5408(01)00715-2},\n}"
+        },
+        "shannon1976": {
+          "authors": "Shannon, R. D.",
+          "title": "Revised effective ionic radii and systematic studies of interatomic distances in halides and chalcogenides",
+          "venue": "Acta Crystallogr. A 32, 751",
+          "year": 1976,
+          "doi": "10.1107/S0567739476001551",
+          "url": "https://doi.org/10.1107/S0567739476001551",
+          "bibtex": "@article{shannon1976,\n  author = {Shannon, R. D.},\n  title = {Revised effective ionic radii and systematic studies of interatomic distances in halides and chalcogenides},\n  journal = {Acta Crystallogr. A 32, 751},\n  year = {1976},\n  doi = {10.1107/S0567739476001551},\n}"
+        },
+        "sheikh2016": {
+          "authors": "Sheikh, S., Shafeie, S., Hu, Q., Ahlstrom, J., Persson, C., Vesely, J., Zyka, J., Klement, U. & Guo, S.",
+          "title": "Alloy design for intrinsically ductile refractory high-entropy alloys",
+          "venue": "J. Appl. Phys. 120, 164902",
+          "year": 2016,
+          "doi": "10.1063/1.4966659",
+          "url": "https://doi.org/10.1063/1.4966659",
+          "bibtex": "@article{sheikh2016,\n  author = {Sheikh, S., Shafeie, S., Hu, Q., Ahlstrom, J., Persson, C., Vesely, J., Zyka, J., Klement, U. and Guo, S.},\n  title = {Alloy design for intrinsically ductile refractory high-entropy alloys},\n  journal = {J. Appl. Phys. 120, 164902},\n  year = {2016},\n  doi = {10.1063/1.4966659},\n}"
+        },
+        "singh2014": {
+          "authors": "Singh, A. K., Kumar, N., Dwivedi, A. & Subramaniam, A.",
+          "title": "A geometrical parameter for the formation of disordered solid solutions in multi-component alloys",
+          "venue": "Intermetallics 53, 112",
+          "year": 2014,
+          "doi": "10.1016/j.intermet.2014.04.019",
+          "url": "https://doi.org/10.1016/j.intermet.2014.04.019",
+          "bibtex": "@article{singh2014,\n  author = {Singh, A. K., Kumar, N., Dwivedi, A. and Subramaniam, A.},\n  title = {A geometrical parameter for the formation of disordered solid solutions in multi-component alloys},\n  journal = {Intermetallics 53, 112},\n  year = {2014},\n  doi = {10.1016/j.intermet.2014.04.019},\n}"
+        },
+        "spiridigliozzi2021": {
+          "authors": "Spiridigliozzi, L., Ferone, C., Cioffi, R. & Dell'Agli, G.",
+          "title": "A simple and effective predictor to design novel fluorite-structured high entropy oxides (HEOs)",
+          "venue": "Acta Mater. 202, 181",
+          "year": 2021,
+          "doi": "10.1016/j.actamat.2020.10.061",
+          "url": "https://doi.org/10.1016/j.actamat.2020.10.061",
+          "bibtex": "@article{spiridigliozzi2021,\n  author = {Spiridigliozzi, L., Ferone, C., Cioffi, R. and Dell'Agli, G.},\n  title = {A simple and effective predictor to design novel fluorite-structured high entropy oxides (HEOs)},\n  journal = {Acta Mater. 202, 181},\n  year = {2021},\n  doi = {10.1016/j.actamat.2020.10.061},\n}"
+        },
+        "spiridigliozzi2023": {
+          "authors": "Spiridigliozzi, L., Bortolotti, M. & Dell'Agli, G.",
+          "title": "On the effect of standard deviation of cationic radii on the transition temperature in fluorite-structured entropy-stabilized oxides",
+          "venue": "Materials 16, 2219",
+          "year": 2023,
+          "doi": "10.3390/ma16062219",
+          "url": "https://doi.org/10.3390/ma16062219",
+          "bibtex": "@article{spiridigliozzi2023,\n  author = {Spiridigliozzi, L., Bortolotti, M. and Dell'Agli, G.},\n  title = {On the effect of standard deviation of cationic radii on the transition temperature in fluorite-structured entropy-stabilized oxides},\n  journal = {Materials 16, 2219},\n  year = {2023},\n  doi = {10.3390/ma16062219},\n}"
+        },
+        "subramanian1983": {
+          "authors": "Subramanian, M. A., Aravamudan, G. & Subba Rao, G. V.",
+          "title": "Oxide pyrochlores - a review",
+          "venue": "Prog. Solid State Chem. 15, 55",
+          "year": 1983,
+          "doi": "10.1016/0079-6786(83)90001-8",
+          "url": "https://doi.org/10.1016/0079-6786(83)90001-8",
+          "bibtex": "@article{subramanian1983,\n  author = {Subramanian, M. A., Aravamudan, G. and Subba Rao, G. V.},\n  title = {Oxide pyrochlores - a review},\n  journal = {Prog. Solid State Chem. 15, 55},\n  year = {1983},\n  doi = {10.1016/0079-6786(83)90001-8},\n}"
+        },
+        "takeuchi2000": {
+          "authors": "Takeuchi, A. & Inoue, A.",
+          "title": "Calculations of mixing enthalpy and mismatch entropy for ternary amorphous alloys",
+          "venue": "Mater. Trans. JIM 41, 1372",
+          "year": 2000,
+          "doi": "10.2320/matertrans1989.41.1372",
+          "url": "https://doi.org/10.2320/matertrans1989.41.1372",
+          "bibtex": "@article{takeuchi2000,\n  author = {Takeuchi, A. and Inoue, A.},\n  title = {Calculations of mixing enthalpy and mismatch entropy for ternary amorphous alloys},\n  journal = {Mater. Trans. JIM 41, 1372},\n  year = {2000},\n  doi = {10.2320/matertrans1989.41.1372},\n}"
+        },
+        "takeuchi2005": {
+          "authors": "Takeuchi, A. & Inoue, A.",
+          "title": "Classification of bulk metallic glasses by atomic size difference, heat of mixing and period of constituent elements",
+          "venue": "Mater. Trans. 46, 2817",
+          "year": 2005,
+          "doi": "10.2320/matertrans.46.2817",
+          "url": "https://doi.org/10.2320/matertrans.46.2817",
+          "bibtex": "@article{takeuchi2005,\n  author = {Takeuchi, A. and Inoue, A.},\n  title = {Classification of bulk metallic glasses by atomic size difference, heat of mixing and period of constituent elements},\n  journal = {Mater. Trans. 46, 2817},\n  year = {2005},\n  doi = {10.2320/matertrans.46.2817},\n}"
+        },
+        "tsai2013": {
+          "authors": "Tsai, M.-H., Tsai, K.-Y., Tsai, C.-W., Lee, C., Juan, C.-C. & Yeh, J.-W.",
+          "title": "Criterion for sigma phase formation in Cr- and V-containing high-entropy alloys",
+          "venue": "Mater. Res. Lett. 1, 207",
+          "year": 2013,
+          "doi": "10.1080/21663831.2013.831382",
+          "url": "https://doi.org/10.1080/21663831.2013.831382",
+          "bibtex": "@article{tsai2013,\n  author = {Tsai, M.-H., Tsai, K.-Y., Tsai, C.-W., Lee, C., Juan, C.-C. and Yeh, J.-W.},\n  title = {Criterion for sigma phase formation in Cr- and V-containing high-entropy alloys},\n  journal = {Mater. Res. Lett. 1, 207},\n  year = {2013},\n  doi = {10.1080/21663831.2013.831382},\n}"
+        },
+        "wang2015": {
+          "authors": "Wang, Z., Huang, Y., Yang, Y., Wang, J. & Liu, C. T.",
+          "title": "Atomic-size effect and solid solubility of multicomponent alloys",
+          "venue": "Scripta Mater. 94, 28",
+          "year": 2015,
+          "doi": "10.1016/j.scriptamat.2014.09.010",
+          "url": "https://doi.org/10.1016/j.scriptamat.2014.09.010",
+          "bibtex": "@article{wang2015,\n  author = {Wang, Z., Huang, Y., Yang, Y., Wang, J. and Liu, C. T.},\n  title = {Atomic-size effect and solid solubility of multicomponent alloys},\n  journal = {Scripta Mater. 94, 28},\n  year = {2015},\n  doi = {10.1016/j.scriptamat.2014.09.010},\n}"
+        },
+        "yang2012": {
+          "authors": "Yang, X. & Zhang, Y.",
+          "title": "Prediction of high-entropy stabilized solid-solution in multi-component alloys",
+          "venue": "Mater. Chem. Phys. 132, 233",
+          "year": 2012,
+          "doi": "10.1016/j.matchemphys.2011.11.021",
+          "url": "https://doi.org/10.1016/j.matchemphys.2011.11.021",
+          "bibtex": "@article{yang2012,\n  author = {Yang, X. and Zhang, Y.},\n  title = {Prediction of high-entropy stabilized solid-solution in multi-component alloys},\n  journal = {Mater. Chem. Phys. 132, 233},\n  year = {2012},\n  doi = {10.1016/j.matchemphys.2011.11.021},\n}"
+        },
+        "ye2015phi": {
+          "authors": "Ye, Y. F., Wang, Q., Lu, J., Liu, C. T. & Yang, Y.",
+          "title": "Design of high entropy alloys: a single-parameter thermodynamic rule",
+          "venue": "Scripta Mater. 104, 53",
+          "year": 2015,
+          "doi": "10.1016/j.scriptamat.2015.03.023",
+          "url": "https://doi.org/10.1016/j.scriptamat.2015.03.023",
+          "bibtex": "@article{ye2015phi,\n  author = {Ye, Y. F., Wang, Q., Lu, J., Liu, C. T. and Yang, Y.},\n  title = {Design of high entropy alloys: a single-parameter thermodynamic rule},\n  journal = {Scripta Mater. 104, 53},\n  year = {2015},\n  doi = {10.1016/j.scriptamat.2015.03.023},\n}"
+        },
+        "yeh2004": {
+          "authors": "Yeh, J.-W. et al.",
+          "title": "Nanostructured high-entropy alloys with multiple principal elements",
+          "venue": "Adv. Eng. Mater. 6, 299",
+          "year": 2004,
+          "doi": "10.1002/adem.200300567",
+          "url": "https://doi.org/10.1002/adem.200300567",
+          "bibtex": "@article{yeh2004,\n  author = {Yeh, J.-W. et al.},\n  title = {Nanostructured high-entropy alloys with multiple principal elements},\n  journal = {Adv. Eng. Mater. 6, 299},\n  year = {2004},\n  doi = {10.1002/adem.200300567},\n}"
+        },
+        "zenodo": {
+          "authors": "Fieser, D.",
+          "title": "HEA-Bench (all versions)",
+          "venue": "Zenodo concept record",
+          "year": 2026,
+          "doi": "10.5281/zenodo.20346287",
+          "url": "https://doi.org/10.5281/zenodo.20346287",
+          "bibtex": "@article{zenodo,\n  author = {Fieser, D.},\n  title = {HEA-Bench (all versions)},\n  journal = {Zenodo concept record},\n  year = {2026},\n  doi = {10.5281/zenodo.20346287},\n}"
+        },
+        "zhang2008": {
+          "authors": "Zhang, Y., Zhou, Y. J., Lin, J. P., Chen, G. L. & Liaw, P. K.",
+          "title": "Solid-solution phase formation rules for multi-component alloys",
+          "venue": "Adv. Eng. Mater. 10, 534",
+          "year": 2008,
+          "doi": "10.1002/adem.200700240",
+          "url": "https://doi.org/10.1002/adem.200700240",
+          "bibtex": "@article{zhang2008,\n  author = {Zhang, Y., Zhou, Y. J., Lin, J. P., Chen, G. L. and Liaw, P. K.},\n  title = {Solid-solution phase formation rules for multi-component alloys},\n  journal = {Adv. Eng. Mater. 10, 534},\n  year = {2008},\n  doi = {10.1002/adem.200700240},\n}"
+        },
+        "zhang2014pms": {
+          "authors": "Zhang, Y. et al.",
+          "title": "Microstructures and properties of high-entropy alloys",
+          "venue": "Prog. Mater. Sci. 61, 1",
+          "year": 2014,
+          "doi": "10.1016/j.pmatsci.2013.10.001",
+          "url": "https://doi.org/10.1016/j.pmatsci.2013.10.001",
+          "bibtex": "@article{zhang2014pms,\n  author = {Zhang, Y. et al.},\n  title = {Microstructures and properties of high-entropy alloys},\n  journal = {Prog. Mater. Sci. 61, 1},\n  year = {2014},\n  doi = {10.1016/j.pmatsci.2013.10.001},\n}"
+        },
+        "zhangrf2016": {
+          "authors": "Zhang, R. F., Zhang, S. H., He, Z. J., Jing, J. & Sheng, S. H.",
+          "title": "Miedema Calculator: a thermodynamic platform for predicting formation enthalpies",
+          "venue": "Comput. Phys. Commun. 209, 58",
+          "year": 2016,
+          "doi": "10.1016/j.cpc.2016.08.013",
+          "url": "https://doi.org/10.1016/j.cpc.2016.08.013",
+          "bibtex": "@article{zhangrf2016,\n  author = {Zhang, R. F., Zhang, S. H., He, Z. J., Jing, J. and Sheng, S. H.},\n  title = {Miedema Calculator: a thermodynamic platform for predicting formation enthalpies},\n  journal = {Comput. Phys. Commun. 209, 58},\n  year = {2016},\n  doi = {10.1016/j.cpc.2016.08.013},\n}"
+        }
+      };
+      const ELEMENT_SOURCES_JS = {
+        "Ag": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 144.47,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Al": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 143.17,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Au": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 144.2,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Be": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 112.8,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Bi": {
+          "radiusSource": "la4003",
+          "crosscheckRadiusPm": 160.0,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "M&S print the covalent-scale 160.",
+          "notes": "LA-4003 168.9 via Pauling bond-number conversion (A7 structure); Takeuchi-Inoue-style tables use ~170.",
+          "flags": [
+            "radius spread 160-170 pm across conventions"
+          ]
+        },
+        "Ca": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 197.6,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Ce": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 182.47,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "Valence 3 (gamma-Ce, ambient); shifts to 4 only under pressure/low T (Koskenmaki & Gschneidner 1978).",
+          "flags": []
+        },
+        "Co": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 125.1,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Cr": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 124.91,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "M&S Table 3 prints the CN8 lattice-native radius; ~3% below the CN12 conversion by construction.",
+          "notes": "",
+          "flags": []
+        },
+        "Cu": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 127.8,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Dy": {
+          "radiusSource": "la4003",
+          "crosscheckRadiusPm": 177.4,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3.",
+          "notes": "",
+          "flags": []
+        },
+        "Er": {
+          "radiusSource": "la4003",
+          "crosscheckRadiusPm": 175.58,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3.",
+          "notes": "",
+          "flags": []
+        },
+        "Fe": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 124.12,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "M&S Table 3 prints the CN8 lattice-native radius; ~3% below the CN12 conversion by construction.",
+          "notes": "",
+          "flags": []
+        },
+        "Ga": {
+          "radiusSource": "la4003",
+          "crosscheckRadiusPm": 139.2,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "M&S print 139.2; classic Goldschmidt tables 141.",
+          "notes": "LA-4003 135.3 via Pauling bond-number conversion (A11 structure); chosen for consistency with Al/In which match LA-4003 exactly.",
+          "flags": [
+            "radius spread 135-141 pm across conventions"
+          ]
+        },
+        "Gd": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 180.13,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Ge": {
+          "radiusSource": "ms2017",
+          "crosscheckRadiusPm": null,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "",
+          "notes": "Covalent-scale 124 (M&S Table 3) to stay consistent with our Si 111; LA-4003's CN12 equivalent is 137.8.",
+          "flags": [
+            "covalent-scale radius, deliberate exception"
+          ]
+        },
+        "Hf": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 157.75,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Ho": {
+          "radiusSource": "la4003",
+          "crosscheckRadiusPm": 176.61,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3.",
+          "notes": "CRC melting 1745 K; WebElements-derived tables print 1734 K.",
+          "flags": []
+        },
+        "In": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 165.9,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Ir": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 135.73,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "La": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 187.9,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Li": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 151.94,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "M&S print 151.94; compilations spread 152-157 for soft bcc Li.",
+          "notes": "",
+          "flags": [
+            "radius spread 152-157 pm across compilations"
+          ]
+        },
+        "Lu": {
+          "radiusSource": "la4003",
+          "crosscheckRadiusPm": 173.49,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3.",
+          "notes": "CRC melting 1936 K; some tables print 1925 K.",
+          "flags": []
+        },
+        "Mg": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 160.13,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Mn": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 135.0,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "LA-4003 tabulates dual-valence Mn(5)/Mn(7); our 7 follows the s+d convention.",
+          "flags": []
+        },
+        "Mo": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 136.26,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "M&S Table 3 prints the CN8 lattice-native radius; ~3% below the CN12 conversion by construction.",
+          "notes": "",
+          "flags": []
+        },
+        "Nb": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 142.9,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "M&S Table 3 prints the CN8 lattice-native radius; ~3% below the CN12 conversion by construction.",
+          "notes": "",
+          "flags": []
+        },
+        "Nd": {
+          "radiusSource": "la4003",
+          "crosscheckRadiusPm": 164.0,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "M&S print 164, an evident misprint (their Ce is 182.47, Sm 181).",
+          "notes": "",
+          "flags": [
+            "M&S Table 3 radius is a misprint; LA-4003/Gschneidner 182.2 is correct"
+          ]
+        },
+        "Ni": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 124.59,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Os": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 135.23,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Pb": {
+          "radiusSource": "la4003",
+          "crosscheckRadiusPm": 174.97,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3.",
+          "notes": "",
+          "flags": []
+        },
+        "Pd": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 137.54,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Pr": {
+          "radiusSource": "la4003",
+          "crosscheckRadiusPm": 165.0,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "M&S print 165, an evident misprint (neighbors Ce 182.47, Nd ~182).",
+          "notes": "",
+          "flags": [
+            "M&S Table 3 radius is a misprint; LA-4003/Gschneidner 182.8 is correct"
+          ]
+        },
+        "Pt": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 138.7,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Re": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 137.5,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Rh": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 134.5,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Ru": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 133.84,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Sb": {
+          "radiusSource": "la4003",
+          "crosscheckRadiusPm": 145.0,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "M&S print the covalent-scale 145.",
+          "notes": "LA-4003 157.1 via Pauling bond-number conversion; keeps Sb consistent with metallic In 167 / Sn 158 in solder alloys.",
+          "flags": [
+            "radius spread 145-157 pm across conventions"
+          ]
+        },
+        "Sc": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 164.1,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Si": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 115.3,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "M&S print 115.3 (their covalent-scale family).",
+          "notes": "Covalent-scale radius (111), deliberate exception to the metallic CN12 convention; LA-4003's CN12 equivalent is 132.2.",
+          "flags": [
+            "covalent-scale radius, see notes"
+          ]
+        },
+        "Sm": {
+          "radiusSource": "la4003",
+          "crosscheckRadiusPm": 181.0,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3.",
+          "notes": "",
+          "flags": []
+        },
+        "Sn": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 162.0,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "beta-Sn; LA-4003 tabulates Sn(2)/Sn(4) dual valence, ours is 4.",
+          "flags": []
+        },
+        "Sr": {
+          "radiusSource": "la4003",
+          "crosscheckRadiusPm": 215.2,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3.",
+          "notes": "",
+          "flags": []
+        },
+        "Ta": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 143.0,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "M&S Table 3 prints the CN8 lattice-native radius; ~3% below the CN12 conversion by construction.",
+          "notes": "",
+          "flags": []
+        },
+        "Tb": {
+          "radiusSource": "la4003",
+          "crosscheckRadiusPm": 178.14,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3.",
+          "notes": "CRC melting 1632 K; WebElements-derived tables print 1629 K. chi 1.10 as printed (non-monotonic vs Gd 1.20 / Dy 1.22).",
+          "flags": []
+        },
+        "Th": {
+          "radiusSource": "la4003",
+          "crosscheckRadiusPm": null,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "",
+          "notes": "Not in M&S Table 3 (stops at Bi). CRC melting 2023 K; some compilations print 2115 K - a genuine literature spread, CRC/LA-4003 agree on ~2023.",
+          "flags": [
+            "melting-point literature spread 2023 vs 2115 K"
+          ]
+        },
+        "Ti": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 146.15,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        },
+        "Tm": {
+          "radiusSource": "la4003",
+          "crosscheckRadiusPm": 156.0,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "M&S print 156, an evident misprint (neighbors Er 175.58, Lu 173.49).",
+          "notes": "",
+          "flags": [
+            "M&S Table 3 radius is a misprint; LA-4003/Gschneidner 174.7 is correct"
+          ]
+        },
+        "U": {
+          "radiusSource": "la4003",
+          "crosscheckRadiusPm": null,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "",
+          "notes": "Not in M&S Table 3. Radius via Pauling bond-number conversion (alpha-U). VEC 6 is the Zachariasen metallic valence adopted by LA-4003; the strict s+d count would give 3.",
+          "flags": [
+            "VEC convention choice: 6 (Zachariasen) vs 3 (strict s+d); 6 adopted"
+          ]
+        },
+        "V": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 131.6,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "M&S Table 3 prints the CN8 lattice-native radius; ~3% below the CN12 conversion by construction.",
+          "notes": "",
+          "flags": []
+        },
+        "W": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 136.7,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "M&S Table 3 prints the CN8 lattice-native radius; ~3% below the CN12 conversion by construction.",
+          "notes": "",
+          "flags": []
+        },
+        "Y": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 180.15,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "LA-4003 deliberately lists Y at 177.3 (alloying-behavior-adjusted) instead of the 180.1 lattice value; our 182 follows the legacy digitization.",
+          "flags": []
+        },
+        "Yb": {
+          "radiusSource": "la4003",
+          "crosscheckRadiusPm": 170.0,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "M&S print 170 with lanthanide VEC 3.",
+          "notes": "Metallic Yb is divalent (4f14 6s2, fcc): radius 193.9 = LA-4003 Yb(2), VEC 2 for consistency with that state. LA-4003's trivalent Yb(3) 174.1 is an author interpolation. chi 1.1 approximate.",
+          "flags": [
+            "divalent metal: VEC 2 here, M&S assign 3",
+            "chi approximate (1.1)"
+          ]
+        },
+        "Zn": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 139.45,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": [
+            "hcp-anisotropic; compilations spread 134-139 pm"
+          ]
+        },
+        "Zr": {
+          "radiusSource": "housecroft2018",
+          "crosscheckRadiusPm": 160.25,
+          "crosscheckSource": "ms2017",
+          "crosscheckNote": "Miracle & Senkov 2017 Table 3; lattice-native convention.",
+          "notes": "",
+          "flags": []
+        }
+      };
+      const PROPERTY_SOURCES_JS = {
+        "radius_pm": {
+          "statement": "Goldschmidt-style 12-coordinate metallic radius. v2.1 additions read from Teatum, Gschneidner & Waber LA-4003 (1968) Table I; the legacy rows follow the same convention via Housecroft & Sharpe's Appendix 6 digitization. Rare-earth radii trace to Gschneidner (1966). Exceptions: Si and Ge use covalent-scale radii (flagged in their rows). Cross-check column: Miracle & Senkov 2017 Table 3, whose lattice-native radii sit a few percent below CN12 conversions for bcc metals by construction.",
+          "sourceKeys": [
+            "la4003",
+            "housecroft2018",
+            "gschneidner1966",
+            "ms2017"
+          ]
+        },
+        "melting_K": {
+          "statement": "Melting point at 1 atm, CRC Handbook (Haynes 2016) consistent set.",
+          "sourceKeys": [
+            "crc"
+          ]
+        },
+        "valence": {
+          "statement": "Valence electron count for the VEC rule: s+d electrons for transition metals (Cu 11, Zn 12), group number for s/p-block, lanthanides 3, divalent Yb 2, Th 4 and U 6 after Zachariasen via LA-4003.",
+          "sourceKeys": [
+            "guo2011vec",
+            "la4003",
+            "ms2017"
+          ]
+        },
+        "electronegativity": {
+          "statement": "Pauling-scale electronegativity, WebElements consistent set (primary reference Pauling 1960; reproduced in the CRC Handbook). Yb is approximate (printed as 1.1).",
+          "sourceKeys": [
+            "pauling1960",
+            "crc"
+          ]
+        }
+      };
+      const DATA_FILE_SHAS = {
+        "elemental.py": "da35e1879c86251cd188e250e470ccc214d97f6d3e97efd09b7a3e0a6d23621b",
+        "pair_enthalpies.tsv": "5b461ab99d7605fb8b306bda9cfe047b266ffa3e67387cb4b0ffeccaf57a5f48",
+        "miedema_parameters.csv": "ef6e1dccc347628a52725b13752c9c311c522b463a08e46f87febfbd379202a3",
+        "provenance.py": "1da372897c721a3020414ee574f9b532af62e6dd92f27e6675eb72dc2b7295e0"
+      };
+      const DATA_TABLES_SHORT_SHA = "e440d0a9";
+      // END GENERATED: PROVENANCE_TABLES
+
       const MIEDEMA_PARAMS = {
         Ag: { phi_star: 4.35, nws13: 1.36, V23: 4.72, cls: "TM" },
         Al: { phi_star: 4.20, nws13: 1.39, V23: 4.64, cls: "NTM" },
@@ -8009,6 +9086,7 @@ font-family: 'Source Sans Pro'
           return;
         }
         renderMaps(payload);
+        provRememberAlloy(payload);
 
         const { composition, descriptors } = payload;
         const rules = payload.rules || calcCore.rulePredictionsFromDescriptors(descriptors, {
@@ -8114,6 +9192,24 @@ font-family: 'Source Sans Pro'
             units: "—",
             value: descriptors.Phi_ye != null ? formatNumber(descriptors.Phi_ye) : "—",
           },
+          {
+            title: "Singh Lambda",
+            symbol: "Λ",
+            units: "J/mol·K·%²",
+            value: descriptors.Lambda_singh != null ? formatNumber(descriptors.Lambda_singh) : "—",
+          },
+          {
+            title: "Wang gamma",
+            symbol: "γ",
+            units: "—",
+            value: descriptors.gamma_wang != null ? formatNumber(descriptors.gamma_wang) : "—",
+          },
+          {
+            title: "Elastic-strain energy",
+            symbol: "ΔH el",
+            units: "kJ/mol",
+            value: descriptors.H_elastic != null ? formatNumber(descriptors.H_elastic) : "—",
+          },
         ];
 
         const miedemaCards = [];
@@ -8187,7 +9283,7 @@ font-family: 'Source Sans Pro'
           div.className = "result-card";
           div.title = DESCRIPTOR_TIPS[card.title] || "";
           div.innerHTML = `
-            <h3>${card.title}</h3>
+            <h3>${card.title}</h3>${provButtonHtml(card.title)}
             <div class="symbol">${card.symbol || ""}</div>
             ${card.isHtml ? card.value : `<p>${card.value}</p>`}
             <div class="units">${card.units || ""}</div>
@@ -8204,7 +9300,7 @@ font-family: 'Source Sans Pro'
             div.className = "result-card result-card-compact";
             div.title = DESCRIPTOR_TIPS[card.title] || "";
             div.innerHTML = `
-              <h3>${card.title}</h3>
+              <h3>${card.title}</h3>${provButtonHtml(card.title)}
               <div class="symbol">${card.symbol || ""}</div>
               <p>${card.value}</p>
               <div class="units">${card.units || ""}</div>
@@ -8250,6 +9346,31 @@ font-family: 'Source Sans Pro'
           units: descriptors.Phi_ye != null ? `φ = ${formatNumber(descriptors.Phi_ye)}` : "—",
           value: formatVerdict(rules.ye_phi.verdict),
         });
+        if (rules.senkov_kappa) {
+          const kap = rules.senkov_kappa;
+          ruleCards.push({
+            title: "Senkov–Miracle kappa",
+            symbol: kap.k1 != null ? `k₁ = ${formatNumber(kap.k1)} vs k₁ᶜʳ = ${formatNumber(kap.k1_cr)}` : "ΔG(SS) vs ΔG(IM), ΔS IM = 0.6·ΔS mix",
+            units: kap.temperature != null ? `at T = ${formatNumber(kap.temperature, 5)} K` : "—",
+            value: formatVerdict(kap.verdict),
+          });
+        }
+        if (rules.tsai_sigma) {
+          ruleCards.push({
+            title: "Tsai sigma window",
+            symbol: "Cr/V and 6.88 ≤ VEC ≤ 7.84 → σ risk",
+            units: descriptors.VEC != null ? `VEC = ${formatNumber(descriptors.VEC)}${rules.tsai_sigma.applies ? "" : ", no Cr/V"}` : "—",
+            value: formatVerdict(rules.tsai_sigma.verdict === "not_applicable" ? "not applicable" : rules.tsai_sigma.verdict === "sigma_prone" ? "σ-prone (annealed)" : "σ unlikely"),
+          });
+        }
+        if (rules.sheikh_ductility) {
+          ruleCards.push({
+            title: "Sheikh ductility screen",
+            symbol: "VEC < 4.5 → ductile (bcc refractory)",
+            units: descriptors.VEC != null ? `VEC = ${formatNumber(descriptors.VEC)}` : "—",
+            value: formatVerdict(rules.sheikh_ductility.verdict),
+          });
+        }
 
         rulesPanelEl.classList.remove("hidden");
         ruleCards.forEach((card) => {
@@ -8257,7 +9378,7 @@ font-family: 'Source Sans Pro'
           div.className = "result-card result-card-compact";
           div.title = DESCRIPTOR_TIPS[card.title] || "";
           div.innerHTML = `
-            <h3>${card.title}</h3>
+            <h3>${card.title}</h3>${provButtonHtml(card.title)}
             <div class="symbol">${card.symbol || ""}</div>
             <p>${card.value}</p>
             <div class="units">${card.units || ""}</div>
@@ -8952,6 +10073,7 @@ font-family: 'Source Sans Pro'
       }
 
       function renderOxideReport(report) {
+        provRememberOxide(report);
         oxideResultsEl.innerHTML = "";
         oxideVerdictsEl.innerHTML = "";
 
@@ -9019,7 +10141,7 @@ font-family: 'Source Sans Pro'
           div.className = "result-card";
           div.title = DESCRIPTOR_TIPS[card.title] || "";
           div.innerHTML = `
-            <h3>${card.title}</h3>
+            <h3>${card.title}</h3>${provButtonHtml(card.title)}
             <div class="symbol">${card.symbol}</div>
             <p>${card.value}</p>
             <div class="units">${card.units}</div>
@@ -9185,7 +10307,266 @@ font-family: 'Source Sans Pro'
         "Bartel tolerance factor": "Improved perovskite tolerance factor (Bartel 2019); below 4.18 predicts a perovskite.",
         "Radius ratio": "Mean A radius over mean B radius; pyrochlores form between 1.46 and 1.78.",
         "Mean cation electronegativity": "Composition-weighted mean Pauling electronegativity over all cations.",
+        "Singh Lambda": "ΔSmix / δ² with δ in percent. Above 0.96 favors a single disordered solid solution (Singh 2014).",
+        "Wang gamma": "Solid-angle packing ratio around the smallest vs largest atom. Below 1.175 the mismatch is packable as a crystalline solid solution (Wang 2015).",
+        "Elastic-strain energy": "Andreoli 2019 elastic-strain energy from bulk moduli and atomic volumes. fcc solid solutions cluster below 6.05 kJ/mol, bcc between 6.05 and 22.",
+        "Senkov–Miracle kappa": "Compares ΔG of the solid solution against the most stable binary compound at an explicit temperature, with ΔS(IM) = 0.6·ΔSmix (Senkov and Miracle 2016).",
+        "Tsai sigma window": "Annealed Cr- or V-containing alloys with 6.88 ≤ VEC ≤ 7.84 tend to precipitate the sigma phase (Tsai 2013).",
+        "Sheikh ductility screen": "For single-phase bcc refractory HEAs: VEC below 4.5 predicts intrinsic ductility (Sheikh 2016).",
       };
+
+      // ---- Provenance drawer -----------------------------------------
+      // One registry entry per result-card title: the defining equation,
+      // which inputs the number consumed, the interpretation window with
+      // its primary sources, and cross-links into Theory / Equations /
+      // References / Data. The drawer renders registry + live payload.
+
+      const PROV_REGISTRY = {
+        "Mixing entropy": { sym: "ΔS mix", eq: "\\Delta S_{\\mathrm{mix}} = -R\\sum_i c_i \\ln c_i", inputs: ["composition"], interp: "Ideal configurational entropy. Yeh's classes: ≥ 1.5R high entropy, 1R–1.5R medium, below 1R dilute.", refs: ["yeh2004"], theory: "sec-entropy", eqn: "eq-smix" },
+        "Atomic size difference": { sym: "δ", eq: "\\delta = 100\\sqrt{\\textstyle\\sum_i c_i\\,(1 - r_i/\\bar r)^2}", inputs: ["radius"], interp: "Zhang's single-phase window is δ < 6.5 %; the joint (δ, ΔH mix) windows are drawn on the phase-selection maps.", refs: ["zhang2008"], theory: "sec-delta", eqn: "eq-delta" },
+        "Mean melting temperature": { sym: "Tm", eq: "T_m = \\sum_i c_i\\,T_{m,i}", inputs: ["melting"], interp: "Rule-of-mixtures average; feeds Ω and is the default annealing temperature for King Φ and κ.", refs: ["crc", "yang2012"], theory: "sec-omega", eqn: "eq-omega" },
+        "Mixing enthalpy": { sym: "ΔH mix", eq: "\\Delta H_{\\mathrm{mix}} = \\sum_{i<j} 4\\,c_i c_j\\,\\Delta H^{\\mathrm{mix}}_{ij}", inputs: ["pairs"], interp: "Regular-solution estimate over Miedema binary enthalpies. Semi-empirical; pairs involving Mn carry the largest parametrization uncertainty.", refs: ["takeuchi2005", "deboer1988", "matminer2018"], theory: "sec-hmix", eqn: "eq-hmix" },
+        "Valence electron concentration": { sym: "VEC", eq: "\\mathrm{VEC} = \\sum_i c_i\\,\\mathrm{VEC}_i", inputs: ["valence"], interp: "Guo's bands: FCC at VEC ≥ 8, BCC below 6.87, mixed between. Read it only after a solid-solution verdict.", refs: ["guo2011vec"], theory: "sec-vec", eqn: "eq-vec" },
+        "Omega parameter": { sym: "Ω", eq: "\\Omega = \\dfrac{T_m\\,\\Delta S_{\\mathrm{mix}}}{|\\Delta H_{\\mathrm{mix}}|}", inputs: ["melting", "pairs"], interp: "Ω ≥ 1.1 favors the entropy-stabilized solid solution. Diverges as ΔH mix → 0, so treat huge values qualitatively.", refs: ["yang2012"], theory: "sec-omega", eqn: "eq-omega" },
+        "Electronegativity mismatch": { sym: "Δχ", eq: "\\Delta\\chi = \\sqrt{\\textstyle\\sum_i c_i\\,(\\chi_i - \\bar\\chi)^2}", inputs: ["chi"], interp: "Large values favor ordered compounds. For oxides the same statistic runs over the cation set.", refs: ["pauling1960"], theory: null, eqn: "eq-chi" },
+        "Mean electronegativity": { sym: "χ̄", eq: "\\bar\\chi = \\sum_i c_i\\,\\chi_i", inputs: ["chi"], interp: "Composition-weighted mean of the Pauling set.", refs: ["pauling1960"], theory: null, eqn: "eq-chi" },
+        "Mismatch entropy": { sym: "S_E", eq: null, inputs: ["radius"], interp: "Mansoori hard-sphere excess entropy from the diameter distribution, averaged over bcc (0.68) and fcc (0.74) packing fractions; the denominator of Ye's φ.", refs: ["mansoori1971", "takeuchi2000"], theory: null, eqn: null },
+        "Solid-solution Gibbs proxy": { sym: "ΔG SS", eq: "\\Delta G_{\\mathrm{ss}} = \\Delta H_{\\mathrm{mix}} - T\\,\\Delta S_{\\mathrm{mix}}", inputs: ["pairs", "temperature"], interp: "Gibbs energy of the disordered solution at the chosen temperature.", refs: ["king2016"], theory: "sec-prediction", eqn: null },
+        "Most stable binary proxy": { sym: "ΔG max", eq: null, inputs: ["pairs"], interp: "The most negative binary pair enthalpy, standing in for the most stable competing intermetallic (King's ΔS ≈ 0 assumption). Documented approximation: it underestimates King's multi-binary allocation for 4+ elements, so Φ here runs larger than the paper's scale.", refs: ["king2016", "takeuchi2005"], theory: "sec-prediction", eqn: null },
+        "King Phi": { sym: "Φ", eq: "\\Phi = \\dfrac{\\Delta G_{\\mathrm{ss}}}{-|\\Delta G_{\\mathrm{max}}|}", inputs: ["pairs", "temperature"], interp: "Φ > 1 suggests the solid solution beats the best binary compound at the chosen temperature. Carries the ΔG max approximation noted on that card.", refs: ["king2016"], theory: "sec-prediction", eqn: null },
+        "Ye phi": { sym: "φ", eq: "\\varphi = \\dfrac{\\Delta S_{\\mathrm{mix}} - |\\Delta H_{\\mathrm{mix}}|/T_m}{|S_E|}", inputs: ["pairs", "melting", "radius"], interp: "Intrinsic-entropy screen; φ > 20 favors single-phase solid solutions.", refs: ["ye2015phi", "mansoori1971"], theory: "sec-prediction", eqn: null },
+        "Singh Lambda": { sym: "Λ", eq: "\\Lambda = \\dfrac{\\Delta S_{\\mathrm{mix}}}{\\delta^2}", inputs: ["radius"], interp: "Λ > 0.96 single disordered solid solution; 0.24–0.96 solid solution plus compounds; < 0.24 compound-dominated. δ enters in percent.", refs: ["singh2014"], theory: "sec-geometry", eqn: "eq-lambda" },
+        "Wang gamma": { sym: "γ", eq: "\\omega(r_c) = 1 - \\sqrt{\\dfrac{(r_c+\\bar r)^2 - \\bar r^2}{(r_c+\\bar r)^2}},\\quad \\gamma = \\dfrac{\\omega_S}{\\omega_L}", inputs: ["radius"], interp: "γ < 1.175 means the size mismatch is still packable as a crystalline solid solution; equal radii give exactly 1.", refs: ["wang2015"], theory: "sec-geometry", eqn: "eq-gamma-wang" },
+        "Elastic-strain energy": { sym: "ΔH el", eq: "\\Delta H_{\\mathrm{el}} = \\sum_i \\dfrac{c_i B_i (V_i - \\bar V)^2}{2 V_i},\\quad \\bar V = \\dfrac{\\sum_i c_i B_i V_i}{\\sum_i c_i B_i}", inputs: ["mechanics"], interp: "Andreoli's windows: fcc solid solutions ≤ 6.05 kJ/mol, bcc 6.05–22, above 22 glasses and intermetallics. Our B and V come from the vendored matminer table, which differs from the paper's elastic sources; read the window, not the third decimal.", refs: ["andreoli2019"], theory: "sec-elastic", eqn: "eq-hel" },
+        "Compound enthalpy (Miedema+ASD)": { sym: "ΔH compound", eq: null, inputs: ["miedema-params"], interp: "Ordered-compound formation enthalpy from the Miedema macroscopic-atom model with the atomic-size-difference correction.", refs: ["miedema1980", "deboer1988"], theory: "sec-compound", eqn: "eq-compound" },
+        "Solid solution enthalpy": { sym: "ΔH SS", eq: null, inputs: ["miedema-params", "mechanics"], interp: "Chemical + elastic + structural decomposition of the disordered solution's formation enthalpy.", refs: ["deboer1988", "eshelby1957", "friedel1954"], theory: "sec-ss", eqn: "eq-ssmied" },
+        "SS chemical contribution": { sym: "ΔH chem", eq: null, inputs: ["miedema-params"], interp: "Miedema interfacial term of the solid-solution enthalpy.", refs: ["miedema1980", "deboer1988"], theory: "sec-ss", eqn: "eq-ssmied" },
+        "SS elastic mismatch": { sym: "ΔH elast", eq: null, inputs: ["mechanics"], interp: "Continuum (Eshelby/Friedel) size-mismatch strain term.", refs: ["eshelby1957", "deboer1988"], theory: "sec-ss", eqn: "eq-elast" },
+        "SS structural contribution": { sym: "ΔH struct", eq: null, inputs: ["valence"], interp: "d-band lattice-stability term from the valence-electron counts.", refs: ["friedel1954", "niessen1983"], theory: "sec-ss", eqn: null },
+        "Amorphous enthalpy": { sym: "ΔH AM", eq: null, inputs: ["miedema-params", "melting"], interp: "Amorphous-phase enthalpy: chemical term plus the topological 3.5·Σcᵢ T m,i correction.", refs: ["loeff1988", "deboer1988"], theory: "sec-am", eqn: "eq-am" },
+        "AM topological contribution": { sym: "ΔH topo", eq: null, inputs: ["melting"], interp: "The 3.5·Σcᵢ T m,i topological term of the amorphous enthalpy.", refs: ["loeff1988"], theory: "sec-am", eqn: "eq-am" },
+        "Yeh entropy rule": { sym: "ΔS mix vs R", eq: null, inputs: ["composition"], interp: "≥ 1.5R high entropy, 1R–1.5R medium entropy, below dilute. A definition, not a phase prediction.", refs: ["yeh2004"], theory: "sec-entropy", eqn: "eq-smix" },
+        "Zhang size-mismatch rule": { sym: "δ < 6.5 %", eq: null, inputs: ["radius"], interp: "Single phase predicted below 6.5 %; an empirical screen calibrated on the 2008 survey.", refs: ["zhang2008"], theory: "sec-delta", eqn: "eq-delta" },
+        "Guo–Liu VEC rule": { sym: "VEC bands", eq: null, inputs: ["valence"], interp: "FCC at VEC ≥ 8, BCC below 6.87. Says which lattice a solid solution prefers, not whether one forms.", refs: ["guo2011vec"], theory: "sec-vec", eqn: "eq-vec" },
+        "Yang–Zhang Ω rule": { sym: "Ω > 1.1", eq: null, inputs: ["melting", "pairs"], interp: "Solid solution favored above 1.1. Unstable near ΔH mix ≈ 0 (reported, not hidden).", refs: ["yang2012"], theory: "sec-omega", eqn: "eq-omega" },
+        "King Phi rule": { sym: "Φ > 1", eq: null, inputs: ["pairs", "temperature"], interp: "Solid solution predicted when Φ exceeds 1 at the chosen temperature.", refs: ["king2016"], theory: "sec-prediction", eqn: null },
+        "Ye phi rule": { sym: "φ > 20", eq: null, inputs: ["pairs", "melting", "radius"], interp: "Solid solution predicted above 20.", refs: ["ye2015phi"], theory: "sec-prediction", eqn: null },
+        "Senkov–Miracle kappa": { sym: "k₁ vs k₁ᶜʳ(T)", eq: "k_1^{\\mathrm{cr}}(T) = 1 + \\dfrac{(1-k_2)\\,T\\,\\Delta S_{\\mathrm{mix}}}{|\\Delta H_{\\mathrm{mix}}|},\\quad k_2 = 0.6", inputs: ["pairs", "temperature"], interp: "Solid solution favored while k₁ = ΔH IM/ΔH mix stays below k₁ᶜʳ(T); the verdict here is computed from the direct Gibbs comparison (robust when ΔH mix ≥ 0), with ΔS IM = 0.6·ΔS mix per the paper and ΔH IM = the most-negative-binary proxy.", refs: ["senkov2016"], theory: "sec-kappa", eqn: "eq-kappa" },
+        "Tsai sigma window": { sym: "6.88 ≤ VEC ≤ 7.84", eq: null, inputs: ["valence"], interp: "Applies to annealed Cr- and/or V-containing alloys; inside the window the sigma phase tends to precipitate. Not applicable without Cr or V.", refs: ["tsai2013"], theory: "sec-prediction", eqn: "eq-vec" },
+        "Sheikh ductility screen": { sym: "VEC < 4.5", eq: null, inputs: ["valence"], interp: "For single-phase bcc refractory HEAs: below 4.5 intrinsically ductile, at or above 4.6 brittle. Present it alongside the Guo bands, not as a universal verdict.", refs: ["sheikh2016"], theory: "sec-prediction", eqn: "eq-vec" },
+        "Configurational entropy": { sym: "ΔS config", eq: "\\Delta S_{\\mathrm{config}} = -R \\sum_s m_s \\sum_i x_{i,s} \\ln x_{i,s}", inputs: ["shannon"], interp: "Sublattice-weighted ideal mixing entropy per mole of formula units; ordered sublattices contribute zero.", refs: ["rost2015"], theory: "sec-heo", eqn: "eq-oxide-s" },
+        "Entropy per cation site": { sym: "ΔS/site", eq: null, inputs: ["shannon"], interp: "The value the 1.5R rock-salt threshold applies to.", refs: ["rost2015"], theory: "sec-heo", eqn: "eq-oxide-s" },
+        "Entropy classification": { sym: "ΔS vs 1.5R", eq: null, inputs: ["shannon"], interp: "Rost's entropy-stabilization regime marker.", refs: ["rost2015"], theory: "sec-heo", eqn: "eq-oxide-s" },
+        "Cation size disorder": { sym: "δr", eq: "\\delta_r = 100\\sqrt{\\textstyle\\sum_i x_i (1 - r_i/\\bar r)^2}", inputs: ["shannon"], interp: "Ionic analog of the alloy δ over Shannon radii at the family's coordination.", refs: ["shannon1976", "manchon2025"], theory: "sec-shannon", eqn: "eq-deltar" },
+        "A-site size disorder": { sym: "δr(A)", eq: null, inputs: ["shannon"], interp: "Per-sublattice size disorder (A site).", refs: ["shannon1976", "jiang2018"], theory: "sec-perovskite", eqn: "eq-deltar" },
+        "B-site size disorder": { sym: "δr(B)", eq: null, inputs: ["shannon"], interp: "Per-sublattice size disorder (B site).", refs: ["shannon1976", "jiang2018"], theory: "sec-perovskite", eqn: "eq-deltar" },
+        "Combined size disorder": { sym: "δr*", eq: null, inputs: ["shannon"], interp: "Root sum of squares of the per-sublattice disorders.", refs: ["jiang2018"], theory: "sec-perovskite", eqn: "eq-deltar" },
+        "Mean cation radius": { sym: "r̄", eq: null, inputs: ["shannon"], interp: "Composition-weighted mean Shannon radius.", refs: ["shannon1976"], theory: "sec-shannon", eqn: null },
+        "Mean A-site radius": { sym: "r̄(A)", eq: null, inputs: ["shannon"], interp: "Mean Shannon radius of the A sublattice.", refs: ["shannon1976"], theory: "sec-perovskite", eqn: null },
+        "Mean B-site radius": { sym: "r̄(B)", eq: null, inputs: ["shannon"], interp: "Mean Shannon radius of the B sublattice.", refs: ["shannon1976"], theory: "sec-perovskite", eqn: null },
+        "Radius dispersion (sample SD)": { sym: "σ(r)", eq: null, inputs: ["shannon"], interp: "Sample standard deviation of the eight-fold radii; Spiridigliozzi's fluorite predictor reads this directly.", refs: ["spiridigliozzi2021", "spiridigliozzi2023"], theory: "sec-fluorite", eqn: null },
+        "Goldschmidt tolerance factor": { sym: "t", eq: "t = \\dfrac{\\bar r_A + r_O}{\\sqrt{2}\\,(\\bar r_B + r_O)}", inputs: ["shannon"], interp: "Cubic perovskites cluster near t = 1 (empirically ~0.9–1.0).", refs: ["goldschmidt1926"], theory: "sec-perovskite", eqn: "eq-tolerance" },
+        "Octahedral factor": { sym: "μ", eq: "\\mu = \\bar r_B / r_O", inputs: ["shannon"], interp: "A stable BO₆ octahedron needs 0.414 ≤ μ ≤ 0.732.", refs: ["goldschmidt1926", "manchon2025"], theory: "sec-perovskite", eqn: null },
+        "Bartel tolerance factor": { sym: "τ", eq: null, inputs: ["shannon"], interp: "Improved tolerance factor; τ < 4.18 predicts perovskite stability.", refs: ["bartel2019"], theory: "sec-perovskite", eqn: null },
+        "Radius ratio": { sym: "r(A)/r(B)", eq: null, inputs: ["shannon"], interp: "Pyrochlores form for 1.46–1.78; below, the defect fluorite takes over.", refs: ["subramanian1983"], theory: "sec-fluorite", eqn: null },
+        "Mean cation electronegativity": { sym: "χ̄", eq: null, inputs: ["shannon"], interp: "Mean Pauling electronegativity over the cation set.", refs: ["pauling1960"], theory: null, eqn: "eq-chi" },
+      };
+
+      const PROV_INPUT_META = {
+        radius: { label: "Atomic radius", field: "radius", unit: "pm", pyKey: "radius_pm" },
+        melting: { label: "Melting point", field: "melting", unit: "K", pyKey: "melting_K" },
+        valence: { label: "VEC", field: "valence", unit: "e/atom", pyKey: "valence" },
+        chi: { label: "Pauling χ", field: "chi", unit: "", pyKey: "electronegativity" },
+      };
+
+      let provContext = { mode: null, payload: null, report: null };
+      let provInvoker = null;
+
+      function provRememberAlloy(payload) {
+        provContext = { mode: "alloy", payload: payload, report: null };
+      }
+
+      function provRememberOxide(report) {
+        provContext = { mode: "oxide", payload: null, report: report };
+      }
+
+      function provButtonHtml(title) {
+        if (!PROV_REGISTRY[title]) return "";
+        return `<button type="button" class="prov-btn" data-prov="${title.replace(/"/g, "&quot;")}" aria-label="Equation, inputs, and sources for ${title.replace(/"/g, "&quot;")}" title="Equation, inputs, and sources">ⓘ</button>`;
+      }
+
+      function provSourceLinks(keys) {
+        return (keys || []).map((k) => {
+          const ref = REFERENCES_JS[k];
+          if (!ref) return k;
+          return `<a href="#refs" data-jump-view="refs" data-jump-anchor="ref-${k}">${ref.authors.split(",")[0].trim()} ${ref.year}</a>`;
+        }).join(" · ");
+      }
+
+      function provElementRows(kind) {
+        const meta = PROV_INPUT_META[kind];
+        const comp = provContext.payload ? provContext.payload.composition : null;
+        if (!meta || !comp) return "";
+        const srcKeys = (PROPERTY_SOURCES_JS[meta.pyKey] || {}).sourceKeys || [];
+        const rows = Object.keys(comp).sort().map((el) => {
+          const v = calcCore.ELEMENT_DATA[el] ? calcCore.ELEMENT_DATA[el][meta.field] : null;
+          return `<tr><td><a href="#data" data-jump-view="data" data-jump-anchor="data-${el}">${el}</a></td><td>${v === null || v === undefined ? "—" : v}</td><td class="prov-src">${meta.unit}</td></tr>`;
+        }).join("");
+        return `<table class="prov-inputs"><thead><tr><th>${meta.label}</th><th>value</th><th></th></tr></thead><tbody>${rows}</tbody></table>` +
+          `<p class="prov-note">Source: ${provSourceLinks(srcKeys)} — column conventions in the <a href="#data" data-jump-view="data">Data view</a>.</p>`;
+      }
+
+      function provPairRows() {
+        const comp = provContext.payload ? provContext.payload.composition : null;
+        if (!comp) return "";
+        const els = Object.keys(comp).sort();
+        const rows = [];
+        for (let i = 0; i < els.length; i += 1) {
+          for (let j = i + 1; j < els.length; j += 1) {
+            const key = getPairKey(els[i], els[j]);
+            const edited = pairEnthalpyEdits && Object.prototype.hasOwnProperty.call(pairEnthalpyEdits, key);
+            const v = edited ? pairEnthalpyEdits[key] : calcCore.PAIR_ENTHALPIES[key];
+            rows.push(`<tr${edited ? ' class="prov-edited"' : ""}><td>${key.replace("|", "–")}</td><td>${v === undefined ? "missing" : formatNumber(Number(v), 4)}</td><td class="prov-src">${edited ? "edited by you" : "kJ/mol"}</td></tr>`);
+          }
+        }
+        return `<table class="prov-inputs"><thead><tr><th>Pair ΔH mix</th><th>value</th><th></th></tr></thead><tbody>${rows.join("")}</tbody></table>` +
+          `<p class="prov-note">Source: ${provSourceLinks(["deboer1988", "takeuchi2005", "matminer2018"])} — vendored table pinned by SHA in the <a href="#data" data-jump-view="data">Data view</a>.</p>`;
+      }
+
+      function provMechanicsRows() {
+        const comp = provContext.payload ? provContext.payload.composition : null;
+        if (!comp) return "";
+        const rows = Object.keys(comp).sort().map((el) => {
+          const m = calcCore.ELEMENT_MECHANICS[el];
+          return `<tr><td><a href="#data" data-jump-view="data" data-jump-anchor="data-${el}">${el}</a></td><td>${m ? formatNumber(m.B, 4) : "—"}</td><td>${m ? formatNumber(m.Vm, 4) : "—"}</td></tr>`;
+        }).join("");
+        return `<table class="prov-inputs"><thead><tr><th>El</th><th>B (GPa)</th><th>Vm (cm³/mol)</th></tr></thead><tbody>${rows}</tbody></table>` +
+          `<p class="prov-note">Source: ${provSourceLinks(["matminer2018", "deboer1988"])} — the upstream column named “compressibility” holds the bulk modulus in GPa; details in the <a href="#data" data-jump-view="data">Data view</a>.</p>`;
+      }
+
+      function provShannonRows() {
+        const report = provContext.report;
+        if (!report) return "";
+        const rows = [];
+        Object.keys(report.sites).forEach((siteLabel) => {
+          Object.keys(report.sites[siteLabel]).sort().forEach((el) => {
+            rows.push(`<tr><td>${el}</td><td>${oxideChargeLabelText(report.oxidation_states[el])}</td><td>${formatNumber(report.shannon_radii[el], 4)}</td><td class="prov-src">${siteLabel} · CN ${report.coordination[siteLabel]}</td></tr>`);
+          });
+        });
+        return `<table class="prov-inputs"><thead><tr><th>Cation</th><th>state</th><th>r (Å)</th><th></th></tr></thead><tbody>${rows.join("")}</tbody></table>` +
+          `<p class="prov-note">Shannon (1976) effective ionic radii at the family's coordination; assignment rules in the Theory view.</p>`;
+      }
+
+      function oxideChargeLabelText(charge) {
+        return charge > 0 ? "+" + charge : String(charge);
+      }
+
+      function provTemperatureRow() {
+        const d = provContext.payload ? provContext.payload.descriptors : null;
+        if (!d) return "";
+        return `<p class="prov-note">T = ${formatNumber(d.King_temperature_K, 6)} K — the annealing-temperature input (defaults to the rule-of-mixtures T m).</p>`;
+      }
+
+      function provInputsHtml(entry) {
+        let html = "";
+        (entry.inputs || []).forEach((kind) => {
+          if (kind === "composition") {
+            html += `<p class="prov-note">Only the normalized mole fractions enter.</p>`;
+          } else if (PROV_INPUT_META[kind]) {
+            html += provElementRows(kind);
+          } else if (kind === "pairs") {
+            html += provPairRows();
+          } else if (kind === "mechanics") {
+            html += provMechanicsRows();
+          } else if (kind === "shannon") {
+            html += provShannonRows();
+          } else if (kind === "temperature") {
+            html += provTemperatureRow();
+          } else if (kind === "miedema-params") {
+            html += `<p class="prov-note">Per-element Miedema parameters (φ*, n<sub>ws</sub>, V<sup>2/3</sup>) from the vendored matminer table; see the <a href="#data" data-jump-view="data">Data view</a> for the file pin and license.</p>`;
+          }
+        });
+        return html || `<p class="prov-note">Derived from the descriptors above; no additional element data enters.</p>`;
+      }
+
+      function provRefsHtml(entry) {
+        const items = (entry.refs || []).map((k) => {
+          const ref = REFERENCES_JS[k];
+          if (!ref) return "";
+          const link = ref.doi ? `https://doi.org/${ref.doi}` : ref.url;
+          return `<li>${ref.authors} (${ref.year}). ${ref.title}. <em>${ref.venue}</em>.` +
+            (link ? ` <a href="${link}" target="_blank" rel="noopener noreferrer">${ref.doi ? "doi:" + ref.doi : "link"}</a>` : "") +
+            ` · <a href="#refs" data-jump-view="refs" data-jump-anchor="ref-${k}">in bibliography</a></li>`;
+        }).join("");
+        return `<ul class="prov-refs">${items}</ul>`;
+      }
+
+      function openProvenance(title, invoker) {
+        const entry = PROV_REGISTRY[title];
+        const drawer = document.getElementById("prov-drawer");
+        if (!entry || !drawer) return;
+        provInvoker = invoker || null;
+        const card = invoker ? invoker.closest(".result-card") : null;
+        const valueText = card ? (card.querySelector("p") ? card.querySelector("p").textContent.trim() : "") : "";
+        const unitsText = card ? (card.querySelector(".units") ? card.querySelector(".units").textContent.trim() : "") : "";
+        document.getElementById("prov-drawer-title").textContent = title;
+        document.getElementById("prov-drawer-symbol").textContent = entry.sym || "";
+        const links = [];
+        if (entry.theory) links.push(`<a href="#theory" data-jump-view="theory" data-jump-anchor="${entry.theory}">Derivation → Theory</a>`);
+        if (entry.eqn) links.push(`<a href="#equations" data-jump-view="reference" data-jump-anchor="${entry.eqn}">Equation reference</a>`);
+        links.push(`<a href="#data" data-jump-view="data">Data view</a>`);
+        const body = document.getElementById("prov-drawer-body");
+        body.innerHTML =
+          (valueText ? `<div class="prov-sec"><h4>Value</h4><div class="prov-value">${valueText}<span class="prov-units">${unitsText}</span></div></div>` : "") +
+          (entry.eq ? `<div class="prov-sec"><h4>Equation</h4><div class="prov-eq">\\[${entry.eq}\\]</div></div>` : "") +
+          `<div class="prov-sec"><h4>Inputs used</h4>${provInputsHtml(entry)}</div>` +
+          `<div class="prov-sec"><h4>Interpretation</h4><p class="prov-note">${entry.interp || ""}</p></div>` +
+          `<div class="prov-sec"><h4>Sources</h4>${provRefsHtml(entry)}` +
+          `<div class="prov-actions"><button type="button" id="prov-copy-bibtex">Copy BibTeX</button></div></div>` +
+          `<div class="prov-sec"><h4>Cross-links</h4><div class="prov-links">${links.join("")}</div></div>`;
+        const copyBtn = document.getElementById("prov-copy-bibtex");
+        if (copyBtn) {
+          copyBtn.addEventListener("click", () => {
+            const bib = (entry.refs || []).map((k) => (REFERENCES_JS[k] ? REFERENCES_JS[k].bibtex : "")).filter(Boolean).join("\n\n");
+            navigator.clipboard.writeText(bib).then(() => {
+              copyBtn.textContent = "Copied";
+              setTimeout(() => { copyBtn.textContent = "Copy BibTeX"; }, 1200);
+            }).catch(() => {});
+          });
+        }
+        drawer.hidden = false;
+        requestAnimationFrame(() => drawer.classList.add("is-open"));
+        if (window.MathJax && typeof window.MathJax.typesetPromise === "function") {
+          window.MathJax.typesetPromise([body]).catch(() => {});
+        }
+        document.getElementById("prov-drawer-close").focus();
+      }
+
+      function closeProvenance() {
+        const drawer = document.getElementById("prov-drawer");
+        if (!drawer || drawer.hidden) return;
+        drawer.classList.remove("is-open");
+        setTimeout(() => { drawer.hidden = true; }, 240);
+        if (provInvoker && document.contains(provInvoker)) provInvoker.focus();
+        provInvoker = null;
+      }
+
+      document.addEventListener("click", (event) => {
+        const btn = event.target.closest(".prov-btn");
+        if (btn) {
+          event.stopPropagation();
+          openProvenance(btn.dataset.prov, btn);
+          return;
+        }
+        const drawer = document.getElementById("prov-drawer");
+        if (drawer && !drawer.hidden && !event.target.closest(".prov-drawer")) {
+          closeProvenance();
+        }
+      });
+      document.getElementById("prov-drawer-close").addEventListener("click", closeProvenance);
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closeProvenance();
+      });
 
       // Click-to-copy on every numeric result card.
       [
@@ -9197,6 +10578,7 @@ font-family: 'Source Sans Pro'
       ].forEach((container) => {
         if (!container) return;
         container.addEventListener("click", (event) => {
+          if (event.target.closest(".prov-btn")) return;
           const card = event.target.closest(".result-card");
           if (!card || card.classList.contains("composition-card")) return;
           const valueEl = card.querySelector("p");
