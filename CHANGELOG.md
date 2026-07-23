@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.1.1] — 2026-07-23
+
 ### Fixed
 
 - The "copied" badge no longer overlaps the provenance info button on
