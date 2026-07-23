@@ -6894,6 +6894,9 @@ font-family: 'Source Sans Pro'
                 <th>S_E</th>
                 <th>King Phi</th>
                 <th>Ye phi</th>
+                <th>Λ</th>
+                <th>γ</th>
+                <th>ΔH el</th>
                 <th>King T (K)</th>
                 <th>ΔH comp</th>
                 <th>ΔH SS</th>
@@ -6901,7 +6904,7 @@ font-family: 'Source Sans Pro'
                 <th>Action</th>
               </tr>
             </thead>
-            <tbody id="saved-results-body"><tr><td colspan="17" style="color: #64748b;">No saved results yet.</td></tr></tbody>
+            <tbody id="saved-results-body"><tr><td colspan="20" style="color: #64748b;">No saved results yet.</td></tr></tbody>
           </table>
         </div>
       </section>
@@ -10176,7 +10179,7 @@ font-family: 'Source Sans Pro'
         savedResultsBodyEl.innerHTML = "";
         if (!savedResults.length) {
           const tr = document.createElement("tr");
-          tr.innerHTML = `<td colspan="17" style="color: #64748b;">No saved results yet.</td>`;
+          tr.innerHTML = `<td colspan="20" style="color: #64748b;">No saved results yet.</td>`;
           savedResultsBodyEl.appendChild(tr);
           return;
         }
@@ -10199,6 +10202,9 @@ font-family: 'Source Sans Pro'
             <td>${row.descriptors.S_excess != null ? formatNumber(row.descriptors.S_excess) : '—'}</td>
             <td>${row.descriptors.Phi_king != null ? formatNumber(row.descriptors.Phi_king) : '—'}</td>
             <td>${row.descriptors.Phi_ye != null ? formatNumber(row.descriptors.Phi_ye) : '—'}</td>
+            <td>${row.descriptors.Lambda_singh != null ? formatNumber(row.descriptors.Lambda_singh) : '—'}</td>
+            <td>${row.descriptors.gamma_wang != null ? formatNumber(row.descriptors.gamma_wang) : '—'}</td>
+            <td>${row.descriptors.H_elastic != null ? formatNumber(row.descriptors.H_elastic) : '—'}</td>
             <td>${row.descriptors.King_temperature_K != null ? formatNumber(row.descriptors.King_temperature_K, 5) : '—'}</td>
             <td>${row.descriptors.H_compound != null ? formatNumber(row.descriptors.H_compound) : '—'}</td>
             <td>${row.descriptors.H_SS_total != null ? formatNumber(row.descriptors.H_SS_total) : '—'}</td>
@@ -10238,6 +10244,9 @@ font-family: 'Source Sans Pro'
           "Mismatch entropy S_E (J/mol·K)",
           "King Phi (—)",
           "Ye phi (—)",
+          "Singh Lambda (J/mol·K·%²)",
+          "Wang gamma (—)",
+          "Elastic-strain energy (kJ/mol)",
           "King temperature (K)",
           "Compound enthalpy (kJ/mol)",
           "SS enthalpy (kJ/mol)",
@@ -10267,6 +10276,9 @@ font-family: 'Source Sans Pro'
             row.descriptors.S_excess ?? "",
             row.descriptors.Phi_king ?? "",
             row.descriptors.Phi_ye ?? "",
+            row.descriptors.Lambda_singh ?? "",
+            row.descriptors.gamma_wang ?? "",
+            row.descriptors.H_elastic ?? "",
             row.descriptors.King_temperature_K ?? "",
             row.descriptors.H_compound ?? "",
             row.descriptors.H_SS_total ?? "",
@@ -11011,6 +11023,7 @@ font-family: 'Source Sans Pro'
       const PAPER_DOI = "10.3390/ma19143075";
       const CONCEPT_DOI = "10.5281/zenodo.20346287";
       let citeState = null; // { id, permalink, receipt }
+      let citeGeneration = 0; // invalidates in-flight result-ID digests
 
       function canonicalJson(value) {
         if (Array.isArray(value)) {
@@ -11133,7 +11146,11 @@ font-family: 'Source Sans Pro'
           permRow.style.display = "none";
         }
         document.getElementById("cite-result-id").textContent = "computing…";
+        citeState = null; // stale state must not be copyable while the new ID computes
+        citeGeneration += 1;
+        const generation = citeGeneration;
         resultIdFrom(idPayload).then((id) => {
+          if (generation !== citeGeneration) return; // a newer calculation superseded this one
           receipt.result_id = id;
           if (permalink) receipt.permalink = permalink;
           citeState = { id: id, permalink: permalink, receipt: receipt, mode: mode };
@@ -11178,18 +11195,21 @@ font-family: 'Source Sans Pro'
         const copyReceipt = document.getElementById("cite-copy-receipt");
         const download = document.getElementById("cite-download-receipt");
         if (!copyText) return;
+        const notReady = () => { citeMessage("Result ID is still computing; try again in a moment."); };
         copyText.addEventListener("click", () => {
+          if (!citeState) { notReady(); return; }
           navigator.clipboard.writeText(citationText()).then(() => citeMessage("Citation copied.")).catch(() => citeMessage("Clipboard unavailable."));
         });
         copyBib.addEventListener("click", () => {
+          if (!citeState) { notReady(); return; }
           navigator.clipboard.writeText(citationBibtex()).then(() => citeMessage("BibTeX copied.")).catch(() => citeMessage("Clipboard unavailable."));
         });
         copyReceipt.addEventListener("click", () => {
-          if (!citeState) return;
+          if (!citeState) { notReady(); return; }
           navigator.clipboard.writeText(JSON.stringify(citeState.receipt, null, 2)).then(() => citeMessage("Receipt copied.")).catch(() => citeMessage("Clipboard unavailable."));
         });
         download.addEventListener("click", () => {
-          if (!citeState) return;
+          if (!citeState) { notReady(); return; }
           const blob = new Blob([JSON.stringify(citeState.receipt, null, 2)], { type: "application/json" });
           const a = document.createElement("a");
           a.href = URL.createObjectURL(blob);

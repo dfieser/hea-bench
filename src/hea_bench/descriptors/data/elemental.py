@@ -87,9 +87,13 @@ Adding an element
 Add a row below with a per-element source comment. Conventions:
 
 - Atomic radius: Goldschmidt 12-coordinate metallic radius, to match
-  the original 24. Housecroft & Sharpe Appendix 6 is the primary
-  digitized source; cross-check a second table (the values disagree
-  by a few pm between compilations for soft / anisotropic metals).
+  the original 24. Since v2.1 the declared primary authority is
+  Teatum, Gschneidner & Waber, LA-4003 (1968) Table I; cross-check
+  Miracle & Senkov 2017 Table 3 and record both in provenance.py
+  (compilations disagree by a few pm for soft / anisotropic metals,
+  and M&S carry the CN-native, not CN12-converted, values for bcc
+  metals). Housecroft & Sharpe Appendix 6 was the digitized source
+  for the legacy rows and remains the recorded source for them.
 - Melting point: CRC Handbook, 1 atm.
 - Valence: s + d electrons for transition metals (so Cu = 11,
   Zn = 12), group number for s- and p-block, following Guo & Liu 2011.

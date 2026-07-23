@@ -186,10 +186,15 @@ def alloy_descriptors(compositions: list[str], king_temperature: float | None = 
             safe = _finite(value)
             descriptors[name] = {"value": safe, "unit": unit, "source": source}
             if safe is None and value is not None:
-                warnings.append(
-                    f"{name}: value is unbounded for {formula!r} "
-                    f"(no competing intermetallic); the verdict is unaffected"
-                )
+                if name == "lambda_singh":
+                    reason = (
+                        "all constituents share the same tabulated radius, so "
+                        "delta = 0 and Lambda is unbounded (trivially in the "
+                        "single-solid-solution band)"
+                    )
+                else:
+                    reason = "no competing intermetallic; the verdict is unaffected"
+                warnings.append(f"{name}: value is unbounded for {formula!r} ({reason})")
             elif value is None:
                 warnings.append(
                     f"{name}: not computable for {formula!r} "

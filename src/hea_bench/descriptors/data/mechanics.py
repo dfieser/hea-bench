@@ -8,7 +8,7 @@ elastic-strain energy criterion and the Miedema decomposition tables.
 Column-name caveat, verified against physical values on 2026-07-22:
 matminer's ``Miedema.csv`` header calls the ninth column
 ``compressibility``, but the numbers are bulk moduli in GPa
-(Fe 168.3, Al 72.18, W 314.4 all match standard bulk-modulus tables,
+(Fe 168.3, Al 72.18, W 323.3 all match standard bulk-modulus tables,
 not compressibilities in any unit). This loader therefore publishes
 the column as ``bulk_modulus_gpa``. ``molar_volume`` is cm3/mol and
 ``shear_modulus`` is GPa.
