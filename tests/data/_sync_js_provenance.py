@@ -37,15 +37,45 @@ _DATA_FILES = (
 )
 
 
+def _bibtex_authors(authors: str) -> str:
+    """Turn the display author string into a valid BibTeX author list.
+
+    Display form: "Family, I. I., Family, I. & Family, I." (with "et al."
+    and ", Jr." suffixes). BibTeX needs " and " between authors.
+    """
+    a = authors
+    a = a.replace(" et al.", " and others")
+    a = a.replace(" & ", " and ")
+    # Attach generational suffixes to the name so the splitter below
+    # does not mistake them for a new author.
+    a = a.replace(", Jr.", " Jr.")
+    # An initial's dot followed by ", Name" separates two authors.
+    a = re.sub(r"\.\s*,\s+(?=[A-Za-z])", ". and ", a)
+    return a
+
+
+_VENUE_RE = re.compile(r"^(?P<journal>.+?)\s+(?P<volume>\d+),\s*(?P<pages>\S.*)$")
+
+
 def _bibtex(key: str, ref) -> str:
-    """Deterministic BibTeX for one Ref (article when a DOI exists)."""
-    authors = ref.authors.replace(" & ", " and ").replace(", ", " and ", 0)
-    kind = "article" if ref.doi else "misc"
+    """Deterministic BibTeX for one Ref.
+
+    A hand-written ``ref.bibtex`` wins. Otherwise: a real @article with
+    journal/volume/pages fields when the venue parses as
+    "Journal VOLUME, PAGES" and a DOI exists; @misc with howpublished
+    for books, reports, and datasets.
+    """
+    if ref.bibtex:
+        return ref.bibtex
+    venue = _VENUE_RE.match(ref.venue)
+    kind = "article" if (ref.doi and venue) else "misc"
     lines = [f"@{kind}{{{key},"]
-    lines.append(f"  author = {{{authors}}},")
+    lines.append(f"  author = {{{_bibtex_authors(ref.authors)}}},")
     lines.append(f"  title = {{{ref.title}}},")
-    if ref.doi:
-        lines.append(f"  journal = {{{ref.venue}}},")
+    if kind == "article":
+        lines.append(f"  journal = {{{venue.group('journal')}}},")
+        lines.append(f"  volume = {{{venue.group('volume')}}},")
+        lines.append(f"  pages = {{{venue.group('pages')}}},")
     else:
         lines.append(f"  howpublished = {{{ref.venue}}},")
     lines.append(f"  year = {{{ref.year}}},")

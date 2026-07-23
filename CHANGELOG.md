@@ -10,6 +10,21 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Fixed
+
+- The "copied" badge no longer overlaps the provenance info button on
+  result cards.
+- Links in the provenance drawer and Data view now use the accent color
+  instead of low-contrast default blue on dark surfaces.
+- The cite panel's citation and BibTeX list all three authors, and the
+  article BibTeX is a real entry with journal, volume, number, and pages
+  fields (the Zenodo software entry likewise); the bibliography
+  generator now emits field-level BibTeX for every reference.
+- The pair-enthalpy source tag now names the actual source, Miedema /
+  de Boer et al. (1988), instead of "hea-bench".
+- Drawer equations containing "<" (like the ΔH mix sum over i<j) render
+  as math instead of being eaten by the HTML parser.
+
 ## [2.1.0] — 2026-07-23
 
 ### Fixed

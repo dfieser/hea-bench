@@ -35,7 +35,11 @@ from dataclasses import dataclass, field
 @dataclass(frozen=True)
 class Ref:
     """One bibliography entry (short form; full prose lives in the
-    References view)."""
+    References view).
+
+    ``bibtex`` optionally overrides the generated entry with an exact,
+    hand-written one (used for the citations people paste into
+    manuscripts, where field-level correctness matters most)."""
 
     authors: str
     title: str
@@ -43,6 +47,7 @@ class Ref:
     year: int
     doi: str = ""
     url: str = ""
+    bibtex: str = ""
 
 
 @dataclass(frozen=True)
@@ -104,7 +109,7 @@ REFERENCES: dict[str, Ref] = {
     # --- element data ---
     "la4003": Ref("Teatum, E. T., Gschneidner, K. A., Jr. & Waber, J. T.", "Compilation of calculated data useful in predicting metallurgical behavior of the elements in binary alloy systems", "Los Alamos report LA-4003 (supersedes LA-2345)", 1968, url="https://www.osti.gov/biblio/4789465"),
     "gschneidner1966": Ref("Gschneidner, K. A., Jr.", "Physical properties of the rare earth metals", "Trans. Vacuum Metallurgy Conf. 1965, Am. Vac. Soc.", 1966, url="https://www.osti.gov/biblio/4789465"),
-    "ms2017": Ref("Miracle, D. B. & Senkov, O. N.", "A critical review of high entropy alloys and related concepts", "Acta Mater. 122, 448 (Table 3)", 2017, doi="10.1016/j.actamat.2016.08.081"),
+    "ms2017": Ref("Miracle, D. B. & Senkov, O. N.", "A critical review of high entropy alloys and related concepts", "Acta Mater. 122, 448", 2017, doi="10.1016/j.actamat.2016.08.081"),
     "crc": Ref("Haynes, W. M. (ed.)", "CRC Handbook of Chemistry and Physics, 97th ed.", "CRC Press, Boca Raton", 2016, url="https://www.routledge.com/CRC-Handbook-of-Chemistry-and-Physics/Haynes/p/book/9781498754286"),
     "pauling1960": Ref("Pauling, L.", "The Nature of the Chemical Bond, 3rd ed.", "Cornell University Press", 1960, url="https://search.worldcat.org/title/545520"),
     "housecroft2018": Ref("Housecroft, C. E. & Sharpe, A. G.", "Inorganic Chemistry, 5th ed., Appendix 6 (metallic radii, CN12)", "Pearson", 2018, url="https://www.pearson.com/en-gb/subject-catalog/p/inorganic-chemistry/P200000004526"),
@@ -121,8 +126,40 @@ REFERENCES: dict[str, Ref] = {
     "subramanian1983": Ref("Subramanian, M. A., Aravamudan, G. & Subba Rao, G. V.", "Oxide pyrochlores - a review", "Prog. Solid State Chem. 15, 55", 1983, doi="10.1016/0079-6786(83)90001-8"),
     "manchon2025": Ref("Manchon-Gordon, A. F., Panadero-Medianero, P. & Blazquez, J. S.", "Descriptors for predicting single- and multi-phase formation in high-entropy oxides", "Materials 18, 3862", 2025, doi="10.3390/ma18163862"),
     # --- software / archive ---
-    "heabench2026": Ref("Fieser, D.", "HEA-Bench: an open, parity-tested calculator of high-entropy alloy and oxide descriptors", "Materials 19, 3075", 2026, doi="10.3390/ma19143075"),
-    "zenodo": Ref("Fieser, D.", "HEA-Bench (all versions)", "Zenodo concept record", 2026, doi="10.5281/zenodo.20346287"),
+    "heabench2026": Ref(
+        "Fieser, D., Dewanjee, U. & Hu, A.",
+        "HEA-Bench: An AI-Agent-Optimized Calculator of High-Entropy Alloy and Oxide Descriptors and Phase-Prediction Rules",
+        "Materials 19, 3075", 2026, doi="10.3390/ma19143075",
+        bibtex=(
+            "@article{heabench2026,\n"
+            "  author = {Fieser, David and Dewanjee, Unmanaa and Hu, Anming},\n"
+            "  title = {{HEA-Bench}: An {AI}-Agent-Optimized Calculator of High-Entropy Alloy and Oxide Descriptors and Phase-Prediction Rules},\n"
+            "  journal = {Materials},\n"
+            "  volume = {19},\n"
+            "  number = {14},\n"
+            "  pages = {3075},\n"
+            "  year = {2026},\n"
+            "  issn = {1996-1944},\n"
+            "  doi = {10.3390/ma19143075},\n"
+            "  url = {https://www.mdpi.com/1996-1944/19/14/3075},\n"
+            "}"
+        ),
+    ),
+    "zenodo": Ref(
+        "Fieser, D., Dewanjee, U. & Hu, A.",
+        "HEA-Bench (all versions)",
+        "Zenodo concept record", 2026, doi="10.5281/zenodo.20346287",
+        bibtex=(
+            "@software{heabench_zenodo,\n"
+            "  author = {Fieser, David and Dewanjee, Unmanaa and Hu, Anming},\n"
+            "  title = {{HEA-Bench}},\n"
+            "  publisher = {Zenodo},\n"
+            "  year = {2026},\n"
+            "  doi = {10.5281/zenodo.20346287},\n"
+            "  note = {Concept DOI; resolves to the latest archived version},\n"
+            "}"
+        ),
+    ),
 }
 
 

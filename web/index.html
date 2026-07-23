@@ -746,6 +746,16 @@
       .prov-inputs .prov-src { font-family: inherit; color: var(--text-muted); font-size: 11px; }
       .prov-inputs tr.prov-edited td { color: var(--accent); }
       .prov-note { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin: 6px 0 0; }
+      .prov-note a, .prov-inputs a, .prov-refs a, .data-colsrc a,
+      .data-el-note-row a, .data-file-card a {
+        color: var(--accent);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .prov-note a:hover, .prov-inputs a:hover, .prov-refs a:hover,
+      .data-colsrc a:hover, .data-el-note-row a:hover, .data-file-card a:hover {
+        color: var(--accent-2);
+      }
       .prov-refs { list-style: none; margin: 0; padding: 0; font-size: 12px; }
       .prov-refs li { margin: 0 0 8px; line-height: 1.45; }
       .prov-refs a { color: inherit; }
@@ -1683,7 +1693,7 @@
         content: "copied";
         position: absolute;
         top: 7px;
-        right: 9px;
+        right: 34px; /* clear of the provenance info button */
         font-family: var(--mono);
         font-size: 10px;
         letter-spacing: 0.05em;
@@ -7417,7 +7427,7 @@ font-family: 'Source Sans Pro'
           "year": 2019,
           "doi": "10.1016/j.mtla.2019.100222",
           "url": "https://doi.org/10.1016/j.mtla.2019.100222",
-          "bibtex": "@article{andreoli2019,\n  author = {Andreoli, A. F., Orava, J., Liaw, P. K., Weber, H., de Oliveira, M. F., Nielsch, K. and Kaban, I.},\n  title = {The elastic-strain energy criterion of phase formation for complex concentrated alloys},\n  journal = {Materialia 5, 100222},\n  year = {2019},\n  doi = {10.1016/j.mtla.2019.100222},\n}"
+          "bibtex": "@article{andreoli2019,\n  author = {Andreoli, A. F. and Orava, J. and Liaw, P. K. and Weber, H. and de Oliveira, M. F. and Nielsch, K. and Kaban, I.},\n  title = {The elastic-strain energy criterion of phase formation for complex concentrated alloys},\n  journal = {Materialia},\n  volume = {5},\n  pages = {100222},\n  year = {2019},\n  doi = {10.1016/j.mtla.2019.100222},\n}"
         },
         "bakker1998": {
           "authors": "Bakker, H.",
@@ -7435,7 +7445,7 @@ font-family: 'Source Sans Pro'
           "year": 2019,
           "doi": "10.1126/sciadv.aav0693",
           "url": "https://doi.org/10.1126/sciadv.aav0693",
-          "bibtex": "@article{bartel2019,\n  author = {Bartel, C. J. et al.},\n  title = {New tolerance factor to predict the stability of perovskite oxides and halides},\n  journal = {Sci. Adv. 5, eaav0693},\n  year = {2019},\n  doi = {10.1126/sciadv.aav0693},\n}"
+          "bibtex": "@article{bartel2019,\n  author = {Bartel, C. J. and others},\n  title = {New tolerance factor to predict the stability of perovskite oxides and halides},\n  journal = {Sci. Adv.},\n  volume = {5},\n  pages = {eaav0693},\n  year = {2019},\n  doi = {10.1126/sciadv.aav0693},\n}"
         },
         "cantor2004": {
           "authors": "Cantor, B., Chang, I. T. H., Knight, P. & Vincent, A. J. B.",
@@ -7444,7 +7454,7 @@ font-family: 'Source Sans Pro'
           "year": 2004,
           "doi": "10.1016/j.msea.2003.10.257",
           "url": "https://doi.org/10.1016/j.msea.2003.10.257",
-          "bibtex": "@article{cantor2004,\n  author = {Cantor, B., Chang, I. T. H., Knight, P. and Vincent, A. J. B.},\n  title = {Microstructural development in equiatomic multicomponent alloys},\n  journal = {Mater. Sci. Eng. A 375-377, 213},\n  year = {2004},\n  doi = {10.1016/j.msea.2003.10.257},\n}"
+          "bibtex": "@misc{cantor2004,\n  author = {Cantor, B. and Chang, I. T. H. and Knight, P. and Vincent, A. J. B.},\n  title = {Microstructural development in equiatomic multicomponent alloys},\n  howpublished = {Mater. Sci. Eng. A 375-377, 213},\n  year = {2004},\n  doi = {10.1016/j.msea.2003.10.257},\n}"
         },
         "crc": {
           "authors": "Haynes, W. M. (ed.)",
@@ -7462,7 +7472,7 @@ font-family: 'Source Sans Pro'
           "year": 1988,
           "doi": "",
           "url": "https://search.worldcat.org/title/17743197",
-          "bibtex": "@misc{deboer1988,\n  author = {de Boer, F. R., Boom, R., Mattens, W. C. M., Miedema, A. R. and Niessen, A. K.},\n  title = {Cohesion in Metals: Transition Metal Alloys},\n  howpublished = {North-Holland, Amsterdam},\n  year = {1988},\n  url = {https://search.worldcat.org/title/17743197},\n}"
+          "bibtex": "@misc{deboer1988,\n  author = {de Boer, F. R. and Boom, R. and Mattens, W. C. M. and Miedema, A. R. and Niessen, A. K.},\n  title = {Cohesion in Metals: Transition Metal Alloys},\n  howpublished = {North-Holland, Amsterdam},\n  year = {1988},\n  url = {https://search.worldcat.org/title/17743197},\n}"
         },
         "eshelby1957": {
           "authors": "Eshelby, J. D.",
@@ -7471,7 +7481,7 @@ font-family: 'Source Sans Pro'
           "year": 1957,
           "doi": "10.1098/rspa.1957.0133",
           "url": "https://doi.org/10.1098/rspa.1957.0133",
-          "bibtex": "@article{eshelby1957,\n  author = {Eshelby, J. D.},\n  title = {The determination of the elastic field of an ellipsoidal inclusion},\n  journal = {Proc. R. Soc. A 241, 376},\n  year = {1957},\n  doi = {10.1098/rspa.1957.0133},\n}"
+          "bibtex": "@article{eshelby1957,\n  author = {Eshelby, J. D.},\n  title = {The determination of the elastic field of an ellipsoidal inclusion},\n  journal = {Proc. R. Soc. A},\n  volume = {241},\n  pages = {376},\n  year = {1957},\n  doi = {10.1098/rspa.1957.0133},\n}"
         },
         "friedel1954": {
           "authors": "Friedel, J.",
@@ -7480,7 +7490,7 @@ font-family: 'Source Sans Pro'
           "year": 1954,
           "doi": "10.1080/00018735400101233",
           "url": "https://doi.org/10.1080/00018735400101233",
-          "bibtex": "@article{friedel1954,\n  author = {Friedel, J.},\n  title = {Electronic structure of primary solid solutions in metals},\n  journal = {Adv. Phys. 3, 446},\n  year = {1954},\n  doi = {10.1080/00018735400101233},\n}"
+          "bibtex": "@article{friedel1954,\n  author = {Friedel, J.},\n  title = {Electronic structure of primary solid solutions in metals},\n  journal = {Adv. Phys.},\n  volume = {3},\n  pages = {446},\n  year = {1954},\n  doi = {10.1080/00018735400101233},\n}"
         },
         "goldschmidt1926": {
           "authors": "Goldschmidt, V. M.",
@@ -7489,7 +7499,7 @@ font-family: 'Source Sans Pro'
           "year": 1926,
           "doi": "10.1007/BF01507527",
           "url": "https://doi.org/10.1007/BF01507527",
-          "bibtex": "@article{goldschmidt1926,\n  author = {Goldschmidt, V. M.},\n  title = {Die Gesetze der Krystallochemie},\n  journal = {Naturwissenschaften 14, 477},\n  year = {1926},\n  doi = {10.1007/BF01507527},\n}"
+          "bibtex": "@article{goldschmidt1926,\n  author = {Goldschmidt, V. M.},\n  title = {Die Gesetze der Krystallochemie},\n  journal = {Naturwissenschaften},\n  volume = {14},\n  pages = {477},\n  year = {1926},\n  doi = {10.1007/BF01507527},\n}"
         },
         "gschneidner1966": {
           "authors": "Gschneidner, K. A., Jr.",
@@ -7498,7 +7508,7 @@ font-family: 'Source Sans Pro'
           "year": 1966,
           "doi": "",
           "url": "https://www.osti.gov/biblio/4789465",
-          "bibtex": "@misc{gschneidner1966,\n  author = {Gschneidner, K. A., Jr.},\n  title = {Physical properties of the rare earth metals},\n  howpublished = {Trans. Vacuum Metallurgy Conf. 1965, Am. Vac. Soc.},\n  year = {1966},\n  url = {https://www.osti.gov/biblio/4789465},\n}"
+          "bibtex": "@misc{gschneidner1966,\n  author = {Gschneidner, K. A. Jr.},\n  title = {Physical properties of the rare earth metals},\n  howpublished = {Trans. Vacuum Metallurgy Conf. 1965, Am. Vac. Soc.},\n  year = {1966},\n  url = {https://www.osti.gov/biblio/4789465},\n}"
         },
         "guo2011pnsmi": {
           "authors": "Guo, S. & Liu, C. T.",
@@ -7507,7 +7517,7 @@ font-family: 'Source Sans Pro'
           "year": 2011,
           "doi": "10.1016/S1002-0071(12)60080-X",
           "url": "https://doi.org/10.1016/S1002-0071(12)60080-X",
-          "bibtex": "@article{guo2011pnsmi,\n  author = {Guo, S. and Liu, C. T.},\n  title = {Phase stability in high entropy alloys: formation of solid-solution phase or amorphous phase},\n  journal = {Prog. Nat. Sci.: Mater. Int. 21, 433},\n  year = {2011},\n  doi = {10.1016/S1002-0071(12)60080-X},\n}"
+          "bibtex": "@article{guo2011pnsmi,\n  author = {Guo, S. and Liu, C. T.},\n  title = {Phase stability in high entropy alloys: formation of solid-solution phase or amorphous phase},\n  journal = {Prog. Nat. Sci.: Mater. Int.},\n  volume = {21},\n  pages = {433},\n  year = {2011},\n  doi = {10.1016/S1002-0071(12)60080-X},\n}"
         },
         "guo2011vec": {
           "authors": "Guo, S., Ng, C., Lu, J. & Liu, C. T.",
@@ -7516,16 +7526,16 @@ font-family: 'Source Sans Pro'
           "year": 2011,
           "doi": "10.1063/1.3587228",
           "url": "https://doi.org/10.1063/1.3587228",
-          "bibtex": "@article{guo2011vec,\n  author = {Guo, S., Ng, C., Lu, J. and Liu, C. T.},\n  title = {Effect of valence electron concentration on stability of fcc or bcc phase in high entropy alloys},\n  journal = {J. Appl. Phys. 109, 103505},\n  year = {2011},\n  doi = {10.1063/1.3587228},\n}"
+          "bibtex": "@article{guo2011vec,\n  author = {Guo, S. and Ng, C. and Lu, J. and Liu, C. T.},\n  title = {Effect of valence electron concentration on stability of fcc or bcc phase in high entropy alloys},\n  journal = {J. Appl. Phys.},\n  volume = {109},\n  pages = {103505},\n  year = {2011},\n  doi = {10.1063/1.3587228},\n}"
         },
         "heabench2026": {
-          "authors": "Fieser, D.",
-          "title": "HEA-Bench: an open, parity-tested calculator of high-entropy alloy and oxide descriptors",
+          "authors": "Fieser, D., Dewanjee, U. & Hu, A.",
+          "title": "HEA-Bench: An AI-Agent-Optimized Calculator of High-Entropy Alloy and Oxide Descriptors and Phase-Prediction Rules",
           "venue": "Materials 19, 3075",
           "year": 2026,
           "doi": "10.3390/ma19143075",
           "url": "https://doi.org/10.3390/ma19143075",
-          "bibtex": "@article{heabench2026,\n  author = {Fieser, D.},\n  title = {HEA-Bench: an open, parity-tested calculator of high-entropy alloy and oxide descriptors},\n  journal = {Materials 19, 3075},\n  year = {2026},\n  doi = {10.3390/ma19143075},\n}"
+          "bibtex": "@article{heabench2026,\n  author = {Fieser, David and Dewanjee, Unmanaa and Hu, Anming},\n  title = {{HEA-Bench}: An {AI}-Agent-Optimized Calculator of High-Entropy Alloy and Oxide Descriptors and Phase-Prediction Rules},\n  journal = {Materials},\n  volume = {19},\n  number = {14},\n  pages = {3075},\n  year = {2026},\n  issn = {1996-1944},\n  doi = {10.3390/ma19143075},\n  url = {https://www.mdpi.com/1996-1944/19/14/3075},\n}"
         },
         "housecroft2018": {
           "authors": "Housecroft, C. E. & Sharpe, A. G.",
@@ -7543,7 +7553,7 @@ font-family: 'Source Sans Pro'
           "year": 1934,
           "doi": "10.1524/zkri.1935.91.1.23",
           "url": "https://doi.org/10.1524/zkri.1935.91.1.23",
-          "bibtex": "@article{humerothery1934,\n  author = {Hume-Rothery, W. and Powell, H. M.},\n  title = {On the theory of super-lattice structures in alloys},\n  journal = {Z. Kristallogr. 91, 23},\n  year = {1934},\n  doi = {10.1524/zkri.1935.91.1.23},\n}"
+          "bibtex": "@article{humerothery1934,\n  author = {Hume-Rothery, W. and Powell, H. M.},\n  title = {On the theory of super-lattice structures in alloys},\n  journal = {Z. Kristallogr.},\n  volume = {91},\n  pages = {23},\n  year = {1934},\n  doi = {10.1524/zkri.1935.91.1.23},\n}"
         },
         "jiang2018": {
           "authors": "Jiang, S. et al.",
@@ -7552,7 +7562,7 @@ font-family: 'Source Sans Pro'
           "year": 2018,
           "doi": "10.1016/j.scriptamat.2017.08.040",
           "url": "https://doi.org/10.1016/j.scriptamat.2017.08.040",
-          "bibtex": "@article{jiang2018,\n  author = {Jiang, S. et al.},\n  title = {A new class of high-entropy perovskite oxides},\n  journal = {Scripta Mater. 142, 116},\n  year = {2018},\n  doi = {10.1016/j.scriptamat.2017.08.040},\n}"
+          "bibtex": "@article{jiang2018,\n  author = {Jiang, S. and others},\n  title = {A new class of high-entropy perovskite oxides},\n  journal = {Scripta Mater.},\n  volume = {142},\n  pages = {116},\n  year = {2018},\n  doi = {10.1016/j.scriptamat.2017.08.040},\n}"
         },
         "king2016": {
           "authors": "King, D. J. M., Middleburgh, S. C., McGregor, A. G. & Cortie, M. B.",
@@ -7561,7 +7571,7 @@ font-family: 'Source Sans Pro'
           "year": 2016,
           "doi": "10.1016/j.actamat.2015.11.040",
           "url": "https://doi.org/10.1016/j.actamat.2015.11.040",
-          "bibtex": "@article{king2016,\n  author = {King, D. J. M., Middleburgh, S. C., McGregor, A. G. and Cortie, M. B.},\n  title = {Predicting the formation and stability of single phase high-entropy alloys},\n  journal = {Acta Mater. 104, 172},\n  year = {2016},\n  doi = {10.1016/j.actamat.2015.11.040},\n}"
+          "bibtex": "@article{king2016,\n  author = {King, D. J. M. and Middleburgh, S. C. and McGregor, A. G. and Cortie, M. B.},\n  title = {Predicting the formation and stability of single phase high-entropy alloys},\n  journal = {Acta Mater.},\n  volume = {104},\n  pages = {172},\n  year = {2016},\n  doi = {10.1016/j.actamat.2015.11.040},\n}"
         },
         "koskenmaki1978": {
           "authors": "Koskenmaki, D. C. & Gschneidner, K. A., Jr.",
@@ -7570,7 +7580,7 @@ font-family: 'Source Sans Pro'
           "year": 1978,
           "doi": "10.1016/S0168-1273(78)01008-9",
           "url": "https://doi.org/10.1016/S0168-1273(78)01008-9",
-          "bibtex": "@article{koskenmaki1978,\n  author = {Koskenmaki, D. C. and Gschneidner, K. A., Jr.},\n  title = {Cerium (Handbook on the Physics and Chemistry of Rare Earths, Vol. 1, Ch. 4)},\n  journal = {North-Holland},\n  year = {1978},\n  doi = {10.1016/S0168-1273(78)01008-9},\n}"
+          "bibtex": "@misc{koskenmaki1978,\n  author = {Koskenmaki, D. C. and Gschneidner, K. A. Jr.},\n  title = {Cerium (Handbook on the Physics and Chemistry of Rare Earths, Vol. 1, Ch. 4)},\n  howpublished = {North-Holland},\n  year = {1978},\n  doi = {10.1016/S0168-1273(78)01008-9},\n}"
         },
         "la4003": {
           "authors": "Teatum, E. T., Gschneidner, K. A., Jr. & Waber, J. T.",
@@ -7579,7 +7589,7 @@ font-family: 'Source Sans Pro'
           "year": 1968,
           "doi": "",
           "url": "https://www.osti.gov/biblio/4789465",
-          "bibtex": "@misc{la4003,\n  author = {Teatum, E. T., Gschneidner, K. A., Jr. and Waber, J. T.},\n  title = {Compilation of calculated data useful in predicting metallurgical behavior of the elements in binary alloy systems},\n  howpublished = {Los Alamos report LA-4003 (supersedes LA-2345)},\n  year = {1968},\n  url = {https://www.osti.gov/biblio/4789465},\n}"
+          "bibtex": "@misc{la4003,\n  author = {Teatum, E. T. and Gschneidner, K. A. Jr. and Waber, J. T.},\n  title = {Compilation of calculated data useful in predicting metallurgical behavior of the elements in binary alloy systems},\n  howpublished = {Los Alamos report LA-4003 (supersedes LA-2345)},\n  year = {1968},\n  url = {https://www.osti.gov/biblio/4789465},\n}"
         },
         "loeff1988": {
           "authors": "Loeff, P. I., Weeber, A. W. & Miedema, A. R.",
@@ -7588,7 +7598,7 @@ font-family: 'Source Sans Pro'
           "year": 1988,
           "doi": "10.1016/0022-5088(88)90391-8",
           "url": "https://doi.org/10.1016/0022-5088(88)90391-8",
-          "bibtex": "@article{loeff1988,\n  author = {Loeff, P. I., Weeber, A. W. and Miedema, A. R.},\n  title = {Diagrams of formation enthalpies of amorphous alloys},\n  journal = {J. Less-Common Met. 140, 299},\n  year = {1988},\n  doi = {10.1016/0022-5088(88)90391-8},\n}"
+          "bibtex": "@article{loeff1988,\n  author = {Loeff, P. I. and Weeber, A. W. and Miedema, A. R.},\n  title = {Diagrams of formation enthalpies of amorphous alloys},\n  journal = {J. Less-Common Met.},\n  volume = {140},\n  pages = {299},\n  year = {1988},\n  doi = {10.1016/0022-5088(88)90391-8},\n}"
         },
         "manchon2025": {
           "authors": "Manchon-Gordon, A. F., Panadero-Medianero, P. & Blazquez, J. S.",
@@ -7597,7 +7607,7 @@ font-family: 'Source Sans Pro'
           "year": 2025,
           "doi": "10.3390/ma18163862",
           "url": "https://doi.org/10.3390/ma18163862",
-          "bibtex": "@article{manchon2025,\n  author = {Manchon-Gordon, A. F., Panadero-Medianero, P. and Blazquez, J. S.},\n  title = {Descriptors for predicting single- and multi-phase formation in high-entropy oxides},\n  journal = {Materials 18, 3862},\n  year = {2025},\n  doi = {10.3390/ma18163862},\n}"
+          "bibtex": "@article{manchon2025,\n  author = {Manchon-Gordon, A. F. and Panadero-Medianero, P. and Blazquez, J. S.},\n  title = {Descriptors for predicting single- and multi-phase formation in high-entropy oxides},\n  journal = {Materials},\n  volume = {18},\n  pages = {3862},\n  year = {2025},\n  doi = {10.3390/ma18163862},\n}"
         },
         "mansoori1971": {
           "authors": "Mansoori, G. A., Carnahan, N. F., Starling, K. E. & Leland, T. W.",
@@ -7606,7 +7616,7 @@ font-family: 'Source Sans Pro'
           "year": 1971,
           "doi": "10.1063/1.1675048",
           "url": "https://doi.org/10.1063/1.1675048",
-          "bibtex": "@article{mansoori1971,\n  author = {Mansoori, G. A., Carnahan, N. F., Starling, K. E. and Leland, T. W.},\n  title = {Equilibrium thermodynamic properties of the mixture of hard spheres},\n  journal = {J. Chem. Phys. 54, 1523},\n  year = {1971},\n  doi = {10.1063/1.1675048},\n}"
+          "bibtex": "@article{mansoori1971,\n  author = {Mansoori, G. A. and Carnahan, N. F. and Starling, K. E. and Leland, T. W.},\n  title = {Equilibrium thermodynamic properties of the mixture of hard spheres},\n  journal = {J. Chem. Phys.},\n  volume = {54},\n  pages = {1523},\n  year = {1971},\n  doi = {10.1063/1.1675048},\n}"
         },
         "matminer2018": {
           "authors": "Ward, L., Dunn, A., Faghaninia, A. et al.",
@@ -7615,7 +7625,7 @@ font-family: 'Source Sans Pro'
           "year": 2018,
           "doi": "10.1016/j.commatsci.2018.05.018",
           "url": "https://doi.org/10.1016/j.commatsci.2018.05.018",
-          "bibtex": "@article{matminer2018,\n  author = {Ward, L., Dunn, A., Faghaninia, A. et al.},\n  title = {Matminer: an open source toolkit for materials data mining},\n  journal = {Comput. Mater. Sci. 152, 60},\n  year = {2018},\n  doi = {10.1016/j.commatsci.2018.05.018},\n}"
+          "bibtex": "@article{matminer2018,\n  author = {Ward, L. and Dunn, A. and Faghaninia, A. and others},\n  title = {Matminer: an open source toolkit for materials data mining},\n  journal = {Comput. Mater. Sci.},\n  volume = {152},\n  pages = {60},\n  year = {2018},\n  doi = {10.1016/j.commatsci.2018.05.018},\n}"
         },
         "miedema1973": {
           "authors": "Miedema, A. R.",
@@ -7624,7 +7634,7 @@ font-family: 'Source Sans Pro'
           "year": 1973,
           "doi": "10.1016/0022-5088(73)90078-7",
           "url": "https://doi.org/10.1016/0022-5088(73)90078-7",
-          "bibtex": "@article{miedema1973,\n  author = {Miedema, A. R.},\n  title = {The electronegativity parameter for transition metals},\n  journal = {J. Less-Common Met. 32, 117},\n  year = {1973},\n  doi = {10.1016/0022-5088(73)90078-7},\n}"
+          "bibtex": "@article{miedema1973,\n  author = {Miedema, A. R.},\n  title = {The electronegativity parameter for transition metals},\n  journal = {J. Less-Common Met.},\n  volume = {32},\n  pages = {117},\n  year = {1973},\n  doi = {10.1016/0022-5088(73)90078-7},\n}"
         },
         "miedema1980": {
           "authors": "Miedema, A. R., de Chatel, P. F. & de Boer, F. R.",
@@ -7633,16 +7643,16 @@ font-family: 'Source Sans Pro'
           "year": 1980,
           "doi": "10.1016/0378-4363(80)90054-6",
           "url": "https://doi.org/10.1016/0378-4363(80)90054-6",
-          "bibtex": "@article{miedema1980,\n  author = {Miedema, A. R., de Chatel, P. F. and de Boer, F. R.},\n  title = {Cohesion in alloys - fundamentals of a semi-empirical model},\n  journal = {Physica B+C 100, 1},\n  year = {1980},\n  doi = {10.1016/0378-4363(80)90054-6},\n}"
+          "bibtex": "@article{miedema1980,\n  author = {Miedema, A. R. and de Chatel, P. F. and de Boer, F. R.},\n  title = {Cohesion in alloys - fundamentals of a semi-empirical model},\n  journal = {Physica B+C},\n  volume = {100},\n  pages = {1},\n  year = {1980},\n  doi = {10.1016/0378-4363(80)90054-6},\n}"
         },
         "ms2017": {
           "authors": "Miracle, D. B. & Senkov, O. N.",
           "title": "A critical review of high entropy alloys and related concepts",
-          "venue": "Acta Mater. 122, 448 (Table 3)",
+          "venue": "Acta Mater. 122, 448",
           "year": 2017,
           "doi": "10.1016/j.actamat.2016.08.081",
           "url": "https://doi.org/10.1016/j.actamat.2016.08.081",
-          "bibtex": "@article{ms2017,\n  author = {Miracle, D. B. and Senkov, O. N.},\n  title = {A critical review of high entropy alloys and related concepts},\n  journal = {Acta Mater. 122, 448 (Table 3)},\n  year = {2017},\n  doi = {10.1016/j.actamat.2016.08.081},\n}"
+          "bibtex": "@article{ms2017,\n  author = {Miracle, D. B. and Senkov, O. N.},\n  title = {A critical review of high entropy alloys and related concepts},\n  journal = {Acta Mater.},\n  volume = {122},\n  pages = {448},\n  year = {2017},\n  doi = {10.1016/j.actamat.2016.08.081},\n}"
         },
         "murty2019": {
           "authors": "Murty, B. S., Yeh, J.-W., Ranganathan, S. & Bhattacharjee, P. P.",
@@ -7651,7 +7661,7 @@ font-family: 'Source Sans Pro'
           "year": 2019,
           "doi": "10.1016/C2017-0-03317-7",
           "url": "https://doi.org/10.1016/C2017-0-03317-7",
-          "bibtex": "@article{murty2019,\n  author = {Murty, B. S., Yeh, J.-W., Ranganathan, S. and Bhattacharjee, P. P.},\n  title = {High-Entropy Alloys (2nd ed.)},\n  journal = {Elsevier},\n  year = {2019},\n  doi = {10.1016/C2017-0-03317-7},\n}"
+          "bibtex": "@misc{murty2019,\n  author = {Murty, B. S. and Yeh, J.-W. and Ranganathan, S. and Bhattacharjee, P. P.},\n  title = {High-Entropy Alloys (2nd ed.)},\n  howpublished = {Elsevier},\n  year = {2019},\n  doi = {10.1016/C2017-0-03317-7},\n}"
         },
         "niessen1983": {
           "authors": "Niessen, A. K. et al.",
@@ -7660,7 +7670,7 @@ font-family: 'Source Sans Pro'
           "year": 1983,
           "doi": "10.1016/0364-5916(83)90030-5",
           "url": "https://doi.org/10.1016/0364-5916(83)90030-5",
-          "bibtex": "@article{niessen1983,\n  author = {Niessen, A. K. et al.},\n  title = {Model predictions for the enthalpy of formation of transition metal alloys II},\n  journal = {CALPHAD 7, 51},\n  year = {1983},\n  doi = {10.1016/0364-5916(83)90030-5},\n}"
+          "bibtex": "@article{niessen1983,\n  author = {Niessen, A. K. and others},\n  title = {Model predictions for the enthalpy of formation of transition metal alloys II},\n  journal = {CALPHAD},\n  volume = {7},\n  pages = {51},\n  year = {1983},\n  doi = {10.1016/0364-5916(83)90030-5},\n}"
         },
         "pauling1960": {
           "authors": "Pauling, L.",
@@ -7678,7 +7688,7 @@ font-family: 'Source Sans Pro'
           "year": 2016,
           "doi": "10.1080/09506608.2016.1180020",
           "url": "https://doi.org/10.1080/09506608.2016.1180020",
-          "bibtex": "@article{pickering2016,\n  author = {Pickering, E. J. and Jones, N. G.},\n  title = {High-entropy alloys: a critical assessment of their founding principles and future prospects},\n  journal = {Int. Mater. Rev. 61, 183},\n  year = {2016},\n  doi = {10.1080/09506608.2016.1180020},\n}"
+          "bibtex": "@article{pickering2016,\n  author = {Pickering, E. J. and Jones, N. G.},\n  title = {High-entropy alloys: a critical assessment of their founding principles and future prospects},\n  journal = {Int. Mater. Rev.},\n  volume = {61},\n  pages = {183},\n  year = {2016},\n  doi = {10.1080/09506608.2016.1180020},\n}"
         },
         "rost2015": {
           "authors": "Rost, C. M. et al.",
@@ -7687,7 +7697,7 @@ font-family: 'Source Sans Pro'
           "year": 2015,
           "doi": "10.1038/ncomms9485",
           "url": "https://doi.org/10.1038/ncomms9485",
-          "bibtex": "@article{rost2015,\n  author = {Rost, C. M. et al.},\n  title = {Entropy-stabilized oxides},\n  journal = {Nat. Commun. 6, 8485},\n  year = {2015},\n  doi = {10.1038/ncomms9485},\n}"
+          "bibtex": "@article{rost2015,\n  author = {Rost, C. M. and others},\n  title = {Entropy-stabilized oxides},\n  journal = {Nat. Commun.},\n  volume = {6},\n  pages = {8485},\n  year = {2015},\n  doi = {10.1038/ncomms9485},\n}"
         },
         "senkov2010": {
           "authors": "Senkov, O. N., Wilks, G. B., Miracle, D. B., Chuang, C. P. & Liaw, P. K.",
@@ -7696,7 +7706,7 @@ font-family: 'Source Sans Pro'
           "year": 2010,
           "doi": "10.1016/j.intermet.2010.05.014",
           "url": "https://doi.org/10.1016/j.intermet.2010.05.014",
-          "bibtex": "@article{senkov2010,\n  author = {Senkov, O. N., Wilks, G. B., Miracle, D. B., Chuang, C. P. and Liaw, P. K.},\n  title = {Refractory high-entropy alloys},\n  journal = {Intermetallics 18, 1758},\n  year = {2010},\n  doi = {10.1016/j.intermet.2010.05.014},\n}"
+          "bibtex": "@article{senkov2010,\n  author = {Senkov, O. N. and Wilks, G. B. and Miracle, D. B. and Chuang, C. P. and Liaw, P. K.},\n  title = {Refractory high-entropy alloys},\n  journal = {Intermetallics},\n  volume = {18},\n  pages = {1758},\n  year = {2010},\n  doi = {10.1016/j.intermet.2010.05.014},\n}"
         },
         "senkov2016": {
           "authors": "Senkov, O. N. & Miracle, D. B.",
@@ -7705,7 +7715,7 @@ font-family: 'Source Sans Pro'
           "year": 2016,
           "doi": "10.1016/j.jallcom.2015.10.279",
           "url": "https://doi.org/10.1016/j.jallcom.2015.10.279",
-          "bibtex": "@article{senkov2016,\n  author = {Senkov, O. N. and Miracle, D. B.},\n  title = {A new thermodynamic parameter to predict formation of solid solution or intermetallic phases in high entropy alloys},\n  journal = {J. Alloys Compd. 658, 603},\n  year = {2016},\n  doi = {10.1016/j.jallcom.2015.10.279},\n}"
+          "bibtex": "@article{senkov2016,\n  author = {Senkov, O. N. and Miracle, D. B.},\n  title = {A new thermodynamic parameter to predict formation of solid solution or intermetallic phases in high entropy alloys},\n  journal = {J. Alloys Compd.},\n  volume = {658},\n  pages = {603},\n  year = {2016},\n  doi = {10.1016/j.jallcom.2015.10.279},\n}"
         },
         "senkovmiracle2001": {
           "authors": "Senkov, O. N. & Miracle, D. B.",
@@ -7714,7 +7724,7 @@ font-family: 'Source Sans Pro'
           "year": 2001,
           "doi": "10.1016/S0025-5408(01)00715-2",
           "url": "https://doi.org/10.1016/S0025-5408(01)00715-2",
-          "bibtex": "@article{senkovmiracle2001,\n  author = {Senkov, O. N. and Miracle, D. B.},\n  title = {Effect of the atomic size distribution on glass forming ability of amorphous metallic alloys},\n  journal = {Mater. Res. Bull. 36, 2183},\n  year = {2001},\n  doi = {10.1016/S0025-5408(01)00715-2},\n}"
+          "bibtex": "@article{senkovmiracle2001,\n  author = {Senkov, O. N. and Miracle, D. B.},\n  title = {Effect of the atomic size distribution on glass forming ability of amorphous metallic alloys},\n  journal = {Mater. Res. Bull.},\n  volume = {36},\n  pages = {2183},\n  year = {2001},\n  doi = {10.1016/S0025-5408(01)00715-2},\n}"
         },
         "shannon1976": {
           "authors": "Shannon, R. D.",
@@ -7723,7 +7733,7 @@ font-family: 'Source Sans Pro'
           "year": 1976,
           "doi": "10.1107/S0567739476001551",
           "url": "https://doi.org/10.1107/S0567739476001551",
-          "bibtex": "@article{shannon1976,\n  author = {Shannon, R. D.},\n  title = {Revised effective ionic radii and systematic studies of interatomic distances in halides and chalcogenides},\n  journal = {Acta Crystallogr. A 32, 751},\n  year = {1976},\n  doi = {10.1107/S0567739476001551},\n}"
+          "bibtex": "@article{shannon1976,\n  author = {Shannon, R. D.},\n  title = {Revised effective ionic radii and systematic studies of interatomic distances in halides and chalcogenides},\n  journal = {Acta Crystallogr. A},\n  volume = {32},\n  pages = {751},\n  year = {1976},\n  doi = {10.1107/S0567739476001551},\n}"
         },
         "sheikh2016": {
           "authors": "Sheikh, S., Shafeie, S., Hu, Q., Ahlstrom, J., Persson, C., Vesely, J., Zyka, J., Klement, U. & Guo, S.",
@@ -7732,7 +7742,7 @@ font-family: 'Source Sans Pro'
           "year": 2016,
           "doi": "10.1063/1.4966659",
           "url": "https://doi.org/10.1063/1.4966659",
-          "bibtex": "@article{sheikh2016,\n  author = {Sheikh, S., Shafeie, S., Hu, Q., Ahlstrom, J., Persson, C., Vesely, J., Zyka, J., Klement, U. and Guo, S.},\n  title = {Alloy design for intrinsically ductile refractory high-entropy alloys},\n  journal = {J. Appl. Phys. 120, 164902},\n  year = {2016},\n  doi = {10.1063/1.4966659},\n}"
+          "bibtex": "@article{sheikh2016,\n  author = {Sheikh, S. and Shafeie, S. and Hu, Q. and Ahlstrom, J. and Persson, C. and Vesely, J. and Zyka, J. and Klement, U. and Guo, S.},\n  title = {Alloy design for intrinsically ductile refractory high-entropy alloys},\n  journal = {J. Appl. Phys.},\n  volume = {120},\n  pages = {164902},\n  year = {2016},\n  doi = {10.1063/1.4966659},\n}"
         },
         "singh2014": {
           "authors": "Singh, A. K., Kumar, N., Dwivedi, A. & Subramaniam, A.",
@@ -7741,7 +7751,7 @@ font-family: 'Source Sans Pro'
           "year": 2014,
           "doi": "10.1016/j.intermet.2014.04.019",
           "url": "https://doi.org/10.1016/j.intermet.2014.04.019",
-          "bibtex": "@article{singh2014,\n  author = {Singh, A. K., Kumar, N., Dwivedi, A. and Subramaniam, A.},\n  title = {A geometrical parameter for the formation of disordered solid solutions in multi-component alloys},\n  journal = {Intermetallics 53, 112},\n  year = {2014},\n  doi = {10.1016/j.intermet.2014.04.019},\n}"
+          "bibtex": "@article{singh2014,\n  author = {Singh, A. K. and Kumar, N. and Dwivedi, A. and Subramaniam, A.},\n  title = {A geometrical parameter for the formation of disordered solid solutions in multi-component alloys},\n  journal = {Intermetallics},\n  volume = {53},\n  pages = {112},\n  year = {2014},\n  doi = {10.1016/j.intermet.2014.04.019},\n}"
         },
         "spiridigliozzi2021": {
           "authors": "Spiridigliozzi, L., Ferone, C., Cioffi, R. & Dell'Agli, G.",
@@ -7750,7 +7760,7 @@ font-family: 'Source Sans Pro'
           "year": 2021,
           "doi": "10.1016/j.actamat.2020.10.061",
           "url": "https://doi.org/10.1016/j.actamat.2020.10.061",
-          "bibtex": "@article{spiridigliozzi2021,\n  author = {Spiridigliozzi, L., Ferone, C., Cioffi, R. and Dell'Agli, G.},\n  title = {A simple and effective predictor to design novel fluorite-structured high entropy oxides (HEOs)},\n  journal = {Acta Mater. 202, 181},\n  year = {2021},\n  doi = {10.1016/j.actamat.2020.10.061},\n}"
+          "bibtex": "@article{spiridigliozzi2021,\n  author = {Spiridigliozzi, L. and Ferone, C. and Cioffi, R. and Dell'Agli, G.},\n  title = {A simple and effective predictor to design novel fluorite-structured high entropy oxides (HEOs)},\n  journal = {Acta Mater.},\n  volume = {202},\n  pages = {181},\n  year = {2021},\n  doi = {10.1016/j.actamat.2020.10.061},\n}"
         },
         "spiridigliozzi2023": {
           "authors": "Spiridigliozzi, L., Bortolotti, M. & Dell'Agli, G.",
@@ -7759,7 +7769,7 @@ font-family: 'Source Sans Pro'
           "year": 2023,
           "doi": "10.3390/ma16062219",
           "url": "https://doi.org/10.3390/ma16062219",
-          "bibtex": "@article{spiridigliozzi2023,\n  author = {Spiridigliozzi, L., Bortolotti, M. and Dell'Agli, G.},\n  title = {On the effect of standard deviation of cationic radii on the transition temperature in fluorite-structured entropy-stabilized oxides},\n  journal = {Materials 16, 2219},\n  year = {2023},\n  doi = {10.3390/ma16062219},\n}"
+          "bibtex": "@article{spiridigliozzi2023,\n  author = {Spiridigliozzi, L. and Bortolotti, M. and Dell'Agli, G.},\n  title = {On the effect of standard deviation of cationic radii on the transition temperature in fluorite-structured entropy-stabilized oxides},\n  journal = {Materials},\n  volume = {16},\n  pages = {2219},\n  year = {2023},\n  doi = {10.3390/ma16062219},\n}"
         },
         "subramanian1983": {
           "authors": "Subramanian, M. A., Aravamudan, G. & Subba Rao, G. V.",
@@ -7768,7 +7778,7 @@ font-family: 'Source Sans Pro'
           "year": 1983,
           "doi": "10.1016/0079-6786(83)90001-8",
           "url": "https://doi.org/10.1016/0079-6786(83)90001-8",
-          "bibtex": "@article{subramanian1983,\n  author = {Subramanian, M. A., Aravamudan, G. and Subba Rao, G. V.},\n  title = {Oxide pyrochlores - a review},\n  journal = {Prog. Solid State Chem. 15, 55},\n  year = {1983},\n  doi = {10.1016/0079-6786(83)90001-8},\n}"
+          "bibtex": "@article{subramanian1983,\n  author = {Subramanian, M. A. and Aravamudan, G. and Subba Rao, G. V.},\n  title = {Oxide pyrochlores - a review},\n  journal = {Prog. Solid State Chem.},\n  volume = {15},\n  pages = {55},\n  year = {1983},\n  doi = {10.1016/0079-6786(83)90001-8},\n}"
         },
         "takeuchi2000": {
           "authors": "Takeuchi, A. & Inoue, A.",
@@ -7777,7 +7787,7 @@ font-family: 'Source Sans Pro'
           "year": 2000,
           "doi": "10.2320/matertrans1989.41.1372",
           "url": "https://doi.org/10.2320/matertrans1989.41.1372",
-          "bibtex": "@article{takeuchi2000,\n  author = {Takeuchi, A. and Inoue, A.},\n  title = {Calculations of mixing enthalpy and mismatch entropy for ternary amorphous alloys},\n  journal = {Mater. Trans. JIM 41, 1372},\n  year = {2000},\n  doi = {10.2320/matertrans1989.41.1372},\n}"
+          "bibtex": "@article{takeuchi2000,\n  author = {Takeuchi, A. and Inoue, A.},\n  title = {Calculations of mixing enthalpy and mismatch entropy for ternary amorphous alloys},\n  journal = {Mater. Trans. JIM},\n  volume = {41},\n  pages = {1372},\n  year = {2000},\n  doi = {10.2320/matertrans1989.41.1372},\n}"
         },
         "takeuchi2005": {
           "authors": "Takeuchi, A. & Inoue, A.",
@@ -7786,7 +7796,7 @@ font-family: 'Source Sans Pro'
           "year": 2005,
           "doi": "10.2320/matertrans.46.2817",
           "url": "https://doi.org/10.2320/matertrans.46.2817",
-          "bibtex": "@article{takeuchi2005,\n  author = {Takeuchi, A. and Inoue, A.},\n  title = {Classification of bulk metallic glasses by atomic size difference, heat of mixing and period of constituent elements},\n  journal = {Mater. Trans. 46, 2817},\n  year = {2005},\n  doi = {10.2320/matertrans.46.2817},\n}"
+          "bibtex": "@article{takeuchi2005,\n  author = {Takeuchi, A. and Inoue, A.},\n  title = {Classification of bulk metallic glasses by atomic size difference, heat of mixing and period of constituent elements},\n  journal = {Mater. Trans.},\n  volume = {46},\n  pages = {2817},\n  year = {2005},\n  doi = {10.2320/matertrans.46.2817},\n}"
         },
         "tsai2013": {
           "authors": "Tsai, M.-H., Tsai, K.-Y., Tsai, C.-W., Lee, C., Juan, C.-C. & Yeh, J.-W.",
@@ -7795,7 +7805,7 @@ font-family: 'Source Sans Pro'
           "year": 2013,
           "doi": "10.1080/21663831.2013.831382",
           "url": "https://doi.org/10.1080/21663831.2013.831382",
-          "bibtex": "@article{tsai2013,\n  author = {Tsai, M.-H., Tsai, K.-Y., Tsai, C.-W., Lee, C., Juan, C.-C. and Yeh, J.-W.},\n  title = {Criterion for sigma phase formation in Cr- and V-containing high-entropy alloys},\n  journal = {Mater. Res. Lett. 1, 207},\n  year = {2013},\n  doi = {10.1080/21663831.2013.831382},\n}"
+          "bibtex": "@article{tsai2013,\n  author = {Tsai, M.-H. and Tsai, K.-Y. and Tsai, C.-W. and Lee, C. and Juan, C.-C. and Yeh, J.-W.},\n  title = {Criterion for sigma phase formation in Cr- and V-containing high-entropy alloys},\n  journal = {Mater. Res. Lett.},\n  volume = {1},\n  pages = {207},\n  year = {2013},\n  doi = {10.1080/21663831.2013.831382},\n}"
         },
         "wang2015": {
           "authors": "Wang, Z., Huang, Y., Yang, Y., Wang, J. & Liu, C. T.",
@@ -7804,7 +7814,7 @@ font-family: 'Source Sans Pro'
           "year": 2015,
           "doi": "10.1016/j.scriptamat.2014.09.010",
           "url": "https://doi.org/10.1016/j.scriptamat.2014.09.010",
-          "bibtex": "@article{wang2015,\n  author = {Wang, Z., Huang, Y., Yang, Y., Wang, J. and Liu, C. T.},\n  title = {Atomic-size effect and solid solubility of multicomponent alloys},\n  journal = {Scripta Mater. 94, 28},\n  year = {2015},\n  doi = {10.1016/j.scriptamat.2014.09.010},\n}"
+          "bibtex": "@article{wang2015,\n  author = {Wang, Z. and Huang, Y. and Yang, Y. and Wang, J. and Liu, C. T.},\n  title = {Atomic-size effect and solid solubility of multicomponent alloys},\n  journal = {Scripta Mater.},\n  volume = {94},\n  pages = {28},\n  year = {2015},\n  doi = {10.1016/j.scriptamat.2014.09.010},\n}"
         },
         "yang2012": {
           "authors": "Yang, X. & Zhang, Y.",
@@ -7813,7 +7823,7 @@ font-family: 'Source Sans Pro'
           "year": 2012,
           "doi": "10.1016/j.matchemphys.2011.11.021",
           "url": "https://doi.org/10.1016/j.matchemphys.2011.11.021",
-          "bibtex": "@article{yang2012,\n  author = {Yang, X. and Zhang, Y.},\n  title = {Prediction of high-entropy stabilized solid-solution in multi-component alloys},\n  journal = {Mater. Chem. Phys. 132, 233},\n  year = {2012},\n  doi = {10.1016/j.matchemphys.2011.11.021},\n}"
+          "bibtex": "@article{yang2012,\n  author = {Yang, X. and Zhang, Y.},\n  title = {Prediction of high-entropy stabilized solid-solution in multi-component alloys},\n  journal = {Mater. Chem. Phys.},\n  volume = {132},\n  pages = {233},\n  year = {2012},\n  doi = {10.1016/j.matchemphys.2011.11.021},\n}"
         },
         "ye2015phi": {
           "authors": "Ye, Y. F., Wang, Q., Lu, J., Liu, C. T. & Yang, Y.",
@@ -7822,7 +7832,7 @@ font-family: 'Source Sans Pro'
           "year": 2015,
           "doi": "10.1016/j.scriptamat.2015.03.023",
           "url": "https://doi.org/10.1016/j.scriptamat.2015.03.023",
-          "bibtex": "@article{ye2015phi,\n  author = {Ye, Y. F., Wang, Q., Lu, J., Liu, C. T. and Yang, Y.},\n  title = {Design of high entropy alloys: a single-parameter thermodynamic rule},\n  journal = {Scripta Mater. 104, 53},\n  year = {2015},\n  doi = {10.1016/j.scriptamat.2015.03.023},\n}"
+          "bibtex": "@article{ye2015phi,\n  author = {Ye, Y. F. and Wang, Q. and Lu, J. and Liu, C. T. and Yang, Y.},\n  title = {Design of high entropy alloys: a single-parameter thermodynamic rule},\n  journal = {Scripta Mater.},\n  volume = {104},\n  pages = {53},\n  year = {2015},\n  doi = {10.1016/j.scriptamat.2015.03.023},\n}"
         },
         "yeh2004": {
           "authors": "Yeh, J.-W. et al.",
@@ -7831,16 +7841,16 @@ font-family: 'Source Sans Pro'
           "year": 2004,
           "doi": "10.1002/adem.200300567",
           "url": "https://doi.org/10.1002/adem.200300567",
-          "bibtex": "@article{yeh2004,\n  author = {Yeh, J.-W. et al.},\n  title = {Nanostructured high-entropy alloys with multiple principal elements},\n  journal = {Adv. Eng. Mater. 6, 299},\n  year = {2004},\n  doi = {10.1002/adem.200300567},\n}"
+          "bibtex": "@article{yeh2004,\n  author = {Yeh, J.-W. and others},\n  title = {Nanostructured high-entropy alloys with multiple principal elements},\n  journal = {Adv. Eng. Mater.},\n  volume = {6},\n  pages = {299},\n  year = {2004},\n  doi = {10.1002/adem.200300567},\n}"
         },
         "zenodo": {
-          "authors": "Fieser, D.",
+          "authors": "Fieser, D., Dewanjee, U. & Hu, A.",
           "title": "HEA-Bench (all versions)",
           "venue": "Zenodo concept record",
           "year": 2026,
           "doi": "10.5281/zenodo.20346287",
           "url": "https://doi.org/10.5281/zenodo.20346287",
-          "bibtex": "@article{zenodo,\n  author = {Fieser, D.},\n  title = {HEA-Bench (all versions)},\n  journal = {Zenodo concept record},\n  year = {2026},\n  doi = {10.5281/zenodo.20346287},\n}"
+          "bibtex": "@software{heabench_zenodo,\n  author = {Fieser, David and Dewanjee, Unmanaa and Hu, Anming},\n  title = {{HEA-Bench}},\n  publisher = {Zenodo},\n  year = {2026},\n  doi = {10.5281/zenodo.20346287},\n  note = {Concept DOI; resolves to the latest archived version},\n}"
         },
         "zhang2008": {
           "authors": "Zhang, Y., Zhou, Y. J., Lin, J. P., Chen, G. L. & Liaw, P. K.",
@@ -7849,7 +7859,7 @@ font-family: 'Source Sans Pro'
           "year": 2008,
           "doi": "10.1002/adem.200700240",
           "url": "https://doi.org/10.1002/adem.200700240",
-          "bibtex": "@article{zhang2008,\n  author = {Zhang, Y., Zhou, Y. J., Lin, J. P., Chen, G. L. and Liaw, P. K.},\n  title = {Solid-solution phase formation rules for multi-component alloys},\n  journal = {Adv. Eng. Mater. 10, 534},\n  year = {2008},\n  doi = {10.1002/adem.200700240},\n}"
+          "bibtex": "@article{zhang2008,\n  author = {Zhang, Y. and Zhou, Y. J. and Lin, J. P. and Chen, G. L. and Liaw, P. K.},\n  title = {Solid-solution phase formation rules for multi-component alloys},\n  journal = {Adv. Eng. Mater.},\n  volume = {10},\n  pages = {534},\n  year = {2008},\n  doi = {10.1002/adem.200700240},\n}"
         },
         "zhang2014pms": {
           "authors": "Zhang, Y. et al.",
@@ -7858,7 +7868,7 @@ font-family: 'Source Sans Pro'
           "year": 2014,
           "doi": "10.1016/j.pmatsci.2013.10.001",
           "url": "https://doi.org/10.1016/j.pmatsci.2013.10.001",
-          "bibtex": "@article{zhang2014pms,\n  author = {Zhang, Y. et al.},\n  title = {Microstructures and properties of high-entropy alloys},\n  journal = {Prog. Mater. Sci. 61, 1},\n  year = {2014},\n  doi = {10.1016/j.pmatsci.2013.10.001},\n}"
+          "bibtex": "@article{zhang2014pms,\n  author = {Zhang, Y. and others},\n  title = {Microstructures and properties of high-entropy alloys},\n  journal = {Prog. Mater. Sci.},\n  volume = {61},\n  pages = {1},\n  year = {2014},\n  doi = {10.1016/j.pmatsci.2013.10.001},\n}"
         },
         "zhangrf2016": {
           "authors": "Zhang, R. F., Zhang, S. H., He, Z. J., Jing, J. & Sheng, S. H.",
@@ -7867,7 +7877,7 @@ font-family: 'Source Sans Pro'
           "year": 2016,
           "doi": "10.1016/j.cpc.2016.08.013",
           "url": "https://doi.org/10.1016/j.cpc.2016.08.013",
-          "bibtex": "@article{zhangrf2016,\n  author = {Zhang, R. F., Zhang, S. H., He, Z. J., Jing, J. and Sheng, S. H.},\n  title = {Miedema Calculator: a thermodynamic platform for predicting formation enthalpies},\n  journal = {Comput. Phys. Commun. 209, 58},\n  year = {2016},\n  doi = {10.1016/j.cpc.2016.08.013},\n}"
+          "bibtex": "@article{zhangrf2016,\n  author = {Zhang, R. F. and Zhang, S. H. and He, Z. J. and Jing, J. and Sheng, S. H.},\n  title = {Miedema Calculator: a thermodynamic platform for predicting formation enthalpies},\n  journal = {Comput. Phys. Commun.},\n  volume = {209},\n  pages = {58},\n  year = {2016},\n  doi = {10.1016/j.cpc.2016.08.013},\n}"
         }
       };
       const ELEMENT_SOURCES_JS = {
@@ -8372,12 +8382,12 @@ font-family: 'Source Sans Pro'
         }
       };
       const DATA_FILE_SHAS = {
-        "elemental.py": "da35e1879c86251cd188e250e470ccc214d97f6d3e97efd09b7a3e0a6d23621b",
+        "elemental.py": "e293a598898caa3d4761742ac47ff427a0a5a6af549c0cade15582f82fa75ca8",
         "pair_enthalpies.tsv": "5b461ab99d7605fb8b306bda9cfe047b266ffa3e67387cb4b0ffeccaf57a5f48",
         "miedema_parameters.csv": "ef6e1dccc347628a52725b13752c9c311c522b463a08e46f87febfbd379202a3",
-        "provenance.py": "1da372897c721a3020414ee574f9b532af62e6dd92f27e6675eb72dc2b7295e0"
+        "provenance.py": "14f918996f9feb49cdbb56dd115f2faea0ecb78effee633c35e01b1cd88220cd"
       };
-      const DATA_TABLES_SHORT_SHA = "e440d0a9";
+      const DATA_TABLES_SHORT_SHA = "2a049f11";
       // END GENERATED: PROVENANCE_TABLES
 
       const MIEDEMA_PARAMS = {
@@ -9842,7 +9852,7 @@ font-family: 'Source Sans Pro'
       /** Get the auto-computed default value for a pair. */
       function getDefaultPairEnthalpy(key) {
         if (Object.prototype.hasOwnProperty.call(calcCore.PAIR_ENTHALPIES, key)) {
-          return { value: calcCore.PAIR_ENTHALPIES[key], source: "hea_bench" };
+          return { value: calcCore.PAIR_ENTHALPIES[key], source: "miedema" };
         }
         return null;
       }
@@ -9884,8 +9894,8 @@ font-family: 'Source Sans Pro'
             let sourceLabel = "";
             if (edited !== undefined) {
               sourceLabel = `<span class="pair-source pair-source-manual" title="User-entered value">manual</span>`;
-            } else if (source === "hea_bench") {
-              sourceLabel = `<span class="pair-source pair-source-miedema" title="Vendored pair table from the Python library">hea-bench</span>`;
+            } else if (source === "miedema") {
+              sourceLabel = `<span class="pair-source pair-source-miedema" title="Miedema-model value: de Boer et al. (1988), digitized by matminer; provenance in the Data view">Miedema</span>`;
             }
 
             rows.push(`
@@ -10953,6 +10963,13 @@ font-family: 'Source Sans Pro'
         return `<ul class="prov-refs">${items}</ul>`;
       }
 
+      function escapeHtmlText(text) {
+        // TeX riding through innerHTML: "<" (e.g. \sum_{i<j}) must not
+        // open an HTML tag, or the math delimiters get eaten before
+        // MathJax ever sees them.
+        return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      }
+
       function openProvenance(title, invoker) {
         const entry = PROV_REGISTRY[title];
         const drawer = document.getElementById("prov-drawer");
@@ -10970,7 +10987,7 @@ font-family: 'Source Sans Pro'
         const body = document.getElementById("prov-drawer-body");
         body.innerHTML =
           (valueText ? `<div class="prov-sec"><h4>Value</h4><div class="prov-value">${valueText}<span class="prov-units">${unitsText}</span></div></div>` : "") +
-          (entry.eq ? `<div class="prov-sec"><h4>Equation</h4><div class="prov-eq">\\[${entry.eq}\\]</div></div>` : "") +
+          (entry.eq ? `<div class="prov-sec"><h4>Equation</h4><div class="prov-eq">\\[${escapeHtmlText(entry.eq)}\\]</div></div>` : "") +
           `<div class="prov-sec"><h4>Inputs used</h4>${provInputsHtml(entry)}</div>` +
           `<div class="prov-sec"><h4>Interpretation</h4><p class="prov-note">${entry.interp || ""}</p></div>` +
           `<div class="prov-sec"><h4>Sources</h4>${provRefsHtml(entry)}` +
@@ -11172,14 +11189,14 @@ font-family: 'Source Sans Pro'
         return "HEA-Bench v" + VERSION + " (browser app), result " + citeState.id +
           (citeState.permalink ? ", " + citeState.permalink : "") +
           ", retrieved " + today + ". Software archive: doi:" + CONCEPT_DOI +
-          ". Descriptor definitions: Fieser (2026), Materials 19, 3075, doi:" + PAPER_DOI + ".";
+          ". Descriptor definitions: Fieser, Dewanjee & Hu (2026), Materials 19, 3075, doi:" + PAPER_DOI + ".";
       }
 
       function citationBibtex() {
         if (!citeState) return "";
         const today = new Date().toISOString().slice(0, 10);
         const softwareEntry = "@software{heabench_v" + VERSION.replace(/\./g, "_") + ",\n" +
-          "  author = {Fieser, D.},\n" +
+          "  author = {Fieser, David and Dewanjee, Unmanaa and Hu, Anming},\n" +
           "  title = {HEA-Bench (browser app)},\n" +
           "  version = {" + VERSION + "},\n" +
           "  doi = {" + CONCEPT_DOI + "},\n" +
