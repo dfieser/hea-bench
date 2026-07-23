@@ -52,6 +52,9 @@ hb.phi_ye(cantor)      # 34.822 (Ye 2015 proxy)
 | Ye lowercase φ | `hb.phi_ye(comp)` | dimensionless |
 | Electronegativity mismatch Δχ | `hb.delta_chi(comp)` | Pauling scale |
 | Mean electronegativity χ̄ | `hb.mean_electronegativity(comp)` | Pauling scale |
+| Singh Λ = ΔS/δ² | `hb.singh_lambda(comp)` | J/(mol·K·%²) |
+| Wang solid-angle γ | `hb.wang_gamma(comp)` | dimensionless |
+| Andreoli elastic-strain ΔH_el | `hb.h_elastic(comp)` | kJ/mol (None if data missing) |
 
 ## Rules
 
@@ -63,6 +66,9 @@ hb.phi_ye(cantor)      # 34.822 (Ye 2015 proxy)
 | `rules.yang_omega` | single-phase / multi-phase | Ω > 1.1 |
 | `rules.king_phi` | solid_solution / intermetallic | Φ > 1.0 |
 | `rules.ye_phi` | solid_solution / intermetallic | φ > 20.0 |
+| `rules.senkov_kappa` | solid_solution / intermetallic at T | k₁ < k₁ᶜʳ(T), k₂ = 0.6 |
+| `rules.tsai_sigma` | sigma_prone / sigma_unlikely / not_applicable | Cr/V and 6.88 ≤ VEC ≤ 7.84 |
+| `rules.sheikh_ductility` | ductile / brittle / borderline | VEC < 4.5 / ≥ 4.6 (bcc RHEAs) |
 
 The rules are weak, semi-empirical screens (calibrated on small
 historical datasets); do not treat a single prediction as ground truth.

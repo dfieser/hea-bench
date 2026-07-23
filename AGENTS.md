@@ -83,6 +83,9 @@ return a float.
 | `hb.phi_ye(comp)` | Ye lowercase `phi` | dimensionless | uses `s_excess(comp)` |
 | `hb.delta_chi(comp)` | electronegativity mismatch Δχ | Pauling scale | composition-weighted std |
 | `hb.mean_electronegativity(comp)` | mean Pauling electronegativity | Pauling scale | linear mean |
+| `hb.singh_lambda(comp)` | Singh Λ = ΔS/δ² | J/(mol·K·%²) | `math.inf` when δ = 0 |
+| `hb.wang_gamma(comp)` | Wang solid-angle γ | dimensionless | 1.0 for equal radii |
+| `hb.h_elastic(comp)` | Andreoli elastic-strain energy | kJ/mol | `None` if B or V missing |
 
 ```python
 cantor = {"Co": 0.2, "Cr": 0.2, "Fe": 0.2, "Mn": 0.2, "Ni": 0.2}
@@ -99,6 +102,9 @@ hb.phi_king(cantor)          # 3.533
 hb.phi_ye(cantor)            # 34.822
 hb.delta_chi(cantor)         # 0.138   (Pauling scale)
 hb.mean_electronegativity(cantor)  # 1.766
+hb.singh_lambda(cantor)      # 1.337
+hb.wang_gamma(cantor)        # 1.093
+hb.h_elastic(cantor)         # 0.900   (kJ/mol)
 ```
 
 These values for the Cantor alloy are pinned in the regression
@@ -119,7 +125,10 @@ hb.smix(comp)                           # descriptors accept it directly
 ## Rules (classifiers)
 
 ```python
-from hea_bench.rules import guo_vec, king_phi, yang_omega, ye_phi, yeh_smix, zhang_delta
+from hea_bench.rules import (
+    guo_vec, king_phi, senkov_kappa, sheikh_ductility, tsai_sigma,
+    yang_omega, ye_phi, yeh_smix, zhang_delta,
+)
 ```
 
 Each module exposes `predict(composition, ...)`, a `DESCRIPTION`
@@ -134,6 +143,13 @@ values are strings:
 | Guo-Liu VEC | `guo_vec.predict(comp)` | `"FCC"` / `"BCC"` / `"mixed"` | fixed bounds 8.0 / 6.87 |
 | King `Phi` | `king_phi.predict(comp, temperature_policy=None, threshold=1.0)` | `"solid_solution"` / `"intermetallic"` | defaults to `T = Tm` |
 | Ye `phi` | `ye_phi.predict(comp, threshold=20.0)` | `"solid_solution"` / `"intermetallic"` | default 20.0 |
+| Senkov-Miracle κ | `senkov_kappa.predict(comp, temperature=None)` | dataclass: `.verdict`, `.k1`, `.k1_cr`, `.g_ss_kj`, `.g_im_kj` | defaults to `T = Tm`; k₂ = 0.6 |
+| Tsai σ window | `tsai_sigma.predict(comp)` | dataclass: `.verdict` in `sigma_prone` / `sigma_unlikely` / `not_applicable` | fixed 6.88-7.84, needs Cr/V |
+| Sheikh ductility | `sheikh_ductility.predict(comp)` | dataclass: `.verdict` in `ductile` / `brittle` / `borderline` | fixed 4.5 / 4.6 |
+
+The three v2.1 rules return small frozen dataclasses (not bare
+strings) because their verdicts carry context (temperature, window
+membership); use `.verdict` for the string.
 
 ```python
 zhang_delta.predict(cantor)   # 'single-phase'
@@ -168,7 +184,7 @@ documented surface.
 
 ## Data layout
 
-- `src/hea_bench/descriptors/data/` — the vendored element table (37
+- `src/hea_bench/descriptors/data/` — the vendored element table (55
   elements: radius, melting point, VEC, Pauling electronegativity), the
   matminer-derived Miedema pair-enthalpy table (`pair_enthalpies.tsv`,
   75 elements), and the Miedema elemental-parameter table

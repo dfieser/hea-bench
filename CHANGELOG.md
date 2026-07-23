@@ -10,6 +10,58 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Added
+
+- Element coverage 37 → 55 across all surfaces: the full experimentally
+  active rare-earth HEA palette (Pr, Nd, Sm, Tb, Dy, Ho, Er, Tm, Yb, Lu),
+  Ga, Ge, U, Th, Sr, Sb, Bi, Pb. Radius authority: Teatum, Gschneidner &
+  Waber LA-4003 (1968), every value read from the Table I scan; CRC
+  melting points; Guo-convention VEC (lanthanides 3, divalent Yb 2,
+  Zachariasen U 6); Pauling electronegativities. 1484 of 1485 Miedema
+  pairs covered (the lone Th–U gap is reported, never zeroed).
+- Six new criteria on all surfaces, parity-tested: Singh Λ, Wang
+  solid-angle γ, Andreoli elastic-strain energy ΔH_el (with a new
+  per-element mechanics loader), the temperature-explicit Senkov–Miracle
+  κ criterion, the Tsai σ-phase VEC window, and the Sheikh refractory
+  ductility screen.
+- Phase-selection maps in the calculator: the Zhang δ–ΔH_mix map, the
+  Yang–Zhang Ω–δ map, and a VEC band strip (Guo bands + σ window +
+  ductility line) with the current alloy plotted and cited captions.
+- Provenance drawer: an info button on every result card opens the
+  defining equation, the exact per-element inputs the number consumed
+  (with source links and user-edit flags), the interpretation window
+  with primary citations, per-descriptor BibTeX, and cross-links into
+  Theory, Equations, References, and the new Data view.
+- Cite-this-result panel: content-derived result IDs
+  (`hea-<sha256/12>` over version + canonical inputs), permalinks,
+  formatted citation and BibTeX, and a downloadable JSON receipt with
+  inputs, outputs, data-file SHA-256 pins, and the full reference list.
+  The oxide copy-JSON button emits the same envelope.
+- Data view (fifth tab): the 55-element table with per-value sources,
+  Miracle & Senkov 2017 Table 3 cross-checks (including their Pr/Nd/Tm
+  misprints, flagged), per-element convention flags, a pair-enthalpy
+  lookup, data-file integrity pins, and a per-element feature-coverage
+  matrix.
+- Theory sections for Λ/γ (tangent-cone derivation), κ (Gibbs
+  derivation), and ΔH_el; four new equation cards; anchors on every
+  bibliography entry; a new "Element data sources" reference group; the
+  previously uncited King 2016 and Ye 2015 rules now carry full entries.
+
+### Changed
+
+- MCP: `alloy_descriptors` gains `lambda_singh`, `gamma_wang`,
+  `h_elastic`; `alloy_rules` gains `senkov_kappa` (shares
+  `king_temperature`), `tsai_sigma`, `sheikh_ductility`; source keys for
+  the new criteria and the element-data authorities.
+- The LA-4003 attribution replaces the imprecise "Teatum & Waber 1967"
+  in the data-layer documentation.
+- Landing page, JSON-LD (`variableMeasured`), status bar, and READMEs
+  reflect the 55-element / 1484-pair coverage; the version badge now
+  carries the data-table fingerprint.
+- The auxiliary Miedema decomposition panel deliberately stays on its
+  original 37-element parameter set (no invented f-block Miedema
+  classes); the coverage matrix in the Data view makes that explicit.
+
 ## [2.0.10] — 2026-07-19
 
 ### Changed
