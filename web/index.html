@@ -5482,6 +5482,9 @@ font-family: 'Source Sans Pro'
               <li><a href="#sec-ss">Solid-solution enthalpy</a></li>
               <li><a href="#sec-am">Amorphous-alloy enthalpy</a></li>
               <li><a href="#sec-prediction">Phase-selection criteria</a></li>
+              <li><a href="#sec-geometry">Geometric parameters &Lambda; &amp; &gamma;</a></li>
+              <li><a href="#sec-kappa">Senkov&ndash;Miracle &kappa;</a></li>
+              <li><a href="#sec-elastic">Elastic-strain energy</a></li>
               <li><a href="#sec-heo">High-entropy oxides &amp; sublattice entropy</a></li>
               <li><a href="#sec-shannon">Oxidation states &amp; Shannon radii</a></li>
               <li><a href="#sec-perovskite">Perovskite tolerance factors</a></li>
@@ -5920,9 +5923,101 @@ font-family: 'Source Sans Pro'
               \(\Delta H_{\mathrm{SS}} - T\Delta S_{\mathrm{mix}}\), an ordered intermetallic is
               expected. When \(\Delta H_{\mathrm{AM}} < \Delta H_{\mathrm{SS}}\), an amorphous
               phase is favoured.</li>
+            <li><em>Tsai <em>et&nbsp;al.</em> (2013).</em> In annealed alloys containing Cr and/or
+              V, the topologically close-packed &sigma; phase precipitates when
+              \(6.88 \leq \mathrm{VEC} \leq 7.84\); outside the window it generally does not. The
+              rule says nothing about alloys without Cr or V, and the calculator reports it as
+              not applicable there.</li>
+            <li><em>Sheikh <em>et&nbsp;al.</em> (2016).</em> Among single-phase bcc refractory
+              HEAs, \(\mathrm{VEC} < 4.5\) marks the intrinsically ductile alloys and
+              \(\mathrm{VEC} \geq 4.6\) the brittle ones. Read it together with the Guo bands; it
+              is a screen for bcc refractory chemistry, not a universal ductility predictor.</li>
           </ul>
+          <p>
+            No single parameter is reliable on its own: the canonical practice is to read
+            \(\delta\), \(\Delta H_{\mathrm{mix}}\), and \(\Omega\) jointly, and to consult VEC
+            only after a solid-solution verdict (Pickering &amp; Jones, 2016). The calculator's
+            phase-selection maps draw exactly these joint windows with the current alloy plotted,
+            and every verdict card reports its margin so borderline calls are visible. Empirical
+            screens are the start of an assessment; CALPHAD or DFT remain the confirmation step.
+          </p>
 
-          <h3 id="sec-heo"><span class="sec-num">13</span>High-entropy oxides and sublattice entropy</h3>
+          <h3 id="sec-geometry"><span class="sec-num">13</span>Geometric packing parameters &Lambda; and &gamma;</h3>
+          <p>
+            Two descriptors condense the size-mismatch geometry beyond \(\delta\) itself. Singh
+            <em>et&nbsp;al.</em> (2014) observed that entropy and mismatch compete directly and
+            defined
+          </p>
+          <div class="theory-eq">\[\Lambda = \frac{\Delta S_{\mathrm{mix}}}{\delta^{2}},\]</div>
+          <p>
+            with \(\delta\) in percent. Surveying known alloys they found \(\Lambda > 0.96\) for
+            single disordered solid solutions, \(0.24 \leq \Lambda \leq 0.96\) for mixtures of
+            solutions and compounds, and \(\Lambda < 0.24\) when compounds dominate. Two elements
+            with identical tabulated radii give \(\delta = 0\) and an unbounded \(\Lambda\); the
+            calculator reports it as such rather than truncating.
+          </p>
+          <p>
+            Wang <em>et&nbsp;al.</em> (2015) instead asked how much solid angle a neighbour of
+            average radius \(\bar r\) subtends around the smallest and the largest atom. Two
+            touching spheres of radii \(r_c\) and \(\bar r\) define a tangent cone with
+            \(\sin\theta = \bar r/(r_c + \bar r)\), so the fractional solid angle is
+          </p>
+          <div class="theory-eq">\[\omega(r_c) = 1 - \cos\theta
+            = 1 - \sqrt{\frac{(r_c + \bar r)^2 - \bar r^{\,2}}{(r_c + \bar r)^2}}.\]</div>
+          <p>
+            The ratio \(\gamma = \omega_{\mathrm{S}}/\omega_{\mathrm{L}}\) equals 1 for equal
+            radii and grows with mismatch; their alloy survey places the crystalline
+            solid-solution ceiling at \(\gamma < 1.175\), a modern restatement of the
+            Hume&ndash;Rothery 15&nbsp;% rule for multicomponent packing.
+          </p>
+
+          <h3 id="sec-kappa"><span class="sec-num">14</span>The Senkov&ndash;Miracle &kappa; criterion</h3>
+          <p>
+            The empirical windows above ignore temperature, yet solid solution and intermetallic
+            compete through their Gibbs energies. Senkov &amp; Miracle (2016) compare the two
+            phases directly: the solution wins when
+            \(\Delta H_{\mathrm{mix}} - T\,\Delta S_{\mathrm{mix}} <
+            \Delta H_{\mathrm{IM}} - T\,\Delta S_{\mathrm{IM}}\), with the working assumption
+            \(\Delta S_{\mathrm{IM}} = k_2\,\Delta S_{\mathrm{mix}}\), \(k_2 = 0.6\), for the
+            partial order of real intermetallics. For the usual case
+            \(\Delta H_{\mathrm{mix}} < 0\) this rearranges to the published parameterization
+          </p>
+          <div class="theory-eq">\[k_1 = \frac{\Delta H_{\mathrm{IM}}}{\Delta H_{\mathrm{mix}}}
+            < k_1^{\mathrm{cr}}(T) = 1 +
+            \frac{(1 - k_2)\,T\,\Delta S_{\mathrm{mix}}}{\left|\Delta H_{\mathrm{mix}}\right|},\]</div>
+          <p>
+            where the \((1-k_2)\) factor multiplies the temperature term; deriving the inequality
+            from the Gibbs comparison fixes the typography ambiguity found in some restatements.
+            The calculator evaluates the verdict from the direct Gibbs comparison, which stays
+            well defined when \(\Delta H_{\mathrm{mix}} \geq 0\), and reports \(k_1\) and
+            \(k_1^{\mathrm{cr}}\) whenever the ratio form is meaningful.
+            \(\Delta H_{\mathrm{IM}}\) uses the same most-negative-binary proxy documented for
+            King&rsquo;s \(\Phi\), and the temperature input is shared with that rule. This is
+            the calculator&rsquo;s only temperature-explicit phase criterion: raising the anneal
+            temperature visibly widens the solid-solution window.
+          </p>
+
+          <h3 id="sec-elastic"><span class="sec-num">15</span>Elastic-strain energy \(\Delta H_{\mathrm{el}}\)</h3>
+          <p>
+            Size mismatch costs elastic energy in proportion to how stiff the misfitting atoms
+            are, which \(\delta\) alone cannot see. Andreoli <em>et&nbsp;al.</em> (2019) evaluate
+            the strain energy of squeezing each atom from its own volume \(V_i\) into the
+            stiffness-weighted common volume
+          </p>
+          <div class="theory-eq">\[\bar V = \frac{\sum_i c_i B_i V_i}{\sum_i c_i B_i},
+            \qquad
+            \Delta H_{\mathrm{el}} = \sum_i \frac{c_i\,B_i\,(V_i - \bar V)^2}{2\,V_i}\]</div>
+          <p>
+            (their Eqs. 9&ndash;10). With \(B_i\) in GPa and \(V_i\) in cm&sup3;/mol the result is
+            directly in kJ/mol. Across their 235-alloy survey, fcc solid solutions form mainly
+            below \(6.05\;\mathrm{kJ\,mol^{-1}}\) (96.4&nbsp;% of fcc SS), bcc solutions between
+            6.05 and 22, and everything above 22 is glass- or intermetallic-forming territory.
+            HEA-Bench takes \(B_i\) and \(V_i\) from the vendored matminer Miedema table, which
+            differs from the paper&rsquo;s elastic sources; window placements are robust to this,
+            third decimals are not, and the provenance panel says so.
+          </p>
+
+          <h3 id="sec-heo"><span class="sec-num">16</span>High-entropy oxides and sublattice entropy</h3>
           <p>
             Rost, Sachet, Borman <em>et al.</em> (2015) showed that the five-cation rock salt
             (Mg,Co,Ni,Cu,Zn)O is single-phase and entropy-stabilized: it transforms reversibly
@@ -5951,7 +6046,7 @@ font-family: 'Source Sans Pro'
             \(1.5\,R\).
           </p>
 
-          <h3 id="sec-shannon"><span class="sec-num">14</span>Oxidation states and Shannon ionic radii</h3>
+          <h3 id="sec-shannon"><span class="sec-num">17</span>Oxidation states and Shannon ionic radii</h3>
           <p>
             Every geometric oxide descriptor depends on ionic radii, and an ionic radius is not a
             single number per element. It depends on the oxidation state, the coordination number,
@@ -5983,7 +6078,7 @@ font-family: 'Source Sans Pro'
             \(\delta r^{*} = \sqrt{\delta_A^2 + \delta_B^2}\).
           </p>
 
-          <h3 id="sec-perovskite"><span class="sec-num">15</span>Perovskite tolerance factors</h3>
+          <h3 id="sec-perovskite"><span class="sec-num">18</span>Perovskite tolerance factors</h3>
           <p>
             For an ABO<sub>3</sub> perovskite, Goldschmidt (1926) observed that the structure forms
             when the A&ndash;O and B&ndash;O bond lengths are geometrically compatible, expressed
@@ -6014,7 +6109,7 @@ font-family: 'Source Sans Pro'
             multiphase ones, which is why these factors are the primary perovskite screen here.
           </p>
 
-          <h3 id="sec-fluorite"><span class="sec-num">16</span>Fluorite and pyrochlore criteria</h3>
+          <h3 id="sec-fluorite"><span class="sec-num">19</span>Fluorite and pyrochlore criteria</h3>
           <p>
             For fluorite-structured high-entropy oxides, Spiridigliozzi, Ferone, Cioffi &amp;
             Dell'Agli (2021) found that a single descriptor separates their synthesis outcomes: the
@@ -6042,7 +6137,7 @@ font-family: 'Source Sans Pro'
             together so the margin is always visible.
           </p>
 
-          <h3 id="sec-limits"><span class="sec-num">17</span>Limitations and scope</h3>
+          <h3 id="sec-limits"><span class="sec-num">20</span>Limitations and scope</h3>
           <p>
             All descriptors implemented here share four structural limitations worth keeping in
             mind when reading the outputs.
@@ -6101,7 +6196,7 @@ font-family: 'Source Sans Pro'
           <h3 class="eq-group-title"><span class="sec-num">01</span>Alloy descriptors</h3>
           <div class="eq-grid">
 
-            <div class="eq-card">
+            <div class="eq-card" id="eq-delta">
               <h3>Size mismatch \(\delta\)</h3>
               <div class="eq-block">
                 \[\bar{r} = \sum_i c_i\, r_i\]
@@ -6115,7 +6210,7 @@ font-family: 'Source Sans Pro'
               </p>
             </div>
 
-            <div class="eq-card">
+            <div class="eq-card" id="eq-smix">
               <h3>Mixing entropy \(\Delta S_{\mathrm{mix}}\)</h3>
               <div class="eq-block">
                 \[\Delta S_{\mathrm{mix}} = -R \sum_i c_i \ln c_i\]
@@ -6123,7 +6218,7 @@ font-family: 'Source Sans Pro'
               <p class="eq-vars">\(R = 8.314\;\mathrm{J\,mol^{-1}\,K^{-1}}\)</p>
             </div>
 
-            <div class="eq-card">
+            <div class="eq-card" id="eq-hmix">
               <h3>Mixing enthalpy \(\Delta H_{\mathrm{mix}}\)</h3>
               <div class="eq-block">
                 \[\Delta H_{\mathrm{mix}} = \sum_{i&lt;j} 4\,\Delta H_{ij}\,c_i\,c_j\]
@@ -6133,7 +6228,7 @@ font-family: 'Source Sans Pro'
               </p>
             </div>
 
-            <div class="eq-card">
+            <div class="eq-card" id="eq-omega">
               <h3>Melting temperature and Omega</h3>
               <div class="eq-block">
                 \[\bar{T}_m = \sum_i c_i\,T_{m,i}\]
@@ -6146,7 +6241,7 @@ font-family: 'Source Sans Pro'
               </p>
             </div>
 
-            <div class="eq-card">
+            <div class="eq-card" id="eq-vec">
               <h3>Valence electron concentration</h3>
               <div class="eq-block">
                 \[\mathrm{VEC} = \sum_i c_i\,V_i\]
@@ -6154,7 +6249,7 @@ font-family: 'Source Sans Pro'
               <p class="eq-vars">\(V_i\) = valence electrons of element \(i\)</p>
             </div>
 
-            <div class="eq-card">
+            <div class="eq-card" id="eq-chi">
               <h3>Electronegativity mismatch \(\Delta\chi\)</h3>
               <div class="eq-block">
                 \[\bar{\chi} = \sum_i c_i\,\chi_i\]
@@ -6167,6 +6262,57 @@ font-family: 'Source Sans Pro'
               </p>
             </div>
 
+            <div class="eq-card" id="eq-lambda">
+              <h3>Singh geometric parameter \(\Lambda\)</h3>
+              <div class="eq-block">
+                \[\Lambda = \frac{\Delta S_{\mathrm{mix}}}{\delta^{2}}\]
+              </div>
+              <p class="eq-vars">
+                <span>\(\delta\) in percent;</span>
+                <span>\(\Lambda &gt; 0.96\) single solid solution, \(0.24 \le \Lambda \le 0.96\) mixed, below: compounds (Singh 2014)</span>
+              </p>
+            </div>
+
+            <div class="eq-card wide" id="eq-gamma-wang">
+              <h3>Wang solid-angle ratio \(\gamma\)</h3>
+              <div class="eq-block">
+                \[\omega(r_c) = 1 - \sqrt{\frac{(r_c + \bar r)^2 - \bar r^{\,2}}{(r_c + \bar r)^2}}
+                \qquad
+                \gamma = \frac{\omega(r_{\mathrm{S}})}{\omega(r_{\mathrm{L}})} &lt; 1.175\]
+              </div>
+              <p class="eq-vars">
+                <span>\(r_{\mathrm{S}}, r_{\mathrm{L}}\) = smallest/largest atomic radius,</span>
+                <span>\(\bar r\) = mean radius; tangent-cone solid angles (Wang 2015)</span>
+              </p>
+            </div>
+
+            <div class="eq-card wide" id="eq-kappa">
+              <h3>Senkov&ndash;Miracle criterion \(\kappa\)</h3>
+              <div class="eq-block">
+                \[k_1 = \frac{\Delta H_{\mathrm{IM}}}{\Delta H_{\mathrm{mix}}}
+                \qquad
+                k_1^{\mathrm{cr}}(T) = 1 + \frac{(1 - k_2)\,T\,\Delta S_{\mathrm{mix}}}{\left|\Delta H_{\mathrm{mix}}\right|},
+                \quad k_2 = \frac{\Delta S_{\mathrm{IM}}}{\Delta S_{\mathrm{mix}}} = 0.6\]
+              </div>
+              <p class="eq-vars">
+                <span>solid solution while \(k_1 &lt; k_1^{\mathrm{cr}}(T)\);</span>
+                <span>\(\Delta H_{\mathrm{IM}}\) = most negative binary pair enthalpy (documented proxy); Senkov &amp; Miracle 2016</span>
+              </p>
+            </div>
+
+            <div class="eq-card wide" id="eq-hel">
+              <h3>Elastic-strain energy \(\Delta H_{\mathrm{el}}\)</h3>
+              <div class="eq-block">
+                \[\bar V = \frac{\sum_i c_i B_i V_i}{\sum_i c_i B_i}
+                \qquad
+                \Delta H_{\mathrm{el}} = \sum_i \frac{c_i\,B_i\,(V_i - \bar V)^2}{2\,V_i}\]
+              </div>
+              <p class="eq-vars">
+                <span>\(B_i\) = bulk modulus (GPa), \(V_i\) = molar volume (cm³/mol) &rArr; kJ/mol;</span>
+                <span>fcc SS \(\le 6.05\), bcc SS \(6.05\)&ndash;\(22\), glasses/IM above (Andreoli 2019, Eqs. 9&ndash;10)</span>
+              </p>
+            </div>
+
           </div>
           </div>
 
@@ -6174,7 +6320,7 @@ font-family: 'Source Sans Pro'
           <h3 class="eq-group-title"><span class="sec-num">02</span>Miedema formation enthalpies</h3>
           <div class="eq-grid">
 
-            <div class="eq-card">
+            <div class="eq-card" id="eq-surface">
               <h3>Surface concentrations</h3>
               <div class="eq-block">
                 \[c_i^{\,s} = \frac{c_i\,V_i^{2/3}}{\sum_k c_k\,V_k^{2/3}}\]
@@ -6184,7 +6330,7 @@ font-family: 'Source Sans Pro'
               </p>
             </div>
 
-            <div class="eq-card wide">
+            <div class="eq-card wide" id="eq-gamma-ab">
               <h3>Miedema interfacial enthalpy \(\Gamma_{AB}\)</h3>
               <div class="eq-block">
                 \[\Gamma_{AB} = \frac{-P\,(\Delta\varphi^*)^2 \;+\; Q\,(\Delta n_{ws}^{1/3})^2 \;-\; R_{\mathrm{hyb}}}{\;\tfrac{1}{2}\!\left(\,n_{ws,A}^{-1/3} + n_{ws,B}^{-1/3}\right)}\]
@@ -6198,7 +6344,7 @@ font-family: 'Source Sans Pro'
               </p>
             </div>
 
-            <div class="eq-card wide">
+            <div class="eq-card wide" id="eq-volume">
               <h3>Volume correction (de Boer et al. 1988, Eq. 2.10)</h3>
               <div class="eq-block">
                 \[V_A^{2/3*} = V_A^{2/3}\!\left(1 + a_A\, c_B^{\,s}\, (\varphi_A^* - \varphi_B^*)\right)\]
@@ -6213,7 +6359,7 @@ font-family: 'Source Sans Pro'
               </p>
             </div>
 
-            <div class="eq-card wide">
+            <div class="eq-card wide" id="eq-pair">
               <h3>Equiatomic pair enthalpy \(\Delta H_{AB}\)</h3>
               <div class="eq-block">
                 \[\Delta H_{AB} = \frac{2\;V_A^{2/3*}\;V_B^{2/3*}}{V_A^{2/3*}+V_B^{2/3*}} \;\cdot\; \Gamma_{AB}\]
@@ -6223,7 +6369,7 @@ font-family: 'Source Sans Pro'
               </p>
             </div>
 
-            <div class="eq-card">
+            <div class="eq-card" id="eq-compound">
               <h3>Compound formation enthalpy</h3>
               <div class="eq-block">
                 \[\Delta H_{\mathrm{form}} = S_C \;\Delta H^{\mathrm{Mied}} + \Delta H_{\mathrm{trans}}\]
@@ -6239,7 +6385,7 @@ font-family: 'Source Sans Pro'
               </p>
             </div>
 
-            <div class="eq-card">
+            <div class="eq-card" id="eq-ssmied">
               <h3>Solid solution enthalpy</h3>
               <div class="eq-block">
                 \[\Delta H_{\mathrm{SS}} = \Delta H_{\mathrm{chem}} + \Delta H_{\mathrm{elast}} + \Delta H_{\mathrm{struct}}\]
@@ -6251,7 +6397,7 @@ font-family: 'Source Sans Pro'
               </ul>
             </div>
 
-            <div class="eq-card">
+            <div class="eq-card" id="eq-elast">
               <h3>Elastic mismatch energy</h3>
               <div class="eq-block">
                 \[E_{A \text{ in } B} = \frac{2\,K_A\,G_B\,(W_A - W_B)^2}{3\,K_A\,W_B + 4\,G_B\,W_A}\]
@@ -6263,7 +6409,7 @@ font-family: 'Source Sans Pro'
               </p>
             </div>
 
-            <div class="eq-card">
+            <div class="eq-card" id="eq-am">
               <h3>Amorphous alloy enthalpy</h3>
               <div class="eq-block">
                 \[\Delta H_{\mathrm{AM}} = \Delta H_{\mathrm{chem}} + \Delta H_{\mathrm{topo}}\]
@@ -6281,7 +6427,7 @@ font-family: 'Source Sans Pro'
           <h3 class="eq-group-title"><span class="sec-num">03</span>Oxide descriptors</h3>
           <div class="eq-grid">
 
-            <div class="eq-card">
+            <div class="eq-card" id="eq-oxide-s">
               <h3>Oxide sublattice entropy \(\Delta S_{\mathrm{config}}\)</h3>
               <div class="eq-block">
                 \[\Delta S_{\mathrm{config}} = -R \sum_k a_k \sum_i x_{ik}\,\ln x_{ik}\]
@@ -6293,7 +6439,7 @@ font-family: 'Source Sans Pro'
               </p>
             </div>
 
-            <div class="eq-card">
+            <div class="eq-card" id="eq-charge">
               <h3>Oxide charge balance</h3>
               <div class="eq-block">
                 \[\sum_k a_k \sum_i x_{ik}\,q_{ik} = 2\,n_{\mathrm O}\]
@@ -6305,7 +6451,7 @@ font-family: 'Source Sans Pro'
               </p>
             </div>
 
-            <div class="eq-card">
+            <div class="eq-card" id="eq-deltar">
               <h3>Cation size disorder \(\delta_r\)</h3>
               <div class="eq-block">
                 \[\delta_r = 100\,\sqrt{\sum_i x_i \!\left(1 - \frac{r_i}{\bar r}\right)^{\!2}}\;\;(\%)\]
@@ -6318,7 +6464,7 @@ font-family: 'Source Sans Pro'
               </p>
             </div>
 
-            <div class="eq-card">
+            <div class="eq-card" id="eq-tolerance">
               <h3>Goldschmidt tolerance factor \(t\)</h3>
               <div class="eq-block">
                 \[t = \frac{r_A + r_{\mathrm O}}{\sqrt{2}\,(r_B + r_{\mathrm O})}\]
@@ -6881,6 +7027,7 @@ font-family: 'Source Sans Pro'
               <li><a href="#refs-rules">Descriptors &amp; phase-selection rules</a></li>
               <li><a href="#refs-miedema">The Miedema model</a></li>
               <li><a href="#refs-oxides">High-entropy oxides</a></li>
+              <li><a href="#refs-data">Element data sources</a></li>
               <li><a href="#refs-methods">Methods, data &amp; applications</a></li>
               <li><a href="#refs-about">About this software</a></li>
             </ol>
@@ -6897,27 +7044,27 @@ font-family: 'Source Sans Pro'
 
           <h3 id="refs-foundations"><span class="sec-num">01</span>Foundations of the field</h3>
           <ul class="ref-list">
-              <li>
+              <li id="ref-cantor2004">
                 Cantor, B., Chang, I. T. H., Knight, P., &amp; Vincent, A. J. B. (2004). Microstructural development in equiatomic multicomponent alloys. <em>Materials Science and Engineering: A</em>, 375&ndash;377, 213&ndash;218.
                 <a href="https://doi.org/10.1016/j.msea.2003.10.257" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.msea.2003.10.257</a>
               </li>
-              <li>
+              <li id="ref-humerothery1934">
                 Hume-Rothery, W., &amp; Powell, H. M. (1934). On the theory of super-lattice structures in alloys. <em>Zeitschrift f&uuml;r Kristallographie</em>, 91(1&ndash;6), 23&ndash;47.
                 <a href="https://doi.org/10.1524/zkri.1935.91.1.23" target="_blank" rel="noopener noreferrer">https://doi.org/10.1524/zkri.1935.91.1.23</a>
               </li>
-              <li>
+              <li id="ref-murty2019">
                 Murty, B. S., Yeh, J.-W., Ranganathan, S., &amp; Bhattacharjee, P. P. (2019). <em>High-Entropy Alloys</em> (2nd ed.). Elsevier.
                 <a href="https://doi.org/10.1016/C2017-0-03317-7" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/C2017-0-03317-7</a>
               </li>
-              <li>
+              <li id="ref-senkov2010">
                 Senkov, O. N., Wilks, G. B., Miracle, D. B., Chuang, C. P., &amp; Liaw, P. K. (2010). Refractory high-entropy alloys. <em>Intermetallics</em>, 18(9), 1758&ndash;1765.
                 <a href="https://doi.org/10.1016/j.intermet.2010.05.014" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.intermet.2010.05.014</a>
               </li>
-              <li>
+              <li id="ref-yeh2004">
                 Yeh, J.-W., Chen, S.-K., Lin, S.-J., Gan, J.-Y., Chin, T.-S., Shun, T.-T., Tsau, C.-H., &amp; Chang, S.-Y. (2004). Nanostructured high-entropy alloys with multiple principal elements: Novel alloy design concepts and outcomes. <em>Advanced Engineering Materials</em>, 6(5), 299&ndash;303.
                 <a href="https://doi.org/10.1002/adem.200300567" target="_blank" rel="noopener noreferrer">https://doi.org/10.1002/adem.200300567</a>
               </li>
-              <li>
+              <li id="ref-zhang2014pms">
                 Zhang, Y., Zuo, T. T., Tang, Z., Gao, M. C., Dahmen, K. A., Liaw, P. K., &amp; Lu, Z. P. (2014). Microstructures and properties of high-entropy alloys. <em>Progress in Materials Science</em>, 61, 1&ndash;93.
                 <a href="https://doi.org/10.1016/j.pmatsci.2013.10.001" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.pmatsci.2013.10.001</a>
               </li>
@@ -6925,61 +7072,109 @@ font-family: 'Source Sans Pro'
 
           <h3 id="refs-rules"><span class="sec-num">02</span>Descriptors and phase-selection rules</h3>
           <ul class="ref-list">
-              <li>
+              <li id="ref-guo2011pnsmi">
                 Guo, S., &amp; Liu, C. T. (2011). Phase stability in high entropy alloys: Formation of solid-solution phase or amorphous phase. <em>Progress in Natural Science: Materials International</em>, 21(6), 433&ndash;446.
                 <a href="https://doi.org/10.1016/S1002-0071(12)60080-X" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/S1002-0071(12)60080-X</a>
               </li>
-              <li>
+              <li id="ref-senkovmiracle2001">
                 Senkov, O. N., &amp; Miracle, D. B. (2001). Effect of the atomic size distribution on glass forming ability of amorphous metallic alloys. <em>Materials Research Bulletin</em>, 36(12), 2183&ndash;2198.
                 <a href="https://doi.org/10.1016/S0025-5408(01)00715-2" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/S0025-5408(01)00715-2</a>
               </li>
-              <li>
+              <li id="ref-yang2012">
                 Yang, X., &amp; Zhang, Y. (2012). Prediction of high-entropy stabilized solid-solution in multi-component alloys. <em>Materials Chemistry and Physics</em>, 132(2&ndash;3), 233&ndash;238.
                 <a href="https://doi.org/10.1016/j.matchemphys.2011.11.021" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.matchemphys.2011.11.021</a>
               </li>
-              <li>
+              <li id="ref-zhang2008">
                 Zhang, Y., Zhou, Y. J., Lin, J. P., Chen, G. L., &amp; Liaw, P. K. (2008). Solid-solution phase formation rules for multi-component alloys. <em>Advanced Engineering Materials</em>, 10(6), 534&ndash;538.
                 <a href="https://doi.org/10.1002/adem.200700240" target="_blank" rel="noopener noreferrer">https://doi.org/10.1002/adem.200700240</a>
+              </li>
+              <li id="ref-guo2011vec">
+                Guo, S., Ng, C., Lu, J., &amp; Liu, C. T. (2011). Effect of valence electron concentration on stability of fcc or bcc phase in high entropy alloys. <em>Journal of Applied Physics</em>, 109(10), 103505.
+                <a href="https://doi.org/10.1063/1.3587228" target="_blank" rel="noopener noreferrer">https://doi.org/10.1063/1.3587228</a>
+              </li>
+              <li id="ref-king2016">
+                King, D. J. M., Middleburgh, S. C., McGregor, A. G., &amp; Cortie, M. B. (2016). Predicting the formation and stability of single phase high-entropy alloys. <em>Acta Materialia</em>, 104, 172&ndash;179.
+                <a href="https://doi.org/10.1016/j.actamat.2015.11.040" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.actamat.2015.11.040</a>
+              </li>
+              <li id="ref-mansoori1971">
+                Mansoori, G. A., Carnahan, N. F., Starling, K. E., &amp; Leland, T. W. (1971). Equilibrium thermodynamic properties of the mixture of hard spheres. <em>The Journal of Chemical Physics</em>, 54(4), 1523&ndash;1525.
+                <a href="https://doi.org/10.1063/1.1675048" target="_blank" rel="noopener noreferrer">https://doi.org/10.1063/1.1675048</a>
+              </li>
+              <li id="ref-pickering2016">
+                Pickering, E. J., &amp; Jones, N. G. (2016). High-entropy alloys: a critical assessment of their founding principles and future prospects. <em>International Materials Reviews</em>, 61(3), 183&ndash;202.
+                <a href="https://doi.org/10.1080/09506608.2016.1180020" target="_blank" rel="noopener noreferrer">https://doi.org/10.1080/09506608.2016.1180020</a>
+              </li>
+              <li id="ref-senkov2016">
+                Senkov, O. N., &amp; Miracle, D. B. (2016). A new thermodynamic parameter to predict formation of solid solution or intermetallic phases in high entropy alloys. <em>Journal of Alloys and Compounds</em>, 658, 603&ndash;607.
+                <a href="https://doi.org/10.1016/j.jallcom.2015.10.279" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.jallcom.2015.10.279</a>
+              </li>
+              <li id="ref-sheikh2016">
+                Sheikh, S., Shafeie, S., Hu, Q., Ahlstr&ouml;m, J., Persson, C., Vesel&yacute;, J., Zyka, J., Klement, U., &amp; Guo, S. (2016). Alloy design for intrinsically ductile refractory high-entropy alloys. <em>Journal of Applied Physics</em>, 120(16), 164902.
+                <a href="https://doi.org/10.1063/1.4966659" target="_blank" rel="noopener noreferrer">https://doi.org/10.1063/1.4966659</a>
+              </li>
+              <li id="ref-singh2014">
+                Singh, A. K., Kumar, N., Dwivedi, A., &amp; Subramaniam, A. (2014). A geometrical parameter for the formation of disordered solid solutions in multi-component alloys. <em>Intermetallics</em>, 53, 112&ndash;119.
+                <a href="https://doi.org/10.1016/j.intermet.2014.04.019" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.intermet.2014.04.019</a>
+              </li>
+              <li id="ref-takeuchi2000">
+                Takeuchi, A., &amp; Inoue, A. (2000). Calculations of mixing enthalpy and mismatch entropy for ternary amorphous alloys. <em>Materials Transactions, JIM</em>, 41(11), 1372&ndash;1378.
+                <a href="https://doi.org/10.2320/matertrans1989.41.1372" target="_blank" rel="noopener noreferrer">https://doi.org/10.2320/matertrans1989.41.1372</a>
+              </li>
+              <li id="ref-tsai2013">
+                Tsai, M.-H., Tsai, K.-Y., Tsai, C.-W., Lee, C., Juan, C.-C., &amp; Yeh, J.-W. (2013). Criterion for sigma phase formation in Cr- and V-containing high-entropy alloys. <em>Materials Research Letters</em>, 1(4), 207&ndash;212.
+                <a href="https://doi.org/10.1080/21663831.2013.831382" target="_blank" rel="noopener noreferrer">https://doi.org/10.1080/21663831.2013.831382</a>
+              </li>
+              <li id="ref-wang2015">
+                Wang, Z., Huang, Y., Yang, Y., Wang, J., &amp; Liu, C. T. (2015). Atomic-size effect and solid solubility of multicomponent alloys. <em>Scripta Materialia</em>, 94, 28&ndash;31.
+                <a href="https://doi.org/10.1016/j.scriptamat.2014.09.010" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.scriptamat.2014.09.010</a>
+              </li>
+              <li id="ref-ye2015phi">
+                Ye, Y. F., Wang, Q., Lu, J., Liu, C. T., &amp; Yang, Y. (2015). Design of high entropy alloys: A single-parameter thermodynamic rule. <em>Scripta Materialia</em>, 104, 53&ndash;55.
+                <a href="https://doi.org/10.1016/j.scriptamat.2015.03.023" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.scriptamat.2015.03.023</a>
+              </li>
+              <li id="ref-andreoli2019">
+                Andreoli, A. F., Orava, J., Liaw, P. K., Weber, H., de Oliveira, M. F., Nielsch, K., &amp; Kaban, I. (2019). The elastic-strain energy criterion of phase formation for complex concentrated alloys. <em>Materialia</em>, 5, 100222.
+                <a href="https://doi.org/10.1016/j.mtla.2019.100222" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.mtla.2019.100222</a>
               </li>
           </ul>
 
           <h3 id="refs-miedema"><span class="sec-num">03</span>The Miedema model and its parametrizations</h3>
           <ul class="ref-list">
-              <li>
+              <li id="ref-bakker1998">
                 Bakker, H. (1998). <em>Enthalpies in alloys: Miedema&rsquo;s semi-empirical model</em> (Materials Science Foundations, Vol.&nbsp;1). Trans Tech Publications.
               </li>
-              <li>
+              <li id="ref-deboer1988">
                 de Boer, F. R., Boom, R., Mattens, W. C. M., Miedema, A. R., &amp; Niessen, A. K. (1988). <em>Cohesion in Metals: Transition Metal Alloys</em> (Cohesion and Structure, Vol.&nbsp;1). North-Holland, Amsterdam. ISBN&nbsp;978-0-444-87098-8.
               </li>
-              <li>
+              <li id="ref-eshelby1957">
                 Eshelby, J. D. (1957). The determination of the elastic field of an ellipsoidal inclusion, and related problems. <em>Proceedings of the Royal Society A</em>, 241(1226), 376&ndash;396.
                 <a href="https://doi.org/10.1098/rspa.1957.0133" target="_blank" rel="noopener noreferrer">https://doi.org/10.1098/rspa.1957.0133</a>
               </li>
-              <li>
+              <li id="ref-friedel1954">
                 Friedel, J. (1954). Electronic structure of primary solid solutions in metals. <em>Advances in Physics</em>, 3(12), 446&ndash;507.
                 <a href="https://doi.org/10.1080/00018735400101233" target="_blank" rel="noopener noreferrer">https://doi.org/10.1080/00018735400101233</a>
               </li>
-              <li>
+              <li id="ref-loeff1988">
                 Loeff, P. I., Weeber, A. W., &amp; Miedema, A. R. (1988). Diagrams of formation enthalpies of amorphous alloys in comparison with the crystalline solid solution. <em>Journal of the Less-Common Metals</em>, 140, 299&ndash;305.
                 <a href="https://doi.org/10.1016/0022-5088(88)90391-8" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/0022-5088(88)90391-8</a>
               </li>
-              <li>
+              <li id="ref-miedema1973">
                 Miedema, A. R. (1973). The electronegativity parameter for transition metals: Heat of formation and charge transfer in alloys. <em>Journal of the Less-Common Metals</em>, 32(1), 117&ndash;136.
                 <a href="https://doi.org/10.1016/0022-5088(73)90078-7" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/0022-5088(73)90078-7</a>
               </li>
-              <li>
+              <li id="ref-miedema1980">
                 Miedema, A. R., de Ch&acirc;tel, P. F., &amp; de Boer, F. R. (1980). Cohesion in alloys&mdash;Fundamentals of a semi-empirical model. <em>Physica B+C</em>, 100(1), 1&ndash;28.
                 <a href="https://doi.org/10.1016/0378-4363(80)90054-6" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/0378-4363(80)90054-6</a>
               </li>
-              <li>
+              <li id="ref-niessen1983">
                 Niessen, A. K., de Boer, F. R., Boom, R., de Ch&acirc;tel, P. F., Mattens, W. C. M., &amp; Miedema, A. R. (1983). Model predictions for the enthalpy of formation of transition metal alloys II. <em>CALPHAD</em>, 7(1), 51&ndash;70.
                 <a href="https://doi.org/10.1016/0364-5916(83)90030-5" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/0364-5916(83)90030-5</a>
               </li>
-              <li>
+              <li id="ref-takeuchi2005">
                 Takeuchi, A., &amp; Inoue, A. (2005). Classification of bulk metallic glasses by atomic size difference, heat of mixing and period of constituent elements and its application to characterization of the main alloying element. <em>Materials Transactions</em>, 46(12), 2817&ndash;2829.
                 <a href="https://doi.org/10.2320/matertrans.46.2817" target="_blank" rel="noopener noreferrer">https://doi.org/10.2320/matertrans.46.2817</a>
               </li>
-              <li>
+              <li id="ref-zhangrf2016">
                 Zhang, R. F., Zhang, S. H., He, Z. J., Jing, J., &amp; Sheng, S. H. (2016). Miedema Calculator: A thermodynamic platform for predicting formation enthalpies of alloys within framework of Miedema&rsquo;s theory. <em>Computer Physics Communications</em>, 209, 58&ndash;69.
                 <a href="https://doi.org/10.1016/j.cpc.2016.08.013" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.cpc.2016.08.013</a>
               </li>
@@ -6987,45 +7182,77 @@ font-family: 'Source Sans Pro'
 
           <h3 id="refs-oxides"><span class="sec-num">04</span>High-entropy oxides</h3>
           <ul class="ref-list">
-              <li>
+              <li id="ref-bartel2019">
                 Bartel, C. J., Sutton, C., Goldsmith, B. R., Ouyang, R., Musgrave, C. B., Ghiringhelli, L. M., &amp; Scheffler, M. (2019). New tolerance factor to predict the stability of perovskite oxides and halides. <em>Science Advances</em>, 5(2), eaav0693.
                 <a href="https://doi.org/10.1126/sciadv.aav0693" target="_blank" rel="noopener noreferrer">https://doi.org/10.1126/sciadv.aav0693</a>
               </li>
-              <li>
+              <li id="ref-goldschmidt1926">
                 Goldschmidt, V. M. (1926). Die Gesetze der Krystallochemie. <em>Die Naturwissenschaften</em>, 14, 477&ndash;485.
                 <a href="https://doi.org/10.1007/BF01507527" target="_blank" rel="noopener noreferrer">https://doi.org/10.1007/BF01507527</a>
               </li>
-              <li>
+              <li id="ref-jiang2018">
                 Jiang, S., Hu, T., Gild, J., Zhou, N., Nie, J., Qin, M., Harrington, T., Vecchio, K., &amp; Luo, J. (2018). A new class of high-entropy perovskite oxides. <em>Scripta Materialia</em>, 142, 116&ndash;120.
                 <a href="https://doi.org/10.1016/j.scriptamat.2017.08.040" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.scriptamat.2017.08.040</a>
               </li>
-              <li>
+              <li id="ref-manchon2025">
                 Manch&oacute;n-Gord&oacute;n, A. F., Panadero-Medianero, P., &amp; Bl&aacute;zquez, J. S. (2025). Descriptors for predicting single- and multi-phase formation in high-entropy oxides: A unified framework approach. <em>Materials</em>, 18(16), 3862.
                 <a href="https://doi.org/10.3390/ma18163862" target="_blank" rel="noopener noreferrer">https://doi.org/10.3390/ma18163862</a>
               </li>
-              <li>
+              <li id="ref-rost2015">
                 Rost, C. M., Sachet, E., Borman, T., Moballegh, A., Dickey, E. C., Hou, D., Jones, J. L., Curtarolo, S., &amp; Maria, J.-P. (2015). Entropy-stabilized oxides. <em>Nature Communications</em>, 6, 8485.
                 <a href="https://doi.org/10.1038/ncomms9485" target="_blank" rel="noopener noreferrer">https://doi.org/10.1038/ncomms9485</a>
               </li>
-              <li>
+              <li id="ref-shannon1976">
                 Shannon, R. D. (1976). Revised effective ionic radii and systematic studies of interatomic distances in halides and chalcogenides. <em>Acta Crystallographica Section A</em>, 32, 751&ndash;767.
                 <a href="https://doi.org/10.1107/S0567739476001551" target="_blank" rel="noopener noreferrer">https://doi.org/10.1107/S0567739476001551</a>
               </li>
-              <li>
+              <li id="ref-spiridigliozzi2023">
                 Spiridigliozzi, L., Bortolotti, M., &amp; Dell&rsquo;Agli, G. (2023). On the effect of standard deviation of cationic radii on the transition temperature in fluorite-structured entropy-stabilized oxides (F-ESO). <em>Materials</em>, 16(6), 2219.
                 <a href="https://doi.org/10.3390/ma16062219" target="_blank" rel="noopener noreferrer">https://doi.org/10.3390/ma16062219</a>
               </li>
-              <li>
+              <li id="ref-spiridigliozzi2021">
                 Spiridigliozzi, L., Ferone, C., Cioffi, R., &amp; Dell&rsquo;Agli, G. (2021). A simple and effective predictor to design novel fluorite-structured high entropy oxides (HEOs). <em>Acta Materialia</em>, 202, 181&ndash;189.
                 <a href="https://doi.org/10.1016/j.actamat.2020.10.061" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.actamat.2020.10.061</a>
               </li>
-              <li>
+              <li id="ref-subramanian1983">
                 Subramanian, M. A., Aravamudan, G., &amp; Subba Rao, G. V. (1983). Oxide pyrochlores &mdash; A review. <em>Progress in Solid State Chemistry</em>, 15(2), 55&ndash;143.
                 <a href="https://doi.org/10.1016/0079-6786(83)90001-8" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/0079-6786(83)90001-8</a>
               </li>
           </ul>
 
-          <h3 id="refs-methods"><span class="sec-num">05</span>Methods, data, and applications</h3>
+          <h3 id="refs-data"><span class="sec-num">05</span>Element data sources</h3>
+          <ul class="ref-list">
+              <li id="ref-la4003">
+                Teatum, E. T., Gschneidner, K. A., Jr., &amp; Waber, J. T. (1968). <em>Compilation of calculated data useful in predicting metallurgical behavior of the elements in binary alloy systems</em> (Report LA-4003; supersedes LA-2345). Los Alamos Scientific Laboratory.
+                <a href="https://www.osti.gov/biblio/4789465" target="_blank" rel="noopener noreferrer">https://www.osti.gov/biblio/4789465</a>
+              </li>
+              <li id="ref-gschneidner1966">
+                Gschneidner, K. A., Jr. (1966). Physical properties of the rare earth metals. In <em>Transactions of the Vacuum Metallurgy Conference 1965</em>. American Vacuum Society. (The source of LA-4003&rsquo;s rare-earth radii.)
+              </li>
+              <li id="ref-ms2017">
+                Miracle, D. B., &amp; Senkov, O. N. (2017). A critical review of high entropy alloys and related concepts. <em>Acta Materialia</em>, 122, 448&ndash;511. (Table 3 is the cross-check column in the Data view.)
+                <a href="https://doi.org/10.1016/j.actamat.2016.08.081" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.actamat.2016.08.081</a>
+              </li>
+              <li id="ref-crc">
+                Haynes, W. M. (Ed.). (2016). <em>CRC Handbook of Chemistry and Physics</em> (97th ed.). CRC Press. (Melting points at 1 atm.)
+              </li>
+              <li id="ref-pauling1960">
+                Pauling, L. (1960). <em>The Nature of the Chemical Bond</em> (3rd ed.). Cornell University Press. (Primary reference of the electronegativity set.)
+              </li>
+              <li id="ref-housecroft2018">
+                Housecroft, C. E., &amp; Sharpe, A. G. (2018). <em>Inorganic Chemistry</em> (5th ed.), Appendix 6. Pearson. (Digitized CN12 metallic radii behind the legacy rows.)
+              </li>
+              <li id="ref-koskenmaki1978">
+                Koskenmaki, D. C., &amp; Gschneidner, K. A., Jr. (1978). Cerium. In <em>Handbook on the Physics and Chemistry of Rare Earths</em> (Vol. 1, Ch. 4). North-Holland.
+                <a href="https://doi.org/10.1016/S0168-1273(78)01008-9" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/S0168-1273(78)01008-9</a>
+              </li>
+              <li id="ref-matminer2018">
+                Ward, L., Dunn, A., Faghaninia, A., et al. (2018). Matminer: An open source toolkit for materials data mining. <em>Computational Materials Science</em>, 152, 60&ndash;69. (Digitization of the Miedema tables vendored here.)
+                <a href="https://doi.org/10.1016/j.commatsci.2018.05.018" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.commatsci.2018.05.018</a>
+              </li>
+          </ul>
+
+          <h3 id="refs-methods"><span class="sec-num">06</span>Methods, data, and applications</h3>
           <ul class="ref-list">
               <li>
                 Chen, R., Qin, G., Liaw, P. K., Gao, Y., Zheng, H., Wang, L., Su, Y., Ding, H., Guo, J., &amp; Fu, H. (2019). A novel face centred cubic high entropy alloy strengthened by nanoscale precipitates. <em>Scripta Materialia</em>, 172, 51&ndash;55.
@@ -7057,7 +7284,7 @@ font-family: 'Source Sans Pro'
               </li>
           </ul>
 
-          <h3 id="refs-about"><span class="sec-num">06</span>About this software</h3>
+          <h3 id="refs-about"><span class="sec-num">07</span>About this software</h3>
           <div class="legal">
           <p>
             <strong class="legal-label">Disclaimer</strong> &mdash;
