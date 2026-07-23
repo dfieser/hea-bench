@@ -44,10 +44,13 @@ For any composition it reports:
   fluorite radius-dispersion rule, and the pyrochlore radius-ratio
   window.
 
-Element coverage: 37 elements for alloys (Ag Al Au Be Ca Ce Co Cr Cu Fe
-Gd Hf In Ir La Li Mg Mn Mo Nb Ni Os Pd Pt Re Rh Ru Sc Si Sn Ta Ti V W Y
-Zn Zr); the Miedema pair table covers 75; the oxide module's Shannon
-table covers 94.
+Element coverage: 55 elements for alloys (Ag Al Au Be Bi Ca Ce Co Cr
+Cu Dy Er Fe Ga Gd Ge Hf Ho In Ir La Li Lu Mg Mn Mo Nb Nd Ni Os Pb Pd
+Pr Pt Re Rh Ru Sb Sc Si Sm Sn Sr Ta Tb Th Ti Tm U V W Y Yb Zn Zr —
+the full experimentally active rare-earth HEA palette plus the
+nuclear, solder, and HE-BMG corners); the Miedema pair table covers
+75 (1484 of our 1485 pairs; the lone Th-U gap is reported, never
+zeroed); the oxide module's Shannon table covers 94.
 
 ## Four ways to run it
 
@@ -61,7 +64,7 @@ table covers 94.
 The three surfaces share **one calculation core**. The browser/desktop
 core (`web/hea-calculator-core.js`) is a pure-JS port of the Python
 library, and `tests/test_web_parity.py` guarantees the two match on all
-666 binary pairs and the canonical multi-element fixtures, while
+1484 binary pairs and the canonical multi-element fixtures, while
 `tests/test_web_oxides_parity.py` does the same for the oxide module,
 down to identical warning messages.
 

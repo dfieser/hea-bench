@@ -216,12 +216,16 @@ import it as `from hea_bench import oxides`.
 
 ## Coverage limit
 
-The element table covers **37 elements** (alloy surface; the oxides
-module has its own 94-element Shannon table). Compositions containing
-elements outside it (C, B, the refractory-gas formers, and most
-lanthanides) are not fully scorable: `delta`, `smix`-class
+The element table covers **55 elements** (alloy surface; the oxides
+module has its own 94-element Shannon table). v2.1 added the full
+experimentally active rare-earth palette (Pr Nd Sm Tb Dy Ho Er Tm Yb
+Lu), Ga, Ge, the nuclear pair U/Th, Sr, and the solder metals Sb Bi
+Pb. Compositions containing elements outside it (C, B, N, the alkali
+metals) are not fully scorable: `delta`, `smix`-class
 geometric/melting descriptors need the element table, while
-Miedema-based descriptors fall back to the wider 75-element pair table.
+Miedema-based descriptors fall back to the wider 75-element pair
+table (which lacks exactly one of our pairs, Th-U; that pair raises
+rather than returning a silent zero).
 Carbon and boron are deliberately held out (no metallic radius; no
 1-atm melting point for carbon).
 

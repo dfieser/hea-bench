@@ -28,7 +28,8 @@
         "High-Entropy Alloy Descriptor Calculator",
         "High-Entropy Oxide Descriptor Calculator"
       ],
-      "description": "An open, parity-tested calculator of the standard high-entropy alloy (HEA) and high-entropy oxide (HEO) thermodynamic and geometric descriptors (mixing entropy, atomic-size mismatch, VEC, Miedema mixing enthalpy, Yang-Zhang Omega, King Phi, Ye phi) and the canonical empirical phase-prediction rules. Every number is a transparent closed-form expression over curated, literature-cited data tables.",
+      "description": "An open, parity-tested calculator of the standard high-entropy alloy (HEA) and high-entropy oxide (HEO) thermodynamic and geometric descriptors (mixing entropy, atomic-size mismatch, VEC, Miedema mixing enthalpy, Yang-Zhang Omega, King Phi, Ye phi, Singh Lambda, Wang gamma, Andreoli elastic-strain energy, Senkov-Miracle kappa) and the canonical empirical phase-prediction rules over 55 elements, with per-result provenance, literature maps, citable result IDs, and downloadable calculation receipts. Every number is a transparent closed-form expression over curated, literature-cited data tables.",
+      "variableMeasured": ["mixing entropy", "atomic size mismatch delta", "valence electron concentration", "mixing enthalpy (Miedema)", "Yang-Zhang Omega", "electronegativity mismatch", "mismatch entropy", "King Phi", "Ye phi", "Singh Lambda", "Wang gamma", "Andreoli elastic-strain energy", "Senkov-Miracle kappa", "sigma-phase VEC window", "refractory ductility VEC screen", "HEO sublattice entropy", "Goldschmidt tolerance factor", "cation size disorder"],
       "url": "https://dfieser.github.io/hea-bench/",
       "applicationCategory": "EducationalApplication",
       "applicationSubCategory": "Scientific calculator",
@@ -5228,10 +5229,10 @@ font-family: 'Source Sans Pro'
 
       <div class="strip">
         <div class="wrap strip__inner">
-          <span><b>37</b> alloy elements</span>
+          <span><b>55</b> alloy elements</span>
           <span><b>75</b>-element Miedema pair table</span>
           <span><b>94</b>-element Shannon oxide table</span>
-          <span><b>666</b> parity-tested element pairs</span>
+          <span><b>1484</b> parity-tested element pairs</span>
           <span><b>MIT</b> licensed</span>
         </div>
       </div>
@@ -5332,7 +5333,7 @@ font-family: 'Source Sans Pro'
             <div class="pillar">
               <h3>Verified</h3>
               <p>An automated parity suite locks the JavaScript port to the Python reference on
-                 all 666 element pairs and a curated oxide fixture set, and pins published
+                 all 1484 element pairs and a curated oxide fixture set, and pins published
                  literature values as regression benchmarks in the tests.</p>
             </div>
             <div class="pillar">
@@ -5731,8 +5732,8 @@ font-family: 'Source Sans Pro'
           </div>
           <p>
             The \(\Delta H_{ij}\) values used for \(\Delta H_{\mathrm{mix}}\) come from a fixed,
-            vendored Miedema pair table (Matminer-derived; all 666 binary pairs of the 37 supported
-            elements) &mdash; the same table the Python library uses, kept in lock-step by a parity
+            vendored Miedema pair table (Matminer-derived; 1484 of the 1485 binary pairs of the 55 supported
+            elements, the lone Th&ndash;U gap reported rather than zeroed) &mdash; the same table the Python library uses, kept in lock-step by a parity
             test. A manual-override field lets you substitute validated literature values per pair,
             for example the integer table of Takeuchi &amp; Inoue (2005).
           </p>
@@ -7103,7 +7104,7 @@ font-family: 'Source Sans Pro'
       </div>
 
       <footer class="statusbar">
-        <span>37 alloy elements &middot; 666 Miedema pair enthalpies &middot; 94 oxide elements</span>
+        <span>55 alloy elements &middot; 1484 Miedema pair enthalpies &middot; 94 oxide elements</span>
         <span class="sb-spacer"></span>
         <span>Miedema model &mdash; de Boer et al. (1988)</span>
         <span class="sb-sep">&middot;</span>
@@ -11371,7 +11372,7 @@ font-family: 'Source Sans Pro'
       }
       renderSavedResultsTable();
 
-      document.getElementById("version-badge").textContent = "v" + VERSION + " — " + VERSION_DATE;
+      document.getElementById("version-badge").textContent = "v" + VERSION + " — " + VERSION_DATE + " · data " + DATA_TABLES_SHORT_SHA;
     </script>
 
     <!-- View switcher (titlebar tabs). Independent of the calculation core;

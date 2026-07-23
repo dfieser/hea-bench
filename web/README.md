@@ -76,14 +76,14 @@ id such as `index.html#sec-perovskite`.
 
 ## Element coverage
 
-The calculator covers the same 37 elements as the Python library's
-`ELEMENTAL_DATA` table: Ag, Al, Au, Be, Ca, Ce, Co, Cr, Cu, Fe, Gd, Hf,
-In, Ir, La, Li, Mg, Mn, Mo, Nb, Ni, Os, Pd, Pt, Re, Rh, Ru, Sc, Si, Sn,
-Ta, Ti, V, W, Y, Zn, Zr. Compositions containing any element outside
-this set surface a warning in the page rather than producing a number.
-The Miedema formation-enthalpy decompositions also cover all 37
-elements, using parameters from the repo's vendored matminer Miedema
-table. The oxide mode draws on a 94-element Shannon ionic-radius table
+The calculator covers the same 55 elements as the Python library's
+`ELEMENTAL_DATA` table (see the app's Data view for the full table
+with per-value sources and cross-checks). Compositions containing any
+element outside this set surface a warning in the page rather than
+producing a number. The auxiliary Miedema formation-enthalpy
+decompositions still run on the original 37-element parameter set and
+simply stay blank outside it; the Andreoli elastic-strain energy and
+every core descriptor cover all 55. The oxide mode draws on a 94-element Shannon ionic-radius table
 vendored from pymatgen. Custom user-defined elements compute every core
 descriptor and rule; electronegativity and decomposition outputs
 degrade with a warning when their parameters are not supplied.
@@ -92,7 +92,7 @@ degrade with a warning when their parameters are not supplied.
 
 For parity-critical descriptor or rule changes, update
 `hea-calculator-core.js` and then run the parity regressions in
-`tests/test_web_parity.py` (alloys, 666 pairs plus multi-element
+`tests/test_web_parity.py` (alloys, 1484 pairs plus multi-element
 fixtures) and `tests/test_web_oxides_parity.py` (oxides, including
 exact warning strings). Both execute the shared JS core under Node and
 compare against the matching Python APIs.

@@ -5,7 +5,7 @@ modules consume:
 
 | File | Origin | License | Loader |
 |---|---|---|---|
-| `elemental.py` | Curated by hand from the legacy `validate_rules.py` (Pauling-style atomic radii, CRC melting points, standard valence-electron counts) | hea-bench's own (MIT) | importable Python dict |
+| `elemental.py` | Curated by hand; radii follow the Goldschmidt CN12 convention with Teatum, Gschneidner & Waber LA-4003 (1968) as the declared authority for the v2.1 additions (earlier notes cited "Teatum & Waber 1967"; LA-4003 1968 is the precise citation), CRC melting points, Guo-convention valence counts | hea-bench's own (MIT) | importable Python dict |
 | `pair_enthalpies.tsv` | Vendored from [matminer](https://github.com/hackingmaterials/matminer)'s `MiedemaLiquidDeltaHf.tsv` | BSD-3-Clause | `pair_enthalpies.py` |
 | `miedema_parameters.csv` | Vendored from matminer's `Miedema.csv` (per-element Miedema parameters: φ\*, n_ws, V_m, valence, bulk modulus, shear modulus, T_m, structural stability) | BSD-3-Clause | source of the calculator page's Miedema decomposition tables (`MIEDEMA_PARAMS`, `ELEMENT_EXTENDED` in `web/index.html`); no Python loader yet |
 | `LICENSE.matminer.txt` | matminer's full BSD-3-Clause license | — | — |
@@ -57,15 +57,14 @@ maintain the source-of-truth file at
 [`hackingmaterials/matminer/.../MiedemaLiquidDeltaHf.tsv`](https://github.com/hackingmaterials/matminer/blob/main/src/matminer/utils/data_files/MiedemaLiquidDeltaHf.tsv)
 and document its provenance in their package.
 
-### Coverage vs. our 24-element ELEMENTAL_DATA
+### Coverage vs. our 55-element ELEMENTAL_DATA
 
-All 276 unique pairs needed for the 24 elements in
+1484 of the 1485 unique pairs needed for the 55 elements in
 [`elemental.py`](elemental.py) are present in `pair_enthalpies.tsv`.
-**100% pair coverage** at the current elemental data scope.
-
-The vendored table also covers V (previously missing from our
-Miedema setup) and many elements absent from `elemental.py` (rare
-earths, alkali metals) — useful for Phase 2e coverage-gap expansion.
+The single gap is Th-U (the only actinide-actinide pair we would
+need); `pair_enthalpy("Th", "U")` raises rather than returning a
+silent zero, and `tests/test_pair_enthalpies.py` pins the gap exactly
+so any other vendored-data drift still fails the suite.
 
 ## File integrity (SHA-256, captured 2026-05-20)
 
