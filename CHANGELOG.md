@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.1.0] — 2026-07-23
+
 ### Fixed
 
 - Composition permalinks (`?comp=...`) now open the calculator directly;
