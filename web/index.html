@@ -761,6 +761,26 @@
       }
       .prov-links a:hover, .prov-actions button:hover { border-color: var(--accent); color: var(--accent); }
       .prov-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+      /* ---- Cite-this-result panel ---- */
+      .cite-panel__grid { display: grid; gap: 6px; }
+      .cite-panel__row { display: flex; align-items: baseline; gap: 10px; font-size: 12.5px; }
+      .cite-panel__label {
+        min-width: 84px;
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        font-weight: 600;
+      }
+      .cite-panel__row code {
+        font-family: var(--mono, monospace);
+        font-size: 12px;
+        word-break: break-all;
+        background: var(--surface-subtle);
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        padding: 2px 6px;
+      }
       .result-card-compact {
         padding: 10px 12px;
         background: var(--surface);
@@ -6606,6 +6626,26 @@ font-family: 'Source Sans Pro'
         <div class="maps-grid" id="maps-grid"></div>
       </section>
 
+      <section class="panel hidden" id="cite-panel">
+        <h2>Cite this result</h2>
+        <p class="small-note" style="margin: -4px 0 12px;">
+          A reproducible reference for the numbers above: the app version, a content-derived
+          result ID, a permalink, and a receipt with every input, output, and source.
+        </p>
+        <div class="cite-panel__grid">
+          <div class="cite-panel__row"><span class="cite-panel__label">Result ID</span><code id="cite-result-id">computing…</code></div>
+          <div class="cite-panel__row" id="cite-permalink-row"><span class="cite-panel__label">Permalink</span><code id="cite-permalink"></code></div>
+          <div class="cite-panel__row"><span class="cite-panel__label">Version</span><code id="cite-version"></code></div>
+        </div>
+        <div class="actions" style="margin-top: 12px;">
+          <button id="cite-copy-text" class="secondary">Copy citation</button>
+          <button id="cite-copy-bibtex" class="ghost">Copy BibTeX</button>
+          <button id="cite-copy-receipt" class="ghost">Copy receipt JSON</button>
+          <button id="cite-download-receipt" class="ghost">Download receipt</button>
+          <div id="cite-message" class="small-note" style="margin: 0;"></div>
+        </div>
+      </section>
+
       <section class="panel mode-alloy">
         <h2>Saved results</h2>
         <div class="actions" style="margin-bottom: 12px;">
@@ -9083,10 +9123,12 @@ font-family: 'Source Sans Pro'
           miedemaPanelEl.classList.add("hidden");
           rulesPanelEl.classList.add("hidden");
           renderMaps(null);
+          renderCitePanel(null);
           return;
         }
         renderMaps(payload);
         provRememberAlloy(payload);
+        renderCitePanel("alloy");
 
         const { composition, descriptors } = payload;
         const rules = payload.rules || calcCore.rulePredictionsFromDescriptors(descriptors, {
@@ -10074,6 +10116,7 @@ font-family: 'Source Sans Pro'
 
       function renderOxideReport(report) {
         provRememberOxide(report);
+        renderCitePanel("oxide");
         oxideResultsEl.innerHTML = "";
         oxideVerdictsEl.innerHTML = "";
 
@@ -10248,7 +10291,10 @@ font-family: 'Source Sans Pro'
       });
       oxideCopyBtn.addEventListener("click", () => {
         if (!lastOxideReport) return;
-        navigator.clipboard.writeText(JSON.stringify(lastOxideReport, null, 2)).then(() => {
+        // Same receipt envelope as the cite panel; the raw report rides
+        // in receipt.outputs so earlier consumers keep their fields.
+        const payload = citeState && citeState.mode === "oxide" ? citeState.receipt : lastOxideReport;
+        navigator.clipboard.writeText(JSON.stringify(payload, null, 2)).then(() => {
           oxideCopyBtn.textContent = "Copied!";
           setTimeout(() => { oxideCopyBtn.textContent = "Copy report (JSON)"; }, 1500);
         }).catch(() => {
@@ -10567,6 +10613,201 @@ font-family: 'Source Sans Pro'
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") closeProvenance();
       });
+
+      // ---- Cite this result: content-hash ID, permalink, receipt ----
+      const PAPER_DOI = "10.3390/ma19143075";
+      const CONCEPT_DOI = "10.5281/zenodo.20346287";
+      let citeState = null; // { id, permalink, receipt }
+
+      function canonicalJson(value) {
+        if (Array.isArray(value)) {
+          return "[" + value.map(canonicalJson).join(",") + "]";
+        }
+        if (value && typeof value === "object") {
+          return "{" + Object.keys(value).sort().map((k) => JSON.stringify(k) + ":" + canonicalJson(value[k])).join(",") + "}";
+        }
+        if (typeof value === "number" && !isFinite(value)) {
+          return JSON.stringify(value > 0 ? "__Infinity__" : "__-Infinity__");
+        }
+        return JSON.stringify(value);
+      }
+
+      function fnv1aHex(text) {
+        let h = 0x811c9dc5;
+        for (let i = 0; i < text.length; i += 1) {
+          h ^= text.charCodeAt(i);
+          h = (h * 0x01000193) >>> 0;
+        }
+        return ("0000000" + h.toString(16)).slice(-8);
+      }
+
+      function resultIdFrom(text) {
+        if (window.crypto && window.crypto.subtle && typeof window.crypto.subtle.digest === "function") {
+          const bytes = new TextEncoder().encode(text);
+          return window.crypto.subtle.digest("SHA-256", bytes).then((buf) => {
+            const hex = Array.from(new Uint8Array(buf)).map((b) => ("0" + b.toString(16)).slice(-2)).join("");
+            return "hea-" + hex.slice(0, 12);
+          }).catch(() => "hea-fnv-" + fnv1aHex(text));
+        }
+        // No WebCrypto (e.g. plain http): a labeled non-cryptographic fallback.
+        return Promise.resolve("hea-fnv-" + fnv1aHex(text));
+      }
+
+      function sanitizeForJson(value) {
+        if (Array.isArray(value)) return value.map(sanitizeForJson);
+        if (value && typeof value === "object") {
+          const out = {};
+          Object.keys(value).forEach((k) => { out[k] = sanitizeForJson(value[k]); });
+          return out;
+        }
+        if (typeof value === "number" && !isFinite(value)) {
+          return value > 0 ? "__Infinity__" : "__-Infinity__";
+        }
+        return value;
+      }
+
+      function buildReceipt(mode) {
+        const generated = new Date().toISOString().slice(0, 10);
+        const base = {
+          schema: "hea-bench-receipt/1",
+          app: {
+            name: "HEA-Bench",
+            version: VERSION,
+            surface: "browser",
+            paper_doi: PAPER_DOI,
+            concept_doi: CONCEPT_DOI,
+            cite_note: "Cite the paper for the descriptor definitions and the Zenodo record for the software version.",
+          },
+          generated: generated,
+          data: {
+            element_table: "55 elements: radii LA-4003 (1968), melting CRC, VEC Guo convention, chi Pauling set; per-element notes in the Data view",
+            pair_table: "Miedema binary enthalpies, de Boer 1988 via Takeuchi-Inoue 2005 and matminer",
+            file_sha256: DATA_FILE_SHAS,
+            tables_short_sha: DATA_TABLES_SHORT_SHA,
+          },
+        };
+        if (mode === "alloy" && provContext.payload) {
+          const overrides = Object.keys(pairEnthalpyEdits || {}).length ? pairEnthalpyEdits : null;
+          base.inputs = {
+            mode: "alloy",
+            composition: provContext.payload.composition,
+            annealing_temperature_K: provContext.payload.descriptors.King_temperature_K,
+            pair_enthalpy_overrides_kj_mol: overrides,
+          };
+          base.outputs = {
+            descriptors: sanitizeForJson(provContext.payload.descriptors),
+            rules: sanitizeForJson(provContext.payload.rules),
+            warnings: provContext.payload.warnings || [],
+          };
+        } else if (mode === "oxide" && provContext.report) {
+          base.inputs = {
+            mode: "oxide",
+            family: provContext.report.family,
+            sites: provContext.report.sites,
+          };
+          base.outputs = sanitizeForJson(provContext.report);
+        }
+        base.references = Object.keys(REFERENCES_JS).sort().map((k) => ({
+          key: k,
+          doi: REFERENCES_JS[k].doi || null,
+          url: REFERENCES_JS[k].url || null,
+        }));
+        return base;
+      }
+
+      function renderCitePanel(mode) {
+        const panel = document.getElementById("cite-panel");
+        if (!panel) return;
+        if (!mode) {
+          panel.classList.add("hidden");
+          citeState = null;
+          return;
+        }
+        const receipt = buildReceipt(mode);
+        if (!receipt.inputs) {
+          panel.classList.add("hidden");
+          citeState = null;
+          return;
+        }
+        const permalink = mode === "alloy" ? buildShareUrl() : null;
+        const idPayload = canonicalJson({ v: VERSION, inputs: receipt.inputs });
+        document.getElementById("cite-version").textContent = "v" + VERSION + " · data " + DATA_TABLES_SHORT_SHA;
+        const permRow = document.getElementById("cite-permalink-row");
+        if (permalink) {
+          permRow.style.display = "";
+          document.getElementById("cite-permalink").textContent = permalink;
+        } else {
+          permRow.style.display = "none";
+        }
+        document.getElementById("cite-result-id").textContent = "computing…";
+        resultIdFrom(idPayload).then((id) => {
+          receipt.result_id = id;
+          if (permalink) receipt.permalink = permalink;
+          citeState = { id: id, permalink: permalink, receipt: receipt, mode: mode };
+          document.getElementById("cite-result-id").textContent = id;
+        });
+        panel.classList.remove("hidden");
+      }
+
+      function citeMessage(text) {
+        const el = document.getElementById("cite-message");
+        el.textContent = text;
+        setTimeout(() => { if (el.textContent === text) el.textContent = ""; }, 2000);
+      }
+
+      function citationText() {
+        if (!citeState) return "";
+        const today = new Date().toISOString().slice(0, 10);
+        return "HEA-Bench v" + VERSION + " (browser app), result " + citeState.id +
+          (citeState.permalink ? ", " + citeState.permalink : "") +
+          ", retrieved " + today + ". Software archive: doi:" + CONCEPT_DOI +
+          ". Descriptor definitions: Fieser (2026), Materials 19, 3075, doi:" + PAPER_DOI + ".";
+      }
+
+      function citationBibtex() {
+        if (!citeState) return "";
+        const today = new Date().toISOString().slice(0, 10);
+        const softwareEntry = "@software{heabench_v" + VERSION.replace(/\./g, "_") + ",\n" +
+          "  author = {Fieser, D.},\n" +
+          "  title = {HEA-Bench (browser app)},\n" +
+          "  version = {" + VERSION + "},\n" +
+          "  doi = {" + CONCEPT_DOI + "},\n" +
+          (citeState.permalink ? "  url = {" + citeState.permalink + "},\n" : "") +
+          "  note = {Result " + citeState.id + ", retrieved " + today + "},\n" +
+          "  year = {2026},\n}";
+        const paperEntry = REFERENCES_JS.heabench2026 ? REFERENCES_JS.heabench2026.bibtex : "";
+        return softwareEntry + "\n\n" + paperEntry;
+      }
+
+      function bindCitePanel() {
+        const copyText = document.getElementById("cite-copy-text");
+        const copyBib = document.getElementById("cite-copy-bibtex");
+        const copyReceipt = document.getElementById("cite-copy-receipt");
+        const download = document.getElementById("cite-download-receipt");
+        if (!copyText) return;
+        copyText.addEventListener("click", () => {
+          navigator.clipboard.writeText(citationText()).then(() => citeMessage("Citation copied.")).catch(() => citeMessage("Clipboard unavailable."));
+        });
+        copyBib.addEventListener("click", () => {
+          navigator.clipboard.writeText(citationBibtex()).then(() => citeMessage("BibTeX copied.")).catch(() => citeMessage("Clipboard unavailable."));
+        });
+        copyReceipt.addEventListener("click", () => {
+          if (!citeState) return;
+          navigator.clipboard.writeText(JSON.stringify(citeState.receipt, null, 2)).then(() => citeMessage("Receipt copied.")).catch(() => citeMessage("Clipboard unavailable."));
+        });
+        download.addEventListener("click", () => {
+          if (!citeState) return;
+          const blob = new Blob([JSON.stringify(citeState.receipt, null, 2)], { type: "application/json" });
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = "hea-bench-receipt-" + citeState.id + ".json";
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+          citeMessage("Receipt downloaded.");
+        });
+      }
+      bindCitePanel();
 
       // Click-to-copy on every numeric result card.
       [
