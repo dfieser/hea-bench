@@ -1692,12 +1692,16 @@
       .result-card.copied::after {
         content: "copied";
         position: absolute;
-        top: 7px;
-        right: 34px; /* clear of the provenance info button */
+        bottom: 7px;
+        left: 9px;
         font-family: var(--mono);
         font-size: 10px;
         letter-spacing: 0.05em;
         color: var(--accent);
+        background: var(--surface);
+        padding: 1px 5px;
+        border: 1px solid var(--accent);
+        border-radius: 3px;
       }
 
       /* ---- Welcome empty-state quick actions ---- */

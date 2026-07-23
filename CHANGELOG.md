@@ -10,6 +10,11 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Fixed
+
+- The "copied" badge moved to the bottom-left of the card as a small
+  chip; at the top right it collided with long card titles.
+
 ## [2.1.1] — 2026-07-23
 
 ### Fixed
