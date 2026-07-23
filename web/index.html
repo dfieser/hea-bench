@@ -781,6 +781,76 @@
         border-radius: 3px;
         padding: 2px 6px;
       }
+      /* ---- Data view ---- */
+      .data-colsrc { font-size: 12.5px; color: var(--text-muted); line-height: 1.55; }
+      .data-controls { display: flex; align-items: center; gap: 12px; margin: 10px 0; }
+      .data-controls input {
+        font: inherit;
+        font-size: 13px;
+        padding: 6px 10px;
+        border: 1px solid var(--border-2);
+        border-radius: 3px;
+        background: var(--surface);
+        color: var(--text);
+        width: 240px;
+      }
+      .data-elements th[data-sort] { cursor: pointer; user-select: none; }
+      .data-elements th[data-sort]:hover { color: var(--accent); }
+      .data-elements td:first-child { font-weight: 600; }
+      .data-el-note-row td {
+        background: var(--surface-subtle);
+        font-size: 12px;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+      .data-el-flag {
+        display: inline-block;
+        font-size: 10.5px;
+        border: 1px solid var(--border-2);
+        border-radius: 999px;
+        padding: 1px 8px;
+        margin: 2px 4px 2px 0;
+        color: var(--text-muted);
+      }
+      .data-el-crossdiff { color: var(--danger); }
+      .data-toggle {
+        border: none;
+        background: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-size: 12px;
+        padding: 0;
+        text-decoration: underline dotted;
+      }
+      .data-toggle:hover { color: var(--accent); }
+      .data-pairlookup { display: flex; align-items: center; gap: 8px; margin: 10px 0 18px; flex-wrap: wrap; }
+      .data-pairlookup select {
+        font: inherit;
+        font-size: 13px;
+        padding: 5px 8px;
+        border: 1px solid var(--border-2);
+        border-radius: 3px;
+        background: var(--surface);
+        color: var(--text);
+      }
+      .data-pairlookup code {
+        font-family: var(--mono, monospace);
+        font-size: 12.5px;
+        background: var(--surface-subtle);
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        padding: 4px 8px;
+      }
+      .data-file-card {
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        background: var(--surface);
+        padding: 10px 14px;
+        margin: 0 0 10px;
+        font-size: 12.5px;
+      }
+      .data-file-card code { font-size: 11px; word-break: break-all; color: var(--text-muted); }
+      .data-file-card .data-file-name { font-family: var(--mono, monospace); font-weight: 600; }
       .result-card-compact {
         padding: 10px 12px;
         background: var(--surface);
@@ -5376,6 +5446,7 @@ font-family: 'Source Sans Pro'
         </div>
         <nav class="titlebar__tabs" aria-label="Views">
           <button type="button" class="tab is-active" data-view="calc">Calculator</button>
+          <button type="button" class="tab" data-view="data">Data</button>
           <button type="button" class="tab" data-view="theory">Theory</button>
           <button type="button" class="tab" data-view="reference">Equations</button>
           <button type="button" class="tab" data-view="refs">References</button>
@@ -6711,6 +6782,84 @@ font-family: 'Source Sans Pro'
 
             </main>
           </div>
+        </div>
+
+        <div class="view" data-view-panel="data">
+        <section class="theory-section docs" aria-labelledby="data-title">
+          <aside class="docs-nav" aria-label="On this page">
+            <div class="docs-nav__title">Contents</div>
+            <ol class="docs-nav__list">
+              <li><a href="#data-elements">Element table</a></li>
+              <li><a href="#data-pairs">Pair enthalpies</a></li>
+              <li><a href="#data-files">Data files &amp; integrity</a></li>
+              <li><a href="#data-coverage">Feature coverage</a></li>
+            </ol>
+          </aside>
+          <div class="docs-main">
+          <p class="theory-eyebrow">Source data</p>
+          <h2 class="theory-title" id="data-title">The numbers behind the calculator</h2>
+          <p class="theory-lede">
+            Every per-element value the calculator consumes, with its source, its convention, and
+            the places where good compilations disagree. Nothing on this page feeds the
+            computation at display time; it is the same vendored, SHA-pinned data the calculation
+            core was built from, shown so any result can be audited to its inputs.
+          </p>
+
+          <h3 id="data-elements"><span class="sec-num">01</span>Element table (55 elements)</h3>
+          <p class="data-colsrc" id="data-colsrc"></p>
+          <div class="data-controls">
+            <input type="text" id="data-filter" placeholder="Filter symbols, e.g. Dy or U" aria-label="Filter element table" />
+            <span class="small-note" id="data-count"></span>
+          </div>
+          <div class="table-wrap">
+            <table class="data data-elements" id="data-element-table">
+              <thead>
+                <tr>
+                  <th data-sort="symbol">El</th>
+                  <th data-sort="radius">r (pm)</th>
+                  <th data-sort="melting">Tm (K)</th>
+                  <th data-sort="valence">VEC</th>
+                  <th data-sort="chi">χ</th>
+                  <th>Cross-check &amp; notes</th>
+                </tr>
+              </thead>
+              <tbody id="data-element-tbody"></tbody>
+            </table>
+          </div>
+
+          <h3 id="data-pairs"><span class="sec-num">02</span>Pair mixing enthalpies</h3>
+          <p>
+            Miedema-model binary liquid mixing enthalpies, vendored from matminer's digitization
+            of de Boer et al. (1988), the same primary source behind Takeuchi &amp; Inoue (2005).
+            1484 of the 1485 pairs over the 55-element table are present; the single gap (Th–U)
+            is reported as unavailable rather than silently zeroed.
+          </p>
+          <div class="data-pairlookup">
+            <select id="data-pair-a" aria-label="First element"></select>
+            <span>–</span>
+            <select id="data-pair-b" aria-label="Second element"></select>
+            <code id="data-pair-value">pick two elements</code>
+          </div>
+
+          <h3 id="data-files"><span class="sec-num">03</span>Data files &amp; integrity</h3>
+          <div id="data-files-list"></div>
+
+          <h3 id="data-coverage"><span class="sec-num">04</span>Feature coverage by element</h3>
+          <p>
+            Core descriptors (ΔS, δ, VEC, Tm, Δχ, ΔH mix, Ω, Λ, γ, Φ, φ, κ) cover all 55
+            elements. The Andreoli elastic-strain energy needs the bulk modulus and molar volume
+            (all 55 covered). The auxiliary Miedema decomposition panel (compound / solid-solution
+            / amorphous enthalpies) still runs on its original 37-element parameter set; alloys
+            outside it simply show no decomposition rather than a guessed one.
+          </p>
+          <div class="table-wrap">
+            <table class="data" id="data-coverage-table">
+              <thead><tr><th>El</th><th>Core + maps</th><th>ΔH el</th><th>Miedema decomposition</th></tr></thead>
+              <tbody id="data-coverage-tbody"></tbody>
+            </table>
+          </div>
+          </div>
+        </section>
         </div>
 
         <aside class="prov-drawer" id="prov-drawer" role="dialog" aria-modal="false" aria-labelledby="prov-drawer-title" hidden>
@@ -10809,6 +10958,145 @@ font-family: 'Source Sans Pro'
       }
       bindCitePanel();
 
+      // ---- Data view: the source-data browser -----------------------
+      let dataSortKey = "symbol";
+      let dataSortAsc = true;
+
+      function dataElementRows() {
+        const els = Object.keys(calcCore.ELEMENT_DATA);
+        const rows = els.map((el) => {
+          const d = calcCore.ELEMENT_DATA[el];
+          return { symbol: el, radius: d.radius, melting: d.melting, valence: d.valence, chi: d.chi };
+        });
+        rows.sort((a, b) => {
+          const va = a[dataSortKey];
+          const vb = b[dataSortKey];
+          const cmp = typeof va === "string" ? va.localeCompare(vb) : va - vb;
+          return dataSortAsc ? cmp : -cmp;
+        });
+        return rows;
+      }
+
+      function dataNoteHtml(el) {
+        const src = ELEMENT_SOURCES_JS[el] || {};
+        const parts = [];
+        const srcRef = REFERENCES_JS[src.radiusSource];
+        if (srcRef) {
+          parts.push(`Radius source: <a href="#refs" data-jump-view="refs" data-jump-anchor="ref-${src.radiusSource}">${srcRef.authors.split(",")[0].trim()} ${srcRef.year}</a>.`);
+        }
+        if (src.crosscheckRadiusPm !== null && src.crosscheckRadiusPm !== undefined) {
+          const ours = calcCore.ELEMENT_DATA[el].radius;
+          const diff = Math.abs(ours - src.crosscheckRadiusPm);
+          const agree = diff <= 1.0;
+          parts.push(
+            `Cross-check radius (M&amp;S 2017 Table 3): <span class="${agree ? "" : "data-el-crossdiff"}">${src.crosscheckRadiusPm} pm</span>` +
+            (agree ? ` — agrees within ${diff.toFixed(1)} pm.` : ` — differs by ${diff.toFixed(1)} pm; ${src.crosscheckNote || "see note."}`)
+          );
+        } else if (src.crosscheckNote) {
+          parts.push(src.crosscheckNote);
+        }
+        if (src.notes) parts.push(src.notes);
+        const flags = (src.flags || []).map((f) => `<span class="data-el-flag">${f}</span>`).join("");
+        return parts.join(" ") + (flags ? `<div>${flags}</div>` : "");
+      }
+
+      function renderDataElementTable() {
+        const tbody = document.getElementById("data-element-tbody");
+        if (!tbody) return;
+        const filter = (document.getElementById("data-filter").value || "").trim().toLowerCase();
+        const rows = dataElementRows().filter((r) => !filter || r.symbol.toLowerCase().indexOf(filter) === 0);
+        tbody.innerHTML = rows.map((r) => {
+          const hasNote = ELEMENT_SOURCES_JS[r.symbol] && (
+            ELEMENT_SOURCES_JS[r.symbol].notes ||
+            ELEMENT_SOURCES_JS[r.symbol].crosscheckRadiusPm !== null ||
+            (ELEMENT_SOURCES_JS[r.symbol].flags || []).length
+          );
+          return `<tr id="data-${r.symbol}">` +
+            `<td>${r.symbol}</td><td>${r.radius}</td><td>${r.melting}</td><td>${r.valence}</td><td>${r.chi}</td>` +
+            `<td>${hasNote ? `<button type="button" class="data-toggle" data-el="${r.symbol}" aria-expanded="false">sources &amp; flags</button>` : `<span class="small-note">standard set</span>`}</td>` +
+            `</tr>`;
+        }).join("");
+        document.getElementById("data-count").textContent = rows.length + " of " + Object.keys(calcCore.ELEMENT_DATA).length + " elements";
+      }
+
+      function buildDataView() {
+        if (!document.getElementById("data-element-tbody")) return;
+        const colsrc = document.getElementById("data-colsrc");
+        colsrc.innerHTML = ["radius_pm", "melting_K", "valence", "electronegativity"].map((k) => {
+          const ps = PROPERTY_SOURCES_JS[k];
+          if (!ps) return "";
+          return `<strong>${k}</strong>: ${ps.statement} [${provSourceLinks(ps.sourceKeys)}]`;
+        }).join("<br>");
+        renderDataElementTable();
+
+        document.getElementById("data-filter").addEventListener("input", renderDataElementTable);
+        document.querySelectorAll("#data-element-table th[data-sort]").forEach((th) => {
+          th.addEventListener("click", () => {
+            const key = th.dataset.sort;
+            if (dataSortKey === key) { dataSortAsc = !dataSortAsc; } else { dataSortKey = key; dataSortAsc = true; }
+            renderDataElementTable();
+          });
+        });
+        document.getElementById("data-element-tbody").addEventListener("click", (event) => {
+          const btn = event.target.closest(".data-toggle");
+          if (!btn) return;
+          const tr = btn.closest("tr");
+          const open = btn.getAttribute("aria-expanded") === "true";
+          if (open) {
+            const next = tr.nextElementSibling;
+            if (next && next.classList.contains("data-el-note-row")) next.remove();
+            btn.setAttribute("aria-expanded", "false");
+          } else {
+            const note = document.createElement("tr");
+            note.className = "data-el-note-row";
+            note.innerHTML = `<td colspan="6">${dataNoteHtml(btn.dataset.el)}</td>`;
+            tr.after(note);
+            btn.setAttribute("aria-expanded", "true");
+          }
+        });
+
+        const selA = document.getElementById("data-pair-a");
+        const selB = document.getElementById("data-pair-b");
+        const out = document.getElementById("data-pair-value");
+        const opts = Object.keys(calcCore.ELEMENT_DATA).map((el) => `<option value="${el}">${el}</option>`).join("");
+        selA.innerHTML = opts;
+        selB.innerHTML = opts;
+        selB.selectedIndex = 1;
+        function updatePair() {
+          const a = selA.value;
+          const b = selB.value;
+          if (a === b) { out.textContent = "pick two different elements"; return; }
+          const v = calcCore.PAIR_ENTHALPIES[getPairKey(a, b)];
+          out.textContent = v === undefined
+            ? `${a}–${b}: not in the vendored table (the documented Th–U gap)`
+            : `ΔH mix(${a}–${b}) = ${v} kJ/mol · de Boer 1988 via matminer`;
+        }
+        selA.addEventListener("change", updatePair);
+        selB.addEventListener("change", updatePair);
+        updatePair();
+
+        const files = [
+          { name: "elemental.py", desc: "The 55-element property table (radii, melting points, VEC, chi) with per-element source comments.", up: "https://github.com/dfieser/hea-bench/blob/main/src/hea_bench/descriptors/data/elemental.py", license: "MIT (hea-bench)" },
+          { name: "pair_enthalpies.tsv", desc: "2628 Miedema binary mixing enthalpies over 75 elements, vendored from matminer's MiedemaLiquidDeltaHf.tsv.", up: "https://github.com/hackingmaterials/matminer/blob/main/src/matminer/utils/data_files/MiedemaLiquidDeltaHf.tsv", license: "BSD-3-Clause (matminer)" },
+          { name: "miedema_parameters.csv", desc: "Per-element Miedema parameters and mechanics (molar volume; the upstream column named 'compressibility' holds the bulk modulus in GPa).", up: "https://github.com/hackingmaterials/matminer/blob/main/src/matminer/utils/data_files/Miedema.csv", license: "BSD-3-Clause (matminer)" },
+          { name: "provenance.py", desc: "The per-element source notes, cross-check values, and bibliography this page renders.", up: "https://github.com/dfieser/hea-bench/blob/main/src/hea_bench/descriptors/data/provenance.py", license: "MIT (hea-bench)" },
+        ];
+        document.getElementById("data-files-list").innerHTML = files.map((f) => {
+          const sha = DATA_FILE_SHAS[f.name] || "";
+          return `<div class="data-file-card"><span class="data-file-name">${f.name}</span> — ${f.desc}<br>` +
+            `<code>sha256 ${sha}</code><br>` +
+            `<a href="${f.up}" target="_blank" rel="noopener noreferrer">upstream</a> · ${f.license}</div>`;
+        }).join("") + `<p class="small-note">Combined data fingerprint: <code>${DATA_TABLES_SHORT_SHA}</code> — shown in the footer badge and embedded in every receipt.</p>`;
+
+        const covBody = document.getElementById("data-coverage-tbody");
+        covBody.innerHTML = Object.keys(calcCore.ELEMENT_DATA).map((el) => {
+          const mech = calcCore.ELEMENT_MECHANICS[el];
+          const mied = typeof MIEDEMA_PARAMS === "object" && MIEDEMA_PARAMS[el] && typeof ELEMENT_EXTENDED === "object" && ELEMENT_EXTENDED[el];
+          return `<tr><td>${el}</td><td>✓</td><td>${mech && mech.B > 0 && mech.Vm > 0 ? "✓" : "✗"}</td><td>${mied ? "✓" : "✗"}</td></tr>`;
+        }).join("");
+      }
+      buildDataView();
+
       // Click-to-copy on every numeric result card.
       [
         resultsEl,
@@ -11139,7 +11427,7 @@ font-family: 'Source Sans Pro'
         // ---- Hash deep links (#theory, #refs, #equations, or a theory
         // section id like #sec-perovskite) so the landing page and external
         // documentation can link straight into a view. ----
-        const viewAliases = { theory: "theory", refs: "refs", references: "refs", equations: "reference", reference: "reference", calc: "calc", calculator: "calc" };
+        const viewAliases = { theory: "theory", refs: "refs", references: "refs", equations: "reference", reference: "reference", calc: "calc", calculator: "calc", data: "data" };
         function openFromHash() {
           const hash = (window.location.hash || "").replace(/^#/, "").toLowerCase();
           if (!hash) return;
@@ -11148,10 +11436,10 @@ font-family: 'Source Sans Pro'
             return;
           }
           const target = document.getElementById(hash);
-          const theoryHost = target && target.closest ? target.closest('.view[data-view-panel="theory"]') : null;
-          if (theoryHost) {
-            show("theory");
-            theoryHost.scrollTo({ top: Math.max(target.offsetTop - 70, 0) });
+          const host = target && target.closest ? target.closest(".view[data-view-panel]") : null;
+          if (host) {
+            show(host.dataset.viewPanel);
+            host.scrollTo({ top: Math.max(target.offsetTop - 70, 0) });
           }
         }
         window.addEventListener("hashchange", openFromHash);
