@@ -31,4 +31,7 @@ __all__ = [
 	"smix",
 	"delta_chi",
 	"mean_electronegativity",
+	"singh_lambda",
+	"wang_gamma",
+	"h_elastic",
 ]
