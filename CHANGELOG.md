@@ -10,6 +10,13 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Changed
+
+- The desktop app gets its own icon: the HEA-Bench hexagon mark with a
+  cream crystal lattice on brand terracotta, replacing the default
+  Tauri icon across every size (generated reproducibly by
+  tools/make_icons.py). The browser favicon now matches.
+
 ## [2.1.2] — 2026-07-23
 
 ### Fixed
