@@ -43,7 +43,11 @@ dependencies = []
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
-    "ruff>=0.4",
+    # Pinned to the 0.15 series: CI installs this fresh, and a new ruff
+    # minor can expand the default rule set overnight and fail the
+    # release gate on untouched code (it did, 2026-07-24). Bump the pin
+    # deliberately, together with any new-rule cleanups.
+    "ruff~=0.15.0",
 ]
 # The MCP agent surface (hea-bench-mcp) needs the official MCP SDK; the
 # calculator core itself stays dependency-free.

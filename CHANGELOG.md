@@ -10,8 +10,6 @@ The format is loosely based on
 
 ## [Unreleased]
 
-## [2.1.3] — 2026-07-24
-
 ### Changed
 
 - The desktop app gets its own icon: the HEA-Bench hexagon mark with a
