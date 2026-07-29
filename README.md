@@ -4,12 +4,12 @@
 
 Open, interpretable tools for computing the standard **high-entropy-alloy
 (HEA) and high-entropy-oxide (HEO) thermodynamic and geometric
-descriptors** and the classic empirical **phase-prediction rules** — from
+descriptors** and the classic empirical **phase-prediction rules**, from
 any composition, with no fitted model and no black box. Every number is a
 transparent closed-form expression over a curated element-property table,
 validated against the primary literature.
 
-**Try it now:** <https://dfieser.github.io/hea-bench/> — no install, runs
+**Try it now:** <https://dfieser.github.io/hea-bench/>. No install, it runs
 entirely in your browser.
 
 [![Paper](https://img.shields.io/badge/Materials-10.3390%2Fma19143075-2f7d3b)](https://doi.org/10.3390/ma19143075)
@@ -26,17 +26,17 @@ entirely in your browser.
 
 For any composition it reports:
 
-- **Core descriptors** — mixing entropy ΔS<sub>mix</sub>, atomic-size
+- **Core descriptors:** mixing entropy ΔS<sub>mix</sub>, atomic-size
   mismatch δ, mean melting temperature T<sub>m</sub>, Miedema mixing
   enthalpy ΔH<sub>mix</sub>, valence-electron concentration VEC,
   Yang–Zhang Ω, Pauling electronegativity mismatch Δχ, Mansoori excess
   entropy S<sub>E</sub>, ΔG<sub>ss</sub>, ΔG<sub>max</sub>, King Φ, Ye φ.
-- **Phase-prediction rules** — Yeh entropy, Zhang δ, Guo–Liu VEC,
+- **Phase-prediction rules:** Yeh entropy, Zhang δ, Guo–Liu VEC,
   Yang–Zhang Ω, King Φ, Ye φ.
-- **Miedema formation enthalpies** (browser/desktop apps) — compound /
+- **Miedema formation enthalpies** (browser/desktop apps): compound /
   solid-solution / amorphous, decomposed into chemical, elastic,
   structural, and topological terms.
-- **High-entropy oxides** (`hea_bench.oxides` + the apps' Oxides mode) —
+- **High-entropy oxides** (`hea_bench.oxides` + the apps' Oxides mode):
   rock-salt, perovskite, fluorite, and pyrochlore formability
   descriptors over Shannon ionic radii with automatic charge-balance
   oxidation-state assignment: per-sublattice configurational entropy,
@@ -46,8 +46,8 @@ For any composition it reports:
 
 Element coverage: 55 elements for alloys (Ag Al Au Be Bi Ca Ce Co Cr
 Cu Dy Er Fe Ga Gd Ge Hf Ho In Ir La Li Lu Mg Mn Mo Nb Nd Ni Os Pb Pd
-Pr Pt Re Rh Ru Sb Sc Si Sm Sn Sr Ta Tb Th Ti Tm U V W Y Yb Zn Zr —
-the full experimentally active rare-earth HEA palette plus the
+Pr Pt Re Rh Ru Sb Sc Si Sm Sn Sr Ta Tb Th Ti Tm U V W Y Yb Zn Zr,
+covering the full experimentally active rare-earth HEA palette plus the
 nuclear, solder, and HE-BMG corners); the Miedema pair table covers
 75 (1484 of our 1485 pairs; the lone Th-U gap is reported, never
 zeroed); the oxide module's Shannon table covers 94.
@@ -100,8 +100,8 @@ ye_phi.predict(cantor)               # 'solid_solution'
 ```
 
 These Cantor-alloy values are pinned in the test suite as the canonical
-sanity check. The rules are simple empirical surrogates — fast screens,
-not predictions; treat their output accordingly.
+sanity check. The rules are simple empirical surrogates, fast screens
+rather than predictions, so treat their output accordingly.
 
 ## Quick start (oxides)
 
@@ -162,7 +162,7 @@ entirely client-side. Two equivalent paths:
 
 - Open the hosted site: **<https://dfieser.github.io/hea-bench/>**. The
   page is the calculator.
-- Or clone the repo and open `web/index.html` — no install, no
+- Or clone the repo and open `web/index.html`. No install, no
   terminal, no server.
 
 The calculator ships its own documentation: a **Theory** view deriving
@@ -179,7 +179,7 @@ by the two parity test suites.
 near-ideal alloys (|ΔH<sub>mix</sub>| ≲ 1–2 kJ/mol) the Ω *magnitude* is
 extremely sensitive to the choice of Miedema pair table (sources
 disagree most on Mn). The phase verdict (Ω ≫ 1.1) stays robust even when
-the number does not — read Ω qualitatively in that regime.
+the number does not, so read Ω qualitatively in that regime.
 
 ## Project layout
 
@@ -216,8 +216,8 @@ Python descriptor code, update the JS core to match and re-run
 `tests/test_web_parity.py` and `tests/test_web_oxides_parity.py` so the
 surfaces don't drift. The element data tables inside the JS core are
 generated from the Python library by `tests/data/_sync_js_tables.py`
-and `tests/data/_sync_js_oxide_tables.py` — regenerate, never
-hand-edit.
+and `tests/data/_sync_js_oxide_tables.py`. Regenerate them, never
+hand-edit them.
 
 ## License
 

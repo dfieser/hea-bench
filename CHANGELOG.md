@@ -10,6 +10,25 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Fixed
+
+- Documentation of `delta_g_max` corrected in the two places that still
+  described a composition-weighted form. The AGENTS.md API table and the
+  result-card tooltip in the web app now state the raw definition that
+  the runtime, the docstring, the README, llms.txt, the provenance
+  drawer, the paper, and the pinned regression test all already use:
+  the most negative raw Miedema pair enthalpy, with no 4*c_i*c_j
+  scaling. Both stale strings were leftovers from the composition
+  weighted draft removed in v1.1.0. Reported by an external reviewer.
+  No calculated value changes on any surface.
+- `tests/test_phi.py` named the wrong pair in a docstring. The Cantor
+  argmin is Mn-Ni at -8.0 kJ/mol, not Cr-Ni, which is -7.0. The
+  asserted value was already correct.
+
+### Changed
+
+- README prose no longer uses em dashes.
+
 ## [2.1.3] — 2026-07-24
 
 ### Changed

@@ -50,7 +50,9 @@ def test_delta_g_max_is_negative_for_cantor() -> None:
 
 def test_delta_g_max_cantor_pinned() -> None:
     """Most negative Miedema pair enthalpy across all Cantor binaries.
-    Cr-Ni at -8.0 kJ/mol is the strongest competitor in this set."""
+    Mn-Ni at -8.0 kJ/mol is the strongest competitor in this set.
+    The value is the raw pair enthalpy, with no 4*c_i*c_j composition
+    scaling. See delta_g_max's docstring for why."""
     assert delta_g_max(_CANTOR) == pytest.approx(-8.0, abs=5e-4)
 
 
