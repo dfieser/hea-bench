@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.1.4] — 2026-07-29
+
 ### Fixed
 
 - Documentation of `delta_g_max` corrected in the two places that still
