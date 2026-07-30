@@ -10,6 +10,12 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Added
+
+- Acknowledgements section in the README crediting Yen-Ming Horng for
+  the external reproducibility and documentation review behind the
+  v2.1.4 fix, at his request and in the form he asked for.
+
 ## [2.1.4] — 2026-07-29
 
 ### Fixed
@@ -21,7 +27,8 @@ The format is loosely based on
   drawer, the paper, and the pinned regression test all already use:
   the most negative raw Miedema pair enthalpy, with no 4*c_i*c_j
   scaling. Both stale strings were leftovers from the composition
-  weighted draft removed in v1.1.0. Reported by an external reviewer.
+  weighted draft removed during the 1.1.0 phi-family work. Reported by
+  Yen-Ming Horng (external reproducibility and documentation review).
   No calculated value changes on any surface.
 - `tests/test_phi.py` named the wrong pair in a docstring. The Cantor
   argmin is Mn-Ni at -8.0 kJ/mol, not Cr-Ni, which is -7.0. The

@@ -234,6 +234,17 @@ testing convention. To report a bug or ask a question, open a GitHub
 issue; for direct contact, email the maintainer at `davjfies@gmail.com`.
 Participation is governed by the [Code of Conduct](./CODE_OF_CONDUCT.md).
 
+## Acknowledgements
+
+**Yen-Ming Horng** ([@infinitus01](https://github.com/infinitus01)),
+Independent Researcher, Taiwan. External reproducibility and
+documentation review. Reported the `delta_g_max` documentation contract
+mismatch corrected in v2.1.4.
+
+External reviews of this kind cover reproducibility and
+documentation-to-implementation consistency. They are not a validation
+or endorsement of the underlying scientific conclusions.
+
 ## Citation
 
 If you use hea-bench in your work, please cite the paper that
