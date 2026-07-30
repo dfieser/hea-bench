@@ -15,6 +15,10 @@ The format is loosely based on
 - Acknowledgements section in the README crediting Yen-Ming Horng for
   the external reproducibility and documentation review behind the
   v2.1.4 fix, at his request and in the form he asked for.
+- Attribution policy: the project credits named humans only. A
+  `commit-msg` hook in `tools/git-hooks/` rejects AI and agent
+  attribution trailers, enabled per clone with
+  `git config core.hooksPath tools/git-hooks`.
 
 ## [2.1.4] — 2026-07-29
 

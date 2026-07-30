@@ -1,0 +1,29 @@
+#!/bin/sh
+# Reject AI or agent attribution in commit messages.
+#
+# The project credits named humans only. This hook is mechanical
+# enforcement of the rule in CLAUDE.md, so the policy does not depend on
+# any one tool or author remembering it.
+#
+# Enable once per clone:
+#     git config core.hooksPath tools/git-hooks
+
+msg_file="$1"
+
+if grep -qiE '^[[:space:]]*(co-authored-by|signed-off-by|assisted-by|generated-by)[[:space:]]*:.*(claude|anthropic|copilot|chatgpt|openai|gemini|cursor|codex|\bgpt\b|\bllm\b|\bai\b)' "$msg_file"; then
+    echo "commit-msg hook: refusing an AI attribution trailer." >&2
+    echo "" >&2
+    echo "  Offending line(s):" >&2
+    grep -inE '^[[:space:]]*(co-authored-by|signed-off-by|assisted-by|generated-by)[[:space:]]*:.*(claude|anthropic|copilot|chatgpt|openai|gemini|cursor|codex|\bgpt\b|\bllm\b|\bai\b)' "$msg_file" >&2
+    echo "" >&2
+    echo "  This project credits named humans only. See CLAUDE.md." >&2
+    exit 1
+fi
+
+if grep -qiE '(generated with|created by|written by)[[:space:]]+.*(claude|anthropic|copilot|chatgpt|openai|gemini)' "$msg_file"; then
+    echo "commit-msg hook: refusing an AI generation credit in the message body." >&2
+    echo "  This project credits named humans only. See CLAUDE.md." >&2
+    exit 1
+fi
+
+exit 0

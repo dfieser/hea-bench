@@ -19,11 +19,24 @@ improvements.
 git clone https://github.com/dfieser/hea-bench
 cd hea-bench
 pip install -e ".[dev]"
+git config core.hooksPath tools/git-hooks   # enable the repo's git hooks
 python -m pytest tests/ -q          # the parity test needs Node on PATH
 ```
 
 The core package is dependency-free. The `dev` extra adds `pytest`,
 `pytest-cov`, and `ruff`.
+
+### Attribution
+
+This project credits named humans only. Do not add `Co-Authored-By` or
+similar trailers naming an AI or coding agent, and do not list one as an
+author, contributor, or reviewer anywhere in the repository. The
+`commit-msg` hook enabled above rejects such trailers automatically.
+
+If you report a bug or review the project and would like to be
+acknowledged, say so and tell us the form you prefer. Reporters are
+credited in the CHANGELOG entry, the README acknowledgements, and the
+release notes.
 
 ## Tests
 

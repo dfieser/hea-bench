@@ -10,4 +10,18 @@
   legal way to change it is `python tools/version.py --set X.Y.Z`.
 - NEVER touch the GitHub↔Zenodo integration; it can irreversibly fork
   the concept DOI. See `RELEASING.md` for everything about releases.
+- **No AI attribution, anywhere, ever.** Never add a `Co-Authored-By`
+  trailer naming an AI or agent, and never list one as an author,
+  contributor, creator, or reviewer in commit messages, `CITATION.cff`,
+  `.zenodo.json`, `README.md`, `CONTRIBUTING.md`, release notes, or the
+  web app. Credit named humans only. A `commit-msg` hook in
+  `tools/git-hooks/` rejects such trailers; enable it once per clone
+  with `git config core.hooksPath tools/git-hooks`. The 101 historical
+  commits that carry the old trailer are deliberately left alone,
+  because rewriting them would move every tag and put the Zenodo-linked
+  releases at risk.
+- Credit external reporters and reviewers in the CHANGELOG entry, the
+  README acknowledgements, and the GitHub release notes, in the form
+  the person asks for. Ask before publishing a name that arrived by
+  private email.
 - Library usage (API, units, pinned sanity values): `AGENTS.md`.
