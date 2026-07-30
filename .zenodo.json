@@ -43,5 +43,12 @@
       "orcid": "0000-0001-9794-0549",
       "affiliation": "Department of Mechanical and Aerospace Engineering, University of Tennessee Knoxville"
     }
+  ],
+  "contributors": [
+    {
+      "name": "Horng, Yen-Ming",
+      "type": "Other",
+      "affiliation": "Independent Researcher, Taiwan"
+    }
   ]
 }

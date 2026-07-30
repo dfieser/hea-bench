@@ -19,6 +19,9 @@ The format is loosely based on
   `commit-msg` hook in `tools/git-hooks/` rejects AI and agent
   attribution trailers, enabled per clone with
   `git config core.hooksPath tools/git-hooks`.
+- Yen-Ming Horng recorded in `.zenodo.json` as a contributor, so the
+  acknowledgement carries into the archived DOI metadata of the next
+  release. The `creators` list is unchanged.
 
 ## [2.1.4] — 2026-07-29
 
