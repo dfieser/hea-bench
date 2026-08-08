@@ -5125,302 +5125,375 @@ font-family: 'Source Sans Pro'
         --bg:#faf8f3; --surface:#ffffff; --surface-muted:#f3f1ea; --surface-subtle:#f7f5ee;
         --text:#1b1b18; --text-strong:#000000; --text-muted:#5a5a52; --text-muted-2:#8a8880;
         --border:#d9d6cc; --border-2:#c5c2b6; --rule:#1b1b18; --accent:#8b3a2f; --accent-2:#5e2a23;
+        --btn-ink:#ffffff;
+        --lat1:#2a78d6; --lat2:#eb6834; --lat3:#1baf7a; --lat4:#eda100; --lat5:#e87ba4; --lat6:#008300; --lat7:#4a3aa7; --lat8:#e34948;
         --serif:"Charter","Iowan Old Style","Sitka Text","Cambria","Source Serif Pro","Hoefler Text",Georgia,serif;
-        --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+        --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
         --mono:"JetBrains Mono","SF Mono",Menlo,Consolas,monospace;
-        background: var(--bg); color: var(--text); font-family: var(--sans);
-        line-height: 1.55; -webkit-font-smoothing: antialiased;
+        background: var(--bg); color: var(--text); font-family: var(--serif);
+        font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+        border-top: 3px solid var(--accent);
       }
       @media (prefers-color-scheme: dark) {
         :root:not([data-theme="light"]) #landing {
           --bg:#14140f; --surface:#1c1c17; --surface-muted:#24241f; --surface-subtle:#1a1a16;
           --text:#e6e3da; --text-strong:#ffffff; --text-muted:#a09d92; --text-muted-2:#75726a;
           --border:#33322c; --border-2:#4a4842; --rule:#75726a; --accent:#d97757; --accent-2:#b85a3d;
+          --btn-ink:#14140f;
+          --lat1:#3987e5; --lat2:#d95926; --lat3:#199e70; --lat4:#c98500; --lat5:#d55181; --lat6:#008300; --lat7:#9085e9; --lat8:#e66767;
         }
       }
       :root[data-theme="dark"] #landing {
         --bg:#14140f; --surface:#1c1c17; --surface-muted:#24241f; --surface-subtle:#1a1a16;
         --text:#e6e3da; --text-strong:#ffffff; --text-muted:#a09d92; --text-muted-2:#75726a;
         --border:#33322c; --border-2:#4a4842; --rule:#75726a; --accent:#d97757; --accent-2:#b85a3d;
+        --btn-ink:#14140f;
+        --lat1:#3987e5; --lat2:#d95926; --lat3:#199e70; --lat4:#c98500; --lat5:#d55181; --lat6:#008300; --lat7:#9085e9; --lat8:#e66767;
       }
       body.show-app #landing { display: none; }
       #landing * { box-sizing: border-box; }
-      #landing a { color: var(--accent); text-decoration: none; }
-      #landing a:hover { text-decoration: underline; }
-      #landing .wrap { max-width: 980px; margin: 0 auto; padding: 0 clamp(40px, 5vw, 72px); }
-      @media (max-width: 560px) { #landing .wrap { padding: 0 20px; } }
-      #landing .topbar { border-bottom: 1px solid var(--border); background: var(--surface); }
-      #landing .topbar__inner { display: flex; align-items: center; gap: 14px; padding-top: 12px; padding-bottom: 12px; }
-      #landing .topbar__logo { color: var(--accent); font-size: 18px; line-height: 1; }
-      #landing .topbar__name { font-family: var(--serif); font-weight: 700; font-size: 17px; color: var(--text-strong); letter-spacing: 0.01em; }
-      #landing .topbar__links { margin-left: auto; display: flex; gap: 18px; font-size: 13.5px; }
-      #landing .topbar__links a { color: var(--text-muted); }
-      #landing .topbar__links a:hover { color: var(--accent); text-decoration: none; }
-      #landing .hero { padding: 64px 0 40px; }
-      #landing .hero__kicker { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
-      #landing .hero h1 { font-family: var(--serif); font-size: clamp(30px, 5vw, 44px); line-height: 1.12; margin: 0 0 18px; color: var(--text-strong); font-weight: 700; max-width: 21ch; }
-      #landing .hero__lede { font-size: 17px; color: var(--text-muted); max-width: 62ch; margin: 0 0 28px; }
-      #landing .hero__lede strong { color: var(--text); font-weight: 600; }
-      #landing .hero__actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-      #landing .btn { display: inline-block; padding: 11px 22px; border-radius: 3px; font-size: 15px; font-weight: 600; border: 1px solid transparent; cursor: pointer; }
-      #landing .btn--primary { background: var(--accent); color: #fff; }
-      #landing .btn--primary:hover { background: var(--accent-2); color: #fff; text-decoration: none; }
-      #landing .btn--ghost { border-color: var(--border-2); color: var(--text); background: var(--surface); }
-      #landing .btn--ghost:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
-      #landing .hero__hint { font-size: 13px; color: var(--text-muted-2); margin-top: 14px; }
-      #landing .hero__hint code { font-family: var(--mono); font-size: 12.5px; background: var(--surface-muted); border: 1px solid var(--border); border-radius: 2px; padding: 1.5px 6px; }
-      #landing .strip { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface-subtle); }
-      #landing .strip__inner { display: flex; flex-wrap: wrap; gap: 8px 36px; padding-top: 14px; padding-bottom: 14px; font-size: 13px; color: var(--text-muted); }
-      #landing .strip__inner b { color: var(--text-strong); font-weight: 700; }
-      #landing section.block { padding: 48px 0 8px; }
-      #landing .block h2 { font-family: var(--serif); font-size: 26px; color: var(--text-strong); margin: 0 0 8px; font-weight: 700; }
-      #landing .block .block__sub { font-size: 15px; color: var(--text-muted); margin: 0 0 26px; max-width: 68ch; }
-      #landing .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
-      @media (max-width: 760px) { #landing .cards { grid-template-columns: 1fr; } }
-      #landing .card { background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 20px 20px 18px; display: flex; flex-direction: column; }
-      #landing .card h3 { margin: 0 0 6px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
-      #landing .card p { margin: 0 0 14px; font-size: 13.5px; color: var(--text-muted); flex: 1; }
-      #landing .card .card__go { font-size: 13.5px; font-weight: 600; }
-      #landing .card code { font-family: var(--mono); font-size: 12.5px; background: var(--surface-muted); border: 1px solid var(--border); border-radius: 2px; padding: 1.5px 6px; }
-      #landing .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-      @media (max-width: 760px) { #landing .twocol { grid-template-columns: 1fr; } }
-      #landing .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 20px; }
-      #landing .panel h3 { margin: 0 0 10px; font-size: 15px; color: var(--text-strong); }
-      #landing .panel ul { margin: 0; padding-left: 18px; font-size: 13.5px; color: var(--text-muted); }
-      #landing .panel li { margin: 4px 0; }
-      #landing .panel li b { color: var(--text); font-weight: 600; }
-      #landing .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-      @media (max-width: 760px) { #landing .pillars { grid-template-columns: 1fr; } }
-      #landing .pillar { border-left: 3px solid var(--accent); padding: 2px 0 2px 16px; }
-      #landing .pillar h3 { margin: 0 0 6px; font-size: 15px; color: var(--text-strong); }
-      #landing .pillar p { margin: 0; font-size: 13.5px; color: var(--text-muted); }
-      #landing .cite { background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 20px 22px; font-size: 14px; }
-      #landing .cite p { margin: 0 0 10px; }
-      #landing .cite .cite__entry { font-family: var(--serif); font-size: 14.5px; color: var(--text); border-left: 3px solid var(--border-2); padding-left: 14px; margin: 12px 0; }
-      #landing .cite .cite__doi { font-family: var(--mono); font-size: 12.5px; }
-      #landing footer { margin-top: 56px; border-top: 1px solid var(--border); background: var(--surface); }
-      #landing .footer__inner { padding-top: 28px; padding-bottom: 34px; font-size: 13px; color: var(--text-muted); }
-      #landing .footer__inner a { color: var(--text-muted); text-decoration: underline; }
-      #landing .footer__cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
-      @media (max-width: 760px) { #landing .footer__cols { grid-template-columns: 1fr 1fr; } }
-      @media (max-width: 480px) { #landing .footer__cols { grid-template-columns: 1fr; } }
-      #landing .footer__col h4 { margin: 0 0 6px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-strong); }
-      #landing .footer__col p { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--text-muted-2); }
-      #landing .footer__base { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 6px 24px; font-size: 12px; color: var(--text-muted-2); }
+      #landing ::selection { background: var(--accent); color: #fff; }
+      #landing a { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+      #landing a:hover { text-decoration-thickness: 2px; }
+      #landing a:focus-visible, #landing .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+      #landing p { margin: 0 0 1em; }
+      #landing .abstract, #landing .example__caption, #landing .example__open,
+      #landing .sec p, #landing .foot__inner p {
+        text-align: justify;
+        -webkit-hyphens: auto;
+        hyphens: auto;
+      }
+      #landing sub, #landing sup { line-height: 0; }
+      #landing code { font-family: var(--mono); font-size: 0.8em; background: var(--surface-muted); border: 1px solid var(--border); border-radius: 2px; padding: 1px 5px; white-space: nowrap; }
+      #landing .shell { max-width: 880px; margin: 0 auto; padding-left: 24px; padding-right: 24px; }
+      @media (max-width: 480px) { #landing .shell { padding-left: 18px; padding-right: 18px; } }
+
+      #landing .masthead { padding: 0; border-bottom: 1px solid var(--border); }
+      #landing .masthead__inner { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; padding-top: 15px; padding-bottom: 13px; }
+      #landing .masthead__mark { width: 21px; height: 21px; display: block; flex: none; }
+      #landing .masthead__name { font-weight: 700; font-size: 17px; color: var(--text-strong); }
+      #landing .masthead__nav { margin-left: auto; display: flex; flex-wrap: wrap; gap: 4px 18px; font-family: var(--sans); font-size: 13.5px; }
+      #landing .masthead__nav a { color: var(--text-muted); text-decoration: none; }
+      #landing .masthead__nav a:hover { color: var(--accent); text-decoration: underline; }
+
+      #landing .titleblock { padding-top: 52px; }
+      #landing h1 { font-family: var(--serif); font-size: clamp(29px, 4.4vw, 38px); line-height: 1.18; font-weight: 700; color: var(--text-strong); letter-spacing: -0.005em; margin: 0 0 20px; max-width: 28ch; }
+      #landing .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 8px 52px; align-items: start; }
+      @media (max-width: 880px) {
+        #landing .hero-grid { grid-template-columns: 1fr; }
+        #landing .lattice { margin-top: 30px; max-width: 360px; }
+      }
+      #landing .abstract { max-width: 66ch; margin-bottom: 26px; }
+      #landing .lattice { margin: 6px 0 0; }
+      #landing .lattice canvas { display: block; width: 100%; aspect-ratio: 1 / 1; height: auto; }
+      #landing .actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 22px; }
+      #landing .btn { display: inline-block; padding: 10px 20px; border-radius: 3px; background: var(--accent); color: var(--btn-ink); font-family: var(--sans); font-size: 14.5px; font-weight: 600; text-decoration: none; }
+      #landing .btn:hover { background: var(--accent-2); text-decoration: none; }
+      #landing .actions .alt { font-family: var(--sans); font-size: 14px; color: var(--text-muted); }
+      #landing .pipnote { font-size: 14.5px; color: var(--text-muted); margin: 16px 0 0; }
+
+      #landing .example { margin-top: 46px; }
+      #landing .example__caption { font-size: 14px; color: var(--text-muted); max-width: 64ch; margin-bottom: 10px; }
+      #landing .example__caption b { color: var(--text); }
+      #landing .example__caption--second { margin-top: 30px; }
+      #landing .extable { border-collapse: collapse; border-top: 2px solid var(--rule); border-bottom: 2px solid var(--rule); font-variant-numeric: tabular-nums; }
+      #landing .extable th { font-family: var(--sans); font-size: 12.5px; font-weight: 600; color: var(--text-muted); text-align: left; padding: 8px 26px 6px 0; border-bottom: 1px solid var(--rule); }
+      #landing .extable td { font-size: 15px; padding: 7px 26px 7px 0; vertical-align: baseline; }
+      #landing .extable th:last-child, #landing .extable td:last-child { padding-right: 0; }
+      #landing .extable td.val { font-family: var(--mono); font-size: 13px; }
+      @media (max-width: 480px) { #landing .extable th, #landing .extable td { padding-right: 14px; } }
+      #landing .example__open { font-size: 14.5px; margin: 12px 0 0; }
+
+      #landing section.sec { margin-top: 54px; }
+      #landing h2 { font-family: var(--serif); font-size: 23px; line-height: 1.25; font-weight: 700; color: var(--text-strong); margin: 0 0 14px; text-transform: none; letter-spacing: normal; padding-bottom: 0; border-bottom: none; }
+      #landing h3 { font-family: var(--serif); font-size: 16.5px; font-weight: 700; color: var(--text-strong); margin: 26px 0 10px; text-transform: none; letter-spacing: normal; }
+      #landing .sec p { max-width: 66ch; }
+      #landing .runin { font-size: 15.5px; margin-bottom: 12px; }
+      #landing .runin b { color: var(--text-strong); }
+
+      #landing .runs { margin-top: 20px; border-top: 1px solid var(--border); }
+      #landing .runs__row { display: grid; grid-template-columns: 168px 1fr; gap: 6px 20px; padding: 13px 0; border-bottom: 1px solid var(--border); }
+      #landing .runs__name { font-family: var(--sans); font-size: 14px; font-weight: 600; padding-top: 2px; }
+      #landing .runs__name a { text-decoration: none; }
+      #landing .runs__name a:hover { text-decoration: underline; }
+      #landing .runs__desc { font-size: 15px; margin: 0; max-width: 58ch; }
+      @media (max-width: 620px) { #landing .runs__row { grid-template-columns: 1fr; } }
+
+      #landing .refentry { font-size: 14.5px; max-width: 70ch; padding-left: 1.5em; text-indent: -1.5em; margin-bottom: 12px; }
+      #landing .refentry .doi { font-family: var(--mono); font-size: 12.5px; }
+
+      #landing footer { margin-top: 64px; border-top: 1px solid var(--border); background: var(--surface); }
+      #landing .foot__inner { padding-top: 26px; padding-bottom: 36px; font-size: 13px; color: var(--text-muted); }
+      #landing .foot__inner p { margin: 0 0 10px; max-width: 76ch; }
+      #landing .foot__inner b { color: var(--text); }
+      #landing .foot__inner a { color: var(--text-muted); }
+      #landing .foot__meta { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text-muted); }
+      #landing .foot__meta p { margin: 0; }
     </style>
     <div id="landing">
-      <header class="topbar">
-        <div class="wrap topbar__inner">
-          <span class="topbar__logo" aria-hidden="true">⬢</span>
-          <span class="topbar__name">HEA-Bench</span>
-          <nav class="topbar__links" aria-label="Project links">
+      <header class="masthead">
+        <div class="shell masthead__inner">
+          <svg class="masthead__mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+            <polygon points="50,2 92,26 92,74 50,98 8,74 8,26" fill="#5e2a23"/>
+            <polygon points="50,7 88,29 88,71 50,93 12,71 12,29" fill="#8b3a2f"/>
+            <path d="M50 50L74 50M50 50L62 70.8M50 50L38 70.8M50 50L26 50M50 50L38 29.2M50 50L62 29.2M74 50L62 70.8L38 70.8L26 50L38 29.2L62 29.2L74 50" stroke="#faf8f3" stroke-width="3.5" fill="none"/>
+            <g fill="#faf8f3"><circle cx="50" cy="50" r="6"/><circle cx="74" cy="50" r="5"/><circle cx="62" cy="70.8" r="5"/><circle cx="38" cy="70.8" r="5"/><circle cx="26" cy="50" r="5"/><circle cx="38" cy="29.2" r="5"/><circle cx="62" cy="29.2" r="5"/></g>
+          </svg>
+          <span class="masthead__name">HEA-Bench</span>
+          <nav class="masthead__nav" aria-label="Project links">
             <a href="#calculator">Calculator</a>
             <a href="#theory">Theory</a>
-            <a href="#legal">Legal &amp; accessibility</a>
+            <a href="#refs">References</a>
             <a href="https://github.com/dfieser/hea-bench">GitHub</a>
             <a href="https://doi.org/10.3390/ma19143075">Paper</a>
-            <a href="https://doi.org/10.5281/zenodo.20346287">Zenodo</a>
           </nav>
         </div>
       </header>
 
-      <section class="hero">
-        <div class="wrap">
-          <div class="hero__kicker">Open research software</div>
-          <h1>The standard high-entropy alloy and oxide descriptors, computed right.</h1>
-          <p class="hero__lede">
-            HEA-Bench is an open, <strong>parity-tested</strong> calculator of the thermodynamic and
-            geometric descriptors used to screen high-entropy alloys (HEAs) and high-entropy oxides
-            (HEOs), together with the canonical empirical phase-prediction rules. Every number is a transparent
-            closed-form expression over curated, literature-cited data tables. No trained model, no
-            black box, no server.
-          </p>
-          <div class="hero__actions">
-            <a class="btn btn--primary" href="#calculator">Open the calculator</a>
-            <a class="btn btn--ghost" href="https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench.exe">Get the desktop app</a>
+      <div class="shell titleblock">
+        <h1>The standard descriptors for high-entropy alloys and oxides, with the work shown.</h1>
+        <div class="hero-grid">
+          <div>
+            <p class="abstract">
+              HEA-Bench computes the quantities used to screen multi-component alloys for
+              solid-solution formation, from the mixing entropy and enthalpy to the
+              Yang&ndash;Zhang Ω and King Φ parameters. It judges each composition against
+              the six empirical phase rules built on those quantities. An oxide mode adds
+              the matching formability screens for four high-entropy oxide families. Every
+              result states its formula and the literature source of each parameter, and
+              exports as a receipt with a content-hashed result ID. The code contains no
+              fitted model. Each number is a closed-form expression over data tables taken
+              from the primary literature.
+            </p>
+            <div class="actions">
+              <a class="btn" href="#calculator">Open the calculator</a>
+              <span class="alt">Nothing to install. The whole calculator runs in this tab.</span>
+            </div>
           </div>
-          <p class="hero__hint">Prefer a script? <code>pip install hea-bench</code></p>
+          <figure class="lattice">
+            <canvas id="lattice-canvas" aria-hidden="true"></canvas>
+          </figure>
         </div>
-      </section>
 
-      <div class="strip">
-        <div class="wrap strip__inner">
-          <span><b>55</b> alloy elements</span>
-          <span><b>75</b>-element Miedema pair table</span>
-          <span><b>94</b>-element Shannon oxide table</span>
-          <span><b>1484</b> parity-tested element pairs</span>
-          <span><b>MIT</b> licensed</span>
+        <div class="example">
+          <p class="example__caption">
+            <b>Table 1.</b> The equimolar Cantor alloy CoCrFeMnNi, as the calculator reports it.
+            The browser, the desktop app, and the Python library print the same digits, and an
+            automated parity suite keeps it that way.
+          </p>
+          <table class="extable">
+            <thead>
+              <tr><th scope="col">Quantity</th><th scope="col">Symbol</th><th scope="col">Value</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Mixing entropy</td><td>ΔS<sub>mix</sub></td><td class="val">13.38 J/mol·K</td></tr>
+              <tr><td>Atomic size difference</td><td>δ</td><td class="val">3.164 %</td></tr>
+              <tr><td>Mixing enthalpy</td><td>ΔH<sub>mix</sub></td><td class="val">&minus;4.160 kJ/mol</td></tr>
+              <tr><td>Valence electron concentration</td><td>VEC</td><td class="val">8.000</td></tr>
+              <tr><td>Mean melting temperature</td><td><i>T</i><sub>m</sub></td><td class="val">1801 K</td></tr>
+              <tr><td>Omega parameter</td><td>Ω</td><td class="val">5.794</td></tr>
+            </tbody>
+          </table>
+          <p class="example__caption example__caption--second">
+            <b>Table 2.</b> The six phase rules for the same composition, each with the window it
+            was judged against. The verdicts are the app's own.
+          </p>
+          <table class="extable">
+            <thead>
+              <tr><th scope="col">Rule</th><th scope="col">Screen</th><th scope="col">Value</th><th scope="col">Verdict</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Yeh entropy</td><td>ΔS<sub>mix</sub> vs 1.5<i>R</i></td><td class="val">13.38 J/mol·K</td><td>HEA</td></tr>
+              <tr><td>Zhang size mismatch</td><td>δ ≤ 6.5 %</td><td class="val">3.164 %</td><td>single-phase</td></tr>
+              <tr><td>Guo&ndash;Liu VEC</td><td>≥ 8 FCC, &lt; 6.87 BCC</td><td class="val">8.000</td><td>FCC</td></tr>
+              <tr><td>Yang&ndash;Zhang Ω</td><td>Ω ≥ 1.1</td><td class="val">5.794</td><td>single-phase</td></tr>
+              <tr><td>King Φ</td><td>Φ ≥ 1 at <i>T</i><sub>m</sub></td><td class="val">3.533</td><td>solid solution</td></tr>
+              <tr><td>Ye φ</td><td>φ ≥ 20</td><td class="val">34.82</td><td>solid solution</td></tr>
+            </tbody>
+          </table>
+          <p class="example__open"><a href="?comp=CoCrFeMnNi">Open this composition in the calculator</a> for the full descriptor set, the newer screens (Singh Λ, Wang γ, Senkov&ndash;Miracle κ, Tsai σ, Sheikh ductility), and the per-value provenance behind every number here.</p>
         </div>
       </div>
 
-      <section class="block">
-        <div class="wrap">
-          <h2>One calculation core, four ways to run it</h2>
-          <p class="block__sub">
-            The Python library is the reference implementation. The browser and desktop apps run an
-            independent JavaScript port that an automated parity suite keeps identical to Python,
-            down to the warning messages, and an agent server exposes the same calculator to AI
-            tools over the Model Context Protocol. Every surface gives the same answer.
+      <section class="sec">
+        <div class="shell">
+          <h2>Where it runs</h2>
+          <p>
+            The Python library is the reference implementation. The browser and the desktop app
+            run a JavaScript port of it. Parity tests pin the port to the Python outputs over
+            1484 element pairs and a fixture set of published oxide values. The agent server
+            exposes the same calls to AI tools.
           </p>
-          <div class="cards">
-            <div class="card">
-              <h3>Browser app</h3>
-              <p>This page, zero install. Everything runs client-side, nothing is uploaded, and it
-                 works offline from a local copy of the repository.</p>
-              <a class="card__go" href="#calculator">Open the calculator →</a>
+          <div class="runs">
+            <div class="runs__row">
+              <span class="runs__name"><a href="#calculator">Browser</a></span>
+              <p class="runs__desc">This page. Compositions never leave your machine, and a saved
+                 copy of the page keeps working without a connection.</p>
             </div>
-            <div class="card">
-              <h3>Python library + CLI</h3>
-              <p>Dependency-free package for scripting, batch screening, and feature generation.
-                 <code>pip install hea-bench</code>, then call each descriptor as a function.</p>
-              <a class="card__go" href="https://github.com/dfieser/hea-bench#quick-start-python">Quick start →</a>
+            <div class="runs__row">
+              <span class="runs__name"><a href="https://pypi.org/project/hea-bench/">Python library and CLI</a></span>
+              <p class="runs__desc">Dependency-free, for scripting and batch screening. Install with
+                 <code>pip install hea-bench</code>. Each descriptor is a plain function.</p>
             </div>
-            <div class="card">
-              <h3>Desktop app</h3>
-              <p>A single portable executable for laboratory machines without internet access.
-                 Download it and run, no installation. Windows&nbsp;x64.</p>
-              <a class="card__go" href="https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench.exe">Download →</a>
+            <div class="runs__row">
+              <span class="runs__name"><a href="https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench.exe">Windows app</a></span>
+              <p class="runs__desc">One portable executable, about 14&nbsp;MB, no installer. Made for
+                 laboratory machines that never see the network.</p>
             </div>
-            <div class="card">
-              <h3>Agent (MCP) server</h3>
-              <p>Exposes the calculator to LLM agents as deterministic tool calls over the Model
-                 Context Protocol. <code>pip install "hea-bench[mcp]"</code>, then run
-                 <code>hea-bench-mcp</code>. Every value carries its unit, citation key, and version.</p>
-              <a class="card__go" href="https://github.com/dfieser/hea-bench/blob/main/AGENTS.md">Set it up →</a>
+            <div class="runs__row">
+              <span class="runs__name"><a href="https://github.com/dfieser/hea-bench/blob/main/AGENTS.md">Agent server</a></span>
+              <p class="runs__desc">The calculator as deterministic tool calls over the Model Context
+                 Protocol. Install with <code>pip install "hea-bench[mcp]"</code>, run
+                 <code>hea-bench-mcp</code>. Each value returns with its unit, citation key, and
+                 library version, and
+                 <a href="https://github.com/dfieser/hea-bench/blob/main/llms.txt">llms.txt</a>
+                 describes the whole API for agents that read first.</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="block">
-        <div class="wrap">
+      <section class="sec">
+        <div class="shell">
           <h2>What it computes</h2>
-          <p class="block__sub">
-            Enter a composition as a formula, element by element, or per sublattice. HEA-Bench
-            reports every descriptor with its formula, its parameter provenance, and the empirical
-            window it is judged against.
+          <p>
+            Compositions enter as a formula, element by element, or per sublattice, over a curated
+            55-element table. Custom elements run the core descriptors and rules, and the app
+            flags any output that lacks a parameter instead of skipping it silently.
           </p>
-          <div class="twocol">
-            <div class="panel">
-              <h3>High-entropy alloys</h3>
-              <ul>
-                <li><b>Core descriptors</b> — ΔS<sub>mix</sub>, atomic-size mismatch δ,
-                    VEC, mean T<sub>m</sub>, Miedema ΔH<sub>mix</sub>, Yang–Zhang Ω,
-                    Δχ, Mansoori S<sub>E</sub>, ΔG<sub>ss</sub> and ΔG<sub>max</sub>,
-                    King Φ, Ye φ</li>
-                <li><b>Six phase-prediction rules</b> — Yeh entropy, Zhang δ, Guo–Liu VEC,
-                    Yang–Zhang Ω, King Φ, Ye φ, each with its threshold and verdict</li>
-                <li><b>Miedema formation enthalpies</b> — compound, solid-solution, and
-                    amorphous, decomposed into chemical, elastic, structural, and
-                    topological terms</li>
-                <li><b>Per-pair transparency</b> — every binary Miedema contribution is
-                    shown and individually overridable</li>
-              </ul>
+          <h3>High-entropy alloys</h3>
+          <p class="runin"><b>Core descriptors.</b> ΔS<sub>mix</sub>, δ, VEC, mean
+             <i>T</i><sub>m</sub>, Miedema ΔH<sub>mix</sub>, Yang&ndash;Zhang Ω, Δχ, the Mansoori
+             excess entropy, ΔG<sub>ss</sub> and ΔG<sub>max</sub>, King Φ, Ye φ, Singh Λ, Wang γ,
+             Senkov&ndash;Miracle κ, and the Andreoli elastic-strain energy.</p>
+          <p class="runin"><b>Phase rules.</b> Yeh entropy, Zhang δ, Guo&ndash;Liu VEC,
+             Yang&ndash;Zhang Ω, King Φ, and Ye φ, each judged against its published window with
+             the margin shown.</p>
+          <p class="runin"><b>Miedema decomposition.</b> Compound, solid-solution, and amorphous
+             formation enthalpies, split into chemical, elastic, structural, and topological
+             terms. Every binary pair contribution is visible and accepts a manual override.
+             The decomposition runs on the original 37-element de Boer parameter set and stays
+             blank, with a warning, outside it.</p>
+          <h3>High-entropy oxides</h3>
+          <p class="runin"><b>Structure families.</b> Rock salt, perovskite ABO<sub>3</sub>,
+             fluorite MO<sub><i>x</i></sub>, and pyrochlore
+             A<sub>2</sub>B<sub>2</sub>O<sub>7</sub>, with literature presets for each.</p>
+          <p class="runin"><b>Charge balance.</b> Oxidation states assigned by exact neutrality
+             against the oxygen content, then Shannon radii chosen by state, coordination, and
+             spin from a 94-element table.</p>
+          <p class="runin"><b>Formability screens.</b> Per-sublattice configurational entropy,
+             cation size disorder, the Goldschmidt <i>t</i>, octahedral μ, and Bartel τ tolerance
+             factors, the fluorite radius-dispersion rule, and the pyrochlore radius-ratio
+             window.</p>
+        </div>
+      </section>
+
+      <section class="sec">
+        <div class="shell">
+          <h2>Built-in documentation</h2>
+          <p>
+            The calculator documents itself. Four reading views ship inside the same file, carry
+            the full citation trail, and work offline like everything else.
+          </p>
+          <div class="runs">
+            <div class="runs__row">
+              <span class="runs__name"><a href="#theory">Theory</a></span>
+              <p class="runs__desc">Derives every alloy and oxide formula from its source, with the
+                 citations inline. Sections deep-link, so <code>#sec-perovskite</code> opens the
+                 perovskite tolerance factors directly.</p>
             </div>
-            <div class="panel">
-              <h3>High-entropy oxides</h3>
-              <ul>
-                <li><b>Four structure families</b> — rock salt, perovskite ABO<sub>3</sub>,
-                    fluorite MO<sub>x</sub>, pyrochlore A<sub>2</sub>B<sub>2</sub>O<sub>7</sub></li>
-                <li><b>Charge-balance solver</b> — oxidation states assigned by exact
-                    neutrality against the oxygen content, then Shannon ionic radii by
-                    state, coordination, and spin</li>
-                <li><b>Formability screens</b> — sublattice configurational entropy, cation
-                    size disorder, Goldschmidt t, octahedral μ, Bartel τ, the fluorite
-                    radius-dispersion rule, the pyrochlore radius-ratio window</li>
-                <li><b>Literature anchors</b> — reproduces published reference values
-                    digit for digit, pinned in the regression suite</li>
-              </ul>
+            <div class="runs__row">
+              <span class="runs__name"><a href="#equations">Equations</a></span>
+              <p class="runs__desc">Every formula the app evaluates, in one grouped, filterable
+                 reference.</p>
+            </div>
+            <div class="runs__row">
+              <span class="runs__name"><a href="#refs">References</a></span>
+              <p class="runs__desc">The bibliography behind the data tables and rules, grouped by
+                 topic, from Yeh's 2004 paper to the current oxide literature.</p>
+            </div>
+            <div class="runs__row">
+              <span class="runs__name"><a href="#data">Data</a></span>
+              <p class="runs__desc">The 55-element table with per-value sources and cross-checks,
+                 the vendored pair-enthalpy table, the pinned data-file checksums, and a feature
+                 coverage matrix.</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="block">
-        <div class="wrap">
-          <h2>Built for reproducible research</h2>
-          <div class="pillars">
-            <div class="pillar">
-              <h3>Traceable</h3>
-              <p>Stated parameter provenance, versioned data files with SHA-pinned vendoring,
-                 and a Theory view that derives every formula with citations to the primary
-                 literature.</p>
-            </div>
-            <div class="pillar">
-              <h3>Verified</h3>
-              <p>An automated parity suite locks the JavaScript port to the Python reference on
-                 all 1484 element pairs and a curated oxide fixture set, and pins published
-                 literature values as regression benchmarks in the tests.</p>
-            </div>
-            <div class="pillar">
-              <h3>Honest about limits</h3>
-              <p>The rules are empirical screens, and the app says so: each verdict shows its
-                 window and margin, and the Ω instability near ΔH<sub>mix</sub> ≈ 0 is reported
-                 rather than hidden.</p>
-            </div>
-          </div>
+      <section class="sec">
+        <div class="shell">
+          <h2>Provenance and limits</h2>
+          <p>
+            Every parameter in the data tables carries a citation to the primary literature, and
+            the Theory view derives each formula from its source. The data files are vendored at
+            pinned checksums, and every release is archived on
+            <a href="https://doi.org/10.5281/zenodo.20346287">Zenodo</a> with a DOI.
+          </p>
+          <p>
+            A result can leave the page with you. The cite panel issues a permalink, a
+            content-hashed result ID, and a downloadable receipt that records the inputs, every
+            output and warning, the reference list, and the data-table fingerprint. Saved
+            results export as CSV. The same composition on the same version yields the same ID,
+            on any machine.
+          </p>
+          <p>
+            The descriptors and phase rules are empirical screens, not thermodynamic truth, and
+            the app treats them that way. Each verdict carries the window it was judged against
+            and the margin by which it passed or failed. The app reports the known Ω divergence
+            near ΔH<sub>mix</sub>&nbsp;≈&nbsp;0 instead of smoothing it over. Rank candidates
+            with the screens, then verify anything you intend to make with CALPHAD, DFT, or
+            experiment.
+          </p>
         </div>
       </section>
 
-      <section class="block">
-        <div class="wrap">
+      <section class="sec">
+        <div class="shell">
           <h2>Cite HEA-Bench</h2>
-          <div class="cite">
-            <p>If HEA-Bench is useful in your work, please cite the paper that describes it:</p>
-            <p class="cite__entry">
-              Fieser, D., Dewanjee, U., &amp; Hu, A. HEA-Bench: An AI-Agent-Optimized Calculator of
-              High-Entropy Alloy and Oxide Descriptors and Phase-Prediction Rules.
-              <em>Materials</em> <strong>2026</strong>, <em>19</em>, 3075.
-              <span class="cite__doi"><a href="https://doi.org/10.3390/ma19143075">doi:10.3390/ma19143075</a></span>
-            </p>
-            <p>To reference the exact software version you used, additionally cite the archived software record:</p>
-            <p class="cite__entry">
-              Fieser, D., Dewanjee, U., &amp; Hu, A. hea-bench: An open calculator of high-entropy-alloy and
-              high-entropy-oxide thermodynamic descriptors and empirical phase-prediction rules.
-              Zenodo. <span class="cite__doi"><a href="https://doi.org/10.5281/zenodo.20346287">doi:10.5281/zenodo.20346287</a></span>
-            </p>
-            <p>Please also cite the primary sources of the parametrizations you use, listed in the
-               <a href="#refs">References</a> view and in
-               <a href="https://github.com/dfieser/hea-bench/blob/main/CITATION.cff">CITATION.cff</a>.</p>
-          </div>
+          <p>If HEA-Bench is useful in your work, cite the paper that describes it:</p>
+          <p class="refentry">
+            Fieser, D., Dewanjee, U., &amp; Hu, A. HEA-Bench: An AI-Agent-Optimized Calculator of
+            High-Entropy Alloy and Oxide Descriptors and Phase-Prediction Rules.
+            <em>Materials</em> <strong>2026</strong>, <em>19</em>, 3075.
+            <span class="doi"><a href="https://doi.org/10.3390/ma19143075">doi:10.3390/ma19143075</a></span>
+          </p>
+          <p>To pin the exact version you ran, also cite the Zenodo archive of that release:</p>
+          <p class="refentry">
+            Fieser, D., Dewanjee, U., &amp; Hu, A. hea-bench: An open calculator of
+            high-entropy-alloy and high-entropy-oxide thermodynamic descriptors and empirical
+            phase-prediction rules. Zenodo.
+            <span class="doi"><a href="https://doi.org/10.5281/zenodo.20346287">doi:10.5281/zenodo.20346287</a></span>
+          </p>
+          <p>
+            The primary sources behind every parametrization are listed in the
+            <a href="#refs">References</a> view and in
+            <a href="https://github.com/dfieser/hea-bench/blob/main/CITATION.cff">CITATION.cff</a>.
+            Please also cite the ones you rely on.
+          </p>
         </div>
       </section>
 
       <footer id="legal">
-        <div class="wrap footer__inner">
-          <div class="footer__cols">
-            <div class="footer__col">
-              <h4>Disclaimer</h4>
-              <p>HEA-Bench reports empirical estimates for research and educational use only.
-                 The descriptors and rules are semi-empirical screens with known limitations.
-                 Outputs are provided without warranty of any kind and must not be the sole
-                 basis for engineering design or material qualification; verify with validated
-                 methods such as CALPHAD, DFT, or experiment.</p>
-            </div>
-            <div class="footer__col">
-              <h4>Privacy</h4>
-              <p>The calculator runs entirely in your browser. No composition, result, or
-                 personal data is collected, transmitted, or stored on any server, and the
-                 page uses no cookies, analytics, or telemetry.</p>
-            </div>
-            <div class="footer__col">
-              <h4>Accessibility</h4>
-              <p>We aim to conform to WCAG&nbsp;2.1 Level&nbsp;AA. The interface is keyboard
-                 operable and uses semantic structure and ARIA labels. If you encounter an
-                 accessibility barrier, email
-                 <a href="mailto:davjfies@gmail.com">davjfies@gmail.com</a> and we will work
-                 to address it.</p>
-            </div>
-            <div class="footer__col">
-              <h4>License</h4>
-              <p>MIT licensed. &copy; 2026 D. Fieser, U. Dewanjee, A. Hu. Vendored data keep
-                 their upstream licenses (matminer BSD-3-Clause, pymatgen MIT). See
-                 <a href="https://github.com/dfieser/hea-bench/blob/main/LICENSE">LICENSE</a>.</p>
-            </div>
-          </div>
-          <div class="footer__base">
-            <span>MIT licensed · fully offline · no telemetry</span>
-            <span>Contact: <a href="mailto:davjfies@gmail.com">davjfies@gmail.com</a></span>
+        <div class="shell foot__inner">
+          <p><b>Disclaimer.</b> HEA-Bench reports empirical screening estimates for research and
+             education. The descriptors and rules are semi-empirical, with known limitations, and
+             outputs come without warranty of any kind. Do not make them the sole basis for
+             engineering design or material qualification. Verify with validated methods such as
+             CALPHAD, DFT, or experiment.</p>
+          <p><b>Privacy.</b> The calculator runs entirely in your browser. Compositions, results,
+             and personal data are never transmitted or stored on a server. The page sets no
+             cookies and runs no analytics.</p>
+          <p><b>Accessibility.</b> The interface is keyboard operable and uses semantic structure
+             and ARIA labels, aiming at WCAG&nbsp;2.1 Level&nbsp;AA. If you meet a barrier, email
+             <a href="mailto:davjfies@gmail.com">davjfies@gmail.com</a> and we will work to fix it.</p>
+          <p><b>License.</b> MIT. &copy; 2026 D. Fieser, U. Dewanjee, A. Hu. Vendored data tables
+             keep their upstream licenses (matminer BSD-3-Clause, pymatgen MIT). See
+             <a href="https://github.com/dfieser/hea-bench/blob/main/LICENSE">LICENSE</a>.</p>
+          <div class="foot__meta">
+            <p><span id="landing-version"></span>Maintained at the University of Tennessee,
+               Knoxville. Contact <a href="mailto:davjfies@gmail.com">davjfies@gmail.com</a>.</p>
           </div>
         </div>
       </footer>
@@ -5457,6 +5530,177 @@ font-family: 'Source Sans Pro'
             if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { goHome(e); }
           });
         });
+      })();
+    </script>
+    <script>
+      // Hero figure: a close-packed (111) plane of the Cantor alloy with the
+      // five elements placed at random in their molar ratios. The occupancy is
+      // seeded from the formula, so every visitor sees the same crystallite.
+      // The crystallite grows in once on load and then jitters thermally;
+      // both animations are skipped when the visitor prefers reduced motion.
+      (function () {
+        var canvas = document.getElementById("lattice-canvas");
+        var landing = document.getElementById("landing");
+        if (!canvas || !landing || !canvas.getContext) return;
+        var ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+        var darkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+        var sites = [];
+        var cssSize = 0;
+        var colors = [];
+        var gapColor = "#faf8f3";
+        var born = null;
+        var raf = 0;
+        var inView = true;
+
+        function hashString(s) {
+          var h = 2166136261 >>> 0;
+          for (var i = 0; i < s.length; i++) {
+            h ^= s.charCodeAt(i);
+            h = Math.imul(h, 16777619);
+          }
+          return h >>> 0;
+        }
+
+        function seededRandom(seed) {
+          return function () {
+            seed = (seed + 0x6d2b79f5) | 0;
+            var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+            t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+          };
+        }
+
+        function readColors() {
+          var cs = getComputedStyle(landing);
+          colors = [1, 2, 3, 4, 5].map(function (n) {
+            return cs.getPropertyValue("--lat" + n).trim();
+          });
+          gapColor = cs.getPropertyValue("--bg").trim() || gapColor;
+        }
+
+        function build() {
+          cssSize = canvas.clientWidth;
+          if (!cssSize) return;
+          var dpr = window.devicePixelRatio || 1;
+          canvas.width = Math.round(cssSize * dpr);
+          canvas.height = canvas.width;
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+          var rand = seededRandom(hashString("CoCrFeMnNi"));
+          var center = cssSize / 2;
+          var pitch = cssSize / 10.4;
+          var rowStep = pitch * 0.8660254;
+          var atomR = pitch / 2 - 1.1;
+          var s3 = 1.7320508;
+          var rIn = cssSize / 2 - 3 - atomR;
+
+          sites = [];
+          var maxDist = 0;
+          for (var row = -12; row <= 12; row++) {
+            var y = row * rowStep;
+            var xShift = (row & 1) ? pitch / 2 : 0;
+            for (var col = -12; col <= 12; col++) {
+              var x = col * pitch + xShift;
+              // Pointy-top hexagon bound, so the crystallite echoes the mark.
+              if (Math.abs(x) <= (s3 / 2) * rIn + 0.001 &&
+                  Math.abs(x) / s3 + Math.abs(y) <= rIn + 0.001) {
+                var d = Math.sqrt(x * x + y * y);
+                if (d > maxDist) maxDist = d;
+                sites.push({
+                  x: center + x,
+                  y: center + y,
+                  el: Math.min(4, Math.floor(rand() * 5)),
+                  d: d,
+                  p1: rand() * 6.2832,
+                  p2: rand() * 6.2832,
+                  r: atomR
+                });
+              }
+            }
+          }
+          for (var i = 0; i < sites.length; i++) {
+            sites[i].delay = maxDist ? (sites[i].d / maxDist) * 380 : 0;
+          }
+        }
+
+        function draw(now) {
+          if (!cssSize) return;
+          ctx.clearRect(0, 0, cssSize, cssSize);
+          var animate = !reduced.matches;
+          var t = born === null ? Infinity : now - born;
+          for (var i = 0; i < sites.length; i++) {
+            var s = sites[i];
+            var grow = 1;
+            var jx = 0;
+            var jy = 0;
+            if (animate) {
+              grow = (t - s.delay) / 340;
+              grow = grow <= 0 ? 0 : grow >= 1 ? 1 : 1 - Math.pow(1 - grow, 3);
+              if (grow === 0) continue;
+              if (grow === 1) {
+                jx = Math.sin(t * 0.00242 + s.p1) * 1.35;
+                jy = Math.sin(t * 0.00205 + s.p2) * 1.35;
+              }
+            }
+            ctx.beginPath();
+            ctx.arc(s.x + jx, s.y + jy, s.r * grow, 0, 6.2832);
+            ctx.fillStyle = colors[s.el] || "#888";
+            ctx.fill();
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = gapColor;
+            ctx.stroke();
+          }
+        }
+
+        function frame(now) {
+          raf = 0;
+          if (born === null) born = now;
+          draw(now);
+          if (!reduced.matches && inView && !document.body.classList.contains("show-app")) {
+            raf = requestAnimationFrame(frame);
+          }
+        }
+
+        function kick() {
+          if (!raf) raf = requestAnimationFrame(frame);
+        }
+
+        function refresh() {
+          readColors();
+          build();
+          kick();
+        }
+
+        window.addEventListener("hashchange", function () {
+          if (!document.body.classList.contains("show-app")) {
+            if (!cssSize) refresh(); else kick();
+          }
+        });
+        new MutationObserver(function () {
+          readColors();
+          kick();
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+        if (darkScheme.addEventListener) {
+          darkScheme.addEventListener("change", function () { readColors(); kick(); });
+        }
+        if (reduced.addEventListener) {
+          reduced.addEventListener("change", kick);
+        }
+        if (typeof ResizeObserver !== "undefined") {
+          new ResizeObserver(refresh).observe(canvas);
+        } else {
+          window.addEventListener("resize", refresh);
+          document.addEventListener("DOMContentLoaded", refresh);
+        }
+        if (typeof IntersectionObserver !== "undefined") {
+          new IntersectionObserver(function (entries) {
+            inView = entries[0].isIntersecting;
+            if (inView) kick();
+          }).observe(canvas);
+        }
       })();
     </script>
     <div class="app">
@@ -11662,6 +11906,7 @@ font-family: 'Source Sans Pro'
       renderSavedResultsTable();
 
       document.getElementById("version-badge").textContent = "v" + VERSION + " — " + VERSION_DATE + " · data " + DATA_TABLES_SHORT_SHA;
+      document.getElementById("landing-version").textContent = "hea-bench " + VERSION + ", released " + VERSION_DATE + ". ";
     </script>
 
     <!-- View switcher (titlebar tabs). Independent of the calculation core;
