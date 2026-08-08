@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.1.5] — 2026-08-08
+
 ### Added
 
 - Acknowledgements section in the README crediting Yen-Ming Horng for
