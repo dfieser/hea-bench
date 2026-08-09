@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.1.6] — 2026-08-09
+
 ### Fixed
 
 - Composition parsing now rejects non-whitespace input that is not consumed by the
