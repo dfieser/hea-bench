@@ -45,6 +45,32 @@ def test_parse_duplicate_element_accumulates() -> None:
     assert got == pytest.approx({"Fe": 2 / 3, "Co": 1 / 3}, rel=1e-12)
 
 
+def test_parse_allows_whitespace_between_complete_tokens() -> None:
+    got = parse_formula("  Al0.25\tCo1\nFe1 Ni1  ")
+    assert got == pytest.approx(
+        {"Al": 0.25 / 3.25, "Co": 1 / 3.25, "Fe": 1 / 3.25, "Ni": 1 / 3.25},
+        rel=1e-12,
+    )
+
+
+@pytest.mark.parametrize(
+    "formula",
+    [
+        "Fe0.5???Co0.5",
+        "Fe-1Co2",
+        "Fe1e3Co1",
+        "???Fe1Co1",
+        "Fe1Co1???",
+        "Fe1,Co1",
+        "(Fe1Co1)",
+        "Fe 1 Co 2",
+    ],
+)
+def test_parse_rejects_unconsumed_non_whitespace(formula: str) -> None:
+    with pytest.raises(ValueError):
+        parse_formula(formula)
+
+
 def test_parse_rejects_empty() -> None:
     with pytest.raises(ValueError):
         parse_formula("")
