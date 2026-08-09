@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HEA-Bench Calculator — High-Entropy Alloy &amp; Oxide Descriptors</title>
+    <title>HEA-Bench Calculator: High-Entropy Alloy &amp; Oxide Descriptors</title>
     <meta name="description" content="HEA-Bench: a free high-entropy alloy (HEA) and high-entropy oxide calculator. Compute the standard thermodynamic descriptors and empirical phase-prediction rules, entirely in your browser.">
     <link rel="canonical" href="https://dfieser.github.io/hea-bench/">
     <link rel="sitemap" type="application/xml" href="sitemap.xml">
@@ -9,11 +9,11 @@
     <meta name="google-site-verification" content="kWnTu8HsWfKkb1Ls_fjDAu5YvFHRDWC8JZtIymRKyQ4">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="HEA-Bench">
-    <meta property="og:title" content="HEA-Bench Calculator — High-Entropy Alloy &amp; Oxide Descriptors">
+    <meta property="og:title" content="HEA-Bench Calculator: High-Entropy Alloy &amp; Oxide Descriptors">
     <meta property="og:description" content="Free, open calculator of the standard high-entropy alloy (HEA) and high-entropy oxide descriptors and empirical phase-prediction rules. Runs entirely in your browser.">
     <meta property="og:url" content="https://dfieser.github.io/hea-bench/">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="HEA-Bench Calculator — High-Entropy Alloy &amp; Oxide Descriptors">
+    <meta name="twitter:title" content="HEA-Bench Calculator: High-Entropy Alloy &amp; Oxide Descriptors">
     <meta name="twitter:description" content="Free, open calculator of the standard high-entropy alloy (HEA) and high-entropy oxide descriptors and empirical phase-prediction rules. Runs entirely in your browser.">
     <script type="application/ld+json">
     {
@@ -5295,8 +5295,8 @@ font-family: 'Source Sans Pro'
             </tbody>
           </table>
           <p class="example__caption example__caption--second">
-            <b>Table 2.</b> The six phase rules for the same composition, each with the window it
-            was judged against. The verdicts are the app's own.
+            <b>Table 2.</b> The six phase rules for the same composition, each with the window the
+            app judged it against. The verdicts are the app's own.
           </p>
           <table class="extable">
             <thead>
@@ -5427,9 +5427,9 @@ font-family: 'Source Sans Pro'
           <h2>Provenance and limits</h2>
           <p>
             Every parameter in the data tables carries a citation to the primary literature, and
-            the Theory view derives each formula from its source. The data files are vendored at
-            pinned checksums, and every release is archived on
-            <a href="https://doi.org/10.5281/zenodo.20346287">Zenodo</a> with a DOI.
+            the Theory view derives each formula from its source. The data files ship with pinned checksums, and
+            Zenodo archives every release
+            <a href="https://doi.org/10.5281/zenodo.20346287">with a DOI</a>.
           </p>
           <p>
             A result can leave the page with you. The cite panel issues a permalink, a
@@ -5440,8 +5440,8 @@ font-family: 'Source Sans Pro'
           </p>
           <p>
             The descriptors and phase rules are empirical screens, not thermodynamic truth, and
-            the app treats them that way. Each verdict carries the window it was judged against
-            and the margin by which it passed or failed. The app reports the known Ω divergence
+            the app treats them that way. Each verdict carries the window the app judged it
+            against and the margin by which it passed or failed. The app reports the known Ω divergence
             near ΔH<sub>mix</sub>&nbsp;≈&nbsp;0 instead of smoothing it over. Rank candidates
             with the screens, then verify anything you intend to make with CALPHAD, DFT, or
             experiment.
@@ -5762,7 +5762,7 @@ font-family: 'Source Sans Pro'
           <p class="theory-eyebrow">Theoretical background</p>
           <h2 class="theory-title" id="theory-title">Empirical thermodynamic descriptors for multi-component alloys and oxides</h2>
           <p class="theory-lede">
-            This reference derives every quantity the calculator produces &mdash; the configurational
+            This reference derives every quantity the calculator produces: the configurational
             entropy <em>&Delta;S</em><sub>mix</sub>, atomic size mismatch <em>&delta;</em>, valence
             electron concentration VEC, the Miedema chemical mixing enthalpy <em>&Delta;H</em><sub>mix</sub>,
             the Yang&ndash;Zhang stability parameter <em>&Omega;</em>, Miedema-model formation
@@ -6001,7 +6001,7 @@ font-family: 'Source Sans Pro'
           <p>
             The \(\Delta H_{ij}\) values used for \(\Delta H_{\mathrm{mix}}\) come from a fixed,
             vendored Miedema pair table (Matminer-derived; 1484 of the 1485 binary pairs of the 55 supported
-            elements, the lone Th&ndash;U gap reported rather than zeroed) &mdash; the same table the Python library uses, kept in lock-step by a parity
+            elements, the lone Th&ndash;U gap reported rather than zeroed). It is the same table the Python library uses, kept in lock-step by a parity
             test. A manual-override field lets you substitute validated literature values per pair,
             for example the integer table of Takeuchi &amp; Inoue (2005).
           </p>
@@ -7216,8 +7216,8 @@ font-family: 'Source Sans Pro'
           <p class="theory-lede">
             Every per-element value the calculator consumes, with its source, its convention, and
             the places where good compilations disagree. Nothing on this page feeds the
-            computation at display time; it is the same vendored, SHA-pinned data the calculation
-            core was built from, shown so any result can be audited to its inputs.
+            computation at display time. It is the same vendored, SHA-pinned data behind the
+            calculation core, shown so any result can be audited back to its inputs.
           </p>
 
           <h3 id="data-elements"><span class="sec-num">01</span>Element table (55 elements)</h3>
@@ -7555,18 +7555,18 @@ font-family: 'Source Sans Pro'
           <h3 id="refs-about"><span class="sec-num">07</span>About this software</h3>
           <div class="legal">
           <p>
-            <strong class="legal-label">Disclaimer</strong> &mdash;
+            <strong class="legal-label">Disclaimer:</strong>
             Results are empirical estimates provided for research and informational purposes only. No warranty is made as to accuracy, completeness, or fitness for any particular purpose. Do not use these outputs as the sole basis for engineering design, safety-critical analysis, or commercial material qualification without independent verification by validated thermodynamic methods (e.g. CALPHAD or DFT).
           </p>
           <p>
-            <strong class="legal-label">License</strong> &mdash;
+            <strong class="legal-label">License:</strong>
             &copy; 2026 David Fieser, released under the
             <a href="../LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>
             (&ldquo;as&nbsp;is,&rdquo; without warranty of any kind).
             Archived at <a href="https://doi.org/10.5281/zenodo.20346287" target="_blank" rel="noopener noreferrer">doi:10.5281/zenodo.20346287</a>.
           </p>
           <p>
-            <strong class="legal-label">Third-party notices</strong> &mdash;
+            <strong class="legal-label">Third-party notices:</strong>
             Equation rendering by <a href="https://www.mathjax.org/" target="_blank" rel="noopener noreferrer">MathJax</a> 3.2.2
             &copy; The MathJax Consortium, Apache-2.0 license (see <code>mathjax/LICENSE</code>).
             Miedema elemental parameters in the Python library derived from
@@ -7580,14 +7580,14 @@ font-family: 'Source Sans Pro'
             <summary>Privacy Policy</summary>
             <div class="legal-details">
               <p>
-                <strong class="legal-label">Privacy Policy</strong> &mdash;
+                <strong class="legal-label">Privacy Policy:</strong>
                 last updated June 1, 2026. This calculator runs entirely in your browser. It does not ask for, collect, or store any personal information (name, email address, IP address, or credentials), and there is no registration or login. Every calculation is performed locally; the compositions you enter are never transmitted to any server.
               </p>
               <p>
                 To preserve your work between sessions, the page keeps your last entered composition, any results you explicitly saved, and any custom element data in your browser&rsquo;s <code>localStorage</code>. That data stays on your device and is never transmitted anywhere. You can remove it at any time by clearing your browser&rsquo;s site data for this page.
               </p>
               <p>
-                All resources (MathJax, fonts, styles) are served from this site &mdash; no external CDNs, analytics, advertising, or social-media trackers. No cookies are set, so no consent banner is shown. If these practices change materially, this section will be updated with a revised date. Questions can be directed to the maintainer at <a href="mailto:davjfies@gmail.com">davjfies@gmail.com</a>.
+                This site serves all resources itself (MathJax, fonts, styles) and uses no external CDNs, analytics, advertising, or social-media trackers. No cookies are set, so no consent banner is shown. If these practices change materially, this section will be updated with a revised date. Questions can be directed to the maintainer at <a href="mailto:davjfies@gmail.com">davjfies@gmail.com</a>.
               </p>
             </div>
           </details>
@@ -7601,7 +7601,7 @@ font-family: 'Source Sans Pro'
       <footer class="statusbar">
         <span>55 alloy elements &middot; 1484 Miedema pair enthalpies &middot; 94 oxide elements</span>
         <span class="sb-spacer"></span>
-        <span>Miedema model &mdash; de Boer et al. (1988)</span>
+        <span>Miedema model: de Boer et al. (1988)</span>
         <span class="sb-sep">&middot;</span>
         <span>Offline</span>
       </footer>
@@ -11148,7 +11148,7 @@ font-family: 'Source Sans Pro'
           return `<tr><td><a href="#data" data-jump-view="data" data-jump-anchor="data-${el}">${el}</a></td><td>${v === null || v === undefined ? "—" : v}</td><td class="prov-src">${meta.unit}</td></tr>`;
         }).join("");
         return `<table class="prov-inputs"><thead><tr><th>${meta.label}</th><th>value</th><th></th></tr></thead><tbody>${rows}</tbody></table>` +
-          `<p class="prov-note">Source: ${provSourceLinks(srcKeys)} — column conventions in the <a href="#data" data-jump-view="data">Data view</a>.</p>`;
+          `<p class="prov-note">Source: ${provSourceLinks(srcKeys)}. Column conventions are in the <a href="#data" data-jump-view="data">Data view</a>.</p>`;
       }
 
       function provPairRows() {
@@ -11165,7 +11165,7 @@ font-family: 'Source Sans Pro'
           }
         }
         return `<table class="prov-inputs"><thead><tr><th>Pair ΔH mix</th><th>value</th><th></th></tr></thead><tbody>${rows.join("")}</tbody></table>` +
-          `<p class="prov-note">Source: ${provSourceLinks(["deboer1988", "takeuchi2005", "matminer2018"])} — vendored table pinned by SHA in the <a href="#data" data-jump-view="data">Data view</a>.</p>`;
+          `<p class="prov-note">Source: ${provSourceLinks(["deboer1988", "takeuchi2005", "matminer2018"])}. The vendored table is pinned by SHA in the <a href="#data" data-jump-view="data">Data view</a>.</p>`;
       }
 
       function provMechanicsRows() {
@@ -11176,7 +11176,7 @@ font-family: 'Source Sans Pro'
           return `<tr><td><a href="#data" data-jump-view="data" data-jump-anchor="data-${el}">${el}</a></td><td>${m ? formatNumber(m.B, 4) : "—"}</td><td>${m ? formatNumber(m.Vm, 4) : "—"}</td></tr>`;
         }).join("");
         return `<table class="prov-inputs"><thead><tr><th>El</th><th>B (GPa)</th><th>Vm (cm³/mol)</th></tr></thead><tbody>${rows}</tbody></table>` +
-          `<p class="prov-note">Source: ${provSourceLinks(["matminer2018", "deboer1988"])} — the upstream column named “compressibility” holds the bulk modulus in GPa; details in the <a href="#data" data-jump-view="data">Data view</a>.</p>`;
+          `<p class="prov-note">Source: ${provSourceLinks(["matminer2018", "deboer1988"])}. The upstream column named “compressibility” holds the bulk modulus in GPa. Details are in the <a href="#data" data-jump-view="data">Data view</a>.</p>`;
       }
 
       function provShannonRows() {
@@ -11199,7 +11199,7 @@ font-family: 'Source Sans Pro'
       function provTemperatureRow() {
         const d = provContext.payload ? provContext.payload.descriptors : null;
         if (!d) return "";
-        return `<p class="prov-note">T = ${formatNumber(d.King_temperature_K, 6)} K — the annealing-temperature input (defaults to the rule-of-mixtures T m).</p>`;
+        return `<p class="prov-note">T = ${formatNumber(d.King_temperature_K, 6)} K, from the annealing-temperature input (defaults to the rule-of-mixtures T m).</p>`;
       }
 
       function provInputsHtml(entry) {
@@ -11545,7 +11545,7 @@ font-family: 'Source Sans Pro'
           const agree = diff <= 1.0;
           parts.push(
             `Cross-check radius (M&amp;S 2017 Table 3): <span class="${agree ? "" : "data-el-crossdiff"}">${src.crosscheckRadiusPm} pm</span>` +
-            (agree ? ` — agrees within ${diff.toFixed(1)} pm.` : ` — differs by ${diff.toFixed(1)} pm; ${src.crosscheckNote || "see note."}`)
+            (agree ? `. Agrees within ${diff.toFixed(1)} pm.` : `. Differs by ${diff.toFixed(1)} pm. ${src.crosscheckNote || "See note."}`)
           );
         } else if (src.crosscheckNote) {
           parts.push(src.crosscheckNote);
@@ -11638,10 +11638,10 @@ font-family: 'Source Sans Pro'
         ];
         document.getElementById("data-files-list").innerHTML = files.map((f) => {
           const sha = DATA_FILE_SHAS[f.name] || "";
-          return `<div class="data-file-card"><span class="data-file-name">${f.name}</span> — ${f.desc}<br>` +
+          return `<div class="data-file-card"><span class="data-file-name">${f.name}</span>: ${f.desc}<br>` +
             `<code>sha256 ${sha}</code><br>` +
             `<a href="${f.up}" target="_blank" rel="noopener noreferrer">upstream</a> · ${f.license}</div>`;
-        }).join("") + `<p class="small-note">Combined data fingerprint: <code>${DATA_TABLES_SHORT_SHA}</code> — shown in the footer badge and embedded in every receipt.</p>`;
+        }).join("") + `<p class="small-note">Combined data fingerprint: <code>${DATA_TABLES_SHORT_SHA}</code>. It appears in the footer badge and in every receipt.</p>`;
 
         const covBody = document.getElementById("data-coverage-tbody");
         covBody.innerHTML = Object.keys(calcCore.ELEMENT_DATA).map((el) => {
@@ -11933,7 +11933,7 @@ font-family: 'Source Sans Pro'
       }
       renderSavedResultsTable();
 
-      document.getElementById("version-badge").textContent = "v" + VERSION + " — " + VERSION_DATE + " · data " + DATA_TABLES_SHORT_SHA;
+      document.getElementById("version-badge").textContent = "v" + VERSION + " · " + VERSION_DATE + " · data " + DATA_TABLES_SHORT_SHA;
       document.getElementById("landing-version").textContent = "hea-bench " + VERSION + ", released " + VERSION_DATE + ". ";
     </script>
 

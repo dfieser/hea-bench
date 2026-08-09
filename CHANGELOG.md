@@ -10,6 +10,15 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Changed
+
+- Writing pass over the web app's prose: em dashes removed from page
+  text, footer labels, drawer notes, and the title tag (value
+  placeholders, cited paper titles, and TeX are untouched), several
+  passive constructions made active on the landing page and Data view,
+  and the version badge now uses consistent separators. No functional
+  or numerical change.
+
 ## [2.1.6] — 2026-08-09
 
 ### Fixed
