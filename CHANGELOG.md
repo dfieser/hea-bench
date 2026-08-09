@@ -10,6 +10,14 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Fixed
+
+- Composition parsing now rejects non-whitespace input that is not consumed by the
+  documented element-and-amount grammar, instead of silently calculating a composition
+  from only the matched tokens. Existing compact, percent-style proportional, and
+  space-separated forms are unchanged. Reported by Yen-Ming Horng in
+  [#1](https://github.com/dfieser/hea-bench/issues/1).
+
 ## [2.1.5] — 2026-08-08
 
 ### Added

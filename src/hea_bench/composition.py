@@ -74,7 +74,8 @@ def parse_formula(formula: str) -> Composition:
     Parameters
     ----------
     formula
-        Composition string. Whitespace is ignored.
+        Composition string. Whitespace around the input and between complete
+        element-and-amount tokens is ignored.
 
     Returns
     -------
@@ -85,8 +86,9 @@ def parse_formula(formula: str) -> Composition:
     Raises
     ------
     ValueError
-        If no element tokens are found, or the parsed coefficients sum
-        to zero.
+        If no element tokens are found, an element symbol is unrecognised,
+        non-whitespace input is not consumed, or the parsed coefficients
+        sum to zero.
 
     Examples
     --------
@@ -101,7 +103,12 @@ def parse_formula(formula: str) -> Composition:
     """
     raw: dict[str, float] = {}
     bad: list[str] = []
-    for el, coef in _ELEMENT_TOKEN.findall(formula):
+    cursor = 0
+    for match in _ELEMENT_TOKEN.finditer(formula):
+        if formula[cursor:match.start()].strip():
+            raise ValueError(f"unconsumed non-whitespace input in formula {formula!r}")
+        cursor = match.end()
+        el, coef = match.groups()
         if not el:
             continue
         if el not in _VALID_ELEMENTS:
@@ -110,6 +117,8 @@ def parse_formula(formula: str) -> Composition:
         amount = float(coef) if coef else 1.0
         raw[el] = raw.get(el, 0.0) + amount
 
+    if formula[cursor:].strip():
+        raise ValueError(f"unconsumed non-whitespace input in formula {formula!r}")
     if bad:
         raise ValueError(
             f"unrecognised element symbol(s) {sorted(set(bad))!r} "

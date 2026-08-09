@@ -40,6 +40,11 @@ def test_parse_composition_structured_error():
         parse_composition("not a formula 123!!")
 
 
+def test_parse_composition_rejects_partially_parsed_formula():
+    with pytest.raises(ValueError, match="could not parse composition"):
+        parse_composition("Fe0.5???Co0.5")
+
+
 def test_alloy_descriptors_batch_with_provenance():
     out = alloy_descriptors([CANTOR, NEAR_IDEAL])
     assert len(out["results"]) == 2
