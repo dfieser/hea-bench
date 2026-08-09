@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.1.7] — 2026-08-09
+
 ### Changed
 
 - Writing pass over the web app's prose: em dashes removed from page
