@@ -17,6 +17,11 @@ The format is loosely based on
   from only the matched tokens. Existing compact, percent-style proportional, and
   space-separated forms are unchanged. Reported by Yen-Ming Horng in
   [#1](https://github.com/dfieser/hea-bench/issues/1).
+- The browser and desktop apps apply the same full-consumption contract
+  in their own formula parser, so a malformed `?comp=` permalink now
+  shows a parse error instead of silently computing a composition built
+  from only the recognizable tokens, and a rejected permalink no longer
+  renders results or a citable record at all. Same report, [#1].
 
 ## [2.1.5] — 2026-08-08
 

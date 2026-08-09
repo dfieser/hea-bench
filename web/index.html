@@ -10326,13 +10326,26 @@ font-family: 'Source Sans Pro'
         const tokens = [];
         const re = /([A-Z][a-z]?)(\d*\.?\d*)/g;
         let match;
+        // Full-consumption contract (issue #1): any non-whitespace text
+        // between or around element tokens is an error, never silently
+        // dropped. Mirrors the Python parse_formula gap-check so the
+        // library, browser, desktop, and permalinks agree on what parses.
+        let cursor = 0;
         while ((match = re.exec(str)) !== null) {
+          const gap = str.slice(cursor, match.index);
+          if (gap.trim()) {
+            throw new Error(`Unrecognized text "${gap.trim()}" in formula.`);
+          }
+          cursor = re.lastIndex;
           const sym = match[1];
           const num = match[2] ? parseFloat(match[2]) : 1;
           if (!Number.isFinite(num) || num <= 0) {
             throw new Error(`Invalid coefficient for ${sym}.`);
           }
           tokens.push({ symbol: sym, ratio: num });
+        }
+        if (str.slice(cursor).trim()) {
+          throw new Error(`Unrecognized text "${str.slice(cursor).trim()}" in formula.`);
         }
         if (!tokens.length) throw new Error("No elements found in formula.");
         const total = tokens.reduce((s, t) => s + t.ratio, 0);
@@ -10347,13 +10360,13 @@ font-family: 'Source Sans Pro'
           parsed = parseFormula(raw);
         } catch (e) {
           showError(e.message);
-          return;
+          return false;
         }
         const available = getAvailableElements();
         const unknown = parsed.filter(p => !available.includes(p.symbol));
         if (unknown.length) {
           showError(`Unknown element(s): ${unknown.map(u => u.symbol).join(", ")}`);
-          return;
+          return false;
         }
         const count = Math.min(10, Math.max(2, parsed.length));
         elementCountInput.value = count;
@@ -10368,6 +10381,7 @@ font-family: 'Source Sans Pro'
         });
         renderPairEnthalpyEditor();
         scheduleSaveFormState();
+        return true;
       }
 
       function buildShareUrl() {
@@ -10391,14 +10405,19 @@ font-family: 'Source Sans Pro'
       }
 
       function applyUrlParams() {
+        // Returns true when a permalink was applied, false when one was
+        // present but rejected, and null when there was no permalink.
         const params = new URLSearchParams(window.location.search);
         const comp = params.get("comp");
-        if (!comp) return false;
+        if (!comp) return null;
         const kingTemperature = Number(params.get("kingT"));
         formulaInput.value = comp;
         kingTemperatureInput.value = Number.isFinite(kingTemperature) && kingTemperature > 0 ? String(kingTemperature) : "";
         try {
-          applyFormula();
+          // applyFormula reports its own errors in the banner; a failed
+          // parse must not fall through to computing whatever composition
+          // happens to be left in the form (issue #1's permalink variant).
+          if (!applyFormula()) return false;
           handleCalculate();
           return true;
         } catch (e) {
@@ -11895,11 +11914,18 @@ font-family: 'Source Sans Pro'
       savedResults = loadSavedResults();
 
       const urlApplied = applyUrlParams();
-      if (!urlApplied) {
+      if (urlApplied !== true) {
         const restored = applyFormState(loadFormState());
         if (!restored) {
           renderRatioTable(5);
           renderPairEnthalpyEditor();
+          renderResults(null);
+          renderWarnings([]);
+        }
+        if (urlApplied === false) {
+          // A permalink was present but rejected: never leave the static
+          // demo cards or stale results sitting next to the parse error,
+          // where they read as output for the malformed input.
           renderResults(null);
           renderWarnings([]);
         }
