@@ -10,8 +10,6 @@ The format is loosely based on
 
 ## [Unreleased]
 
-## [2.2.0] — 2026-08-10
-
 ### Added
 
 - `hea_bench.benchmark`: frozen, leakage-controlled train/test splits for
@@ -23,7 +21,10 @@ The format is loosely based on
   gap, which measures how much of a random-split score is interpolation
   between stoichiometric variants rather than prediction. Each split
   carries a SHA-256 digest of its fold assignment, pinned in the test
-  suite, and the grouped split uses no random number generator at all.
+  suite, and the grouped split uses no random number generator and no
+  float arithmetic in fold assignment, so the same corpus produces
+  byte-identical folds on every platform (a CI job rebuilds the corpus
+  and verifies the digests on each push).
   On corpus v0.1.0 a stock random forest over this package's descriptors
   scores 0.940 balanced accuracy under the random split and 0.738 under
   the grouped one; baseline results and provenance live in
@@ -37,6 +38,12 @@ The format is loosely based on
 - New optional extra `benchmark` pinning the scikit-learn version used
   by the baseline table. The benchmark subpackage itself, like the core,
   needs only the standard library.
+
+(These notes were first staged for a v2.2.0 that was tagged but never
+published: its release run was correctly blocked by the new benchmark
+CI gate itself, which caught the grouped split producing different
+folds on Linux than on Windows. The float cost arithmetic responsible
+was replaced with exact integers before any surface shipped.)
 
 ## [2.1.7] — 2026-08-09
 

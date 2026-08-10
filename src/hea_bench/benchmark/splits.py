@@ -29,9 +29,18 @@ The grouped scheme uses no random number generator at all. Families are
 ordered by descending row count with ties broken alphabetically, then
 each is placed in whichever fold is currently least loaded, measured as
 the sum over classes of the squared class count normalized by that
-class's corpus total. Ties break to the lowest fold index. The same
-corpus therefore always produces byte-identical folds, on any platform
-and any Python version.
+class's corpus total. Ties break to the lowest fold index.
+
+The load comparison is done in exact integer arithmetic, not floats.
+This is a hard requirement, learned the expensive way: a float version
+of the same cost differed by one unit in the last place between the
+Windows and Linux math libraries (CPython's ``**`` on floats calls the
+platform's C ``pow``), which flipped a single greedy choice and
+cascaded into completely different folds per platform. Integer
+arithmetic makes the same corpus produce byte-identical folds on any
+platform and any Python version, and the CI ``benchmark-freeze`` job
+rebuilds the corpus on Linux and checks the digests to hold that
+guarantee.
 
 The random scheme is seeded and stratified by class, so it too is
 reproducible, and it is fair to the grouped scheme in class balance.
@@ -238,6 +247,23 @@ def grouped_split(
     # small. Alphabetical tie-break keeps the order deterministic.
     ordered = sorted(rows_by_family, key=lambda family: (-len(rows_by_family[family]), family))
 
+    # The cost being minimized is sum over classes of (load/total)^2, the
+    # squared load normalized per class so a rare class such as HCP pulls
+    # as hard as a common one. It is compared in exact integer arithmetic:
+    # multiplying through by the product of all squared totals turns
+    # sum(load_c^2 / total_c^2) into sum(load_c^2 * weight_c) with integer
+    # weights, which preserves the argmin exactly. Floats are banned here
+    # deliberately. An earlier float version used `x ** 2`, which CPython
+    # delegates to the platform's C `pow`, and a last-ulp disagreement
+    # between the Windows and Linux math libraries flipped one greedy
+    # choice and cascaded into entirely different folds. Python integers
+    # are exact on every platform, so this cannot recur.
+    classes = sorted(corpus_totals)
+    denominator_product = 1
+    for cls in classes:
+        denominator_product *= corpus_totals[cls] ** 2
+    weight = {cls: denominator_product // corpus_totals[cls] ** 2 for cls in classes}
+
     fold_loads: list[Counter] = [Counter() for _ in range(k)]
     fold_of = [0] * len(families)
 
@@ -245,12 +271,10 @@ def grouped_split(
         family_rows = rows_by_family[family]
         family_labels = Counter(labels[row_index] for row_index in family_rows)
 
-        def load_after(fold_index: int, family_labels: Counter = family_labels) -> float:
-            # Squared load normalized per class, so a rare class such as
-            # HCP pulls as hard as a common one instead of being swamped.
+        def load_after(fold_index: int, family_labels: Counter = family_labels) -> int:
             return sum(
-                ((fold_loads[fold_index][cls] + family_labels[cls]) / corpus_totals[cls]) ** 2
-                for cls in corpus_totals
+                (fold_loads[fold_index][cls] + family_labels[cls]) ** 2 * weight[cls]
+                for cls in classes
             )
 
         chosen = min(range(k), key=lambda fold_index: (load_after(fold_index), fold_index))
