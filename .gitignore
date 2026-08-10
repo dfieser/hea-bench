@@ -56,6 +56,14 @@ data/raw/peivaste/*.csv
 data/raw/peivaste/*.xlsx
 data/raw/peivaste/*.ipynb
 
+# The consolidated benchmark corpus is DERIVED from the sources above,
+# including the unlicensed ones, so it inherits their restrictions and
+# must not be committed. It is rebuilt locally and deterministically by
+# `python -m hea_bench.benchmark.consolidate`; the split digests pinned
+# in tests/test_benchmark_corpus.py are what guarantee a rebuild
+# reproduces the exact corpus every published number was computed on.
+data/consolidated/
+
 # Built docs
 docs/_build/
 site/
