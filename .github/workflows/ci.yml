@@ -55,6 +55,27 @@ jobs:
           pip install -e ".[dev]"
       - name: Rebuild the consolidated corpus from the recipe
         run: python -m hea_bench.benchmark.consolidate
+      - name: Diagnostic stage hashes (temporary, PR branch only)
+        run: |
+          python - <<'EOF'
+          import hashlib
+          def sha(data): return hashlib.sha256(data).hexdigest()
+          for path in ("data/raw/borg2020/MPEA_dataset.csv",
+                       "data/raw/pei2020/pei2020_alloys_phases.csv",
+                       "data/raw/peivaste/dataset11252_79.csv",
+                       "data/consolidated/v0.1.0/consolidated.csv"):
+              print("file  ", path, sha(open(path, "rb").read()))
+          from hea_bench.benchmark import load_benchmark
+          bench = load_benchmark(task="single_vs_multi")
+          fams = ",".join(bench.families).encode()
+          labs = ",".join(bench.labels).encode()
+          keys = ",".join(row.composition_key for row in bench.rows).encode()
+          print("keys  ", sha(keys))
+          print("fams  ", sha(fams))
+          print("labs  ", sha(labs))
+          print("group ", bench.grouped.digest)
+          print("random", bench.random.digest)
+          EOF
       - name: Verify the frozen split digests and corpus statistics
         run: pytest tests/test_benchmark_corpus.py tests/test_benchmark_splits.py -q
 
