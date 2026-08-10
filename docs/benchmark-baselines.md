@@ -20,6 +20,8 @@ them is what this benchmark exists to expose.
 
 Under the random split, 408 alloy families appear on both sides of a fold boundary, covering 6804 rows, or 88.6% of the benchmark. Under the grouped split that count is zero by construction.
 
+The grouped score is still an upper bound on out-of-system performance, because element-set grouping lets a system train while its extensions are tested. The stricter subset-closure rule was measured and ruled out rather than skipped: it collapses 956 of the 1259 families into one component of 7260 rows, 94.5% of the benchmark, and no k-fold partition can respect an indivisible block that large. The experimentally studied HEA compositions form a single connected web of shared subsystems.
+
 ## Task: single_vs_multi
 
 7683 rows carry a consensus label. 7373 of those use only elements the tables cover, and 7217 of those in turn have every descriptor finite. The rest were dropped because Omega or phi is singular where the mixing enthalpy approaches zero. By class, dropped: {'single-phase': 132, 'multi-phase': 24}. That exclusion is not random, since near-ideal alloys skew single-phase, so the evaluated subset is a little harder than the corpus as a whole.

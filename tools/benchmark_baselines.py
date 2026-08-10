@@ -113,6 +113,24 @@ def build_models(task: str) -> list[object]:
     return models
 
 
+def _closure_paragraph(bench) -> str:
+    """Why the grouped scheme is the strictest one offered, with numbers."""
+    from hea_bench.benchmark.splits import subset_closure_components
+
+    components = subset_closure_components(bench.families)
+    n_families, n_rows = components[0]
+    return (
+        "The grouped score is still an upper bound on out-of-system performance, "
+        "because element-set grouping lets a system train while its extensions are "
+        "tested. The stricter subset-closure rule was measured and ruled out rather "
+        f"than skipped: it collapses {n_families} of the "
+        f"{len({*bench.families})} families into one component of {n_rows} rows, "
+        f"{n_rows / len(bench):.1%} of the benchmark, and no k-fold partition can "
+        "respect an indivisible block that large. The experimentally studied HEA "
+        "compositions form a single connected web of shared subsystems."
+    )
+
+
 def _row(report) -> str:
     def cell(scheme, name: str) -> str:
         return f"{scheme.summary[f'{name}_mean']:.3f} ± {scheme.summary[f'{name}_se']:.3f}"
@@ -194,6 +212,8 @@ def main() -> int:
         f"{described['leakage_profile']['random_rows_in_straddling_families']} rows, or "
         f"{described['leakage_profile']['random_fraction_rows_interpolable']:.1%} of the "
         "benchmark. Under the grouped split that count is zero by construction.",
+        "",
+        _closure_paragraph(bench),
         "",
     ]
 

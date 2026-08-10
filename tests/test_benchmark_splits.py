@@ -168,6 +168,37 @@ def test_scheme_digest_matches_its_assignment() -> None:
     assert scheme.digest == freeze_digest(scheme.fold_of)
 
 
+# --- subset closure --------------------------------------------------------
+
+
+def test_subset_closure_links_a_system_to_its_extensions() -> None:
+    """CoCrFeNi and AlCoCrFeNi merge; an unrelated binary stays alone."""
+    from hea_bench.benchmark.splits import subset_closure_components
+
+    families = ["Co-Cr-Fe-Ni", "Al-Co-Cr-Fe-Ni", "Al-Co-Cr-Fe-Ni", "Mo-Nb"]
+    components = subset_closure_components(families)
+    assert components == [(2, 3), (1, 1)]
+
+
+def test_subset_closure_is_transitive() -> None:
+    """A shared subsystem chains otherwise-unrelated families together."""
+    from hea_bench.benchmark.splits import subset_closure_components
+
+    # Co-Cr links to both extensions, which never compare to each other
+    # directly, so all three must land in one component.
+    families = ["Co-Cr", "Al-Co-Cr", "Co-Cr-Ni"]
+    components = subset_closure_components(families)
+    assert components == [(3, 3)]
+
+
+def test_subset_closure_ignores_mere_overlap() -> None:
+    """Sharing elements without containment is not a link."""
+    from hea_bench.benchmark.splits import subset_closure_components
+
+    families = ["Al-Co-Cr", "Co-Cr-Ni"]  # overlap {Co, Cr}, neither contains the other
+    assert subset_closure_components(families) == [(1, 1), (1, 1)]
+
+
 # --- leakage profile -------------------------------------------------------
 
 

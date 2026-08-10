@@ -52,15 +52,27 @@ within about 4 percent. Those residual imbalances are reported in the
 split summary rather than hidden, because per-fold scores should be read
 in light of them.
 
-Known limitation
-----------------
+Known limitation, measured
+--------------------------
 Grouping by element set does not catch every near-duplicate. Dropping an
 element changes the set, so ``CoCrFeNi`` is a different family from
 ``AlCoCrFeNi`` even though the second is the first plus an addition.
 Some relatedness therefore survives the grouped split, which means the
 grouped score is an upper bound on true out-of-system performance, not a
-lower bound. Stricter groupings (by subset closure, or by the transition
-metal skeleton) are recorded as future work rather than guessed at here.
+lower bound.
+
+The obvious stricter rule, closing families under the subset relation so
+an alloy system and all its extensions travel together, was measured
+rather than guessed at: on corpus v0.1.0 it collapses 956 of the 1,259
+families into one connected component holding 7,260 of the 7,683
+labelled rows, 94.5 percent (:func:`subset_closure_components`, with the
+numbers pinned in the test suite). A five-fold split cannot be built
+around one indivisible block that large, so subset closure is not a
+usable protocol on this corpus. That is a statement about the
+literature, not about this package: the experimentally studied HEA
+compositions form a single connected web of shared subsystems, and
+element-set grouping is the strictest family-level rule that still
+leaves cross-validation possible.
 """
 
 from __future__ import annotations
@@ -305,6 +317,52 @@ def random_split(
     )
 
 
+def subset_closure_components(families: Sequence[str]) -> list[tuple[int, int]]:
+    """Connected components of families under the subset/superset relation.
+
+    Two families are linked when one's element set contains the other's,
+    the relation a stricter grouping rule would have to respect (so that
+    ``Co-Cr-Fe-Ni`` and ``Al-Co-Cr-Fe-Ni`` cannot end up on opposite
+    sides of a fold boundary). Returns one ``(n_families, n_rows)`` pair
+    per component, sorted by row count descending.
+
+    This exists to document why that stricter rule is *not* offered as a
+    scheme: on corpus v0.1.0 the largest component holds 94.5 percent of
+    the labelled rows, so no k-fold partition can respect the closure.
+    See the module docstring.
+    """
+    row_counts: dict[frozenset[str], int] = defaultdict(int)
+    for family in families:
+        row_counts[frozenset(family.split("-"))] += 1
+
+    keys = sorted(row_counts, key=len)
+    parent: dict[frozenset[str], frozenset[str]] = {key: key for key in keys}
+
+    def find(key: frozenset[str]) -> frozenset[str]:
+        while parent[key] != key:
+            parent[key] = parent[parent[key]]
+            key = parent[key]
+        return key
+
+    # Sorted by size, so only the strict-subset direction needs testing.
+    for index, small in enumerate(keys):
+        for large in keys[index + 1 :]:
+            if len(large) > len(small) and small <= large:
+                root_small, root_large = find(small), find(large)
+                if root_small != root_large:
+                    parent[root_small] = root_large
+
+    components: dict[frozenset[str], list[int]] = defaultdict(lambda: [0, 0])
+    for key in keys:
+        component = components[find(key)]
+        component[0] += 1
+        component[1] += row_counts[key]
+    return sorted(
+        ((n_families, n_rows) for n_families, n_rows in components.values()),
+        key=lambda pair: -pair[1],
+    )
+
+
 def straddling_families(scheme: SplitScheme, families: Sequence[str]) -> dict[str, int]:
     """Families that appear in more than one fold, and how many folds each spans.
 
@@ -358,4 +416,5 @@ __all__ = [
     "leakage_profile",
     "random_split",
     "straddling_families",
+    "subset_closure_components",
 ]

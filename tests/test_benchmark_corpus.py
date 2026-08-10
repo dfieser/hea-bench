@@ -161,6 +161,25 @@ def test_both_tasks_project_the_same_rows() -> None:
 
 
 @needs_corpus
+def test_subset_closure_is_infeasible_on_this_corpus() -> None:
+    """Pins the measurement that rules out strict subset-closure grouping.
+
+    One component holds 94.5% of labelled rows, so no k-fold partition
+    can respect the closure. This is why element-set grouping is the
+    strictest scheme the benchmark offers; see the splits module
+    docstring. If these numbers move, the corpus changed.
+    """
+    from hea_bench.benchmark.splits import subset_closure_components
+
+    bench = load_benchmark(task="single_vs_multi")
+    components = subset_closure_components(bench.families)
+    assert len(components) == 302
+    n_families, n_rows = components[0]
+    assert (n_families, n_rows) == (956, 7260)
+    assert n_rows / len(bench) == pytest.approx(0.945, abs=0.001)
+
+
+@needs_corpus
 def test_singular_descriptor_rows_are_dropped_by_the_finite_filter() -> None:
     """Near-ideal alloys such as Ag-Au have a divergent Omega and must be excluded."""
     bench = load_benchmark(task="single_vs_multi")

@@ -18,6 +18,46 @@ jobs:
       - name: Every version-bearing file must agree with the canonical __version__
         run: python tools/version.py --check
 
+  benchmark-freeze:
+    # The frozen split digests are pinned in tests/test_benchmark_corpus.py,
+    # but those tests skip wherever the corpus is absent, and the corpus
+    # cannot be committed: its largest source declares no license, so only
+    # the recipe ships (see data/raw/README.md). This job runs the recipe —
+    # fetch the pinned upstream snapshot, rebuild the corpus, check the
+    # digests — so the freeze is enforced by machinery rather than by
+    # whoever happens to have the data locally.
+    #
+    # Two distinct failure modes, both of which SHOULD go red:
+    #   - fetch.py exits 2: upstream bytes changed, the recipe no longer
+    #     reproduces the frozen corpus;
+    #   - the digest tests fail: the corpus or the split algorithm drifted.
+    # Via the workflow_call gate in release.yml, either also blocks a
+    # release, which is deliberate: the reproducibility claim would be
+    # false.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Restore the pinned Peivaste snapshot
+        uses: actions/cache@v4
+        with:
+          path: data/raw/peivaste/dataset11252_79.csv
+          # Keyed by the pinned SHA-256 in fetch.py, so a deliberate re-pin
+          # naturally invalidates the cache.
+          key: peivaste-655a43e521003f5c8973050b5f7c0a5d4b9ab902ca4ecc9c8a7d9813b2b0ba10
+      - name: Fetch the Peivaste snapshot (verifies the pinned SHA-256 either way)
+        run: python data/raw/peivaste/fetch.py
+      - name: Install package with dev extras
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Rebuild the consolidated corpus from the recipe
+        run: python -m hea_bench.benchmark.consolidate
+      - name: Verify the frozen split digests and corpus statistics
+        run: pytest tests/test_benchmark_corpus.py tests/test_benchmark_splits.py -q
+
   test:
     runs-on: ubuntu-latest
     strategy:

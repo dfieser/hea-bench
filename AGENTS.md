@@ -251,6 +251,13 @@ report = evaluate(MajorityClass(), bench)
 print(report.table())                            # grouped vs random, side by side
 ```
 
+The grouped score is an **upper bound** on true out-of-system
+performance: element-set grouping still lets `CoCrFeNi` train while
+`AlCoCrFeNi` is tested. The stricter subset-closure rule was measured
+and ruled out, not skipped — on this corpus it collapses 94.5% of rows
+into one indivisible component, so no k-fold split can respect it
+(`subset_closure_components`, numbers pinned in the tests).
+
 `evaluate` accepts either a trainable model (`fit(compositions, labels)`
 + `predict(compositions)`, refitted per fold) or a plain callable
 mapping one composition dict to a label string (how the empirical rules
