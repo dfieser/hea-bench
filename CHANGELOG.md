@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.2.1] — 2026-08-10
+
 ### Added
 
 - `hea_bench.benchmark`: frozen, leakage-controlled train/test splits for
