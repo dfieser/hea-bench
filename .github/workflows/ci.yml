@@ -75,6 +75,23 @@ jobs:
           print("labs  ", sha(labs))
           print("group ", bench.grouped.digest)
           print("random", bench.random.digest)
+          reference = [line.rstrip("\n").split("\t") for line in
+                       open("tests/data/_diag_reference_keys.txt", encoding="utf-8")]
+          rows = [(row.composition_key, row.label) for row in bench.rows]
+          print("reference rows", len(reference), "built rows", len(rows))
+          ref_keys = {key for key, _ in reference}
+          got_keys = {key for key, _ in rows}
+          print("keys only in reference:", sorted(ref_keys - got_keys)[:10])
+          print("keys only in built:    ", sorted(got_keys - ref_keys)[:10])
+          shown = 0
+          for index, (ref, got) in enumerate(zip(reference, rows)):
+              if tuple(ref) != got:
+                  print(f"row {index}: reference={ref} built={list(got)}")
+                  shown += 1
+                  if shown >= 10:
+                      break
+          if not shown:
+              print("sequences identical")
           EOF
       - name: Verify the frozen split digests and corpus statistics
         run: pytest tests/test_benchmark_corpus.py tests/test_benchmark_splits.py -q
