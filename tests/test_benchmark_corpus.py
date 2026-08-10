@@ -25,28 +25,64 @@ from hea_bench.benchmark.corpus import descriptor_matrix, descriptor_names
 # published split silently is how a benchmark stops being one.
 
 CORPUS_VERSION = "0.1.0"
-EXPECTED_ROWS = 7683
-EXPECTED_FAMILIES = 1259
-EXPECTED_ELEMENT_COVERED = 7373
 
-# Computed with math.fsum-based normalization (see composition.normalize),
-# verified byte-identical across Python 3.10 and 3.13 on Windows and
-# Python 3.12 on Linux before pinning.
-FROZEN_DIGESTS = {
-    "single_vs_multi": {
-        "grouped": "a1d87ef65c5a96485edecbb6fea4ec8c10b82ef303de300b43292adb7b485226",
-        "random": "33a2cbffce2b7c0657bd1962ba6f73559a54e7247c172f3f49940293cb5e820a",
+# Per-version frozen facts. Every digest was computed with math.fsum-based
+# normalization (see composition.normalize) and verified byte-identical
+# across Python 3.10 and 3.13 on Windows and Python 3.12 on Linux before
+# pinning. A version's numbers never change once published; adding data
+# means adding a version with its own block here.
+FROZEN = {
+    "0.1.0": {
+        "rows": 7683,
+        "families": 1259,
+        "element_covered": 7373,
+        "conflicts": 100,
+        "digests": {
+            "single_vs_multi": {
+                "grouped": "a1d87ef65c5a96485edecbb6fea4ec8c10b82ef303de300b43292adb7b485226",
+                "random": "33a2cbffce2b7c0657bd1962ba6f73559a54e7247c172f3f49940293cb5e820a",
+            },
+            "phase4": {
+                "grouped": "3996c5a68b58a07c31b2586efdc0c7b1415108391e2a674641b226a8814fda16",
+                "random": "171fdb33115efe7701eb96b289ec2db7073a4897e18eead91162b6b934ac0531",
+            },
+        },
     },
-    "phase4": {
-        "grouped": "3996c5a68b58a07c31b2586efdc0c7b1415108391e2a674641b226a8814fda16",
-        "random": "171fdb33115efe7701eb96b289ec2db7073a4897e18eead91162b6b934ac0531",
+    # v0.2.0 adds the Chizhevskiy LLM-extracted database (CC-BY-4.0 since
+    # 2026-08-10). Conflicts jump 100 -> 226 because its labels disagree
+    # with the v0.1.0 consensus on ~30% of overlapping alloys and every
+    # disagreement is quarantined rather than voted on.
+    "0.2.0": {
+        "rows": 10064,
+        "families": 2257,
+        "element_covered": 9480,
+        "conflicts": 226,
+        "digests": {
+            "single_vs_multi": {
+                "grouped": "7bb76d59a8f5c88be3ee3ec9bf6bed249e6864a07353d99746aea4c8e7b63060",
+                "random": "e3d2d94ed5774569cb0825eb6d4744a0e96db16d991dba8070c8f8bccc1f75ed",
+            },
+            "phase4": {
+                "grouped": "861c255c34337a0be7b265e7dae0189f912aecb9137ec7d8dc9ac5feb40382a6",
+                "random": "36751215d7e0d549bec2e4c7e551aad0ee63d4f346035092afa29372bd8c4e64",
+            },
+        },
     },
 }
 
-_CORPUS_CSV = (
-    pathlib.Path(__file__).resolve().parents[1]
-    / "data" / "consolidated" / f"v{CORPUS_VERSION}" / "consolidated.csv"
-)
+# Kept for the older single-version tests below.
+EXPECTED_ROWS = FROZEN["0.1.0"]["rows"]
+EXPECTED_FAMILIES = FROZEN["0.1.0"]["families"]
+EXPECTED_ELEMENT_COVERED = FROZEN["0.1.0"]["element_covered"]
+FROZEN_DIGESTS = FROZEN["0.1.0"]["digests"]
+
+_DATA_DIR = pathlib.Path(__file__).resolve().parents[1] / "data" / "consolidated"
+_CORPUS_CSV = _DATA_DIR / f"v{CORPUS_VERSION}" / "consolidated.csv"
+
+
+def _corpus_csv(version: str) -> pathlib.Path:
+    return _DATA_DIR / f"v{version}" / "consolidated.csv"
+
 
 needs_corpus = pytest.mark.skipif(
     not _CORPUS_CSV.exists(),
@@ -55,6 +91,13 @@ needs_corpus = pytest.mark.skipif(
         "python -m hea_bench.benchmark.consolidate"
     ),
 )
+
+
+def _needs_version(version: str):
+    return pytest.mark.skipif(
+        not _corpus_csv(version).exists(),
+        reason=f"corpus v{version} not built; run python -m hea_bench.benchmark.consolidate",
+    )
 
 
 # --- behaviour that needs no data ------------------------------------------
@@ -102,13 +145,44 @@ def test_corpus_size_and_family_count() -> None:
     assert len(bench.subset_indices(descriptor_ready_only=True)) == EXPECTED_ELEMENT_COVERED
 
 
+@pytest.mark.parametrize("version", sorted(FROZEN))
+@pytest.mark.parametrize("task", ("single_vs_multi", "phase4"))
+def test_frozen_split_digests(version: str, task: str) -> None:
+    """The splits are frozen. These digests are the freeze, per corpus version."""
+    if not _corpus_csv(version).exists():
+        pytest.skip(f"corpus v{version} not built")
+    bench = load_benchmark(task=task, version=version)
+    pinned = FROZEN[version]["digests"][task]
+    assert bench.grouped.digest == pinned["grouped"]
+    assert bench.random.digest == pinned["random"]
+
+
+@pytest.mark.parametrize("version", sorted(FROZEN))
+def test_frozen_corpus_statistics(version: str) -> None:
+    """Row, family, coverage, and conflict counts per corpus version."""
+    import csv
+
+    if not _corpus_csv(version).exists():
+        pytest.skip(f"corpus v{version} not built")
+    bench = load_benchmark(task="single_vs_multi", version=version)
+    pinned = FROZEN[version]
+    assert len(bench) == pinned["rows"]
+    assert len({*bench.families}) == pinned["families"]
+    assert len(bench.subset_indices(descriptor_ready_only=True)) == pinned["element_covered"]
+    with _corpus_csv(version).open(newline="", encoding="utf-8") as handle:
+        conflicts = sum(1 for row in csv.DictReader(handle) if row["has_conflict"] == "1")
+    assert conflicts == pinned["conflicts"]
+
+
 @needs_corpus
-@pytest.mark.parametrize("task", sorted(FROZEN_DIGESTS))
-def test_frozen_split_digests(task: str) -> None:
-    """The splits are frozen. These digests are the freeze."""
-    bench = load_benchmark(task=task)
-    assert bench.grouped.digest == FROZEN_DIGESTS[task]["grouped"]
-    assert bench.random.digest == FROZEN_DIGESTS[task]["random"]
+def test_v020_grouped_split_also_keeps_families_whole() -> None:
+    """The central guarantee must hold on every published corpus version."""
+    from hea_bench.benchmark.splits import straddling_families
+
+    if not _corpus_csv("0.2.0").exists():
+        pytest.skip("corpus v0.2.0 not built")
+    bench = load_benchmark(task="single_vs_multi", version="0.2.0")
+    assert straddling_families(bench.grouped, bench.families) == {}
 
 
 @needs_corpus

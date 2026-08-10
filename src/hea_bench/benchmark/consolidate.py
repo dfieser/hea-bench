@@ -28,14 +28,33 @@ import json
 import pathlib
 import sys
 from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 
 from ..composition import Composition
-from .loaders import AlloyRecord, borg2020, pei2020, peivaste
+from .loaders import AlloyRecord, borg2020, chizhevskiy2026, pei2020, peivaste
 from .taxonomy import PhaseClass
 
 DEFAULT_VERSION = "0.1.0"
+
+# Which sources feed which corpus version. A version's source list is a
+# frozen part of its recipe: v0.1.0 must always rebuild from exactly its
+# original three sources so its pinned digests stay reproducible, and a
+# corpus that adds a source is a NEW version with new digests, never an
+# edit to an old one.
+#
+# v0.2.0 adds the Chizhevskiy LLM-extracted database (CC-BY-4.0 since
+# upstream merged a LICENSE on 2026-08-10). Its labels carry extraction
+# noise on top of inter-study noise: on the 384 alloys where it overlaps
+# the v0.1.0 consensus it agrees 69.8%, and the disagreements skew
+# toward reporting a single phase where the consensus says multi-phase.
+# The agreement-or-conflict consolidation rule quarantines every such
+# disagreement rather than voting, at the cost of blanking rows that
+# were consensus in v0.1.0.
+SOURCES_BY_VERSION: dict[str, tuple[str, ...]] = {
+    "0.1.0": ("borg2020", "pei2020", "peivaste"),
+    "0.2.0": ("borg2020", "pei2020", "peivaste", "chizhevskiy2026"),
+}
 
 # Repo-relative paths (repo root is 3 parents up from this file:
 # hea-bench/src/hea_bench/benchmark/consolidate.py → hea-bench/).
@@ -125,25 +144,35 @@ def consolidate(records: Iterable[AlloyRecord], precision: int = 4) -> list[Cons
 
 # ---- Output writers -------------------------------------------------------
 
-_CSV_COLUMNS = [
-    "composition_key",
-    "n_elements",
-    "sources",
-    "canonical_phase",
-    "has_conflict",
-    "borg_label",
-    "pei_label",
-    "peivaste_label",
-    "borg_raw_label",
-    "pei_raw_label",
-    "peivaste_raw_label",
-    "borg_processing",
-    "borg_doi",
-    "source_row_ids",
-]
+# Short column-name prefix per source. The CSV schema is derived from the
+# version's source list, so v0.1.0 keeps its exact original 14 columns and
+# a version that adds a source grows label columns for it without touching
+# the older recipe's output.
+_SOURCE_COLUMN_PREFIX = {
+    "borg2020": "borg",
+    "pei2020": "pei",
+    "peivaste": "peivaste",
+    "chizhevskiy2026": "chizhevskiy",
+}
 
 
-def _row_to_csv(row: ConsolidatedRow) -> list[str]:
+def _csv_columns(source_names: Sequence[str]) -> list[str]:
+    prefixes = [_SOURCE_COLUMN_PREFIX[name] for name in source_names]
+    return [
+        "composition_key",
+        "n_elements",
+        "sources",
+        "canonical_phase",
+        "has_conflict",
+        *[f"{prefix}_label" for prefix in prefixes],
+        *[f"{prefix}_raw_label" for prefix in prefixes],
+        "borg_processing",
+        "borg_doi",
+        "source_row_ids",
+    ]
+
+
+def _row_to_csv(row: ConsolidatedRow, source_names: Sequence[str]) -> list[str]:
     def lbl(src: str) -> str:
         v = row.per_source_canonical.get(src)
         return v.value if v else ""
@@ -154,27 +183,27 @@ def _row_to_csv(row: ConsolidatedRow) -> list[str]:
         ";".join(row.sources),
         row.canonical_phase.value if row.canonical_phase else "",
         "1" if row.has_conflict else "0",
-        lbl("borg2020"),
-        lbl("pei2020"),
-        lbl("peivaste"),
-        row.per_source_raw_labels.get("borg2020", ""),
-        row.per_source_raw_labels.get("pei2020", ""),
-        row.per_source_raw_labels.get("peivaste", ""),
+        *[lbl(name) for name in source_names],
+        *[row.per_source_raw_labels.get(name, "") for name in source_names],
         row.borg_processing or "",
         row.borg_doi or "",
         ";".join(f"{s}:{rid}" for s, rid in sorted(row.source_row_ids.items())),
     ]
 
 
-def write_consolidated_csv(rows: Iterable[ConsolidatedRow], path: pathlib.Path) -> int:
+def write_consolidated_csv(
+    rows: Iterable[ConsolidatedRow],
+    path: pathlib.Path,
+    source_names: Sequence[str] = SOURCES_BY_VERSION[DEFAULT_VERSION],
+) -> int:
     """Write rows in alphabetical composition_key order. Returns row count."""
     rows = sorted(rows, key=lambda r: r.composition_key)
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
-        w.writerow(_CSV_COLUMNS)
+        w.writerow(_csv_columns(source_names))
         for r in rows:
-            w.writerow(_row_to_csv(r))
+            w.writerow(_row_to_csv(r, source_names))
     return len(rows)
 
 
@@ -196,24 +225,22 @@ def build_manifest(
         elif r.canonical_phase:
             canonical_dist[r.canonical_phase.value] += 1
 
-    overlap = {"single_source": 0, "two_sources": 0, "three_sources": 0}
+    overlap_names = {1: "single_source", 2: "two_sources", 3: "three_sources", 4: "four_sources"}
+    overlap = {overlap_names[n]: 0 for n in range(1, len(SOURCES_BY_VERSION[version]) + 1)}
     for r in rows:
-        n = len(r.sources)
-        if n == 1:
-            overlap["single_source"] += 1
-        elif n == 2:
-            overlap["two_sources"] += 1
-        elif n >= 3:
-            overlap["three_sources"] += 1
+        overlap[overlap_names[len(r.sources)]] += 1
 
     src_meta_table = {
         "borg2020":  {"license": "CC-BY-4.0",     "doi": "10.1038/s41597-020-00768-9"},
         "pei2020":   {"license": "CC-BY-4.0",     "doi": "10.1038/s41524-020-0308-7"},
         "peivaste":  {"license": "none-declared", "url": "https://github.com/Iman-Peivaste/ML_HEAs_Phase_Dataset"},
+        # LICENSE added upstream 2026-08-10 via merged PR
+        # github.com/Vladimirchizh/hea_database/pull/2.
+        "chizhevskiy2026": {"license": "CC-BY-4.0", "doi": "10.1038/s41597-026-06930-z"},
     }
 
     sources_section = []
-    for name in ("borg2020", "pei2020", "peivaste"):
+    for name in SOURCES_BY_VERSION[version]:
         meta = src_meta_table[name]
         sources_section.append(
             {
@@ -255,26 +282,40 @@ def build_manifest(
     }
 
 
+_SOURCE_PATHS = {
+    "borg2020": _RAW_DIR / "borg2020" / "MPEA_dataset.csv",
+    "pei2020":  _RAW_DIR / "pei2020"  / "pei2020_alloys_phases.csv",
+    "peivaste": _RAW_DIR / "peivaste" / "dataset11252_79.csv",
+    "chizhevskiy2026": _RAW_DIR / "chizhevskiy2026" / "database_of_HEAs.csv",
+}
+
+_LOADERS = {
+    "borg2020": borg2020.load,
+    "pei2020": pei2020.load,
+    "peivaste": peivaste.load,
+    "chizhevskiy2026": chizhevskiy2026.load,
+}
+
+
 def build(version: str = DEFAULT_VERSION, out_dir: pathlib.Path | None = None) -> dict:
-    """Run all three loaders, consolidate, write the v<version> release.
+    """Run the version's loaders, consolidate, write the v<version> release.
 
     Returns the manifest dict (also written to disk).
     """
+    source_names = SOURCES_BY_VERSION[version]
     out_dir = out_dir or (_CONSOLIDATED_DIR / f"v{version}")
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    source_paths = {
-        "borg2020": _RAW_DIR / "borg2020" / "MPEA_dataset.csv",
-        "pei2020":  _RAW_DIR / "pei2020"  / "pei2020_alloys_phases.csv",
-        "peivaste": _RAW_DIR / "peivaste" / "dataset11252_79.csv",
+    source_paths = {name: _SOURCE_PATHS[name] for name in source_names}
+    rows_by_source = {
+        name: list(_LOADERS[name](source_paths[name])) for name in source_names
     }
-    borg_rows     = list(borg2020.load(source_paths["borg2020"]))
-    pei_rows      = list(pei2020.load(source_paths["pei2020"]))
-    peivaste_rows = list(peivaste.load(source_paths["peivaste"]))
-    source_counts = {"borg2020": len(borg_rows), "pei2020": len(pei_rows), "peivaste": len(peivaste_rows)}
+    source_counts = {name: len(rows) for name, rows in rows_by_source.items()}
 
-    consolidated = consolidate([*borg_rows, *pei_rows, *peivaste_rows])
-    write_consolidated_csv(consolidated, out_dir / "consolidated.csv")
+    consolidated = consolidate(
+        [record for name in source_names for record in rows_by_source[name]]
+    )
+    write_consolidated_csv(consolidated, out_dir / "consolidated.csv", source_names)
 
     manifest = build_manifest(consolidated, source_counts, source_paths, version)
     (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2))
@@ -284,11 +325,12 @@ def build(version: str = DEFAULT_VERSION, out_dir: pathlib.Path | None = None) -
 def main() -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-    m = build()
-    print(f"=== v{m['version']} built {m['created']} ===")
-    print(f"unique compositions: {m['totals']['unique_compositions']}")
-    print(f"by_source_overlap:   {m['totals']['by_source_overlap']}")
-    print(f"canonical:           {m['totals']['canonical_distribution']}")
+    for version in SOURCES_BY_VERSION:
+        m = build(version)
+        print(f"=== v{m['version']} built {m['created']} ===")
+        print(f"unique compositions: {m['totals']['unique_compositions']}")
+        print(f"by_source_overlap:   {m['totals']['by_source_overlap']}")
+        print(f"canonical:           {m['totals']['canonical_distribution']}")
     return 0
 
 

@@ -233,8 +233,12 @@ import it as `from hea_bench import oxides`.
 ## Phase-prediction benchmark (repo-only, experimental)
 
 `hea_bench.benchmark` evaluates phase-prediction models under two
-frozen five-fold splits of a consolidated experimental corpus (~7,700
-alloys from Borg 2020, Pei 2020, and Peivaste): a **grouped** split
+frozen five-fold splits of a consolidated experimental corpus (default
+corpus v0.1.0, ~7,700 alloys from Borg 2020, Pei 2020, and Peivaste;
+`load_benchmark(version="0.2.0")` opts into the 10,064-alloy corpus
+that adds the Chizhevskiy LLM-extracted database, whose noisier labels
+are quarantined-on-disagreement — see `data/raw/README.md`): a
+**grouped** split
 where a whole alloy family — the set of elements present, so every
 stoichiometric variant of one system — stays on one side of each
 train/test boundary, and a **random** split, the usual literature
