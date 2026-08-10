@@ -230,6 +230,53 @@ as an **Oxides mode** (mode switch at the top of the input rail). The
 module is deliberately not exported at the `hea_bench` top level;
 import it as `from hea_bench import oxides`.
 
+## Phase-prediction benchmark (repo-only, experimental)
+
+`hea_bench.benchmark` evaluates phase-prediction models under two
+frozen five-fold splits of a consolidated experimental corpus (~7,700
+alloys from Borg 2020, Pei 2020, and Peivaste): a **grouped** split
+where a whole alloy family — the set of elements present, so every
+stoichiometric variant of one system — stays on one side of each
+train/test boundary, and a **random** split, the usual literature
+protocol. The gap between them measures how much of a random-split
+score is interpolation between near-duplicate compositions rather than
+prediction of a new system. For a stock random forest on this package's
+descriptors that gap is about 0.20 balanced accuracy (0.940 random vs
+0.738 grouped); see `docs/benchmark-baselines.md`.
+
+```python
+from hea_bench.benchmark import evaluate, load_benchmark, MajorityClass
+bench = load_benchmark(task="single_vs_multi")   # or "phase4"
+report = evaluate(MajorityClass(), bench)
+print(report.table())                            # grouped vs random, side by side
+```
+
+`evaluate` accepts either a trainable model (`fit(compositions, labels)`
++ `predict(compositions)`, refitted per fold) or a plain callable
+mapping one composition dict to a label string (how the empirical rules
+are scored). `hea_bench.benchmark.descriptor_matrix` builds a feature
+matrix from this package's own descriptors for fitted models, and
+`finite_descriptor_indices` drops the ~2% of rows where Ω or Φ is
+singular (near-ideal alloys, ΔH_mix → 0).
+
+**The corpus is not shipped and this surface only works from a repo
+checkout** (or with `HEA_BENCH_BENCHMARK_DIR` pointing at a built
+corpus). The largest source dataset (Peivaste) declares no license, so
+the repo carries a loader, a pinned SHA-256, and a fetch script instead
+of that data, and the derived corpus inherits the restriction. Build
+once:
+
+```bash
+python data/raw/peivaste/fetch.py
+python -m hea_bench.benchmark.consolidate
+```
+
+The split fold assignments are frozen: each carries a SHA-256 digest
+pinned in `tests/test_benchmark_corpus.py`. **Do not update those
+digests to make a test pass** — a moved digest means the benchmark
+changed and needs a new corpus version, not a silenced test. Licensing
+per source: `data/raw/README.md`.
+
 ## Coverage limit
 
 The element table covers **55 elements** (alloy surface; the oxides

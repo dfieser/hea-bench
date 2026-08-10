@@ -1,8 +1,10 @@
 """Loading the consolidated corpus and attaching its frozen splits.
 
-The corpus is not shipped inside the wheel. Three of the four upstream
-datasets it draws on carry no license that permits redistribution, so
-what this package ships is the recipe rather than the data: loaders,
+The corpus is not shipped inside the wheel. Its largest source dataset
+(Peivaste, the majority of contributed rows) carries no license, and a
+derived corpus inherits the restrictions of everything it is built
+from, so what this package ships is the recipe rather than the data:
+loaders,
 consolidation rules, pinned SHA-256 hashes of the exact upstream bytes,
 and the split algorithm. Running the build turns those into a corpus
 that is byte-identical to the one every reported number was computed
@@ -158,9 +160,8 @@ def _corpus_dir(version: str, corpus_dir: pathlib.Path | None) -> pathlib.Path:
 def _missing_corpus_error(path: pathlib.Path) -> FileNotFoundError:
     return FileNotFoundError(
         f"benchmark corpus not found at {path}.\n"
-        f"The corpus is built locally rather than shipped, because three of its "
-        f"four upstream datasets are not licensed for redistribution. Build it "
-        f"with:\n"
+        f"The corpus is built locally rather than shipped, because its largest "
+        f"source dataset is not licensed for redistribution. Build it with:\n"
         f"    python data/raw/peivaste/fetch.py\n"
         f"    python -m hea_bench.benchmark.consolidate\n"
         f"Set {_ENV_VAR} to point at a corpus directory elsewhere."

@@ -10,6 +10,32 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Added
+
+- `hea_bench.benchmark`: frozen, leakage-controlled train/test splits for
+  HEA phase prediction plus a paired evaluation API. `load_benchmark()`
+  returns the consolidated corpus with two frozen five-fold splits over
+  the same rows: one grouped by alloy family (the set of elements
+  present, so no alloy system straddles a train/test boundary) and one
+  random. `evaluate(model)` scores a model under both and reports the
+  gap, which measures how much of a random-split score is interpolation
+  between stoichiometric variants rather than prediction. Each split
+  carries a SHA-256 digest of its fold assignment, pinned in the test
+  suite, and the grouped split uses no random number generator at all.
+  On corpus v0.1.0 a stock random forest over this package's descriptors
+  scores 0.940 balanced accuracy under the random split and 0.738 under
+  the grouped one; baseline results and provenance live in
+  `docs/benchmark-baselines.md`.
+- The benchmark corpus is built locally, not shipped: its largest source
+  dataset (Peivaste) declares no license, so the repo carries loaders,
+  pinned SHA-256 hashes, and a fetch script instead of that data, and
+  the derived corpus inherits the restriction. The two CC-BY sources
+  (Borg 2020, Pei 2020) are mirrored. See `data/raw/README.md` for the
+  per-source licensing audit.
+- New optional extra `benchmark` pinning the scikit-learn version used
+  by the baseline table. The benchmark subpackage itself, like the core,
+  needs only the standard library.
+
 ## [2.1.7] — 2026-08-09
 
 ### Changed

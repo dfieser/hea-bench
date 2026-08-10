@@ -19,7 +19,8 @@ Run from the repository root:
     PYTHONPATH=src python tools/benchmark_baselines.py
 
 Needs scikit-learn, which the library core deliberately does not depend
-on. Writes docs/benchmark-baselines.md and prints each report.
+on; install the pinned version with ``pip install -e .[benchmark]``.
+Writes docs/benchmark-baselines.md and prints each report.
 """
 
 from __future__ import annotations
@@ -224,6 +225,17 @@ def main() -> int:
         "their gap is near zero. That is a property of the protocol, not evidence",
         "that the rules generalize well. Compare rules against the fitted models",
         "on the grouped column only.",
+        "",
+        "## What the fitted models are, and are not",
+        "",
+        "The random forest (300 trees) and gradient boosting rows use",
+        "scikit-learn defaults apart from the fixed seed, fitted on this",
+        "package's own fourteen descriptors. They are deliberately not",
+        "reimplementations of any published HEA model, and no hyperparameter",
+        "tuning was done, so they measure what a stock ensemble extracts from",
+        "these descriptors rather than any specific paper's ceiling. A tuned or",
+        "differently featurized model belongs in a new row, fitted only inside",
+        "training folds, not in a revision of these.",
         "",
     ]
 

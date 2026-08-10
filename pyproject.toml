@@ -54,6 +54,15 @@ dev = [
 mcp = [
     "mcp>=1.2",
 ]
+# The benchmark subpackage itself (splits, metrics, load_benchmark,
+# evaluate) is standard-library only, like the core. This extra is for
+# the fitted baselines in tools/benchmark_baselines.py. Pinned to the
+# 1.7 series because the numbers in docs/benchmark-baselines.md were
+# produced with scikit-learn 1.7.2, and tree ensembles can shift a few
+# thousandths across minors; regenerate the table when bumping the pin.
+benchmark = [
+    "scikit-learn~=1.7.2",
+]
 
 [project.scripts]
 hea-bench = "hea_bench.cli:main"

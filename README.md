@@ -173,6 +173,31 @@ Deep links open a view directly (`index.html#theory`,
 `web/hea-calculator-core.js` and is regression-checked against Python
 by the two parity test suites.
 
+## Honest evaluation: the phase-prediction benchmark (experimental)
+
+Published HEA phase-prediction accuracies are mostly measured with
+random train/test splits over corpora full of stoichiometric series, so
+models are tested on close variants of alloys they trained on. That
+measures interpolation, not prediction. `hea_bench.benchmark` ships
+frozen, leakage-controlled splits over a consolidated experimental
+corpus (~7,700 alloys) and an evaluator that reports the usual random
+split and a composition-family-grouped split **side by side**:
+
+```python
+from hea_bench.benchmark import evaluate, load_benchmark
+print(evaluate(my_model, load_benchmark(task="phase4")).table())
+```
+
+A stock random forest over this package's own descriptors scores 0.940
+balanced accuracy under the random split and 0.738 under the grouped
+one. The gap is the point. Baselines, split digests, and full
+provenance: [`docs/benchmark-baselines.md`](./docs/benchmark-baselines.md).
+
+This surface currently works from a repository checkout only: the
+corpus's largest source dataset declares no license, so the corpus is
+rebuilt locally from a fetch script and pinned hashes rather than
+redistributed (see [`data/raw/README.md`](./data/raw/README.md)).
+
 ## A note on Ω near ΔH<sub>mix</sub> ≈ 0
 
 `Ω = Tm·ΔSmix / |ΔHmix|` diverges as ΔH<sub>mix</sub> → 0, so for
@@ -190,6 +215,8 @@ hea-bench/
 │   ├── rules/           the six empirical phase-prediction rules
 │   ├── oxides/          HEO module: families, oxidation-state solver,
 │   │                    Shannon radii (94 elements, vendored from pymatgen)
+│   ├── benchmark/       frozen leakage-controlled splits + paired evaluation
+│   │                    (repo-only; corpus is built locally, see data/raw/)
 │   ├── composition.py   formula parser, normalizer
 │   ├── constants.py     R = 8.314
 │   └── cli.py           command-line entry point
