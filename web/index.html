@@ -5217,6 +5217,37 @@ font-family: 'Source Sans Pro'
       #landing .runs__name a { text-decoration: none; }
       #landing .runs__name a:hover { text-decoration: underline; }
       #landing .runs__desc { font-size: 15px; margin: 0; max-width: 58ch; }
+      /* Specificity note: must beat both `#landing .sec p` (justify +
+         hyphens) and `.runs__desc`'s 58ch cap, hence the element-qualified
+         descendant selector. */
+      #landing .runs p.runs__notice {
+        grid-column: 1 / -1;
+        margin: 8px 0 2px;
+        padding: 12px 16px;
+        max-width: none;
+        font-size: 15px;
+        text-align: left;
+        hyphens: none;
+        -webkit-hyphens: none;
+        border-left: 3px solid var(--accent);
+        background: color-mix(in srgb, var(--accent) 7%, transparent);
+        border-radius: 0 4px 4px 0;
+        animation: runs-notice-in 320ms ease-out;
+      }
+      #landing .runs p.runs__notice strong {
+        display: block;
+        font-family: var(--sans);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 4px;
+      }
+      @keyframes runs-notice-in {
+        from { opacity: 0; transform: translateY(-4px); }
+        to   { opacity: 1; transform: none; }
+      }
       @media (max-width: 620px) { #landing .runs__row { grid-template-columns: 1fr; } }
 
       #landing .refentry { font-size: 14.5px; max-width: 70ch; padding-left: 1.5em; text-indent: -1.5em; margin-bottom: 12px; }
@@ -5339,10 +5370,11 @@ font-family: 'Source Sans Pro'
               <span class="runs__name"><a id="exe-download" href="https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench.exe">Windows app</a></span>
               <p class="runs__desc">One portable executable, about 14&nbsp;MB, no installer. Made for
                  laboratory machines that never see the network.</p>
-              <p class="runs__desc" id="exe-building" hidden>A release is being built right now and
-                 the Windows executable is not attached yet. It usually appears within about
-                 15&nbsp;minutes. Until then this page is the same calculator, or come back
-                 shortly and the link above will work.</p>
+              <p class="runs__notice" id="exe-building" hidden>
+                 <strong>Update in progress</strong>
+                 A new release is building right now, and the Windows executable is not attached
+                 yet. It usually appears within about 15&nbsp;minutes. Until then this page is
+                 the same calculator, or come back shortly and the link above will work.</p>
             </div>
             <div class="runs__row">
               <span class="runs__name"><a href="https://github.com/dfieser/hea-bench/blob/main/AGENTS.md">Agent server</a></span>
