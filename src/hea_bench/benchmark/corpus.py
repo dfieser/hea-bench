@@ -203,15 +203,15 @@ def load_benchmark(
         random and ignores this.
     version
         Corpus version directory to read. ``"0.1.0"`` (the default) is
-        the three-source corpus every published baseline number was
-        measured on. ``"0.2.0"`` adds the Chizhevskiy LLM-extracted
-        database (CC-BY-4.0), growing the labelled corpus to 10,064
-        rows, at the cost of noisier labels: on overlapping alloys it
-        agrees with the v0.1.0 consensus only ~70% of the time, and
-        every disagreement is quarantined as a conflict rather than
-        voted on. The default stays 0.1.0 until the v0.2.0 label
-        quality has been reviewed; both versions' splits are frozen and
-        digest-pinned.
+        the reference corpus: three hand-curated sources, and the
+        corpus every published baseline number is measured on.
+        ``"0.2.0"`` is the extended corpus, adding the Chizhevskiy
+        LLM-extracted database (CC-BY-4.0) for 10,064 labelled rows.
+        It is deliberately opt-in rather than the default because its
+        labels are measurably noisier: on overlapping alloys it agrees
+        with the reference consensus only ~70% of the time, and every
+        disagreement is quarantined as a conflict rather than voted
+        on. Both versions' splits are frozen and digest-pinned.
     corpus_dir
         Explicit directory, overriding both the environment variable and
         the repository-relative default.
