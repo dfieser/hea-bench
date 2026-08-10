@@ -10,6 +10,12 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.3.1] — 2026-08-10
+
+### Changed
+
+- Handle the release window on the Windows-app download link
+
 ## [2.3.0] — 2026-08-10
 
 ### Added
