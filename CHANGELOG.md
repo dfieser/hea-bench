@@ -10,6 +10,20 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Added
+
+- Benchmark corpus v0.2.0, adding the Chizhevskiy et al. LLM-extracted
+  HEA database (Sci. Data 13, 612), which became usable when its
+  repository gained a CC-BY-4.0 license on 2026-08-10. The labelled
+  corpus grows from 7,683 to 10,064 alloys with its own frozen,
+  digest-pinned splits. `load_benchmark(version="0.2.0")` opts in; the
+  default stays v0.1.0 because the new source's LLM-extracted labels
+  agree with the established consensus on only about 70% of overlapping
+  alloys, and every such disagreement is quarantined as a conflict
+  rather than resolved by voting. The named-intermetallic raw labels
+  (B2, L12, Laves, sigma) are preserved verbatim as side-channel
+  columns.
+
 ## [2.2.1] — 2026-08-10
 
 ### Added
@@ -40,17 +54,6 @@ The format is loosely based on
 - New optional extra `benchmark` pinning the scikit-learn version used
   by the baseline table. The benchmark subpackage itself, like the core,
   needs only the standard library.
-- Benchmark corpus v0.2.0, adding the Chizhevskiy et al. LLM-extracted
-  HEA database (Sci. Data 13, 612), which became usable when its
-  repository gained a CC-BY-4.0 license on 2026-08-10. The labelled
-  corpus grows from 7,683 to 10,064 alloys with its own frozen,
-  digest-pinned splits. `load_benchmark(version="0.2.0")` opts in; the
-  default stays v0.1.0 because the new source's LLM-extracted labels
-  agree with the established consensus on only about 70% of overlapping
-  alloys, and every such disagreement is quarantined as a conflict
-  rather than resolved by voting. The named-intermetallic raw labels
-  (B2, L12, Laves, sigma) are preserved verbatim as side-channel
-  columns.
 
 (These notes were first staged for a v2.2.0 that was tagged but never
 published: its release run was correctly blocked by the new benchmark
