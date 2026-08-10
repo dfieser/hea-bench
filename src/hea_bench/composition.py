@@ -25,6 +25,7 @@ both the benchmark loaders *and* the descriptor functions consume the
 
 from __future__ import annotations
 
+import math
 import re
 
 Composition = dict[str, float]
@@ -135,12 +136,22 @@ def normalize(amounts: dict[str, float]) -> Composition:
 
     Skips elements with zero amount.
 
+    The total is computed with :func:`math.fsum`, which is exactly
+    rounded and therefore returns the same double on every Python
+    version and platform. Builtin ``sum`` is not: Python 3.12 switched
+    it to compensated (Neumaier) summation, so 3.10 and 3.12 can differ
+    in the last bit of the total, which shifts a handful of mole
+    fractions across a decimal rounding boundary. That single bit made
+    the benchmark corpus build produce different composition keys on
+    different Python versions until it was caught by the benchmark's CI
+    freeze gate. ``fsum`` closes the class of bug, not just the case.
+
     Raises
     ------
     ValueError
         If the input is empty or its values sum to zero.
     """
-    total = sum(v for v in amounts.values() if v > 0)
+    total = math.fsum(v for v in amounts.values() if v > 0)
     if total <= 0:
         raise ValueError("composition amounts must sum to a positive value")
     return {el: amount / total for el, amount in amounts.items() if amount > 0}

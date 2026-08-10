@@ -31,16 +31,19 @@ each is placed in whichever fold is currently least loaded, measured as
 the sum over classes of the squared class count normalized by that
 class's corpus total. Ties break to the lowest fold index.
 
-The load comparison is done in exact integer arithmetic, not floats.
-This is a hard requirement, learned the expensive way: a float version
-of the same cost differed by one unit in the last place between the
-Windows and Linux math libraries (CPython's ``**`` on floats calls the
-platform's C ``pow``), which flipped a single greedy choice and
-cascaded into completely different folds per platform. Integer
-arithmetic makes the same corpus produce byte-identical folds on any
-platform and any Python version, and the CI ``benchmark-freeze`` job
-rebuilds the corpus on Linux and checks the digests to hold that
-guarantee.
+The load comparison is done in exact integer arithmetic, not floats, so
+the assignment cannot depend on any float's last bit. Determinism of
+the whole chain was earned the expensive way: the first release attempt
+was blocked by the CI freeze gate because Python 3.12 computes builtin
+``sum`` with compensated (Neumaier) summation while 3.10 does not, and
+that last-bit difference in composition normalization totals moved a
+few mole fractions across a decimal rounding boundary, changed a
+handful of composition keys, and cascaded into different folds. The
+corpus build now uses exactly rounded ``math.fsum`` (see
+:func:`hea_bench.composition.normalize`), this module keeps every
+comparison in integers, and the CI ``benchmark-freeze`` job rebuilds
+the corpus and checks the digests on Linux to hold the guarantee
+mechanically.
 
 The random scheme is seeded and stratified by class, so it too is
 reproducible, and it is fair to the grouped scheme in class balance.
@@ -252,12 +255,11 @@ def grouped_split(
     # as hard as a common one. It is compared in exact integer arithmetic:
     # multiplying through by the product of all squared totals turns
     # sum(load_c^2 / total_c^2) into sum(load_c^2 * weight_c) with integer
-    # weights, which preserves the argmin exactly. Floats are banned here
-    # deliberately. An earlier float version used `x ** 2`, which CPython
-    # delegates to the platform's C `pow`, and a last-ulp disagreement
-    # between the Windows and Linux math libraries flipped one greedy
-    # choice and cascaded into entirely different folds. Python integers
-    # are exact on every platform, so this cannot recur.
+    # weights, which preserves the argmin exactly. Floats are banned from
+    # this comparison deliberately: a greedy argmin amplifies any last-bit
+    # float discrepancy into a completely different assignment, so the
+    # assignment must not be able to see one. Python integers are exact
+    # on every platform and version.
     classes = sorted(corpus_totals)
     denominator_product = 1
     for cls in classes:

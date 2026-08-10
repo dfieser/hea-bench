@@ -29,14 +29,17 @@ EXPECTED_ROWS = 7683
 EXPECTED_FAMILIES = 1259
 EXPECTED_ELEMENT_COVERED = 7373
 
+# Computed with math.fsum-based normalization (see composition.normalize),
+# verified byte-identical across Python 3.10 and 3.13 on Windows and
+# Python 3.12 on Linux before pinning.
 FROZEN_DIGESTS = {
     "single_vs_multi": {
-        "grouped": "0a6ef1dc7e06389e1540e50fb49267e9c12ff76631114506c87b2c576776f9d9",
-        "random": "67c8b6cfe087c7bfec49b04a5aa1545b18c14460fee19007bd66a0a469245985",
+        "grouped": "a1d87ef65c5a96485edecbb6fea4ec8c10b82ef303de300b43292adb7b485226",
+        "random": "33a2cbffce2b7c0657bd1962ba6f73559a54e7247c172f3f49940293cb5e820a",
     },
     "phase4": {
-        "grouped": "a277be6b7c3f39f0f868f878930f8c4ac61fceb8a50b12e9a437fc415a29948e",
-        "random": "8346f17efcbddc4f1ff50d96e1794cbce106b4805fe498d8f7b1cf01c18705b7",
+        "grouped": "3996c5a68b58a07c31b2586efdc0c7b1415108391e2a674641b226a8814fda16",
+        "random": "171fdb33115efe7701eb96b289ec2db7073a4897e18eead91162b6b934ac0531",
     },
 }
 

@@ -41,9 +41,15 @@ The format is loosely based on
 
 (These notes were first staged for a v2.2.0 that was tagged but never
 published: its release run was correctly blocked by the new benchmark
-CI gate itself, which caught the grouped split producing different
-folds on Linux than on Windows. The float cost arithmetic responsible
-was replaced with exact integers before any surface shipped.)
+CI gate itself, which caught the corpus build producing different
+composition keys on Python 3.12 than on 3.10. Builtin `sum` switched
+to compensated summation in 3.12, and that last-bit difference in
+normalization totals moved a few mole fractions across the 4-decimal
+rounding boundary. Composition normalization now uses exactly rounded
+`math.fsum`, fold assignment uses exact integer arithmetic, and the
+frozen digests were re-pinned after verifying byte-identical corpus
+builds on Python 3.10, 3.12, and 3.13 across Windows and Linux. No
+published result was affected, because nothing had been published.)
 
 ## [2.1.7] — 2026-08-09
 
