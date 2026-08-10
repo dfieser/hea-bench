@@ -241,8 +241,8 @@ train/test boundary, and a **random** split, the usual literature
 protocol. The gap between them measures how much of a random-split
 score is interpolation between near-duplicate compositions rather than
 prediction of a new system. For a stock random forest on this package's
-descriptors that gap is about 0.20 balanced accuracy (0.940 random vs
-0.738 grouped); see `docs/benchmark-baselines.md`.
+descriptors that gap is about 0.21 balanced accuracy (0.941 random vs
+0.734 grouped); see `docs/benchmark-baselines.md`.
 
 ```python
 from hea_bench.benchmark import evaluate, load_benchmark, MajorityClass

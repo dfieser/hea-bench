@@ -26,7 +26,7 @@ The format is loosely based on
   byte-identical folds on every platform (a CI job rebuilds the corpus
   and verifies the digests on each push).
   On corpus v0.1.0 a stock random forest over this package's descriptors
-  scores 0.940 balanced accuracy under the random split and 0.738 under
+  scores 0.941 balanced accuracy under the random split and 0.734 under
   the grouped one; baseline results and provenance live in
   `docs/benchmark-baselines.md`.
 - The benchmark corpus is built locally, not shipped: its largest source

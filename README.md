@@ -188,8 +188,8 @@ from hea_bench.benchmark import evaluate, load_benchmark
 print(evaluate(my_model, load_benchmark(task="phase4")).table())
 ```
 
-A stock random forest over this package's own descriptors scores 0.940
-balanced accuracy under the random split and 0.738 under the grouped
+A stock random forest over this package's own descriptors scores 0.941
+balanced accuracy under the random split and 0.734 under the grouped
 one. The gap is the point. Baselines, split digests, and full
 provenance: [`docs/benchmark-baselines.md`](./docs/benchmark-baselines.md).
 

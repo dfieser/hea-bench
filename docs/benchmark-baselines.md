@@ -14,8 +14,8 @@ them is what this benchmark exists to expose.
 - Corpus version: v0.1.0
 - Rows with a consensus label: 7683
 - Alloy families: 1259
-- Grouped split digest: `0a6ef1dc7e06389e1540e50fb49267e9c12ff76631114506c87b2c576776f9d9`
-- Random split digest: `67c8b6cfe087c7bfec49b04a5aa1545b18c14460fee19007bd66a0a469245985` (seed 0)
+- Grouped split digest: `a1d87ef65c5a96485edecbb6fea4ec8c10b82ef303de300b43292adb7b485226`
+- Random split digest: `33a2cbffce2b7c0657bd1962ba6f73559a54e7247c172f3f49940293cb5e820a` (seed 0)
 - scikit-learn 1.7.2, Python 3.10.1
 
 Under the random split, 408 alloy families appear on both sides of a fold boundary, covering 6804 rows, or 88.6% of the benchmark. Under the grouped split that count is zero by construction.
@@ -31,8 +31,8 @@ The grouped score is still an upper bound on out-of-system performance, because 
 | `majority-class` | 7217 | 0.500 ± 0.000 | 0.500 ± 0.000 | +0.000 | 0.335 ± 0.002 | 0.335 ± 0.001 | +0.000 |
 | `rule:zhang_delta` | 7217 | 0.583 ± 0.005 | 0.583 ± 0.002 | -0.000 | 0.500 ± 0.010 | 0.500 ± 0.004 | +0.000 |
 | `rule:yang_omega` | 7217 | 0.552 ± 0.005 | 0.552 ± 0.003 | -0.000 | 0.466 ± 0.008 | 0.466 ± 0.005 | +0.000 |
-| `random-forest` | 7217 | 0.738 ± 0.027 | 0.940 ± 0.002 | +0.202 | 0.736 ± 0.028 | 0.940 ± 0.002 | +0.205 |
-| `gradient-boosting` | 7217 | 0.737 ± 0.021 | 0.855 ± 0.006 | +0.118 | 0.736 ± 0.021 | 0.855 ± 0.006 | +0.119 |
+| `random-forest` | 7217 | 0.734 ± 0.028 | 0.941 ± 0.002 | +0.206 | 0.732 ± 0.029 | 0.941 ± 0.002 | +0.208 |
+| `gradient-boosting` | 7217 | 0.740 ± 0.019 | 0.854 ± 0.005 | +0.115 | 0.739 ± 0.020 | 0.854 ± 0.005 | +0.116 |
 
 ## Task: phase4
 
@@ -42,8 +42,8 @@ The grouped score is still an upper bound on out-of-system performance, because 
 |---|---:|---|---|---:|---|---|---:|
 | `majority-class` | 7217 | 0.250 ± 0.000 | 0.250 ± 0.000 | +0.000 | 0.167 ± 0.003 | 0.167 ± 0.000 | +0.000 |
 | `rule:guo_vec` | 7217 | 0.447 ± 0.038 | 0.444 ± 0.004 | -0.003 | 0.387 ± 0.043 | 0.389 ± 0.004 | +0.002 |
-| `random-forest` | 7217 | 0.721 ± 0.015 | 0.908 ± 0.003 | +0.187 | 0.720 ± 0.018 | 0.918 ± 0.006 | +0.198 |
-| `gradient-boosting` | 7217 | 0.706 ± 0.029 | 0.868 ± 0.008 | +0.162 | 0.709 ± 0.024 | 0.874 ± 0.007 | +0.165 |
+| `random-forest` | 7217 | 0.729 ± 0.017 | 0.906 ± 0.004 | +0.177 | 0.726 ± 0.019 | 0.917 ± 0.007 | +0.191 |
+| `gradient-boosting` | 7217 | 0.704 ± 0.029 | 0.867 ± 0.008 | +0.163 | 0.708 ± 0.023 | 0.874 ± 0.007 | +0.167 |
 
 ## Reading the rule rows
 
