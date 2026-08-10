@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.3.0] — 2026-08-10
+
 ### Added
 
 - Benchmark corpus v0.2.0, adding the Chizhevskiy et al. LLM-extracted
