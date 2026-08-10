@@ -5336,9 +5336,13 @@ font-family: 'Source Sans Pro'
                  <code>pip install hea-bench</code>. Each descriptor is a plain function.</p>
             </div>
             <div class="runs__row">
-              <span class="runs__name"><a href="https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench.exe">Windows app</a></span>
+              <span class="runs__name"><a id="exe-download" href="https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench.exe">Windows app</a></span>
               <p class="runs__desc">One portable executable, about 14&nbsp;MB, no installer. Made for
                  laboratory machines that never see the network.</p>
+              <p class="runs__desc" id="exe-building" hidden>A release is being built right now and
+                 the Windows executable is not attached yet. It usually appears within about
+                 15&nbsp;minutes. Until then this page is the same calculator, or come back
+                 shortly and the link above will work.</p>
             </div>
             <div class="runs__row">
               <span class="runs__name"><a href="https://github.com/dfieser/hea-bench/blob/main/AGENTS.md">Agent server</a></span>
@@ -5701,6 +5705,43 @@ font-family: 'Source Sans Pro'
             if (inView) kick();
           }).observe(canvas);
         }
+      })();
+
+      // The Windows-app link points at the "latest" release asset. For the
+      // ~15 minutes after a release is published but before the desktop
+      // build attaches the exe, that URL is a 404. Before navigating, ask
+      // the GitHub API (CORS-open) whether the asset exists on the latest
+      // release; if it is missing, show the in-page notice instead of
+      // sending the visitor to a bare GitHub 404. Any API failure (offline,
+      // rate limit) falls through to the plain link, so this can only ever
+      // improve the experience, never gate it.
+      (function () {
+        var link = document.getElementById("exe-download");
+        var notice = document.getElementById("exe-building");
+        if (!link || !notice || typeof fetch === "undefined") return;
+        var checking = false;
+        link.addEventListener("click", function (event) {
+          if (checking) { event.preventDefault(); return; }
+          event.preventDefault();
+          checking = true;
+          var timeout = new Promise(function (resolve) {
+            setTimeout(function () { resolve(null); }, 4000);
+          });
+          var api = fetch("https://api.github.com/repos/dfieser/hea-bench/releases/latest")
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .catch(function () { return null; });
+          Promise.race([api, timeout]).then(function (release) {
+            checking = false;
+            var hasExe = !release || !release.assets ||
+              release.assets.some(function (a) { return a.name === "HEA-Bench.exe"; });
+            if (hasExe) {
+              notice.hidden = true;
+              window.location.href = link.href;
+            } else {
+              notice.hidden = false;
+            }
+          });
+        });
       })();
     </script>
     <div class="app">
