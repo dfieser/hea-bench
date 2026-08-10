@@ -10,6 +10,13 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.3.2] — 2026-08-10
+
+### Changed
+
+- Settle the corpus roles: v0.1.0 is the reference, v0.2.0 the extended option
+- Style the download-window notice as a proper callout
+
 ## [2.3.1] — 2026-08-10
 
 ### Changed
