@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.4.0] — 2026-08-11
+
 ### Changed
 
 - The benchmark's framing is revised. The random-versus-grouped gap is
