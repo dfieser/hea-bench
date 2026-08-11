@@ -26,11 +26,12 @@ Reading the numbers for a fixed predictor
 -----------------------------------------
 A predictor with nothing to learn produces the same label for a given
 alloy no matter which fold that alloy is in, so its grouped and random
-scores agree to within fold-composition noise and its inflation gap is
-near zero. That is not evidence the rule generalizes well. It only says
-a rule with no fitted parameters has nothing to leak. The gap measures
-leakage, and an unfitted rule cannot leak. Compare rules against models
-on the grouped column, and read the gap only for models that learn.
+scores agree to within fold-composition noise and its gap is near
+zero. That is not evidence the rule generalizes well. It only says the
+gap measures how much a model's score depends on close relatives of
+its training rows, and a rule with no fitted parameters has no
+training rows to be close to. Compare rules against models on the
+grouped column, and read the gap only for models that learn.
 """
 
 from __future__ import annotations
@@ -66,10 +67,13 @@ class SchemeResult:
 
 @dataclass(frozen=True)
 class EvaluationReport:
-    """Paired grouped and random results, with the inflation between them.
+    """Paired grouped and random results, with the gap between them.
 
-    ``inflation`` is ``random - grouped`` per metric. Positive means the
-    random split flattered the model.
+    ``gap`` is ``random - grouped`` per metric. Positive means the model
+    scores higher under interpolative (random) evaluation than under
+    extrapolative (family-grouped) evaluation, which quantifies how much
+    of its random-split score comes from testing on close relatives of
+    training alloys.
     """
 
     model_name: str
@@ -79,7 +83,7 @@ class EvaluationReport:
     n_rows_evaluated: int
     grouped: SchemeResult
     random: SchemeResult
-    inflation: dict
+    gap: dict
 
     def to_dict(self) -> dict:
         return {
@@ -90,7 +94,7 @@ class EvaluationReport:
             "n_rows_evaluated": self.n_rows_evaluated,
             "grouped": self.grouped.to_dict(),
             "random": self.random.to_dict(),
-            "inflation": self.inflation,
+            "gap": self.gap,
         }
 
     def table(self) -> str:
@@ -102,7 +106,7 @@ class EvaluationReport:
         lines = [
             header,
             "-" * len(header),
-            f"{'metric':<20}{'grouped (honest)':>22}{'random (inflated)':>22}{'gap':>10}",
+            f"{'metric':<20}{'grouped (extrapolative)':>26}{'random (interpolative)':>26}{'gap':>10}",
         ]
         for name in METRIC_NAMES:
             grouped_mean = self.grouped.summary[f"{name}_mean"]
@@ -111,9 +115,9 @@ class EvaluationReport:
             random_se = self.random.summary[f"{name}_se"]
             lines.append(
                 f"{name:<20}"
-                f"{grouped_mean:>15.3f} +-{grouped_se:<5.3f}"
-                f"{random_mean:>15.3f} +-{random_se:<5.3f}"
-                f"{self.inflation[name]:>+10.3f}"
+                f"{grouped_mean:>19.3f} +-{grouped_se:<5.3f}"
+                f"{random_mean:>19.3f} +-{random_se:<5.3f}"
+                f"{self.gap[name]:>+10.3f}"
             )
         return "\n".join(lines)
 
@@ -241,7 +245,7 @@ def evaluate(
     grouped = _run_scheme(model, benchmark, benchmark.grouped, active)
     randomized = _run_scheme(model, benchmark, benchmark.random, active)
 
-    inflation = {
+    gap = {
         name: randomized.summary[f"{name}_mean"] - grouped.summary[f"{name}_mean"]
         for name in METRIC_NAMES
     }
@@ -254,7 +258,7 @@ def evaluate(
         n_rows_evaluated=len(active),
         grouped=grouped,
         random=randomized,
-        inflation=inflation,
+        gap=gap,
     )
 
 

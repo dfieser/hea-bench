@@ -10,6 +10,19 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Changed
+
+- The benchmark's framing is revised. The random-versus-grouped gap is
+  now described as the difference between interpolative (random-split)
+  and extrapolative (family-grouped) evaluation, rather than as leakage
+  or inflation, following the established reading of grouped evaluation
+  in the literature (Li et al., Commun. Mater. 6:9, 2025,
+  doi:10.1038/s43246-024-00731-w; Meredig et al. 2018 LOCO-CV). The
+  `EvaluationReport.inflation` field is renamed `gap`, and
+  `leakage_profile` is renamed `family_overlap_profile`. All split
+  digests, fold assignments, corpus builds, and baseline numbers are
+  unchanged; only wording and the two names moved.
+
 ## [2.3.2] — 2026-08-10
 
 ### Changed

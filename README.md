@@ -173,15 +173,15 @@ Deep links open a view directly (`index.html#theory`,
 `web/hea-calculator-core.js` and is regression-checked against Python
 by the two parity test suites.
 
-## Honest evaluation: the phase-prediction benchmark (experimental)
+## Paired evaluation: the phase-prediction benchmark (experimental)
 
 Published HEA phase-prediction accuracies are mostly measured with
 random train/test splits over corpora full of stoichiometric series, so
 models are tested on close variants of alloys they trained on. That
-measures interpolation, not prediction. `hea_bench.benchmark` ships
-frozen, leakage-controlled splits over a consolidated experimental
-corpus (~7,700 alloys) and an evaluator that reports the usual random
-split and a composition-family-grouped split **side by side**:
+largely measures interpolation within known systems.
+`hea_bench.benchmark` ships frozen, family-grouped and random paired
+splits over a consolidated experimental corpus (~7,700 alloys) and an
+evaluator that reports both **side by side**:
 
 ```python
 from hea_bench.benchmark import evaluate, load_benchmark
@@ -190,8 +190,15 @@ print(evaluate(my_model, load_benchmark(task="phase4")).table())
 
 A stock random forest over this package's own descriptors scores 0.941
 balanced accuracy under the random split and 0.734 under the grouped
-one. The gap is the point. Baselines, split digests, and full
-provenance: [`docs/benchmark-baselines.md`](./docs/benchmark-baselines.md).
+one. Neither number is wrong; they answer different questions (new
+stoichiometries of known systems versus unseen element systems), and
+the gap between them quantifies how much of the random-split score
+comes from testing on close relatives of training alloys. For this
+interpolation-versus-extrapolation reading of grouped evaluation, see
+Li et al., *Commun. Mater.* **6**:9 (2025),
+[doi:10.1038/s43246-024-00731-w](https://doi.org/10.1038/s43246-024-00731-w).
+Baselines, split digests, and full provenance:
+[`docs/benchmark-baselines.md`](./docs/benchmark-baselines.md).
 
 This surface currently works from a repository checkout only: the
 corpus's largest source dataset declares no license, so the corpus is
@@ -215,7 +222,7 @@ hea-bench/
 │   ├── rules/           the six empirical phase-prediction rules
 │   ├── oxides/          HEO module: families, oxidation-state solver,
 │   │                    Shannon radii (94 elements, vendored from pymatgen)
-│   ├── benchmark/       frozen leakage-controlled splits + paired evaluation
+│   ├── benchmark/       frozen family-grouped + random paired splits and evaluation
 │   │                    (repo-only; corpus is built locally, see data/raw/)
 │   ├── composition.py   formula parser, normalizer
 │   ├── constants.py     R = 8.314

@@ -242,11 +242,14 @@ are quarantined-on-disagreement — see `data/raw/README.md`): a
 where a whole alloy family — the set of elements present, so every
 stoichiometric variant of one system — stays on one side of each
 train/test boundary, and a **random** split, the usual literature
-protocol. The gap between them measures how much of a random-split
-score is interpolation between near-duplicate compositions rather than
-prediction of a new system. For a stock random forest on this package's
-descriptors that gap is about 0.21 balanced accuracy (0.941 random vs
-0.734 grouped); see `docs/benchmark-baselines.md`.
+protocol. Neither split is correct on its own: they answer different
+questions (new stoichiometries of known systems versus unseen element
+systems), and the gap between them quantifies how much of a
+random-split score comes from testing on close relatives of training
+alloys. For a stock random forest on this package's descriptors that
+gap is about 0.21 balanced accuracy (0.941 random vs 0.734 grouped);
+see `docs/benchmark-baselines.md`. The report field carrying the
+per-metric difference is named `gap`.
 
 ```python
 from hea_bench.benchmark import evaluate, load_benchmark, MajorityClass

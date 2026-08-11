@@ -13,8 +13,8 @@ def _synthetic_benchmark(n_families: int = 20, per_family: int = 6) -> Benchmark
     Every family gets one label, so a model that memorizes families can
     score perfectly under the random split, where it always sees a
     family in training, and no better than chance on families it has
-    never seen. That is leakage in its purest form and makes the two
-    schemes provably disagree.
+    never seen. That is dependence on close training relatives in its purest
+    form and makes the two schemes provably disagree.
     """
     elements = ["Al", "Co", "Cr", "Fe", "Ni", "Ti", "V", "Zr", "Nb", "Mo"]
     rows = []
@@ -74,15 +74,15 @@ class FamilyLookup:
 # --- the paired contrast ---------------------------------------------------
 
 
-def test_random_split_inflates_a_family_memorizer() -> None:
-    """The behaviour the whole benchmark exists to expose."""
+def test_random_split_rewards_a_family_memorizer() -> None:
+    """The behaviour the whole benchmark exists to measure."""
     report = evaluate(FamilyLookup(), _synthetic_benchmark())
     # Not exactly 1.0: a family whose variants all happen to land in one
     # test fold is unseen in that fold's training rows even under the
     # random split, so the memorizer falls back there.
     assert report.random.summary["balanced_accuracy_mean"] > 0.90
     assert report.grouped.summary["balanced_accuracy_mean"] < 0.75
-    assert report.inflation["balanced_accuracy"] > 0.25
+    assert report.gap["balanced_accuracy"] > 0.25
 
 
 def test_both_schemes_score_the_same_rows() -> None:
@@ -108,7 +108,7 @@ def test_a_fixed_predictor_shows_no_gap() -> None:
         return "multi-phase"
 
     report = evaluate(always_multi, _synthetic_benchmark())
-    assert report.inflation["balanced_accuracy"] == pytest.approx(0.0, abs=1e-9)
+    assert report.gap["balanced_accuracy"] == pytest.approx(0.0, abs=1e-9)
 
 
 # --- model protocol --------------------------------------------------------
@@ -161,6 +161,6 @@ def test_explicit_indices_restrict_the_rows_without_moving_folds() -> None:
 
 def test_table_renders_both_columns_and_the_gap() -> None:
     text = evaluate(MajorityClass(), _synthetic_benchmark()).table()
-    assert "grouped (honest)" in text
-    assert "random (inflated)" in text
+    assert "grouped (extrapolative)" in text
+    assert "random (interpolative)" in text
     assert "balanced_accuracy" in text

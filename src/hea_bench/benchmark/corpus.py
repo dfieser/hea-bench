@@ -142,7 +142,7 @@ class Benchmark:
             "n_descriptor_ready": len(self.subset_indices(descriptor_ready_only=True)),
             "grouped": self.grouped.summary(labels),
             "random": self.random.summary(labels),
-            "leakage_profile": _splits.leakage_profile(
+            "family_overlap_profile": _splits.family_overlap_profile(
                 self.grouped, self.random, self.families
             ),
         }

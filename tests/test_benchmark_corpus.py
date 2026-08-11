@@ -210,10 +210,10 @@ def test_no_family_straddles_a_grouped_fold() -> None:
 
 
 @needs_corpus
-def test_the_random_split_leaks_most_of_the_corpus() -> None:
+def test_most_rows_straddle_under_the_random_split() -> None:
     """Quantifies why the contrast matters on this particular corpus."""
     bench = load_benchmark(task="single_vs_multi")
-    profile = bench.describe()["leakage_profile"]
+    profile = bench.describe()["family_overlap_profile"]
     assert profile["grouped_straddling_families"] == 0
     assert profile["random_fraction_rows_interpolable"] > 0.85
 

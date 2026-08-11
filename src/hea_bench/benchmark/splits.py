@@ -14,14 +14,19 @@ scored on chemistries it has never seen.
 
 **Random** ignores families and shuffles rows. Near-duplicate variants
 of one system land on both sides, so the model can interpolate along a
-composition line it has already been fitted to. This is what most
-published HEA phase-prediction numbers report, and it is the inflated
-half of the pair.
+composition line it has already been fitted to. This is the protocol
+most published HEA phase-prediction numbers use, so it is the half of
+the pair that is comparable to the literature, and it answers a real
+question: performance on new stoichiometries of known systems.
 
 Neither scheme is "correct" on its own. Reported together they say what
-a model does on new stoichiometries of a known system (random) versus on
-a genuinely new system (grouped), and the gap between them is the
-quantity this benchmark exists to make visible.
+a model does on new stoichiometries of a known system (random, the
+interpolative question) versus on an unseen element system (grouped,
+the extrapolative question), and the gap between them is the quantity
+this benchmark exists to measure. Grouped evaluation of materials
+models is established prior art (Meredig et al. 2018 LOCO-CV; Li et
+al., Commun. Mater. 2025); what this module adds is a frozen,
+digest-pinned instance for this corpus.
 
 Determinism
 -----------
@@ -393,9 +398,9 @@ def straddling_families(scheme: SplitScheme, families: Sequence[str]) -> dict[st
     """Families that appear in more than one fold, and how many folds each spans.
 
     Zero for a grouped scheme, by construction. Large for a random
-    scheme, which is the point: it counts the systems whose variants are
-    split across the train/test boundary and can therefore be
-    interpolated rather than predicted.
+    scheme, which is the point of the contrast: it counts the systems
+    whose variants sit on both sides of the train/test boundary, where
+    a model can interpolate between close relatives.
     """
     folds_per_family: dict[str, set[int]] = defaultdict(set)
     for fold_index, family in zip(scheme.fold_of, families):
@@ -407,7 +412,7 @@ def straddling_families(scheme: SplitScheme, families: Sequence[str]) -> dict[st
     }
 
 
-def leakage_profile(
+def family_overlap_profile(
     grouped: SplitScheme,
     randomized: SplitScheme,
     families: Sequence[str],
@@ -439,7 +444,7 @@ __all__ = [
     "family_of",
     "freeze_digest",
     "grouped_split",
-    "leakage_profile",
+    "family_overlap_profile",
     "random_split",
     "straddling_families",
     "subset_closure_components",

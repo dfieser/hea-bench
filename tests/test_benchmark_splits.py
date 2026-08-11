@@ -6,7 +6,7 @@ from hea_bench.benchmark.splits import (
     family_of,
     freeze_digest,
     grouped_split,
-    leakage_profile,
+    family_overlap_profile,
     random_split,
     straddling_families,
 )
@@ -135,7 +135,7 @@ def test_random_split_stratifies_classes_within_one_row() -> None:
 
 
 def test_random_split_lets_families_straddle() -> None:
-    """The whole point of the contrast: the random scheme leaks families."""
+    """The whole point of the contrast: families straddle under the random scheme."""
     families, labels = _toy_corpus(n_families=25, per_family=8)
     scheme = random_split(labels, k=5, seed=0)
     assert straddling_families(scheme, families)
@@ -199,12 +199,12 @@ def test_subset_closure_ignores_mere_overlap() -> None:
     assert subset_closure_components(families) == [(1, 1), (1, 1)]
 
 
-# --- leakage profile -------------------------------------------------------
+# --- family overlap profile -------------------------------------------------------
 
 
-def test_leakage_profile_contrasts_the_two_schemes() -> None:
+def test_family_overlap_profile_contrasts_the_two_schemes() -> None:
     families, labels = _toy_corpus(n_families=25, per_family=8)
-    profile = leakage_profile(
+    profile = family_overlap_profile(
         grouped_split(families, labels, k=5),
         random_split(labels, k=5, seed=0),
         families,

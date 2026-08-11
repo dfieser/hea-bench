@@ -1,27 +1,35 @@
-"""Leakage-controlled benchmark splits and evaluation for HEA phase prediction.
+"""Paired benchmark splits and evaluation for HEA phase prediction.
 
 The descriptors and rules in the rest of this package answer "what is
-this alloy like". This subpackage answers a different and harder
-question: how well does any model actually predict phase on alloys it
-has not seen.
+this alloy like". This subpackage measures how well a model predicts
+phase, under two evaluation protocols that answer different questions.
 
-The usual protocol in the HEA literature is a random train/test split
-over a corpus full of stoichiometric series, so a model tested on
-``Al0.3CoCrFeNi`` has very often been trained on ``Al0.25CoCrFeNi``.
-That measures interpolation along a composition line, not prediction of
-a new system, and it is why reported accuracies are high while practical
-performance on a new chemistry is not.
-
-This subpackage ships one corpus, two frozen splits over it, and one
-call that reports both:
+A random train/test split over a corpus full of stoichiometric series
+tests a model on close variants of alloys it trained on: a model tested
+on ``Al0.3CoCrFeNi`` has very often been trained on ``Al0.25CoCrFeNi``.
+That largely measures interpolation within known alloy systems. A
+family-grouped split keeps every stoichiometric variant of a system on
+one side of the boundary, so it measures extrapolation to unseen
+element systems. Neither protocol is correct on its own; they answer
+different questions, and most published evaluations in this area use
+random splits, so grouped results are rarely reported. This subpackage
+ships one corpus, both splits frozen over it, and one call that reports
+them side by side:
 
     >>> from hea_bench.benchmark import evaluate, load_benchmark, MajorityClass
     >>> bench = load_benchmark(task="single_vs_multi")     # doctest: +SKIP
     >>> print(evaluate(MajorityClass(), bench).table())    # doctest: +SKIP
 
-The grouped column is the honest number. The random column is what the
-same model would have scored under the usual protocol. The gap is the
-point.
+The gap between the two columns quantifies how much of a random-split
+score comes from testing on close relatives of training alloys. That
+interpolation-versus-extrapolation reading of grouped evaluation is
+established prior art, not this package's discovery: see Li et al.,
+Commun. Mater. 6:9 (2025), doi:10.1038/s43246-024-00731-w; Meredig et
+al., Mol. Syst. Des. Eng. 3, 819 (2018), doi:10.1039/C8ME00012C
+(LOCO-CV); Zhao, del Cueto and Troisi, Digital Discovery 1, 266 (2022),
+doi:10.1039/D1DD00050K; and Witman and Schindler, Digital Discovery
+(2025), doi:10.1039/D4DD00250D (MatFold). What this package adds is the
+frozen, digest-pinned, paired protocol for this corpus.
 
 The corpus is built locally rather than shipped, because most of its
 upstream data is not licensed for redistribution. See

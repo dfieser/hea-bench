@@ -6,9 +6,9 @@ Four baselines, each scored under both frozen splits:
     The floor. Predicts the most common training label.
 ``rule:*``
     The canonical empirical screens already in this package, used as
-    published, with no fitting. They have no parameters to leak, so
-    their grouped and random columns should agree; see the note in
-    ``hea_bench.benchmark.evaluate``.
+    published, with no fitting. Having no fitted parameters, they have
+    no training rows to sit close to, so their grouped and random
+    columns should agree; see the note in ``hea_bench.benchmark.evaluate``.
 ``random-forest`` and ``gradient-boosting``
     Fitted on this package's own descriptors, so the comparison is
     against the same physics the rules use rather than against a
@@ -139,10 +139,10 @@ def _row(report) -> str:
         f"| `{report.model_name}` | {report.n_rows_evaluated} "
         f"| {cell(report.grouped, 'balanced_accuracy')} "
         f"| {cell(report.random, 'balanced_accuracy')} "
-        f"| {report.inflation['balanced_accuracy']:+.3f} "
+        f"| {report.gap['balanced_accuracy']:+.3f} "
         f"| {cell(report.grouped, 'macro_f1')} "
         f"| {cell(report.random, 'macro_f1')} "
-        f"| {report.inflation['macro_f1']:+.3f} |"
+        f"| {report.gap['macro_f1']:+.3f} |"
     )
 
 
@@ -192,25 +192,32 @@ def main() -> int:
         "reproducible from the frozen splits recorded below, so a rerun that",
         "disagrees means something moved.",
         "",
-        "The grouped column is the honest number. The random column is what the",
-        "same model scores under the usual protocol in the literature, a random",
-        "split over a corpus dense with stoichiometric series. The gap between",
-        "them is what this benchmark exists to expose.",
+        "The two columns answer different questions. The random column uses the",
+        "protocol most published evaluations in this area use, a random split over",
+        "a corpus dense with stoichiometric series, and largely measures",
+        "interpolation within known alloy systems. The grouped column keeps every",
+        "alloy family whole across the fold boundary and measures extrapolation to",
+        "unseen element systems. Neither is correct on its own; the gap between",
+        "them, which this benchmark exists to measure, quantifies how much of a",
+        "random-split score comes from testing on close relatives of training",
+        "alloys. For the interpolation-versus-extrapolation reading of grouped",
+        "evaluation see Li et al., Commun. Mater. 6:9 (2025),",
+        "doi:10.1038/s43246-024-00731-w.",
         "",
         "## Provenance",
         "",
         f"- Corpus version: v{bench.corpus_version}",
         f"- Rows with a consensus label: {len(bench)}",
-        f"- Alloy families: {described['leakage_profile']['n_families']}",
+        f"- Alloy families: {described['family_overlap_profile']['n_families']}",
         f"- Grouped split digest: `{bench.grouped.digest}`",
         f"- Random split digest: `{bench.random.digest}` (seed {bench.random.seed})",
         f"- scikit-learn {sklearn.__version__}, Python {platform.python_version()}",
         "",
         "Under the random split, "
-        f"{described['leakage_profile']['random_straddling_families']} alloy families "
+        f"{described['family_overlap_profile']['random_straddling_families']} alloy families "
         f"appear on both sides of a fold boundary, covering "
-        f"{described['leakage_profile']['random_rows_in_straddling_families']} rows, or "
-        f"{described['leakage_profile']['random_fraction_rows_interpolable']:.1%} of the "
+        f"{described['family_overlap_profile']['random_rows_in_straddling_families']} rows, or "
+        f"{described['family_overlap_profile']['random_fraction_rows_interpolable']:.1%} of the "
         "benchmark. Under the grouped split that count is zero by construction.",
         "",
         _closure_paragraph(bench),
@@ -241,8 +248,9 @@ def main() -> int:
     lines += [
         "## Reading the rule rows",
         "",
-        "The rule baselines carry no fitted parameters, so they cannot leak and",
-        "their gap is near zero. That is a property of the protocol, not evidence",
+        "The rule baselines carry no fitted parameters, so they have no training",
+        "rows to be close to and their gap is near zero. That is a property of",
+        "the protocol, not evidence",
         "that the rules generalize well. Compare rules against the fitted models",
         "on the grouped column only.",
         "",
