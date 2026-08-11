@@ -120,9 +120,15 @@ jobs:
           echo "watching https://github.com/${GH_REPO}/actions/runs/${rid}"
           retried=0
           for i in $(seq 1 150); do   # up to ~75 minutes, covering one retry
-            st=$(gh run view "$rid" --json status --jq .status)
+            # A single failed poll must not fail the watch: gh talks to the
+            # GitHub API over the network and a transient dial timeout here
+            # once painted a fully successful release red (2026-08-11).
+            # Treat an unreadable status as "still running" and poll again.
+            st=$(gh run view "$rid" --json status --jq .status 2>/dev/null || echo "")
+            if [ -z "$st" ]; then sleep 30; continue; fi
             if [ "$st" = "completed" ]; then
-              cc=$(gh run view "$rid" --json conclusion --jq .conclusion)
+              cc=$(gh run view "$rid" --json conclusion --jq .conclusion 2>/dev/null || echo "")
+              if [ -z "$cc" ]; then sleep 30; continue; fi
               if [ "$cc" = "success" ]; then echo "release ${tag}: success"; exit 0; fi
               if [ "$cc" = "cancelled" ] && [ "$retried" = 0 ]; then
                 retried=1
