@@ -12,6 +12,23 @@ The format is loosely based on
 
 ### Added
 
+- `hea_bench.uncertainty`: the trust layer. Standard-library split
+  conformal prediction (`ConformalClassifier`, `ConformalRegressor`)
+  wraps any fitted sklearn-style model with prediction sets or
+  intervals carrying the distribution-free finite-sample coverage
+  guarantee, including honest edge behavior: sets may be empty, and
+  both wrappers go maximal (full class set, unbounded interval) when
+  the calibration size cannot support the requested level. A
+  domain-of-applicability model (`fit_domain`, `DomainModel.novelty`)
+  reports orthogonal novelty signals (family seen, nearest-family
+  Jaccard distance, descriptor-cloud distance, element coverage) plus a
+  conservative combined `in_domain` flag, JSON round-trippable for
+  caching. Empirical coverage at nominal 80/90/95 on the frozen grouped
+  folds, split by domain flag, is measured in
+  `docs/uncertainty-coverage.md`. Limitation, stated where it matters:
+  the conformal guarantee assumes calibration/test exchangeability,
+  which novel chemistries violate; that is what the domain flag is for.
+  These tools describe this package's confidence only.
 - The consolidated experimental corpus is now a first-class, standalone
   product: `hea_bench.corpus.load_corpus()` returns every corpus row
   (including conflict-quarantined ones) with full per-source provenance

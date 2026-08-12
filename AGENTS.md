@@ -329,6 +329,22 @@ in the consolidated schema. Dataset card: `docs/corpus-card.md`.
 `load_benchmark` is now a thin wrapper over this API; its outputs and
 frozen digests are unchanged.
 
+## Uncertainty API
+
+`hea_bench.uncertainty` (stdlib, no extra needed for the wrappers
+themselves): `ConformalClassifier(model).fit_calibrate(X_cal,
+y_cal).predict_set(X, alpha=0.1)` returns one label set per row;
+`ConformalRegressor(...).predict_interval(X, alpha=0.1)` returns
+`(low, high)` tuples. Calibration rows must be disjoint from training
+rows. Sets can be empty (no label credible at that level) and both
+wrappers go maximal when `degenerate(alpha)` is True (calibration too
+small for the requested level). `fit_domain(corpus)` returns a
+JSON-serializable `DomainModel`; `domain.novelty(comp)` returns the
+applicability components (`element_set_seen`, `family_count`,
+`nearest_family_distance`, `descriptor_distance`, `element_coverage`)
+plus the conservative `in_domain` flag. Read the components, not just
+the flag. Empirical coverage: `docs/uncertainty-coverage.md`.
+
 ## Coverage limit
 
 The element table covers **55 elements** (alloy surface; the oxides

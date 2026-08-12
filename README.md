@@ -254,6 +254,37 @@ harmonization rules, and known limitations are documented in the
 [corpus card](docs/corpus-card.md). The corpus data is still built
 locally from the recipe above, for the same licensing reason.
 
+## Uncertainty and domain of applicability
+
+`hea_bench.uncertainty` is the trust layer for anything fitted on the
+corpus. Split conformal prediction wraps any sklearn-style model with
+sets or intervals carrying a distribution-free finite-sample coverage
+guarantee, and a domain-of-applicability model says whether that
+guarantee's exchangeability assumption plausibly holds for your query:
+
+```python
+from hea_bench.corpus import load_corpus
+from hea_bench.uncertainty import ConformalClassifier, fit_domain
+
+domain = fit_domain(load_corpus())
+domain.novelty({"Hf": 0.2, "Nb": 0.2, "Ta": 0.2, "Ti": 0.2, "Zr": 0.2})
+# {'element_set_seen': True, 'family_count': ..., 'nearest_family_distance': 0.0,
+#  'descriptor_distance': ..., 'element_coverage': True, 'in_domain': True, ...}
+```
+
+The novelty output is several deliberately orthogonal signals plus one
+conservative `in_domain` flag, because the signals fail differently and
+a single scalar invites misreading. Empirical coverage of the conformal
+sets on the frozen grouped folds, in and out of domain, is measured in
+[docs/uncertainty-coverage.md](docs/uncertainty-coverage.md). The
+measured pattern is worth internalizing: in this corpus the flagged
+out-of-domain queries are almost entirely far-from-HEA binaries the
+model handles confidently, while the residual risk concentrates in
+unseen families that look descriptor-close to the training data, so
+read the flag together with the set size rather than either alone.
+These tools describe this package's confidence about your composition
+on this corpus, nothing else.
+
 ## A note on Ω near ΔH<sub>mix</sub> ≈ 0
 
 `Ω = Tm·ΔSmix / |ΔHmix|` diverges as ΔH<sub>mix</sub> → 0, so for

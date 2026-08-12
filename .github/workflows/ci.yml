@@ -76,6 +76,24 @@ jobs:
       - name: Run the backend and CLI suites against the installed HEACalculator
         run: pytest tests/test_descriptor_backend.py tests/test_cli.py -q
 
+  test-extras:
+    # scikit-learn-backed layers (conformal integration, property
+    # surrogates) only exercise their sklearn paths where the pinned
+    # version is installed; this job provides that environment. The
+    # plain test job stays extras-free as the bare-package proof.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install package with dev and benchmark extras
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,benchmark]"
+      - name: Run the full suite with scikit-learn available
+        run: pytest tests/ -q
+
   test:
     runs-on: ubuntu-latest
     strategy:
