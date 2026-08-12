@@ -433,9 +433,420 @@ def element_coverage() -> dict:
     })
 
 
+# -- corpus, properties, applicability, design, campaigns -------------------
+#
+# The tools below expose the post-v2.4 capability layers. Design rules,
+# shared with the original seven tools: plain functions with no MCP
+# dependency; every uncertainty and domain field at the top level of its
+# payload entry, never nested where a client might drop it; missing
+# optional extras or missing local data surface as ValueError with the
+# exact fix in the message, not a traceback; and the expensive calls
+# carry hard caps because agents call tools carelessly.
+
+_CORPUS_SAMPLE_CAP = 50
+_DESIGN_MAX_PALETTE = 10
+_DESIGN_MAX_CANDIDATES = 20
+_DESIGN_MIN_STEP = 0.05
+_DESIGN_BUDGET = 50_000
+_CAMPAIGN_MAX_BATCH = 10
+
+
+def _corpus_slice(
+    version: str,
+    elements: list[str] | None,
+    contains: list[str] | None,
+    excludes: list[str] | None,
+    n_elements_min: int | None,
+    n_elements_max: int | None,
+    phase: str | None,
+    source: str | None,
+    labelled: bool | None,
+    has_conflict: bool | None,
+    descriptor_ready: bool | None,
+):
+    from .corpus import load_corpus
+
+    try:
+        corpus = load_corpus(version=version)
+    except FileNotFoundError as exc:
+        raise ValueError(str(exc)) from None
+    n_range = None
+    if n_elements_min is not None or n_elements_max is not None:
+        n_range = (n_elements_min or 1, n_elements_max or 99)
+    return corpus.query(
+        elements=elements,
+        contains=contains,
+        excludes=excludes,
+        n_elements=n_range,
+        phase=phase,
+        source=source,
+        labelled=labelled,
+        has_conflict=has_conflict,
+        descriptor_ready=descriptor_ready,
+    )
+
+
+def corpus_query(
+    elements: list[str] | None = None,
+    contains: list[str] | None = None,
+    excludes: list[str] | None = None,
+    n_elements_min: int | None = None,
+    n_elements_max: int | None = None,
+    phase: str | None = None,
+    source: str | None = None,
+    labelled: bool | None = None,
+    has_conflict: bool | None = None,
+    descriptor_ready: bool | None = None,
+    version: str = "0.1.0",
+    limit: int = 25,
+) -> dict:
+    """Filter the consolidated experimental corpus and sample matching rows.
+
+    Filters AND together: ``elements`` is an exact element-set match,
+    ``contains``/``excludes`` are memberships, ``phase`` matches the
+    consensus label, ``source`` the contributing dataset. Returns the
+    match count plus a sample capped at 50 rows, each carrying full
+    provenance (per-source canonical and verbatim labels, processing,
+    DOI, upstream row ids). Works from a repository checkout or
+    ``HEA_BENCH_BENCHMARK_DIR``; the corpus is not shipped, for the
+    licensing reasons in the corpus card.
+    """
+    subset = _corpus_slice(
+        version, elements, contains, excludes, n_elements_min, n_elements_max,
+        phase, source, labelled, has_conflict, descriptor_ready,
+    )
+    capped = min(max(0, limit), _CORPUS_SAMPLE_CAP)
+    sample = [
+        {
+            "composition_key": row.composition_key,
+            "composition": dict(row.composition),
+            "n_elements": row.n_elements,
+            "family": row.family,
+            "canonical_phase": row.canonical_phase,
+            "has_conflict": row.has_conflict,
+            "sources": list(row.sources),
+            "labels": dict(row.labels),
+            "raw_labels": dict(row.raw_labels),
+            "processing": row.processing,
+            "doi": row.doi,
+            "source_row_ids": dict(row.source_row_ids),
+            "descriptor_ready": row.descriptor_ready,
+        }
+        for row in subset.rows[:capped]
+    ]
+    return _stamp(
+        {
+            "corpus_version": subset.version,
+            "n_matching": len(subset),
+            "sample": sample,
+            "sample_capped_at": _CORPUS_SAMPLE_CAP,
+        }
+    )
+
+
+def corpus_describe(
+    elements: list[str] | None = None,
+    contains: list[str] | None = None,
+    excludes: list[str] | None = None,
+    n_elements_min: int | None = None,
+    n_elements_max: int | None = None,
+    phase: str | None = None,
+    source: str | None = None,
+    labelled: bool | None = None,
+    has_conflict: bool | None = None,
+    descriptor_ready: bool | None = None,
+    version: str = "0.1.0",
+) -> dict:
+    """Summary statistics for a filtered corpus slice.
+
+    Counts by phase, element count, source, and family, plus the
+    multi-source agreement rate (its complement is the conflict
+    quarantine). Same filters as ``corpus_query``.
+    """
+    subset = _corpus_slice(
+        version, elements, contains, excludes, n_elements_min, n_elements_max,
+        phase, source, labelled, has_conflict, descriptor_ready,
+    )
+    return _stamp(subset.describe())
+
+
+def predict_properties(
+    compositions: list[str],
+    properties: list[str] | None = None,
+    alpha: float = 0.1,
+    processing: str | None = None,
+) -> dict:
+    """Predict properties with uncertainty and domain flags, per composition.
+
+    Tier A (density, melting_temperature, cost_per_kg) is closed-form
+    over cited tables; tier B (hardness) is a fitted surrogate and
+    always carries a conformal interval, its training-domain flag, and
+    its model card reference. Every entry's ``interval``, ``in_domain``,
+    ``tier``, and ``warnings`` sit at the top level of that property's
+    payload. Missing optional installs come back as a clear error
+    naming the pip command.
+    """
+    from .properties import (
+        PropertyUnavailableError,
+        available_properties,
+        predict_property,
+    )
+
+    known = available_properties()
+    wanted = properties or sorted(known)
+    for name in wanted:
+        if name not in known:
+            raise ValueError(
+                f"unknown property {name!r}; available: {sorted(known)}"
+            )
+
+    results = []
+    for formula in compositions:
+        comp = _parse(formula)
+        entry: dict = {"input": formula, "composition": comp, "properties": {}}
+        for name in wanted:
+            try:
+                prediction = predict_property(comp, name, alpha=alpha, processing=processing)
+            except PropertyUnavailableError as exc:
+                raise ValueError(str(exc)) from None
+            entry["properties"][name] = {
+                "value": _finite(prediction.value),
+                "unit": prediction.unit,
+                "interval": (
+                    [_finite(prediction.interval[0]), _finite(prediction.interval[1])]
+                    if prediction.interval is not None
+                    else None
+                ),
+                "alpha": prediction.alpha,
+                "tier": prediction.tier,
+                "in_domain": prediction.in_domain,
+                "novelty": prediction.novelty,
+                "n_training": prediction.n_training,
+                "model_card": prediction.model_card,
+                "asof": prediction.asof,
+                "warnings": list(prediction.warnings),
+            }
+        results.append(entry)
+    return _stamp({"results": results})
+
+
+def check_applicability(composition: str) -> dict:
+    """Report whether a composition sits inside what the corpus covers.
+
+    Returns the orthogonal novelty components (exact family seen and
+    how often, nearest-family Jaccard distance, descriptor-cloud
+    distance, element coverage) plus the conservative combined
+    ``in_domain`` flag. Needs a built corpus; the components describe
+    this package's corpus coverage for your query, nothing else.
+    """
+    from .uncertainty import default_domain
+
+    comp = _parse(composition)
+    domain = default_domain()
+    if domain is None:
+        raise ValueError(
+            "no corpus is built in this environment, so applicability cannot "
+            "be assessed. Build it (see the corpus card) or set "
+            "HEA_BENCH_BENCHMARK_DIR."
+        )
+    payload = domain.novelty(comp)
+    payload["input"] = composition
+    payload["corpus_version"] = domain.corpus_version
+    return _stamp(payload)
+
+
+def design_search(
+    elements: list[str],
+    n_elements_min: int = 3,
+    n_elements_max: int = 5,
+    step: float = 0.1,
+    objectives: list[list[str]] | None = None,
+    composition_constraints: list[dict] | None = None,
+    rule_constraints: list[dict] | None = None,
+    property_constraints: list[dict] | None = None,
+    include_out_of_domain: bool = False,
+    optimize_bound: str = "lower",
+    max_candidates: int = 10,
+    alpha: float = 0.1,
+) -> dict:
+    """Constrained Pareto screening over a palette. The expensive call.
+
+    Hard caps, enforced before any work: at most 10 palette elements,
+    step at least 0.05, at most 20 returned candidates, and a fixed
+    50,000-point lattice budget; oversized requests are refused with
+    the cap named, never silently truncated. Objectives are
+    ``[direction, property]`` pairs, e.g.
+    ``[["maximize", "hardness"], ["minimize", "cost_per_kg"]]``.
+    Fitted objectives rank by the conservative interval end by default.
+    Every candidate carries descriptors, all nine rule verdicts,
+    property predictions with intervals, novelty, and the domain flag.
+    Results are a screening aid, not answers; see
+    docs/design-recovery.md.
+    """
+    from .design import (
+        CompositionConstraint,
+        DomainConstraint,
+        Maximize,
+        Minimize,
+        PropertyConstraint,
+        RuleConstraint,
+        search,
+    )
+
+    if len(elements) > _DESIGN_MAX_PALETTE:
+        raise ValueError(
+            f"palette of {len(elements)} exceeds the tool cap of "
+            f"{_DESIGN_MAX_PALETTE} elements; screen a narrower palette"
+        )
+    if max_candidates > _DESIGN_MAX_CANDIDATES:
+        raise ValueError(
+            f"max_candidates {max_candidates} exceeds the tool cap of "
+            f"{_DESIGN_MAX_CANDIDATES}"
+        )
+    if step < _DESIGN_MIN_STEP:
+        raise ValueError(
+            f"step {step} is below the tool floor of {_DESIGN_MIN_STEP}; "
+            f"finer lattices belong in the Python API with an explicit budget"
+        )
+
+    objective_objects = []
+    for pair in objectives or []:
+        direction, name = pair
+        if direction == "maximize":
+            objective_objects.append(Maximize(name))
+        elif direction == "minimize":
+            objective_objects.append(Minimize(name))
+        else:
+            raise ValueError(f"objective direction must be maximize or minimize, got {direction!r}")
+
+    constraints: list = []
+    for entry in composition_constraints or []:
+        constraints.append(
+            CompositionConstraint(
+                entry["element"], min=entry.get("min", 0.0), max=entry.get("max", 1.0)
+            )
+        )
+    for entry in rule_constraints or []:
+        satisfied = entry["satisfied"]
+        constraints.append(
+            RuleConstraint(
+                entry["rule"],
+                tuple(satisfied) if isinstance(satisfied, list) else satisfied,
+            )
+        )
+    for entry in property_constraints or []:
+        constraints.append(
+            PropertyConstraint(
+                entry["prop"],
+                min=entry.get("min"),
+                max=entry.get("max"),
+                bound=entry.get("bound", "point"),
+            )
+        )
+    if include_out_of_domain:
+        constraints.append(DomainConstraint(in_domain=None))
+
+    try:
+        result = search(
+            elements,
+            n_elements=(n_elements_min, n_elements_max),
+            constraints=tuple(constraints),
+            objectives=tuple(objective_objects),
+            n_candidates=max_candidates,
+            step=step,
+            max_evaluations=_DESIGN_BUDGET,
+            optimize_bound=optimize_bound,
+            alpha=alpha,
+        )
+    except (RuntimeError, ValueError) as exc:
+        raise ValueError(str(exc)) from None
+
+    import json as _json
+
+    return _stamp(_json.loads(result.to_json()))
+
+
+def campaign_suggest(campaign_path: str, n: int = 5, strategy: str = "ei") -> dict:
+    """Next-batch suggestions from a campaign file the user supplies.
+
+    The campaign is plain JSON created by
+    ``hea_bench.design.campaign.Campaign.save``; this tool never writes
+    it. Batch size is capped at 10. Suggestions carry the ensemble mean,
+    the ensemble-spread interval (model disagreement, not a coverage
+    guarantee; the module docstring explains), and the domain flag.
+    Below the 10-observation floor the loop refuses rather than
+    guessing.
+    """
+    import pathlib
+
+    from .design.campaign import Campaign, ColdStartError
+
+    if n > _CAMPAIGN_MAX_BATCH:
+        raise ValueError(
+            f"batch of {n} exceeds the tool cap of {_CAMPAIGN_MAX_BATCH}"
+        )
+    path = pathlib.Path(campaign_path)
+    if not path.exists():
+        raise ValueError(f"no campaign file at {campaign_path!r}")
+    try:
+        campaign = Campaign.load(path)
+        suggestions = campaign.suggest(n=n, strategy=strategy)
+    except (ColdStartError, RuntimeError, ValueError) as exc:
+        raise ValueError(str(exc)) from None
+    return _stamp(
+        {
+            "campaign_path": str(path),
+            "objective": campaign.objective,
+            "direction": campaign.direction,
+            "n_observations": len(campaign.observations),
+            "n_informative": campaign.n_informative(),
+            "strategy": strategy,
+            "suggestions": [
+                {
+                    "composition": dict(s.composition),
+                    "mean": _finite(float(s.mean)),
+                    "interval": [_finite(float(s.interval[0])), _finite(float(s.interval[1]))],
+                    "in_domain": s.in_domain,
+                    "acquisition": _finite(float(s.acquisition)),
+                }
+                for s in suggestions
+            ],
+        }
+    )
+
+
 def about() -> dict:
-    """Version, provenance, license, and citation information."""
+    """Version, provenance, license, capability availability, citations."""
+    import importlib.util
+    import os
+
+    from .corpus import corpus_location
+
+    corpus_built = (corpus_location("0.1.0") / "consolidated.csv").exists() or bool(
+        os.environ.get("HEA_BENCH_BENCHMARK_DIR")
+    )
+    sklearn_present = importlib.util.find_spec("sklearn") is not None
+    heacalculator_present = importlib.util.find_spec("HEACalculator") is not None
+    capabilities = {
+        "corpus": corpus_built,
+        "properties_tier_a": True,
+        "properties_tier_b": sklearn_present,
+        "design_search": True,
+        "campaigns": sklearn_present,
+        "interop": heacalculator_present,
+    }
     return _stamp({
+        "capabilities": capabilities,
+        "capability_notes": {
+            "corpus": (
+                "corpus_query / corpus_describe / check_applicability need the "
+                "locally built corpus (repo checkout or HEA_BENCH_BENCHMARK_DIR); "
+                "the data is not shipped, see docs/corpus-card.md"
+            ),
+            "properties_tier_b": 'pip install "hea-bench[properties]"',
+            "campaigns": 'pip install "hea-bench[properties]"',
+            "interop": 'pip install "hea-bench[interop]"',
+        },
         "name": "hea-bench",
         "description": (
             "Open, parity-tested calculator of high-entropy alloy and oxide "
@@ -470,6 +881,12 @@ _TOOLS = (
     omega_sensitivity,
     oxide_report,
     element_coverage,
+    corpus_query,
+    corpus_describe,
+    predict_properties,
+    check_applicability,
+    design_search,
+    campaign_suggest,
     about,
 )
 
@@ -491,12 +908,19 @@ def build_server():
     server = FastMCP(
         "hea-bench",
         instructions=(
-            "Verified high-entropy alloy and oxide descriptor calculator. "
-            "Deterministic closed-form values with units and citation keys "
-            "in every response. Batch the compositions you want to screen "
-            "into one alloy_descriptors / alloy_rules call. Check "
-            "element_coverage before large sweeps, and use omega_sensitivity "
-            "before trusting any Omega magnitude for a near-ideal alloy."
+            "Verified high-entropy alloy and oxide descriptor calculator plus "
+            "a corpus, property, applicability, and design layer. "
+            "Deterministic closed-form values carry units and citation keys; "
+            "every prediction carries an interval (where a model is fitted) "
+            "and an in_domain flag at the top level of its payload. Batch "
+            "compositions into one alloy_descriptors / alloy_rules / "
+            "predict_properties call. Check element_coverage before large "
+            "sweeps, omega_sensitivity before trusting any Omega magnitude "
+            "for a near-ideal alloy, and check_applicability before trusting "
+            "any prediction for an unusual chemistry. corpus_query needs the "
+            "locally built corpus; design_search is the expensive call and "
+            "enforces hard caps; about() reports which capabilities are "
+            "available in this environment."
         ),
     )
     for tool in _TOOLS:

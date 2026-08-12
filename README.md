@@ -155,13 +155,23 @@ oxidation-state overrides.
 ## Quick start (AI agents, MCP)
 
 LLM agents hallucinate descriptor values; this server grounds them.
-`hea_bench.mcp_server` exposes the calculator over the
-[Model Context Protocol](https://modelcontextprotocol.io/) as seven
-deterministic tools (`parse_composition`, batch `alloy_descriptors` and
-`alloy_rules`, `omega_sensitivity`, `oxide_report`, `element_coverage`,
-`about`). Every response carries units, the citation key of each
-parametrization, and the library version, so an agent's reasoning trace
-contains auditable receipts rather than bare floats.
+`hea_bench.mcp_server` exposes the whole workflow over the
+[Model Context Protocol](https://modelcontextprotocol.io/) as thirteen
+deterministic tools: the original calculator seven
+(`parse_composition`, batch `alloy_descriptors` and `alloy_rules`,
+`omega_sensitivity`, `oxide_report`, `element_coverage`, `about`) plus
+the capability layers (`corpus_query` and `corpus_describe` over the
+provenance-tracked experimental corpus, `predict_properties` with
+intervals and domain flags at the top level of every payload,
+`check_applicability` for the novelty components, `design_search` with
+hard caps on palette, step, and candidate count, and
+`campaign_suggest` operating on a campaign file the user supplies).
+Every response carries units or uncertainty fields, citation keys
+where a parametrization is involved, and the library version, so an
+agent's reasoning trace contains auditable receipts rather than bare
+floats; `about()` reports which capabilities are available in the
+running environment, and missing optional extras come back as a clear
+message naming the exact install.
 
 ```bash
 pip install "hea-bench[mcp]"

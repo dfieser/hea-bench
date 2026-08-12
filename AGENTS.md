@@ -28,13 +28,20 @@ One calculation core, three surfaces:
 3. **Native desktop app** — a single offline executable that wraps the
    browser app via Tauri.
 4. **MCP server** — `pip install "hea-bench[mcp]"` then run
-   `hea-bench-mcp` (stdio). Seven deterministic tools over this same
+   `hea-bench-mcp` (stdio). Thirteen deterministic tools over this same
    library: `parse_composition`, batch `alloy_descriptors` /
    `alloy_rules`, `omega_sensitivity` (pair-table robustness check),
-   `oxide_report`, `element_coverage`, `about`. Every response carries
-   units, a citation key per value, and the library version. If you are
-   an agent with MCP support, prefer those tools over reimplementing
-   the formulas below; if not, the Python API is identical.
+   `oxide_report`, `element_coverage`, `corpus_query` /
+   `corpus_describe` (the provenance-tracked corpus; needs the locally
+   built data), `predict_properties` (intervals and domain flags at
+   payload top level), `check_applicability`, `design_search` (hard
+   caps enforced), `campaign_suggest` (operates on a user-supplied
+   campaign file), and `about`, which reports per-capability
+   availability. Every response carries units or uncertainty fields, a
+   citation key where a parametrization is involved, and the library
+   version. If you are an agent with MCP support, prefer those tools
+   over reimplementing the formulas below; if not, the Python API is
+   identical.
 
 The browser/desktop core (`web/hea-calculator-core.js`) is a pure-JS
 reimplementation of this library and is **parity-tested** against it on

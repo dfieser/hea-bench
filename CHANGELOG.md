@@ -12,6 +12,19 @@ The format is loosely based on
 
 ### Added
 
+- The MCP surface grows from seven to thirteen tools, covering the
+  whole workflow: `corpus_query` and `corpus_describe` (filtered slices
+  of the provenance-tracked corpus, sample hard-capped at 50 rows),
+  `predict_properties` (every property entry carries interval, tier,
+  domain flag, novelty, and warnings at the top level of its payload),
+  `check_applicability` (the novelty components), `design_search`
+  (hard caps: 10 palette elements, step at least 0.05, 20 candidates,
+  a fixed 50,000-point budget; oversized requests are refused with the
+  cap named), and `campaign_suggest` (batch capped at 10, operating on
+  a campaign file the user supplies and never writing it). Missing
+  optional extras or missing local corpus data surface as a clear
+  message naming the exact fix rather than a traceback, and `about()`
+  now reports per-capability availability for the running environment.
 - `hea_bench.design.campaign`: the active-learning loop. A `Campaign`
   holds an objective, palette, and constraints, accepts the user's own
   measurements (`observe`), and ranks the unexplored lattice by
