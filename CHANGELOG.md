@@ -12,6 +12,22 @@ The format is loosely based on
 
 ### Added
 
+- The consolidated experimental corpus is now a first-class, standalone
+  product: `hea_bench.corpus.load_corpus()` returns every corpus row
+  (including conflict-quarantined ones) with full per-source provenance
+  already recorded by the build (per-source canonical and verbatim
+  phase labels, Borg processing and primary-literature DOI, upstream
+  row identifiers), chainable `query()` filters, `describe()`
+  statistics with a multi-source agreement rate, and `to_csv()` export
+  of any slice. A generated dataset card (`docs/corpus-card.md`)
+  documents provenance chains, per-source license status, harmonization
+  rules, and known limitations. `load_benchmark()` is now a thin
+  wrapper over this API with byte-identical output: all frozen split
+  digests, row counts, and baseline numbers are unchanged, and the
+  corpus build now refuses loudly (naming the missing source and its
+  fetch command) rather than ever building a partial corpus. The corpus
+  API is standard-library only and, like the benchmark, works from a
+  repository checkout or `HEA_BENCH_BENCHMARK_DIR`.
 - Descriptor computation is now backend-pluggable. The default
   (`native`) backend is the package's own stdlib implementation and is
   unchanged; `pip install "hea-bench[interop]"` adds an adapter over an

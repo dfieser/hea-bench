@@ -306,6 +306,29 @@ digests to make a test pass** — a moved digest means the benchmark
 changed and needs a new corpus version, not a silenced test. Licensing
 per source: `data/raw/README.md`.
 
+## Corpus API (repo-only, like the benchmark)
+
+`hea_bench.corpus.load_corpus(version="0.1.0")` returns the full
+consolidated corpus (7,783 rows in v0.1.0, including the 100
+conflict-quarantined ones) with per-source provenance on every row:
+`labels` (per-source canonical), `raw_labels` (verbatim upstream phase
+strings), `processing` and `doi` (Borg only), `source_row_ids`, and
+`descriptor_ready`. Filters chain and AND together:
+
+```python
+from hea_bench.corpus import load_corpus
+corpus = load_corpus()
+corpus.query(contains=["Al", "Cr"], n_elements=(4, 6), labelled=True).describe()
+```
+
+`query` accepts `elements` (exact set), `contains`, `excludes`,
+`n_elements` (int or inclusive range), `phase`, `source`, `family`,
+`labelled`, `has_conflict`, `descriptor_ready`. `describe()` reports
+counts and the multi-source agreement rate; `to_csv()` writes any slice
+in the consolidated schema. Dataset card: `docs/corpus-card.md`.
+`load_benchmark` is now a thin wrapper over this API; its outputs and
+frozen digests are unchanged.
+
 ## Coverage limit
 
 The element table covers **55 elements** (alloy surface; the oxides

@@ -18,18 +18,14 @@ for it.
 
 from __future__ import annotations
 
-import csv
-import json
-import os
 import pathlib
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from ..composition import Composition, parse_formula
-from ..descriptors.data.elemental import covered_elements as _elemental_covered
-from ..descriptors.data.pair_enthalpies import covered_elements as _pair_covered
+from ..composition import Composition
+from ..corpus import load_corpus as _load_corpus
 from . import splits as _splits
-from .splits import SplitScheme, family_of
+from .splits import SplitScheme
 from .taxonomy import binary_observed
 
 DEFAULT_CORPUS_VERSION = "0.1.0"
@@ -44,8 +40,6 @@ TASKS = {
     "single_vs_multi": binary_observed,
 }
 
-_REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
-_ENV_VAR = "HEA_BENCH_BENCHMARK_DIR"
 
 
 @dataclass(frozen=True)
@@ -148,26 +142,6 @@ class Benchmark:
         }
 
 
-def _corpus_dir(version: str, corpus_dir: pathlib.Path | None) -> pathlib.Path:
-    if corpus_dir is not None:
-        return corpus_dir
-    override = os.environ.get(_ENV_VAR)
-    if override:
-        return pathlib.Path(override) / f"v{version}"
-    return _REPO_ROOT / "data" / "consolidated" / f"v{version}"
-
-
-def _missing_corpus_error(path: pathlib.Path) -> FileNotFoundError:
-    return FileNotFoundError(
-        f"benchmark corpus not found at {path}.\n"
-        f"The corpus is built locally rather than shipped, because its largest "
-        f"source dataset is not licensed for redistribution. Build it with:\n"
-        f"    python data/raw/peivaste/fetch.py\n"
-        f"    python -m hea_bench.benchmark.consolidate\n"
-        f"Set {_ENV_VAR} to point at a corpus directory elsewhere."
-    )
-
-
 def load_benchmark(
     *,
     task: str = "phase4",
@@ -226,48 +200,36 @@ def load_benchmark(
     if task not in TASKS:
         raise ValueError(f"unknown task {task!r}; expected one of {sorted(TASKS)}")
 
-    directory = _corpus_dir(version, corpus_dir)
-    csv_path = directory / "consolidated.csv"
-    if not csv_path.exists():
-        raise _missing_corpus_error(csv_path)
-
-    manifest_path = directory / "manifest.json"
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
-
-    scorable = _elemental_covered() & _pair_covered()
+    # The corpus package owns reading, provenance parsing, and the
+    # missing-corpus error; this wrapper only projects labels and
+    # attaches the frozen splits. Row order is the corpus CSV order,
+    # which is what the split digests are computed over.
+    corpus = _load_corpus(version=version, corpus_dir=corpus_dir)
     project = TASKS[task]
 
     rows: list[BenchmarkRow] = []
-    with csv_path.open(newline="", encoding="utf-8") as handle:
-        for record in csv.DictReader(handle):
-            canonical = (record.get("canonical_phase") or "").strip()
-            if not canonical:
-                continue
-            label = project(canonical)
-            if label is None:
-                continue
-            key = record["composition_key"]
-            try:
-                composition = parse_formula(key)
-            except ValueError as error:
-                raise ValueError(
-                    f"corpus row has an unparseable composition_key {key!r}: {error}"
-                ) from error
-            rows.append(
-                BenchmarkRow(
-                    composition_key=key,
-                    composition=composition,
-                    family=family_of(composition),
-                    label=label,
-                    canonical_phase=canonical,
-                    sources=tuple((record.get("sources") or "").split(";")) if record.get("sources") else (),
-                    n_elements=int(record["n_elements"]),
-                    descriptor_ready=set(composition).issubset(scorable),
-                )
+    for corpus_row in corpus.rows:
+        canonical = corpus_row.canonical_phase
+        if canonical is None:
+            continue
+        label = project(canonical)
+        if label is None:
+            continue
+        rows.append(
+            BenchmarkRow(
+                composition_key=corpus_row.composition_key,
+                composition=corpus_row.composition,
+                family=corpus_row.family,
+                label=label,
+                canonical_phase=canonical,
+                sources=corpus_row.sources,
+                n_elements=corpus_row.n_elements,
+                descriptor_ready=corpus_row.descriptor_ready,
             )
+        )
 
     if not rows:
-        raise ValueError(f"corpus at {csv_path} yielded no labelled rows")
+        raise ValueError(f"corpus v{version} yielded no labelled rows")
 
     # Row order is the corpus CSV order, which the build writes sorted by
     # composition_key. The split digests are computed over that order, so
@@ -281,7 +243,7 @@ def load_benchmark(
         rows=tuple(rows),
         grouped=_splits.grouped_split(families, labels, k=k),
         random=_splits.random_split(labels, k=k, seed=seed),
-        manifest=manifest,
+        manifest=corpus.manifest,
     )
 
 

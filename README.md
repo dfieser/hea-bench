@@ -231,6 +231,29 @@ corpus's largest source dataset declares no license, so the corpus is
 rebuilt locally from a fetch script and pinned hashes rather than
 redistributed (see [`data/raw/README.md`](./data/raw/README.md)).
 
+## The corpus as a standalone product
+
+The consolidated experimental corpus behind the benchmark is also
+addressable directly, with no task or split machinery involved:
+
+```python
+from hea_bench.corpus import load_corpus
+
+corpus = load_corpus()                # v0.1.0, every row, full provenance
+corpus.describe()                     # counts, families, agreement rate
+al_bcc = corpus.query(contains=["Al"], phase="BCC", descriptor_ready=True)
+al_bcc.rows[0].raw_labels             # each source's verbatim reported phase
+al_bcc.to_csv("al-bcc.csv")
+```
+
+Every row carries per-source canonical and verbatim labels, Borg's
+processing route and primary-literature DOI where available, and
+upstream record identifiers, so a label can be audited without leaving
+the package. Provenance chains, per-source license status,
+harmonization rules, and known limitations are documented in the
+[corpus card](docs/corpus-card.md). The corpus data is still built
+locally from the recipe above, for the same licensing reason.
+
 ## A note on Ω near ΔH<sub>mix</sub> ≈ 0
 
 `Ω = Tm·ΔSmix / |ΔHmix|` diverges as ΔH<sub>mix</sub> → 0, so for

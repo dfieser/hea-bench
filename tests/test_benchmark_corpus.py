@@ -138,6 +138,30 @@ def test_descriptor_matrix_matches_the_pinned_cantor_values() -> None:
 
 
 @needs_corpus
+def test_load_benchmark_first_and_last_rows_pinned() -> None:
+    """Characterization guard for the corpus-package refactor.
+
+    load_benchmark must keep producing byte-identical rows when its body
+    becomes a thin wrapper over hea_bench.corpus. These literals were
+    read from the v0.1.0 build before that refactor; if one moves, the
+    wrapper changed behavior, not just structure.
+    """
+    bench = load_benchmark(task="single_vs_multi")
+    first, last = bench.rows[0], bench.rows[-1]
+    assert first.composition_key == "Ag0.0166Al0.1400Co0.0500Cu0.0833La0.6601Ni0.0500"
+    assert first.n_elements == 6
+    assert first.family == "Ag-Al-Co-Cu-La-Ni"
+    assert first.canonical_phase == "multi-phase"
+    assert first.label == "multi-phase"
+    assert first.sources == ("peivaste",)
+    assert first.descriptor_ready is True
+    assert last.composition_key == "Zr1.0000"
+    assert last.n_elements == 1
+    assert last.canonical_phase == "BCC"
+    assert last.label == "single-phase"
+
+
+@needs_corpus
 def test_corpus_size_and_family_count() -> None:
     bench = load_benchmark(task="single_vs_multi")
     assert len(bench) == EXPECTED_ROWS

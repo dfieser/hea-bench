@@ -131,6 +131,24 @@ def parse_formula(formula: str) -> Composition:
     return normalize(raw)
 
 
+def family_of(composition: Composition) -> str:
+    """Return the alloy-family key for one composition.
+
+    The family is the set of elements present, written as the element
+    symbols sorted alphabetically and joined with hyphens. Amounts are
+    deliberately ignored: that is what makes every stoichiometric
+    variant of one system share a family. This lives here rather than in
+    the benchmark package because the corpus and the split machinery
+    both need it and neither should import the other.
+
+    >>> family_of({"Co": 0.2, "Cr": 0.2, "Fe": 0.2, "Mn": 0.2, "Ni": 0.2})
+    'Co-Cr-Fe-Mn-Ni'
+    >>> family_of({"Al": 0.5, "Co": 0.25, "Cr": 0.25})
+    'Al-Co-Cr'
+    """
+    return "-".join(sorted(el for el, amount in composition.items() if amount > 0))
+
+
 def normalize(amounts: dict[str, float]) -> Composition:
     """Normalize proportional amounts to mole fractions summing to 1.0.
 

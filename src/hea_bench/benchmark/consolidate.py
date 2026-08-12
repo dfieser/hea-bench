@@ -147,13 +147,9 @@ def consolidate(records: Iterable[AlloyRecord], precision: int = 4) -> list[Cons
 # Short column-name prefix per source. The CSV schema is derived from the
 # version's source list, so v0.1.0 keeps its exact original 14 columns and
 # a version that adds a source grows label columns for it without touching
-# the older recipe's output.
-_SOURCE_COLUMN_PREFIX = {
-    "borg2020": "borg",
-    "pei2020": "pei",
-    "peivaste": "peivaste",
-    "chizhevskiy2026": "chizhevskiy",
-}
+# the older recipe's output. The table itself lives in hea_bench.corpus,
+# the reader of this schema, so build and read cannot drift apart.
+from ..corpus import SOURCE_COLUMN_PREFIX as _SOURCE_COLUMN_PREFIX  # noqa: E402
 
 
 def _csv_columns(source_names: Sequence[str]) -> list[str]:
@@ -304,9 +300,26 @@ def build(version: str = DEFAULT_VERSION, out_dir: pathlib.Path | None = None) -
     """
     source_names = SOURCES_BY_VERSION[version]
     out_dir = out_dir or (_CONSOLIDATED_DIR / f"v{version}")
-    out_dir.mkdir(parents=True, exist_ok=True)
 
     source_paths = {name: _SOURCE_PATHS[name] for name in source_names}
+    missing = [name for name in source_names if not source_paths[name].exists()]
+    if missing:
+        instructions = []
+        for name in missing:
+            fix = (
+                "python data/raw/peivaste/fetch.py"
+                if name == "peivaste"
+                else f"restore the mirrored file from the repository (see data/raw/{name}/README.md)"
+            )
+            instructions.append(f"  {name}: expected {source_paths[name]}\n    fix: {fix}")
+        raise FileNotFoundError(
+            f"cannot build corpus v{version}: source data missing.\n"
+            + "\n".join(instructions)
+            + "\nA partial corpus is never built: every source in the version's "
+            "recipe is required, because a corpus missing a source would carry "
+            "the wrong rows under the right filename."
+        )
+    out_dir.mkdir(parents=True, exist_ok=True)
     rows_by_source = {
         name: list(_LOADERS[name](source_paths[name])) for name in source_names
     }

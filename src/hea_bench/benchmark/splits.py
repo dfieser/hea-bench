@@ -100,26 +100,13 @@ from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
-from ..composition import Composition
+# family_of moved to hea_bench.composition (the corpus package and the
+# split machinery both need it); re-exported here so every existing
+# import path keeps working.
+from ..composition import family_of  # noqa: F401
 
 DEFAULT_K = 5
 DEFAULT_SEED = 0
-
-
-def family_of(composition: Composition) -> str:
-    """Return the alloy-family key for one composition.
-
-    The family is the set of elements present, written as the element
-    symbols sorted alphabetically and joined with hyphens. Amounts are
-    deliberately ignored: that is what makes every stoichiometric
-    variant of one system share a family.
-
-    >>> family_of({"Co": 0.2, "Cr": 0.2, "Fe": 0.2, "Mn": 0.2, "Ni": 0.2})
-    'Co-Cr-Fe-Mn-Ni'
-    >>> family_of({"Al": 0.5, "Co": 0.25, "Cr": 0.25})
-    'Al-Co-Cr'
-    """
-    return "-".join(sorted(el for el, amount in composition.items() if amount > 0))
 
 
 @dataclass(frozen=True)
