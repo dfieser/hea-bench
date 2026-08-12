@@ -252,6 +252,21 @@ as an **Oxides mode** (mode switch at the top of the input rail). The
 module is deliberately not exported at the `hea_bench` top level;
 import it as `from hea_bench import oxides`.
 
+## Ceramics module (experimental)
+
+`from hea_bench import ceramics`:
+`describe_rock_salt_carbide(metals)`, `describe_rock_salt_nitride(metals)`,
+`describe_diboride(metals)` take the metal-sublattice composition dict
+and return one report: normalized metals, configurational entropy in
+every published normalization convention (per mole cation, per formula
+unit, per mole atoms; papers disagree silently, so all are labelled),
+`vec_per_formula_unit` for the rock-salt classes (weighted metal group
+count plus 4 for C or 5 for N) with annotated literature reference
+points (8.4 hardness maximum, about 9.4 fracture resistance, about 9.5
+plasticity), warnings, and citations. No verdicts are emitted, no size
+mismatch yet (deferred with reasons), and no entropy-forming-ability
+or DEED (DFT-only; no parity claimed). See `docs/ceramics.md`.
+
 ## Phase-prediction benchmark (repo-only, experimental)
 
 `hea_bench.benchmark` evaluates phase-prediction models under two

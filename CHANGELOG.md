@@ -12,6 +12,23 @@ The format is loosely based on
 
 ### Added
 
+- `hea_bench.ceramics`: the calculator extends to high-entropy
+  rock-salt carbides and nitrides and AlB2-type diborides, following
+  the oxides module's API shape. Reports carry the metal-sublattice
+  configurational entropy in every published normalization convention
+  (per mole cation, per formula unit, per mole atoms), because the
+  ceramics literature switches between them without warning, and VEC
+  per formula unit for the rock-salt classes with annotated literature
+  reference points (the 8.4 hardness maximum, the roughly 9.4 fracture
+  resistance and 9.5 plasticity marks) instead of a verdict, because
+  no single published window exists. Deliberately absent, with reasons
+  in `docs/ceramics.md`: a size-mismatch descriptor (the field derives
+  it from DFT binary-cell bond lengths; adopting a cited
+  composition-only table is future curation work), entropy-forming
+  ability and DEED (DFT-ensemble quantities; no parity claimed
+  anywhere), and a ceramics corpus or benchmark task (the available
+  outcome data is too small to support one; a license audit of every
+  candidate dataset is recorded for the future consolidation).
 - The MCP surface grows from seven to thirteen tools, covering the
   whole workflow: `corpus_query` and `corpus_describe` (filtered slices
   of the provenance-tracked corpus, sample hard-capped at 50 rows),

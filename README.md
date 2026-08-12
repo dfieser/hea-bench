@@ -152,6 +152,31 @@ verdicts with their windows, and any warnings. See
 for the full tour, including the fluorite and pyrochlore screens and
 oxidation-state overrides.
 
+## Quick start (ceramics, experimental)
+
+`hea_bench.ceramics` extends the calculator to rock-salt carbides and
+nitrides and AlB2-type diborides, composition-only and honest about
+what that buys:
+
+```python
+from hea_bench import ceramics
+
+hec = ceramics.describe_rock_salt_carbide({"Ti": 1, "Zr": 1, "Hf": 1, "Nb": 1, "Ta": 1})
+hec["vec_per_formula_unit"]        # 8.4, with annotated literature reference points
+hec["entropy"]                     # all normalization conventions, labelled
+```
+
+Reports carry the metal-sublattice entropy in every published
+normalization convention (papers switch between them without warning),
+VEC with annotated reference points rather than a verdict (the
+literature marks points, not one window), and explicit notes on what
+is deferred: the size-mismatch descriptor (the field computes it from
+DFT binary-cell bond lengths, and adopting a cited table is real
+curation work), and entropy-forming-ability or DEED, which are
+DFT-ensemble quantities this package cannot and does not claim to
+reproduce. Background, citations, and a license audit of candidate
+ceramics datasets: [docs/ceramics.md](docs/ceramics.md).
+
 ## Quick start (AI agents, MCP)
 
 LLM agents hallucinate descriptor values; this server grounds them.
