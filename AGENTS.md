@@ -345,6 +345,23 @@ applicability components (`element_set_seen`, `family_count`,
 plus the conservative `in_domain` flag. Read the components, not just
 the flag. Empirical coverage: `docs/uncertainty-coverage.md`.
 
+## Property API
+
+`hea_bench.properties.predict_property(comp, prop, alpha=0.1,
+processing=None)` returns a frozen `PropertyPrediction` with `value`,
+`unit`, `interval` (tier B only), `alpha`, `tier`, `in_domain`,
+`novelty`, `n_training`, `model_card`, and `warnings`.
+`available_properties()` lists what exists: tier A `density` (g/cm3)
+and `melting_temperature` (K) are stdlib closed forms; tier B
+`hardness` (HV) needs `pip install "hea-bench[properties]"` and always
+carries a conformal interval plus a domain flag fitted on its own
+training data (Borg room-temperature HV, 417 alloys). Missing installs,
+unknown properties, uncovered elements, and sub-floor training
+populations raise `PropertyUnavailableError` naming the fix. Model
+cards: `docs/property-hardness.md`, `docs/property-tier-a.md`. Read the
+interval width before ranking close candidates; the cards state what
+the error supports.
+
 ## Coverage limit
 
 The element table covers **55 elements** (alloy surface; the oxides

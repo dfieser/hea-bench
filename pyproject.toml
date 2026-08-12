@@ -73,6 +73,14 @@ benchmark = [
 interop = [
     "HEACalculator~=2.0",
 ]
+# Tier B property surrogates (hea_bench.properties). Same pin and same
+# reason as the benchmark extra: the model-card numbers in
+# docs/property-hardness.md were produced with scikit-learn 1.7.2, and
+# tree ensembles can shift across minors; regenerate the cards when
+# bumping.
+properties = [
+    "scikit-learn~=1.7.2",
+]
 
 [project.scripts]
 hea-bench = "hea_bench.cli:main"

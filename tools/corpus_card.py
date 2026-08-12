@@ -127,7 +127,7 @@ def _version_section(version: str) -> list[str]:
         f"- Alloy families: {stats['n_families']}",
         f"- Distinct elements: {stats['n_distinct_elements']}",
         f"- Rows this package's descriptors can score: {stats['n_descriptor_ready']}",
-        f"- Label distribution: "
+        "- Label distribution: "
         + ", ".join(f"{phase} {count}" for phase, count in sorted(stats["by_phase"].items())),
         f"- Multi-source rows: {stats['multi_source_rows']}"
         + (

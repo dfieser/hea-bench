@@ -285,6 +285,35 @@ read the flag together with the set size rather than either alone.
 These tools describe this package's confidence about your composition
 on this corpus, nothing else.
 
+## Property predictions, in explicit tiers
+
+`hea_bench.properties` predicts what experimentalists ask about first,
+with the data quality stated in the API rather than implied:
+
+```python
+from hea_bench.properties import predict_property
+
+predict_property({"Al": 0.2, "Co": 0.2, "Cr": 0.2, "Fe": 0.2, "Ni": 0.2}, "hardness")
+# PropertyPrediction(prop='hardness', value=..., unit='HV',
+#                    interval=(low, high), alpha=0.1, tier='B',
+#                    in_domain=True, n_training=..., ...)
+```
+
+Tier A (`density`, `melting_temperature`) is closed-form arithmetic
+over cited tables, validated against the experimental densities in the
+Borg deposit ([docs/property-tier-a.md](docs/property-tier-a.md)).
+Tier B (`hardness`, behind `pip install "hea-bench[properties]"`) is a
+seeded random forest over this package's descriptors wrapped in a
+family-grouped conformal interval and a domain flag; its held-out
+error, interval calibration, and the decisions that error does and
+does not support are stated in
+[docs/property-hardness.md](docs/property-hardness.md). Intervals are
+wide because the public data is small and heterogeneous; that is the
+honest outcome, shown rather than hidden. Properties whose public data
+cannot support a defensible held-out error (yield strength across
+uncontrolled test temperatures, ductility, corrosion) are deliberately
+not shipped, and the model card says why.
+
 ## A note on Ω near ΔH<sub>mix</sub> ≈ 0
 
 `Ω = Tm·ΔSmix / |ΔHmix|` diverges as ΔH<sub>mix</sub> → 0, so for

@@ -12,6 +12,26 @@ The format is loosely based on
 
 ### Added
 
+- `hea_bench.properties`: property predictions in explicit tiers.
+  Tier A closed forms (stdlib): `density` by rule of mixtures over a
+  new cited IUPAC standard-atomic-weight table and the vendored molar
+  volumes, validated against the 49 experimentally measured densities
+  in the Borg deposit (mean absolute error 0.20 g/cm3, documented in
+  `docs/property-tier-a.md`), plus `melting_temperature` re-exposed.
+  Tier B (`hardness`, new `properties` extra pinning scikit-learn
+  1.7.2): a seeded random forest over the package's own descriptors on
+  the 417 near-room-temperature Borg HV alloys, always returned with a
+  family-grouped split conformal interval and a domain-of-applicability
+  flag fitted on its own training data; `processing=` conditions on one
+  processing route and refuses below a 50-alloy floor. The model card
+  (`docs/property-hardness.md`) records the family-grouped CV error
+  (mean absolute error 115 HV, empirical interval coverage 0.909 at
+  nominal 90 percent, mean width 658 HV) and states plainly that this
+  supports coarse screening, not ranking close candidates. Yield
+  strength, moduli, ductility, and corrosion are deliberately not
+  shipped; the card documents why (test-temperature and processing
+  confounds, thin licensed data), because a confidently wrong number
+  would be worse than an absent one.
 - `hea_bench.uncertainty`: the trust layer. Standard-library split
   conformal prediction (`ConformalClassifier`, `ConformalRegressor`)
   wraps any fitted sklearn-style model with prediction sets or
