@@ -27,8 +27,9 @@ against the tree on 2026-08-11; deviations are noted inline as "Adaptation").
   docs/benchmark-baselines.md are unchanged. A moved digest or baseline is a STOP
   condition: halt the phase and report, do not re-pin.
 - No em dashes anywhere (code, comments, docs, changelog). No AI attribution anywhere.
-- Splits are framed interpolative (random) versus extrapolative (grouped), never as
-  leakage detection or inflation. Uncertainty output describes this package's confidence,
+- Splits are framed as interpolative (random) versus extrapolative (grouped)
+  evaluation only; the retired framing from the closed audit must not reappear
+  in any new text. Uncertainty output describes this package's confidence,
   never other tools or published accuracies. No criterion ranking headlines.
 - Typed failure over silent substitution: raise or flag None, never impute quietly.
   Missing optional extras raise a typed error naming the exact pip install command.
@@ -605,7 +606,8 @@ Commit: `Extend the calculator to high-entropy carbides, nitrides, and borides`.
 4. New prediction paths return uncertainty + in_domain.
 5. New datasets or tables carry provenance and license status in a card or data-module
    docstring.
-6. Text sweep: no em dashes, no AI attribution, no leakage/inflation framing
-   (`grep -rnE "leak|inflat" <changed files>` and an em-dash grep).
+6. Text sweep: no em dashes, no AI attribution, and none of the retired
+   benchmark framing (`grep -rnE "leak|inflat" <changed files>` plus an
+   em-dash grep; price-basis strings about tariffs are the known benign hit).
 7. CHANGELOG [Unreleased] entry states capability and limitations.
 8. Missing-extra paths raise the typed error naming the install.
