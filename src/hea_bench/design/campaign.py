@@ -297,14 +297,10 @@ class Campaign:
         """
         if strategy not in ("ei", "ucb"):
             raise ValueError(f"unknown strategy {strategy!r}; expected 'ei' or 'ucb'")
-        try:
-            from sklearn.ensemble import RandomForestRegressor
-        except ImportError as exc:
-            raise ColdStartError(
-                "campaign suggestions need scikit-learn: "
-                'pip install "hea-bench[properties]"'
-            ) from exc
 
+        # The floor is checked before the optional dependency on purpose:
+        # a user below it should hear about the data problem regardless of
+        # what is installed, and the floor check itself is stdlib.
         X, y, _comps = self._training()
         if len(X) < COLD_START_FLOOR:
             raise ColdStartError(
@@ -313,6 +309,15 @@ class Campaign:
                 f"random and the loop refuses to pretend otherwise. Add "
                 f"observations (or use a palette covered by the warm start)."
             )
+        try:
+            from sklearn.ensemble import RandomForestRegressor
+        except ImportError as exc:
+            from ..properties import PropertyUnavailableError
+
+            raise PropertyUnavailableError(
+                "campaign suggestions need scikit-learn, which is not "
+                'installed. Install it with: pip install "hea-bench[properties]"'
+            ) from exc
 
         pool = self._pool()
         if not pool:
