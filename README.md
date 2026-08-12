@@ -299,9 +299,10 @@ predict_property({"Al": 0.2, "Co": 0.2, "Cr": 0.2, "Fe": 0.2, "Ni": 0.2}, "hardn
 #                    in_domain=True, n_training=..., ...)
 ```
 
-Tier A (`density`, `melting_temperature`) is closed-form arithmetic
-over cited tables, validated against the experimental densities in the
-Borg deposit ([docs/property-tier-a.md](docs/property-tier-a.md)).
+Tier A (`density`, `melting_temperature`, and an explicitly indicative
+`cost_per_kg` over a date-stamped, per-element-sourced price table) is
+closed-form arithmetic over cited tables, validated where experiment
+exists ([docs/property-tier-a.md](docs/property-tier-a.md)).
 Tier B (`hardness`, behind `pip install "hea-bench[properties]"`) is a
 seeded random forest over this package's descriptors wrapped in a
 family-grouped conformal interval and a domain flag; its held-out

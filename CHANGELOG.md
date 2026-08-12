@@ -17,7 +17,12 @@ The format is loosely based on
   new cited IUPAC standard-atomic-weight table and the vendored molar
   volumes, validated against the 49 experimentally measured densities
   in the Borg deposit (mean absolute error 0.20 g/cm3, documented in
-  `docs/property-tier-a.md`), plus `melting_temperature` re-exposed.
+  `docs/property-tier-a.md`); `melting_temperature` re-exposed; and
+  `cost_per_kg`, an explicitly indicative raw-material screening number
+  mass-weighted over a date-stamped element price table whose every row
+  carries its own basis, as-of date, and source (USGS MCS 2026, LME,
+  bullion spot, named minor-metal relays), with `cost_breakdown()`
+  exposing per-element contributions so the bases are never hidden.
   Tier B (`hardness`, new `properties` extra pinning scikit-learn
   1.7.2): a seeded random forest over the package's own descriptors on
   the 417 near-room-temperature Borg HV alloys, always returned with a

@@ -28,8 +28,9 @@ from dataclasses import dataclass
 from functools import lru_cache
 
 from ..composition import Composition, normalize
+from .data.element_prices import PRICE_ASOF
 from .hardness import PropertyUnavailableError, predict_hardness
-from .tier_a import density
+from .tier_a import cost_breakdown, cost_per_kg, density
 
 _TIER_A_NOTES = {
     "density": (
@@ -41,6 +42,13 @@ _TIER_A_NOTES = {
         "closed form: rule of mixtures over CRC elemental melting points; "
         "solidus/liquidus spread and intermetallic melting sit outside the "
         "model"
+    ),
+    "cost_per_kg": (
+        "indicative raw-material screening number, mass-weighted over a "
+        "date-stamped element price table with per-element basis caveats "
+        "(two-tier markets, oxide and contained-element rows); processing, "
+        "yield, and research-quantity purchasing dominate real cost and are "
+        "not included. Never read this as precise."
     ),
 }
 
@@ -110,6 +118,7 @@ def available_properties() -> dict[str, dict]:
     return {
         "density": {"tier": "A", "unit": "g/cm^3", "needs": None, "available": True},
         "melting_temperature": {"tier": "A", "unit": "K", "needs": None, "available": True},
+        "cost_per_kg": {"tier": "A", "unit": "USD/kg", "needs": None, "available": True},
         "hardness": {
             "tier": "B",
             "unit": "HV",
@@ -190,6 +199,26 @@ def predict_property(
             )
         return _tier_a_prediction("density", comp, value, "g/cm^3")
 
+    if prop == "cost_per_kg":
+        value = cost_per_kg(comp)
+        if value is None:
+            from .data.atomic_masses import ATOMIC_MASS_G_MOL
+            from .data.element_prices import PRICES_USD_PER_KG
+
+            missing = sorted(
+                element
+                for element in comp
+                if element not in PRICES_USD_PER_KG or element not in ATOMIC_MASS_G_MOL
+            )
+            raise PropertyUnavailableError(
+                f"cost_per_kg is not computable: no price or mass row for "
+                f"{', '.join(missing)}"
+            )
+        import dataclasses
+
+        prediction = _tier_a_prediction("cost_per_kg", comp, value, "USD/kg")
+        return dataclasses.replace(prediction, asof=PRICE_ASOF)
+
     if prop == "melting_temperature":
         from ..descriptors.melting import melting_temperature
 
@@ -222,6 +251,8 @@ __all__ = [
     "PropertyPrediction",
     "PropertyUnavailableError",
     "available_properties",
+    "cost_breakdown",
+    "cost_per_kg",
     "density",
     "predict_property",
 ]

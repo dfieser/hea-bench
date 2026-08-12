@@ -249,6 +249,22 @@ def main() -> int:
         "validation table exists here; the estimate ignores "
         "solidus/liquidus spread and eutectics, and should be read as the "
         "scale used inside Omega rather than a melting prediction.",
+        "",
+        "## Cost per kg (indicative)",
+        "",
+        "Mass-weighted over the date-stamped element price table in "
+        "`hea_bench.properties.data.element_prices` (assembled 2026-08 from "
+        "USGS Mineral Commodity Summaries 2026, LME reference prices, "
+        "bullion spot quotes, and named minor-metal and rare-earth market "
+        "relays; every row carries its own basis, as-of date, and source). "
+        "This is a screening number for comparing palettes, never a quote: "
+        "several rows are oxide-basis or contained-element prices because "
+        "no pure-metal market exists, Western and Chinese domestic prices "
+        "for export-controlled elements differ by factors of 2 to 4, 2026 "
+        "spot markets are unusually hot, and processing plus "
+        "research-quantity purchasing dominate real lab cost. "
+        "`cost_breakdown()` exposes the per-element contributions with "
+        "their bases so none of this is hidden behind one number.",
     ]
 
     (REPO_ROOT / "docs" / "property-hardness.md").write_text(

@@ -20,6 +20,69 @@ from __future__ import annotations
 from ..composition import Composition, normalize
 from ..descriptors.data.mechanics import mechanics
 from .data.atomic_masses import ATOMIC_MASS_G_MOL
+from .data.element_prices import PRICES_USD_PER_KG
+
+
+def cost_per_kg(composition: Composition) -> float | None:
+    """Indicative alloy raw-material cost in USD per kg, or None.
+
+    Mass-weighted over the date-stamped element price table:
+    ``sum(w_i p_i)`` with ``w_i`` the mass fraction. This prices the
+    elements going in, not melting, processing, yield losses, or
+    research-quantity purchasing, all of which dominate real cost at lab
+    scale; the table's docstring carries the full basis caveats. None
+    when any element has no price row.
+    """
+    comp = normalize(composition)
+    weights = _mass_fractions(comp)
+    if weights is None:
+        return None
+    total = 0.0
+    for element, weight in weights.items():
+        row = PRICES_USD_PER_KG.get(element)
+        if row is None:
+            return None
+        total += weight * row[0]
+    return total
+
+
+def cost_breakdown(composition: Composition) -> dict[str, dict]:
+    """Per-element cost contributions with each row's basis and source.
+
+    Raises ValueError when the composition has unpriced or massless
+    elements; use :func:`cost_per_kg` for the None-returning form.
+    """
+    comp = normalize(composition)
+    weights = _mass_fractions(comp)
+    if weights is None:
+        missing = sorted(el for el in comp if el not in ATOMIC_MASS_G_MOL)
+        raise ValueError(f"no atomic mass for: {', '.join(missing)}")
+    breakdown: dict[str, dict] = {}
+    for element, weight in weights.items():
+        row = PRICES_USD_PER_KG.get(element)
+        if row is None:
+            raise ValueError(f"no price row for {element}")
+        price, basis, asof, source = row
+        breakdown[element] = {
+            "mass_fraction": weight,
+            "usd_per_kg": price,
+            "basis": basis,
+            "asof": asof,
+            "source": source,
+            "contribution_usd_per_kg": weight * price,
+        }
+    return breakdown
+
+
+def _mass_fractions(comp: Composition) -> dict[str, float] | None:
+    masses = {}
+    for element, fraction in comp.items():
+        mass = ATOMIC_MASS_G_MOL.get(element)
+        if mass is None:
+            return None
+        masses[element] = fraction * mass
+    total = sum(masses.values())
+    return {element: value / total for element, value in masses.items()}
 
 
 def density(composition: Composition) -> float | None:
@@ -42,4 +105,4 @@ def density(composition: Composition) -> float | None:
     return total_mass / total_volume
 
 
-__all__ = ["density"]
+__all__ = ["cost_breakdown", "cost_per_kg", "density"]
