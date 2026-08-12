@@ -381,6 +381,21 @@ components, and the domain flag. The lattice is exhaustive within
 to `n_candidates` is visible via `n_front`. Treat fronts as screening
 output; see `docs/design-recovery.md`.
 
+## Campaign API
+
+`hea_bench.design.campaign.Campaign(objective, palette, constraints=(),
+direction="maximize", seed=0, step=0.1, n_elements=(3,5),
+warm_start=True)`; `observe(comp, value, processing=None,
+uncertainty=None)`; `suggest(n=5, strategy="ei"|"ucb")` returns
+`Suggestion` objects whose repr carries the interval and domain flag;
+`save(path)`/`Campaign.load(path)` round-trip versioned plain JSON
+(schema 1). Warm start pools Borg hardness rows matching the palette
+when objective is "hardness"; any other objective starts cold. Below 10
+informative rows `suggest` raises `ColdStartError`. Suggestion
+intervals are ensemble spread (tree disagreement), not
+coverage-calibrated; the module docstring states this. Replay study:
+`docs/campaign-replay.md`.
+
 ## Coverage limit
 
 The element table covers **55 elements** (alloy surface; the oxides

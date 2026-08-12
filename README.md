@@ -345,6 +345,32 @@ recovered front is studied honestly in
 [docs/design-recovery.md](docs/design-recovery.md); the front is a
 prioritization aid, not a set of answers.
 
+## Active-learning campaigns (bring your own measurements)
+
+`hea_bench.design.campaign.Campaign` runs the loop that creates repeat
+usage: observe your own measurements, get a ranked next batch, keep
+everything in a plain JSON file on your disk (no accounts, no server,
+no telemetry):
+
+```python
+from hea_bench.design.campaign import Campaign
+
+campaign = Campaign("hardness", ["Al", "Co", "Cr", "Fe", "Ni"])
+campaign.observe({"Al": 0.1, "Co": 0.25, "Cr": 0.2, "Fe": 0.25, "Ni": 0.2}, 430.0)
+campaign.suggest(n=5)     # each Suggestion prints its interval and domain flag
+campaign.save("my-campaign.json")
+```
+
+The surrogate is a seeded random-forest ensemble whose uncertainty is
+tree disagreement (a model-disagreement band, deliberately not sold as
+a coverage guarantee), acquisition is expected improvement or UCB with
+batched picks via the believer heuristic, and hardness campaigns warm
+start from the Borg records inside your palette so the loop is useful
+before your tenth sample. Below 10 informative rows it refuses rather
+than pretending. A year-ordered replay of the loop on the
+Al-Co-Cr-Fe-Ni hardness record is reported honestly in
+[docs/campaign-replay.md](docs/campaign-replay.md).
+
 ## A note on Ω near ΔH<sub>mix</sub> ≈ 0
 
 `Ω = Tm·ΔSmix / |ΔHmix|` diverges as ΔH<sub>mix</sub> → 0, so for

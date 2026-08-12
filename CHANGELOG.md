@@ -12,6 +12,19 @@ The format is loosely based on
 
 ### Added
 
+- `hea_bench.design.campaign`: the active-learning loop. A `Campaign`
+  holds an objective, palette, and constraints, accepts the user's own
+  measurements (`observe`), and ranks the unexplored lattice by
+  expected improvement or UCB over a seeded random-forest ensemble
+  whose uncertainty is tree disagreement (documented as a
+  model-disagreement band, not a coverage guarantee). Batches use the
+  believer heuristic; hardness campaigns warm start from the Borg
+  records matching the palette; state round-trips through versioned
+  plain JSON on the user's disk with no accounts and no telemetry;
+  and below 10 informative rows `suggest` raises `ColdStartError`
+  because a near-random loop should refuse rather than pretend. A
+  publication-year replay on the Al-Co-Cr-Fe-Ni hardness record is
+  reported in `docs/campaign-replay.md`, honest outcome included.
 - `hea_bench.design`: constrained composition search. `search()` walks
   a deterministic simplex lattice over a palette (element subsets times
   fixed-step compositions), filters by rule verdicts, property bounds
