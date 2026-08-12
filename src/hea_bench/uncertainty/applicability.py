@@ -36,6 +36,7 @@ import json
 import math
 from collections import Counter
 from dataclasses import dataclass
+from functools import lru_cache
 
 from ..composition import Composition, family_of, normalize
 from ..descriptors.backend import NativeBackend
@@ -213,6 +214,23 @@ def fit_domain(corpus) -> DomainModel:
     )
 
 
+@lru_cache(maxsize=1)
+def default_domain() -> DomainModel | None:
+    """The v0.1.0 phase-corpus domain model, or None outside a checkout.
+
+    Fitted once per process (several seconds) and cached; the shared
+    default for surfaces that want a corpus-coverage flag without
+    managing their own DomainModel. None, never an exception, when the
+    corpus is not built, so callers can degrade to a typed warning.
+    """
+    from ..corpus import load_corpus
+
+    try:
+        return fit_domain(load_corpus())
+    except FileNotFoundError:
+        return None
+
+
 def novelty_score(composition: Composition, corpus) -> dict:
     """Convenience one-shot: fit a domain model and query it once.
 
@@ -226,6 +244,7 @@ def novelty_score(composition: Composition, corpus) -> dict:
 __all__ = [
     "FAMILY_DISTANCE_THRESHOLD",
     "DomainModel",
+    "default_domain",
     "fit_domain",
     "novelty_score",
 ]

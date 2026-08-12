@@ -315,6 +315,36 @@ cannot support a defensible held-out error (yield strength across
 uncontrolled test temperatures, ductility, corrosion) are deliberately
 not shipped, and the model card says why.
 
+## Constrained composition search
+
+`hea_bench.design.search` answers "what should I make" as a screening
+aid: a deterministic composition lattice over your palette, filtered by
+rule, property, composition, and domain constraints, returning a Pareto
+front where every candidate carries its full receipt:
+
+```python
+from hea_bench.design import Maximize, Minimize, PropertyConstraint, search
+
+result = search(
+    elements=["Al", "Co", "Cr", "Fe", "Ni"],
+    n_elements=(4, 5),
+    constraints=(PropertyConstraint("density", max=8.0),),
+    objectives=(Maximize("hardness"), Minimize("cost_per_kg")),
+    step=0.05,
+)
+result.candidates[0].properties["hardness"].interval   # every number has one
+```
+
+The domain constraint is on by default (optimizers exploit model error
+hardest where data runs out; opting out is explicit), and
+`optimize_bound="lower"` ranks fitted objectives by the conservative
+end of their intervals. The search is exhaustive within a hard budget
+and refuses loudly rather than sampling silently, so a result is
+reproducible by construction. Where measured alloys land relative to a
+recovered front is studied honestly in
+[docs/design-recovery.md](docs/design-recovery.md); the front is a
+prioritization aid, not a set of answers.
+
 ## A note on Ω near ΔH<sub>mix</sub> ≈ 0
 
 `Ω = Tm·ΔSmix / |ΔHmix|` diverges as ΔH<sub>mix</sub> → 0, so for

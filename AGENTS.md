@@ -362,6 +362,25 @@ cards: `docs/property-hardness.md`, `docs/property-tier-a.md`. Read the
 interval width before ranking close candidates; the cards state what
 the error supports.
 
+## Design search API
+
+`hea_bench.design.search(elements, n_elements=(3,5), constraints=(),
+objectives=(), step=0.05, n_candidates=50, seed=0,
+max_evaluations=200_000, optimize_bound="point", alpha=0.1)` returns a
+`ParetoResult` (candidates, seed, settings, n_evaluated, n_feasible,
+n_front, `to_json()`). Constraints: `RuleConstraint(rule, satisfied)`,
+`PropertyConstraint(prop, min=, max=, bound="point"|"lower"|"upper")`,
+`CompositionConstraint(element, min=, max=)`,
+`DomainConstraint(in_domain=True|False|None)`; a domain constraint is
+injected ON by default, opt out with `DomainConstraint(in_domain=None)`.
+Objectives: `Maximize(prop)` / `Minimize(prop)` over
+`available_properties()` names. Every candidate carries descriptors,
+all nine rule verdicts, property predictions with intervals, novelty
+components, and the domain flag. The lattice is exhaustive within
+`max_evaluations` and raises rather than sampling silently; truncation
+to `n_candidates` is visible via `n_front`. Treat fronts as screening
+output; see `docs/design-recovery.md`.
+
 ## Coverage limit
 
 The element table covers **55 elements** (alloy surface; the oxides

@@ -25,7 +25,6 @@ from __future__ import annotations
 
 import importlib.util
 from dataclasses import dataclass
-from functools import lru_cache
 
 from ..composition import Composition, normalize
 from .data.element_prices import PRICE_ASOF
@@ -71,21 +70,11 @@ class PropertyPrediction:
     warnings: tuple[str, ...]
 
 
-@lru_cache(maxsize=1)
-def _corpus_domain():
-    """The phase-corpus domain model, or None outside a repo checkout."""
-    from ..corpus import load_corpus
-    from ..uncertainty import fit_domain
-
-    try:
-        return fit_domain(load_corpus())
-    except FileNotFoundError:
-        return None
-
-
 def _tier_a_prediction(prop: str, comp: Composition, value: float, unit: str) -> PropertyPrediction:
+    from ..uncertainty import default_domain
+
     warnings = [_TIER_A_NOTES[prop]]
-    domain = _corpus_domain()
+    domain = default_domain()
     if domain is None:
         novelty = None
         in_domain = None

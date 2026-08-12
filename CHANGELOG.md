@@ -12,6 +12,24 @@ The format is loosely based on
 
 ### Added
 
+- `hea_bench.design`: constrained composition search. `search()` walks
+  a deterministic simplex lattice over a palette (element subsets times
+  fixed-step compositions), filters by rule verdicts, property bounds
+  (point or conservative interval end), per-element composition bounds,
+  and a domain-of-applicability constraint that is ON by default, then
+  returns a Pareto front where every candidate carries its complete
+  receipt: descriptors, all nine rule verdicts, property predictions
+  with intervals, novelty components, and the domain flag.
+  `optimize_bound="lower"` ranks fitted objectives by the conservative
+  interval end, the standard mitigation for optimizers exploiting model
+  error. The lattice is exhaustive within a hard `max_evaluations`
+  budget and refuses loudly rather than sampling silently; results
+  record seed and settings and serialize to JSON. A retrospective
+  recovery study over the Al-Co-Cr-Fe-Ni and Mo-Nb-Ta-V-W palettes
+  (`docs/design-recovery.md`) reports where measured alloys sit
+  relative to recovered fronts, including the misses. Limitation,
+  framed throughout: this is a screening and prioritization aid whose
+  fronts are only as good as the tier B surrogates under them.
 - `hea_bench.properties`: property predictions in explicit tiers.
   Tier A closed forms (stdlib): `density` by rule of mixtures over a
   new cited IUPAC standard-atomic-weight table and the vendored molar
