@@ -10,6 +10,23 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Added
+
+- Descriptor computation is now backend-pluggable. The default
+  (`native`) backend is the package's own stdlib implementation and is
+  unchanged; `pip install "hea-bench[interop]"` adds an adapter over an
+  installed HEACalculator (Sariturk et al., GPLv3) exposing the same
+  interface, `descriptor_matrix(..., backend=...)` accepts either, and
+  a new CLI subcommand `hea-bench describe FORMULA [--backend ...]`
+  prints a strict-JSON descriptor report. Same-named values can differ
+  between backends because each vendors its own reference data (radius
+  conventions differ most); the measured comparison is committed as
+  `docs/backend-agreement.md`, structurally different quantities are
+  deliberately left unmapped, and every published baseline number still
+  comes from the native backend. Limitations: the adapter targets
+  HEACalculator's 2.0 `get_dict` schema, and compositions outside its
+  element database come back as typed None values rather than numbers.
+
 ## [2.4.0] — 2026-08-11
 
 ### Changed

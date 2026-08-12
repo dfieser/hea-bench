@@ -58,6 +58,24 @@ jobs:
       - name: Verify the frozen split digests and corpus statistics
         run: pytest tests/test_benchmark_corpus.py tests/test_benchmark_splits.py -q
 
+  interop:
+    # The HEACalculator backend adapter is exercised against a real
+    # install of the pinned series, so a schema change on their side is
+    # caught here rather than by a user. The core test job below stays
+    # extras-free on purpose: it is the proof the bare package works.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install package with dev and interop extras
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,interop]"
+      - name: Run the backend and CLI suites against the installed HEACalculator
+        run: pytest tests/test_descriptor_backend.py tests/test_cli.py -q
+
   test:
     runs-on: ubuntu-latest
     strategy:

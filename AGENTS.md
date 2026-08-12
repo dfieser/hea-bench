@@ -110,6 +110,21 @@ hb.h_elastic(cantor)         # 0.900   (kJ/mol)
 These values for the Cantor alloy are pinned in the regression
 suite; treat them as the canonical sanity check.
 
+## Descriptor backends (optional)
+
+The descriptor layer is backend-pluggable. `get_backend("native")` is
+the stdlib default documented above. With the `interop` extra
+(`pip install "hea-bench[interop]"`), `get_backend("heacalculator")`
+adapts an installed HEACalculator to the same interface:
+`compute(comp)` returns every union descriptor name with `None` for
+anything the active backend cannot produce, and
+`descriptor_matrix(comps, backend=...)` builds that backend's feature
+matrix. Same-named values legitimately differ between backends
+(different vendored reference data; radius conventions differ most).
+The measured comparison is `docs/backend-agreement.md`; a missing
+install raises `BackendUnavailableError` naming the exact pip command.
+The CLI mirror is `hea-bench describe FORMULA --backend native|heacalculator`.
+
 ## Parsing formula strings
 
 If you have a string rather than a dict, parse it first. The parser

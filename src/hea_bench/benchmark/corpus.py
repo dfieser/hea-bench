@@ -285,13 +285,23 @@ def load_benchmark(
     )
 
 
-def descriptor_names() -> tuple[str, ...]:
-    """Names of the descriptors :func:`descriptor_matrix` returns, in order."""
-    return (
-        "smix", "delta", "vec", "melting_temperature", "mixing_enthalpy",
-        "omega", "s_excess", "delta_g_ss", "delta_g_max", "phi_king",
-        "phi_ye", "delta_chi", "mean_electronegativity", "wang_gamma",
-    )
+def descriptor_names(backend: object = None) -> tuple[str, ...]:
+    """Names of the descriptors :func:`descriptor_matrix` returns, in order.
+
+    ``backend`` selects whose feature space is being described: None or
+    ``"native"`` for this package's own descriptors (the frozen 14-name
+    order every baseline was computed with), ``"heacalculator"`` or a
+    backend instance for that backend's all-float subset.
+    """
+    if backend is None:
+        return (
+            "smix", "delta", "vec", "melting_temperature", "mixing_enthalpy",
+            "omega", "s_excess", "delta_g_ss", "delta_g_max", "phi_king",
+            "phi_ye", "delta_chi", "mean_electronegativity", "wang_gamma",
+        )
+    from ..descriptors.backend import get_backend
+
+    return get_backend(backend).matrix_names()
 
 
 def finite_descriptor_indices(benchmark: Benchmark) -> tuple[int, ...]:
@@ -328,34 +338,67 @@ def finite_descriptor_indices(benchmark: Benchmark) -> tuple[int, ...]:
     )
 
 
-def descriptor_matrix(compositions: Sequence[Composition]) -> list[list[float]]:
-    """Compute the package's own descriptors for each composition.
+def descriptor_matrix(
+    compositions: Sequence[Composition], *, backend: object = None
+) -> list[list[float]]:
+    """Compute a descriptor feature matrix for each composition.
 
-    Provided so a baseline model can be fitted on exactly the quantities
-    this package documents, with no third-party featurizer in the way.
-    ``singh_lambda`` is excluded because it is infinite when delta is
-    zero, and ``h_elastic`` because it is ``None`` for elements missing
-    bulk modulus or volume.
+    With ``backend=None`` (the default) this computes the package's own
+    descriptors, so a baseline model can be fitted on exactly the
+    quantities this package documents, with no third-party featurizer in
+    the way. ``singh_lambda`` is excluded because it is infinite when
+    delta is zero, and ``h_elastic`` because it is ``None`` for elements
+    missing bulk modulus or volume. This default path is frozen: it is
+    the feature space every published baseline number was computed with.
+
+    ``backend`` (a name or a ``DescriptorBackend`` instance) computes
+    that backend's own all-float subset instead; the column names are
+    ``descriptor_names(backend=...)``. Matrices from different backends
+    are different feature spaces built from different reference data,
+    not interchangeable drop-ins; see docs/backend-agreement.md.
 
     Raises
     ------
     ValueError
-        If any composition contains an element the tables do not cover.
-        Filter with ``Benchmark.subset_indices(descriptor_ready_only=True)``
+        If any composition contains an element the active backend's
+        tables do not cover (the message names the composition and the
+        descriptor; nothing is imputed). For the native backend, filter
+        with ``Benchmark.subset_indices(descriptor_ready_only=True)``
         first.
     """
-    from .. import (
-        delta, delta_chi, delta_g_max, delta_g_ss, mean_electronegativity,
-        melting_temperature, mixing_enthalpy, omega, phi_king, phi_ye,
-        s_excess, smix, vec, wang_gamma,
-    )
+    if backend is None:
+        from .. import (
+            delta, delta_chi, delta_g_max, delta_g_ss, mean_electronegativity,
+            melting_temperature, mixing_enthalpy, omega, phi_king, phi_ye,
+            s_excess, smix, vec, wang_gamma,
+        )
 
-    functions = (
-        smix, delta, vec, melting_temperature, mixing_enthalpy, omega,
-        s_excess, delta_g_ss, delta_g_max, phi_king, phi_ye, delta_chi,
-        mean_electronegativity, wang_gamma,
-    )
-    return [[float(function(comp)) for function in functions] for comp in compositions]
+        functions = (
+            smix, delta, vec, melting_temperature, mixing_enthalpy, omega,
+            s_excess, delta_g_ss, delta_g_max, phi_king, phi_ye, delta_chi,
+            mean_electronegativity, wang_gamma,
+        )
+        return [[float(function(comp)) for function in functions] for comp in compositions]
+
+    from ..descriptors.backend import get_backend
+
+    resolved = get_backend(backend)
+    names = resolved.matrix_names()
+    matrix: list[list[float]] = []
+    for comp in compositions:
+        values = resolved.compute(comp)
+        row: list[float] = []
+        for name in names:
+            value = values.get(name)
+            if value is None:
+                raise ValueError(
+                    f"backend {resolved.name!r} cannot compute {name!r} for "
+                    f"composition {comp!r}; drop such rows or use a backend that "
+                    f"covers them"
+                )
+            row.append(float(value))
+        matrix.append(row)
+    return matrix
 
 
 __all__ = [

@@ -103,6 +103,32 @@ These Cantor-alloy values are pinned in the test suite as the canonical
 sanity check. The rules are simple empirical surrogates, fast screens
 rather than predictions, so treat their output accordingly.
 
+### Descriptor backends (optional interop)
+
+Descriptors can also be computed through a pluggable backend. The
+default (`native`) is this package's own stdlib implementation; with
+`pip install "hea-bench[interop]"` the same interface drives an
+installed [HEACalculator](https://github.com/dogusariturk/HEACalculator)
+(GPLv3, installed at the user's choice), so a workflow standardized on
+its numbers can keep them while using everything downstream here:
+
+```python
+from hea_bench.descriptors.backend import get_backend
+get_backend("heacalculator").compute(cantor)   # same names, their reference data
+```
+
+```bash
+hea-bench describe Al0.3CoCrFeNi --backend native
+```
+
+The two backends vendor different reference data (radius conventions
+differ most), so same-named values legitimately differ; the measured,
+per-descriptor comparison lives in
+[docs/backend-agreement.md](docs/backend-agreement.md). Quantities
+whose implementations differ structurally are deliberately not mapped
+onto each other, and the benchmark's published baselines use the
+native backend unchanged.
+
 ## Quick start (oxides)
 
 ```python

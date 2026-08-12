@@ -63,6 +63,16 @@ mcp = [
 benchmark = [
     "scikit-learn~=1.7.2",
 ]
+# Optional descriptor-backend interop with HEACalculator (Sariturk et
+# al., GPLv3). The adapter in hea_bench.descriptors.backend targets the
+# 2.0 get_dict schema, and their bundled reference data can move
+# numbers between majors, so the pin tracks the verified series (see
+# docs/backend-agreement.md for the version the comparison was run
+# with). Installing this extra is the user's choice; hea-bench ships
+# none of HEACalculator's code and remains MIT.
+interop = [
+    "HEACalculator~=2.0",
+]
 
 [project.scripts]
 hea-bench = "hea_bench.cli:main"
