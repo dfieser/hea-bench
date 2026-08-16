@@ -9,14 +9,11 @@ YE_PHI_THRESHOLD = 20.0
 # Packing fractions used by the Mansoori excess-entropy convention.
 PACKING_FRACTION_BCC = 0.68
 PACKING_FRACTION_FCC = 0.74
-PACKING_FRACTION_AMORPHOUS = 0.64
 
-# v2.1 Tier 0-2 criteria thresholds (primary sources in each module).
-SINGH_LAMBDA_SS = 0.96      # Singh 2014: Lambda > 0.96 -> single disordered SS
-SINGH_LAMBDA_IM = 0.24      # Lambda < 0.24 -> compounds dominate
-WANG_GAMMA_THRESHOLD = 1.175  # Wang 2015: gamma < 1.175 -> SS packing feasible
-ANDREOLI_FCC_MAX = 6.05     # kJ/mol; Andreoli 2019 fcc-SS window ceiling
-ANDREOLI_BCC_MAX = 22.0     # kJ/mol; bcc-SS ceiling; above lies the glassy/IM band
+# The lambda/gamma/Andreoli display thresholds (Singh 0.96 / 0.24, Wang
+# 1.175, Andreoli 6.05 / 22.0 kJ/mol) live in the web core
+# (web/hea-calculator-core.js), the only surface that renders those
+# criteria as verdicts; the Python API exposes the descriptors only.
 SENKOV_K2 = 0.6             # Senkov-Miracle 2016: dS_IM = 0.6 * dS_mix assumption
 TSAI_SIGMA_VEC_MIN = 6.88   # Tsai 2013 sigma window (Cr/V-containing alloys)
 TSAI_SIGMA_VEC_MAX = 7.84

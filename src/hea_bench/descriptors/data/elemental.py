@@ -109,6 +109,7 @@ comment. Do not interpolate from neighbouring elements.
 
 from __future__ import annotations
 
+import functools
 from dataclasses import dataclass
 
 
@@ -312,9 +313,10 @@ ELEMENTAL_DATA: dict[str, ElementProperties] = {
 }
 
 
-def covered_elements() -> set[str]:
-    """Return the set of element symbols this table covers."""
-    return set(ELEMENTAL_DATA)
+@functools.lru_cache(maxsize=1)
+def covered_elements() -> frozenset[str]:
+    """Return the set of element symbols this table covers (cached)."""
+    return frozenset(ELEMENTAL_DATA)
 
 
 def missing_elements(composition_elements: set[str]) -> set[str]:

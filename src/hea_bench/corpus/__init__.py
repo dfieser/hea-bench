@@ -386,15 +386,14 @@ def load_corpus(
         json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
     )
 
-    from ..descriptors.data.elemental import covered_elements as _elemental_covered
-    from ..descriptors.data.pair_enthalpies import covered_elements as _pair_covered
+    from ..descriptors.backend import scorable_elements
 
-    scorable = frozenset(_elemental_covered() & _pair_covered())
+    scorable = scorable_elements()
 
     with csv_path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
         columns = tuple(reader.fieldnames or ())
-        records = tuple({key: value for key, value in record.items()} for record in reader)
+        records = tuple(dict(record) for record in reader)
 
     prefix_to_source = {
         prefix: source

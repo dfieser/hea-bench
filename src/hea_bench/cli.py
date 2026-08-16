@@ -12,10 +12,10 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import sys
 
 from . import __version__
+from ._json import json_safe
 
 
 def _describe(formula: str, backend_name: str) -> int:
@@ -40,15 +40,15 @@ def _describe(formula: str, backend_name: str) -> int:
         value = values.get(name)
         # Strict JSON has no Infinity/NaN token, so unbounded values are
         # nulled and flagged instead of breaking downstream parsers.
-        if isinstance(value, float) and not math.isfinite(value):
+        safe = json_safe(value)
+        if safe is None and value is not None:
             warnings.append(f"{name}: value is unbounded for {formula!r}; reported as null")
-            value = None
         elif value is None:
             warnings.append(
                 f"{name}: not computable for {formula!r} "
                 f"(an element lacks the required per-element data)"
             )
-        descriptors[name] = {"value": value, "unit": UNITS.get(name)}
+        descriptors[name] = {"value": safe, "unit": UNITS.get(name)}
 
     print(
         json.dumps(

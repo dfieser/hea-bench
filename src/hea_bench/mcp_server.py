@@ -24,11 +24,12 @@ or register it with an MCP client (Claude Desktop, Cursor, ...)::
 
 from __future__ import annotations
 
-import math
 from itertools import combinations
 
 import hea_bench as hb
 from . import __version__
+from ._json import json_safe
+from .descriptors.backend import UNITS
 from .descriptors.miedema import pair_enthalpy
 from .oxides import (
     describe_fluorite,
@@ -80,26 +81,52 @@ SOURCES = {
     "Rost2015": "Rost et al. (2015). Nat. Commun. 6, 8485. Entropy-stabilized oxides.",
 }
 
+#: MCP descriptor name -> (native descriptor name, citation key). Only
+#: the MCP-facing aliases and citation keys live here; the callable and
+#: unit string are pulled from the descriptor backend registry below, so
+#: the two surfaces cannot drift apart.
+_DESCRIPTOR_TABLE = {
+    "s_mix": ("smix", "Boltzmann"),
+    "delta": ("delta", "Zhang2008"),
+    "vec": ("vec", "Guo2011"),
+    "t_melt_mean": ("melting_temperature", "CRC"),
+    "h_mix": ("mixing_enthalpy", "Takeuchi2005"),
+    "omega": ("omega", "Yang2012"),
+    "delta_chi": ("delta_chi", "Pauling"),
+    "chi_mean": ("mean_electronegativity", "Pauling"),
+    "s_excess": ("s_excess", "Mansoori1971"),
+    "delta_g_ss": ("delta_g_ss", "King2016"),
+    "delta_g_max": ("delta_g_max", "King2016"),
+    "phi_king": ("phi_king", "King2016"),
+    "phi_ye": ("phi_ye", "Ye2015"),
+    "lambda_singh": ("singh_lambda", "Singh2014"),
+    "gamma_wang": ("wang_gamma", "Wang2015"),
+    "h_elastic": ("h_elastic", "Andreoli2019"),
+}
+
 #: descriptor name -> (callable, unit, source key). The callables all take
 #: a normalized composition mapping.
 _DESCRIPTORS = {
-    "s_mix": (hb.smix, "J/(mol K)", "Boltzmann"),
-    "delta": (hb.delta, "%", "Zhang2008"),
-    "vec": (hb.vec, "electrons/atom", "Guo2011"),
-    "t_melt_mean": (hb.melting_temperature, "K", "CRC"),
-    "h_mix": (hb.mixing_enthalpy, "kJ/mol", "Takeuchi2005"),
-    "omega": (hb.omega, "dimensionless", "Yang2012"),
-    "delta_chi": (hb.delta_chi, "Pauling scale", "Pauling"),
-    "chi_mean": (hb.mean_electronegativity, "Pauling scale", "Pauling"),
-    "s_excess": (hb.s_excess, "J/(mol K)", "Mansoori1971"),
-    "delta_g_ss": (hb.delta_g_ss, "kJ/mol", "King2016"),
-    "delta_g_max": (hb.delta_g_max, "kJ/mol", "King2016"),
-    "phi_king": (hb.phi_king, "dimensionless", "King2016"),
-    "phi_ye": (hb.phi_ye, "dimensionless", "Ye2015"),
-    "lambda_singh": (hb.singh_lambda, "J/(mol K %^2)", "Singh2014"),
-    "gamma_wang": (hb.wang_gamma, "dimensionless", "Wang2015"),
-    "h_elastic": (hb.h_elastic, "kJ/mol", "Andreoli2019"),
+    name: (getattr(hb, native), UNITS[native], source)
+    for name, (native, source) in _DESCRIPTOR_TABLE.items()
 }
+
+#: Why a value can be legitimately non-finite, keyed by MCP descriptor
+#: name; used to explain nulled values in warnings. Names absent here
+#: get the King-family reason: their divergence comes from the same
+#: no-competing-intermetallic denominator.
+_DIVERGENCE_REASONS = {
+    "lambda_singh": (
+        "all constituents share the same tabulated radius, so "
+        "delta = 0 and Lambda is unbounded (trivially in the "
+        "single-solid-solution band)"
+    ),
+    "omega": (
+        "the mixing enthalpy is zero, so Omega diverges (near-ideal "
+        "mixing; see omega_sensitivity for how robust that is)"
+    ),
+}
+_DEFAULT_DIVERGENCE = "no competing intermetallic; the verdict is unaffected"
 
 _OXIDE_FAMILIES = {
     "rock_salt": (describe_rock_salt, ["Rost2015", "Shannon1976", "ManchonGordon2025"]),
@@ -115,27 +142,10 @@ def _stamp(payload: dict) -> dict:
     return payload
 
 
-def _finite(value):
-    """Return ``value`` unless it is a non-finite float, then ``None``.
-
-    JSON has no representation for infinity or NaN, and emitting a bare
-    ``Infinity`` token (which ``json.dumps`` does by default) produces
-    output that strict MCP clients reject. The King Phi proxy is the one
-    descriptor that legitimately diverges: when no binary intermetallic
-    competes with the solid solution (every pair enthalpy is
-    non-negative, e.g. HfNbTaTiZr) its denominator is zero and the value
-    is ``+inf``. The verdict is unaffected, so we null the magnitude and
-    flag it rather than break the response.
-    """
-    if isinstance(value, float) and not math.isfinite(value):
-        return None
-    return value
-
-
 def _parse(formula: str) -> dict[str, float]:
-    """Parse and normalize a composition string, with a structured error."""
+    """Parse a composition string (already normalized), with a structured error."""
     try:
-        return dict(hb.normalize(hb.parse_formula(formula)))
+        return dict(hb.parse_formula(formula))
     except Exception as exc:
         raise ValueError(
             f"could not parse composition {formula!r}: {exc}. Use element "
@@ -183,17 +193,10 @@ def alloy_descriptors(compositions: list[str], king_temperature: float | None = 
                 descriptors[name] = {"value": None, "unit": unit, "source": source}
                 warnings.append(f"{name}: not computable for {formula!r} ({exc})")
                 continue
-            safe = _finite(value)
+            safe = json_safe(value)
             descriptors[name] = {"value": safe, "unit": unit, "source": source}
             if safe is None and value is not None:
-                if name == "lambda_singh":
-                    reason = (
-                        "all constituents share the same tabulated radius, so "
-                        "delta = 0 and Lambda is unbounded (trivially in the "
-                        "single-solid-solution band)"
-                    )
-                else:
-                    reason = "no competing intermetallic; the verdict is unaffected"
+                reason = _DIVERGENCE_REASONS.get(name, _DEFAULT_DIVERGENCE)
                 warnings.append(f"{name}: value is unbounded for {formula!r} ({reason})")
             elif value is None:
                 warnings.append(
@@ -214,82 +217,98 @@ def alloy_rules(compositions: list[str], king_temperature: float | None = None) 
     are weak empirical screens calibrated on small historical datasets;
     treat verdicts as hints, never ground truth.
     """
+    def fixed(module, value_func, **predict_kw):
+        """Rule whose verdict comes with a descriptor value and static threshold."""
+        def evaluate(comp):
+            return module.predict(comp, **predict_kw), value_func(comp), {}
+        return evaluate
+
+    def senkov_evaluate(comp):
+        kp = senkov_kappa.predict(comp, temperature=king_temperature)
+        return kp.verdict, kp.k1, {
+            "threshold": json_safe(kp.k1_cr),
+            "temperature_K": kp.temperature_K,
+        }
+
+    def tsai_evaluate(comp):
+        sp = tsai_sigma.predict(comp)
+        return sp.verdict, sp.vec, {}
+
+    def sheikh_evaluate(comp):
+        dp = sheikh_ductility.predict(comp)
+        return dp.verdict, dp.vec, {}
+
+    if king_temperature is not None:
+        king_evaluate = fixed(
+            king_phi,
+            lambda c: hb.phi_king(c, temperature=king_temperature),
+            temperature_policy=king_temperature,
+        )
+    else:
+        king_evaluate = fixed(king_phi, hb.phi_king)
+
+    # (payload name, citation key, static threshold, evaluate, divergence
+    # reason). evaluate(comp) -> (verdict, raw value, payload overrides);
+    # the overrides carry dynamic thresholds and rule-specific extras.
+    # The payload name for the entropy rule is "yeh_entropy"; the library
+    # registry accepts it as an alias of yeh_smix wherever rules are
+    # named (see hea_bench.rules.RULE_ALIASES).
+    rule_specs = (
+        ("yeh_entropy", "Yeh2004", "1.0R / 1.5R class bounds",
+         fixed(yeh_smix, hb.smix), None),
+        ("zhang_delta", "Zhang2008", zhang_delta.DEFAULT_THRESHOLD,
+         fixed(zhang_delta, hb.delta), None),
+        ("guo_vec", "Guo2011", "FCC >= 8.0, BCC < 6.87",
+         fixed(guo_vec, hb.vec), None),
+        ("yang_omega", "Yang2012", yang_omega.DEFAULT_THRESHOLD,
+         fixed(yang_omega, hb.omega), _DIVERGENCE_REASONS["omega"]),
+        ("king_phi", "King2016", king_phi.DEFAULT_THRESHOLD,
+         king_evaluate, None),
+        ("ye_phi", "Ye2015", ye_phi.DEFAULT_THRESHOLD,
+         fixed(ye_phi, hb.phi_ye), None),
+        ("senkov_kappa", "SenkovMiracle2016", None, senkov_evaluate, None),
+        ("tsai_sigma", "Tsai2013", "Cr/V present and 6.88 <= VEC <= 7.84",
+         tsai_evaluate, None),
+        ("sheikh_ductility", "Sheikh2016",
+         "VEC < 4.5 ductile, >= 4.6 brittle (bcc RHEAs)",
+         sheikh_evaluate, None),
+    )
+
     results = []
     for formula in compositions:
         comp = _parse(formula)
         rules: dict[str, dict] = {}
         warnings: list[str] = []
-
-        def apply(name, module, value_func, threshold, source, **kw):
+        for name, source, threshold, evaluate, divergence in rule_specs:
             try:
-                raw = value_func(comp) if value_func else None
-                value = _finite(raw)
+                verdict, raw, overrides = evaluate(comp)
+            except Exception as exc:
                 rules[name] = {
-                    "verdict": module.predict(comp, **kw),
-                    "value": value,
+                    "verdict": None,
+                    "value": None,
                     "threshold": threshold,
                     "source": source,
                 }
-                if value is None and raw is not None:
-                    warnings.append(
-                        f"{name}: value is unbounded for {formula!r} "
-                        f"(no competing intermetallic); the verdict is unaffected"
-                    )
-            except Exception as exc:
-                rules[name] = {"verdict": None, "value": None, "threshold": threshold, "source": source}
                 warnings.append(f"{name}: not computable for {formula!r} ({exc})")
-
-        apply("yeh_entropy", yeh_smix, hb.smix, "1.0R / 1.5R class bounds", "Yeh2004")
-        apply("zhang_delta", zhang_delta, hb.delta, zhang_delta.DEFAULT_THRESHOLD, "Zhang2008")
-        apply("guo_vec", guo_vec, hb.vec, "FCC >= 8.0, BCC < 6.87", "Guo2011")
-        apply("yang_omega", yang_omega, hb.omega, yang_omega.DEFAULT_THRESHOLD, "Yang2012")
-        if king_temperature is not None:
-            apply(
-                "king_phi", king_phi, lambda c: hb.phi_king(c, temperature=king_temperature),
-                king_phi.DEFAULT_THRESHOLD, "King2016", temperature_policy=king_temperature,
-            )
-        else:
-            apply("king_phi", king_phi, hb.phi_king, king_phi.DEFAULT_THRESHOLD, "King2016")
-        apply("ye_phi", ye_phi, hb.phi_ye, ye_phi.DEFAULT_THRESHOLD, "Ye2015")
-
-        try:
-            kp = senkov_kappa.predict(comp, temperature=king_temperature)
-            rules["senkov_kappa"] = {
-                "verdict": kp.verdict,
-                "value": _finite(kp.k1),
-                "threshold": _finite(kp.k1_cr),
-                "temperature_K": kp.temperature_K,
-                "source": "SenkovMiracle2016",
+                continue
+            value = json_safe(raw)
+            entry = {
+                "verdict": verdict,
+                "value": value,
+                "threshold": threshold,
+                "source": source,
             }
-        except Exception as exc:
-            rules["senkov_kappa"] = {"verdict": None, "value": None, "threshold": None, "source": "SenkovMiracle2016"}
-            warnings.append(f"senkov_kappa: not computable for {formula!r} ({exc})")
-
-        try:
-            sp = tsai_sigma.predict(comp)
-            rules["tsai_sigma"] = {
-                "verdict": sp.verdict,
-                "value": sp.vec,
-                "threshold": "Cr/V present and 6.88 <= VEC <= 7.84",
-                "source": "Tsai2013",
-            }
-        except Exception as exc:
-            rules["tsai_sigma"] = {"verdict": None, "value": None, "threshold": None, "source": "Tsai2013"}
-            warnings.append(f"tsai_sigma: not computable for {formula!r} ({exc})")
-
-        try:
-            dp = sheikh_ductility.predict(comp)
-            rules["sheikh_ductility"] = {
-                "verdict": dp.verdict,
-                "value": dp.vec,
-                "threshold": "VEC < 4.5 ductile, >= 4.6 brittle (bcc RHEAs)",
-                "source": "Sheikh2016",
-            }
-        except Exception as exc:
-            rules["sheikh_ductility"] = {"verdict": None, "value": None, "threshold": None, "source": "Sheikh2016"}
-            warnings.append(f"sheikh_ductility: not computable for {formula!r} ({exc})")
-
-        results.append({"input": formula, "composition": comp, "rules": rules, "warnings": warnings})
+            entry.update(overrides)
+            rules[name] = entry
+            if value is None and raw is not None:
+                reason = divergence or "no competing intermetallic"
+                warnings.append(
+                    f"{name}: value is unbounded for {formula!r} "
+                    f"({reason}); the verdict is unaffected"
+                )
+        results.append(
+            {"input": formula, "composition": comp, "rules": rules, "warnings": warnings}
+        )
     return _stamp({"results": results})
 
 
@@ -609,23 +628,7 @@ def predict_properties(
                 prediction = predict_property(comp, name, alpha=alpha, processing=processing)
             except PropertyUnavailableError as exc:
                 raise ValueError(str(exc)) from None
-            entry["properties"][name] = {
-                "value": _finite(prediction.value),
-                "unit": prediction.unit,
-                "interval": (
-                    [_finite(prediction.interval[0]), _finite(prediction.interval[1])]
-                    if prediction.interval is not None
-                    else None
-                ),
-                "alpha": prediction.alpha,
-                "tier": prediction.tier,
-                "in_domain": prediction.in_domain,
-                "novelty": prediction.novelty,
-                "n_training": prediction.n_training,
-                "model_card": prediction.model_card,
-                "asof": prediction.asof,
-                "warnings": list(prediction.warnings),
-            }
+            entry["properties"][name] = prediction.to_dict()
         results.append(entry)
     return _stamp({"results": results})
 
@@ -761,9 +764,7 @@ def design_search(
     except (RuntimeError, ValueError) as exc:
         raise ValueError(str(exc)) from None
 
-    import json as _json
-
-    return _stamp(_json.loads(result.to_json()))
+    return _stamp(result.to_dict())
 
 
 def campaign_suggest(campaign_path: str, n: int = 5, strategy: str = "ei") -> dict:
@@ -804,10 +805,13 @@ def campaign_suggest(campaign_path: str, n: int = 5, strategy: str = "ei") -> di
             "suggestions": [
                 {
                     "composition": dict(s.composition),
-                    "mean": _finite(float(s.mean)),
-                    "interval": [_finite(float(s.interval[0])), _finite(float(s.interval[1]))],
+                    "mean": json_safe(float(s.mean)),
+                    "interval": [
+                        json_safe(float(s.interval[0])),
+                        json_safe(float(s.interval[1])),
+                    ],
                     "in_domain": s.in_domain,
-                    "acquisition": _finite(float(s.acquisition)),
+                    "acquisition": json_safe(float(s.acquisition)),
                 }
                 for s in suggestions
             ],

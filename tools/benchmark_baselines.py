@@ -53,6 +53,25 @@ OUT_JSON = REPO_ROOT / "docs" / "benchmark-baselines.json"
 FOREST_SEED = 0
 
 
+#: Composition (as a sorted item tuple) -> descriptor row. Every fold of
+#: every scheme of every fitted model featurizes the same ~7k corpus
+#: compositions; computing each row once cuts minutes from a run without
+#: touching a single value.
+_MATRIX_CACHE: dict[tuple, list[float]] = {}
+
+
+def _cached_matrix(compositions: Sequence[Composition]) -> list[list[float]]:
+    rows = []
+    for comp in compositions:
+        key = tuple(sorted(comp.items()))
+        row = _MATRIX_CACHE.get(key)
+        if row is None:
+            row = descriptor_matrix([comp])[0]
+            _MATRIX_CACHE[key] = row
+        rows.append(row)
+    return rows
+
+
 class DescriptorModel:
     """Adapter fitting any scikit-learn classifier on this package's descriptors."""
 
@@ -61,11 +80,11 @@ class DescriptorModel:
         self.name = name
 
     def fit(self, compositions: Sequence[Composition], labels: Sequence[str]) -> DescriptorModel:
-        self.estimator.fit(descriptor_matrix(compositions), list(labels))
+        self.estimator.fit(_cached_matrix(compositions), list(labels))
         return self
 
     def predict(self, compositions: Sequence[Composition]) -> list[str]:
-        return list(self.estimator.predict(descriptor_matrix(compositions)))
+        return list(self.estimator.predict(_cached_matrix(compositions)))
 
 
 def _rule_single_vs_multi(rule) -> object:
@@ -154,17 +173,20 @@ def main() -> int:
 
     reports: dict[str, list] = {}
     coverage: dict[str, dict] = {}
+    benches: dict[str, object] = {}
     for task in ("single_vs_multi", "phase4"):
         bench = load_benchmark(task=task)
+        benches[task] = bench
         # One subset for every baseline in the table. Scoring the rules on
         # all covered rows and the fitted models on the finite subset
         # would put the two on different denominators and make the
         # comparison meaningless.
         usable = finite_descriptor_indices(bench)
+        usable_set = set(usable)
         dropped = [
             bench.rows[index].label
             for index in bench.subset_indices(descriptor_ready_only=True)
-            if index not in set(usable)
+            if index not in usable_set
         ]
         coverage[task] = {
             "n_labelled": len(bench),
@@ -182,7 +204,7 @@ def main() -> int:
             task_reports.append(report)
         reports[task] = task_reports
 
-    bench = load_benchmark(task="single_vs_multi")
+    bench = benches["single_vs_multi"]
     described = bench.describe()
 
     lines = [

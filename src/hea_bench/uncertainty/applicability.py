@@ -36,10 +36,10 @@ import json
 import math
 from collections import Counter
 from dataclasses import dataclass
-from functools import lru_cache
+from functools import cached_property, lru_cache
 
 from ..composition import Composition, family_of, normalize
-from ..descriptors.backend import NativeBackend
+from ..descriptors.backend import NativeBackend, matrix_vector, scorable_elements
 
 #: Jaccard distance above which a query family counts as far from every
 #: corpus family. 0.5 means "less than half the union is shared with
@@ -51,11 +51,18 @@ FAMILY_DISTANCE_THRESHOLD = 0.5
 DISTANCE_QUANTILE = 0.99
 
 
-def _covered_elements() -> frozenset[str]:
-    from ..descriptors.data.elemental import covered_elements as elemental
-    from ..descriptors.data.pair_enthalpies import covered_elements as pairs
+@dataclass(frozen=True)
+class DomainRow:
+    """Minimal corpus-row adapter for :func:`fit_domain`.
 
-    return frozenset(elemental() & pairs())
+    Lets any (composition, family) pair population — property training
+    records, campaign observations — be summarized into a DomainModel
+    without inventing a private adapter per caller.
+    """
+
+    composition: Composition
+    family: str
+    descriptor_ready: bool = True
 
 
 @dataclass(frozen=True)
@@ -71,6 +78,12 @@ class DomainModel:
     covered: frozenset[str]
     n_fit_rows: int
     family_distance_threshold: float = FAMILY_DISTANCE_THRESHOLD
+
+    @cached_property
+    def _family_sets(self) -> tuple[frozenset[str], ...]:
+        # Derived once per model: novelty() scans every corpus family per
+        # query, and re-splitting ~1,300 keys per call dominated its cost.
+        return tuple(frozenset(key.split("-")) for key in self.families)
 
     def _descriptor_distance(self, composition: Composition) -> float | None:
         values = NativeBackend().compute(composition)
@@ -91,7 +104,7 @@ class DomainModel:
         nearest = min(
             (
                 1.0 - len(present & other) / len(present | other)
-                for other in (frozenset(key.split("-")) for key in self.families)
+                for other in self._family_sets
             ),
             default=1.0,
         )
@@ -170,10 +183,9 @@ def fit_domain(corpus) -> DomainModel:
     for row in rows:
         if not row.descriptor_ready:
             continue
-        values = backend.compute(row.composition)
-        vector = [values.get(name) for name in names]
-        if all(value is not None and math.isfinite(value) for value in vector):
-            vectors.append([float(value) for value in vector])
+        vector = matrix_vector(row.composition, backend)
+        if vector is not None:
+            vectors.append(vector)
 
     if len(vectors) < 2:
         raise ValueError(
@@ -209,7 +221,7 @@ def fit_domain(corpus) -> DomainModel:
         mean=tuple(mean),
         scale=tuple(scale),
         distance_threshold=threshold,
-        covered=_covered_elements(),
+        covered=scorable_elements(),
         n_fit_rows=count,
     )
 

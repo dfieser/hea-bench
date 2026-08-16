@@ -26,6 +26,7 @@ from __future__ import annotations
 import importlib.util
 from dataclasses import dataclass
 
+from .._json import json_safe
 from ..composition import Composition, normalize
 from .data.element_prices import PRICE_ASOF
 from .hardness import PropertyUnavailableError, predict_hardness
@@ -68,6 +69,31 @@ class PropertyPrediction:
     model_card: str | None
     asof: str | None
     warnings: tuple[str, ...]
+
+    def to_dict(self) -> dict:
+        """Strict-JSON payload of this prediction (non-finite floats null).
+
+        The one serialization every surface derives from: the MCP
+        ``predict_properties`` payload is exactly this dict; design
+        receipts carry a documented subset of its keys.
+        """
+        return {
+            "value": json_safe(self.value),
+            "unit": self.unit,
+            "interval": (
+                [json_safe(self.interval[0]), json_safe(self.interval[1])]
+                if self.interval is not None
+                else None
+            ),
+            "alpha": self.alpha,
+            "tier": self.tier,
+            "in_domain": self.in_domain,
+            "novelty": self.novelty,
+            "n_training": self.n_training,
+            "model_card": self.model_card,
+            "asof": self.asof,
+            "warnings": list(self.warnings),
+        }
 
 
 def _tier_a_prediction(prop: str, comp: Composition, value: float, unit: str) -> PropertyPrediction:

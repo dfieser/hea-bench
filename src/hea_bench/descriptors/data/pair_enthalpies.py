@@ -75,12 +75,18 @@ def pair_enthalpy(elem_a: str, elem_b: str) -> float:
     return table[key]
 
 
-def covered_elements() -> set[str]:
-    """Set of element symbols appearing in the pair-enthalpy table."""
+@functools.lru_cache(maxsize=1)
+def covered_elements() -> frozenset[str]:
+    """Set of element symbols appearing in the pair-enthalpy table.
+
+    Cached (and frozen so the cache stays immutable): every
+    ``mixing_enthalpy`` call checks coverage against this set, which
+    puts it on the hot path of the whole descriptor layer.
+    """
     elems: set[str] = set()
     for key in _load_table():
         elems.update(key)
-    return elems
+    return frozenset(elems)
 
 
 def missing_pairs(composition_elements: set[str]) -> set[frozenset[str]]:

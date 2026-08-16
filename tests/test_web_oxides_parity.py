@@ -11,11 +11,7 @@ from __future__ import annotations
 
 import json
 import math
-import shutil
-import subprocess
 from pathlib import Path
-
-import pytest
 
 from hea_bench import oxides
 
@@ -26,18 +22,6 @@ NODE_SNAPSHOT_SCRIPT = ROOT / "tests" / "web_oxides_snapshot.cjs"
 
 def _load_cases() -> list[dict]:
     return json.loads(CASES_PATH.read_text(encoding="utf-8"))
-
-
-def _node_executable() -> str | None:
-    path = shutil.which("node")
-    if path:
-        return path
-    try:
-        import nodejs  # type: ignore
-    except ImportError:
-        return None
-    candidate = getattr(nodejs, "path", None)
-    return str(candidate) if candidate else None
 
 
 def _python_report(case: dict) -> dict:
@@ -58,20 +42,6 @@ def _python_report(case: dict) -> dict:
     if family == "pyrochlore":
         return oxides.describe_pyrochlore(case["a_site"], case["b_site"], **kwargs)
     raise ValueError(f"unknown family: {family}")
-
-
-def _js_snapshot() -> dict[str, dict]:
-    node = _node_executable()
-    if node is None:
-        pytest.skip("Node.js executable not available for oxide parity snapshot")
-    completed = subprocess.run(
-        [node, str(NODE_SNAPSHOT_SCRIPT)],
-        cwd=ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(completed.stdout)
 
 
 def _assert_matches(expected, actual, label: str) -> None:
@@ -95,8 +65,8 @@ def _assert_matches(expected, actual, label: str) -> None:
         raise AssertionError(f"{label}: unhandled type {type(expected)}")
 
 
-def test_browser_oxides_match_python() -> None:
-    js_snapshot = _js_snapshot()
+def test_browser_oxides_match_python(node_snapshot) -> None:
+    js_snapshot = node_snapshot(NODE_SNAPSHOT_SCRIPT)
     cases = _load_cases()
     assert set(js_snapshot) == {case["name"] for case in cases}
 

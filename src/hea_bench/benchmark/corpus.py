@@ -23,12 +23,11 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 
 from ..composition import Composition
+from ..corpus import DEFAULT_CORPUS_VERSION
 from ..corpus import load_corpus as _load_corpus
 from . import splits as _splits
 from .splits import SplitScheme
 from .taxonomy import binary_observed
-
-DEFAULT_CORPUS_VERSION = "0.1.0"
 
 #: Task name to the function projecting a canonical 4-class label onto it.
 TASKS = {
@@ -255,14 +254,10 @@ def descriptor_names(backend: object = None) -> tuple[str, ...]:
     order every baseline was computed with), ``"heacalculator"`` or a
     backend instance for that backend's all-float subset.
     """
-    if backend is None:
-        return (
-            "smix", "delta", "vec", "melting_temperature", "mixing_enthalpy",
-            "omega", "s_excess", "delta_g_ss", "delta_g_max", "phi_king",
-            "phi_ye", "delta_chi", "mean_electronegativity", "wang_gamma",
-        )
     from ..descriptors.backend import get_backend
 
+    # get_backend(None) is the native backend, whose matrix_names() IS
+    # the frozen 14-name order; one tuple, defined once.
     return get_backend(backend).matrix_names()
 
 
@@ -329,16 +324,13 @@ def descriptor_matrix(
         first.
     """
     if backend is None:
-        from .. import (
-            delta, delta_chi, delta_g_max, delta_g_ss, mean_electronegativity,
-            melting_temperature, mixing_enthalpy, omega, phi_king, phi_ye,
-            s_excess, smix, vec, wang_gamma,
-        )
+        from ..descriptors.backend import _NATIVE, NativeBackend
 
-        functions = (
-            smix, delta, vec, melting_temperature, mixing_enthalpy, omega,
-            s_excess, delta_g_ss, delta_g_max, phi_king, phi_ye, delta_chi,
-            mean_electronegativity, wang_gamma,
+        # The same function objects the backend registry holds, in the
+        # frozen matrix order; exceptions propagate exactly as the
+        # direct calls did.
+        functions = tuple(
+            _NATIVE[name][0] for name in NativeBackend().matrix_names()
         )
         return [[float(function(comp)) for function in functions] for comp in compositions]
 

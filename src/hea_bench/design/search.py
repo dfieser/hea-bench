@@ -26,19 +26,10 @@ from dataclasses import dataclass, field
 from itertools import combinations
 
 from .. import __version__
+from .._json import json_safe
 from ..composition import Composition
-from ..descriptors.backend import NativeBackend
-from ..rules import (
-    guo_vec,
-    king_phi,
-    senkov_kappa,
-    sheikh_ductility,
-    tsai_sigma,
-    yang_omega,
-    ye_phi,
-    yeh_smix,
-    zhang_delta,
-)
+from ..descriptors.backend import NativeBackend, scorable_elements
+from ..rules import VERDICT_FUNCTIONS, canonical_rule_name
 from .constraints import (
     CompositionConstraint,
     DomainConstraint,
@@ -48,17 +39,21 @@ from .constraints import (
     RuleConstraint,
 )
 
-_RULES = {
-    "yeh_smix": lambda comp: yeh_smix.predict(comp),
-    "zhang_delta": lambda comp: zhang_delta.predict(comp),
-    "guo_vec": lambda comp: guo_vec.predict(comp),
-    "yang_omega": lambda comp: yang_omega.predict(comp),
-    "king_phi": lambda comp: king_phi.predict(comp),
-    "ye_phi": lambda comp: ye_phi.predict(comp),
-    "senkov_kappa": lambda comp: senkov_kappa.predict(comp).verdict,
-    "tsai_sigma": lambda comp: tsai_sigma.predict(comp).verdict,
-    "sheikh_ductility": lambda comp: sheikh_ductility.predict(comp).verdict,
-}
+#: The prediction fields a design receipt carries: the compact subset of
+#: ``PropertyPrediction.to_dict()`` (the MCP predict_properties payload
+#: is the full set).
+_RECEIPT_PROPERTY_KEYS = (
+    "value", "unit", "interval", "alpha", "tier", "in_domain",
+    "n_training", "warnings",
+)
+
+
+def _rule_verdict(rule: str, comp: Composition):
+    """One canonical rule's verdict for one composition; None if not computable."""
+    try:
+        return VERDICT_FUNCTIONS[rule](comp)
+    except Exception:
+        return None
 
 
 @dataclass(frozen=True)
@@ -74,35 +69,20 @@ class Candidate:
     objective_values: dict
 
     def to_dict(self) -> dict:
-        def clean(value):
-            if isinstance(value, float) and not math.isfinite(value):
-                return None
-            return value
-
         properties = {}
         for name, prediction in self.properties.items():
-            properties[name] = {
-                "value": clean(prediction.value),
-                "unit": prediction.unit,
-                "interval": (
-                    [clean(prediction.interval[0]), clean(prediction.interval[1])]
-                    if prediction.interval is not None
-                    else None
-                ),
-                "alpha": prediction.alpha,
-                "tier": prediction.tier,
-                "in_domain": prediction.in_domain,
-                "n_training": prediction.n_training,
-                "warnings": list(prediction.warnings),
-            }
+            full = prediction.to_dict()
+            properties[name] = {key: full[key] for key in _RECEIPT_PROPERTY_KEYS}
         return {
             "composition": dict(self.composition),
-            "descriptors": {name: clean(v) for name, v in self.descriptors.items()},
+            "descriptors": {name: json_safe(v) for name, v in self.descriptors.items()},
             "rules": dict(self.rules),
             "properties": properties,
             "novelty": self.novelty,
             "in_domain": self.in_domain,
-            "objective_values": {name: clean(v) for name, v in self.objective_values.items()},
+            "objective_values": {
+                name: json_safe(v) for name, v in self.objective_values.items()
+            },
         }
 
 
@@ -117,18 +97,18 @@ class ParetoResult:
     n_feasible: int
     n_front: int
 
+    def to_dict(self) -> dict:
+        return {
+            "seed": self.seed,
+            "settings": self.settings,
+            "n_evaluated": self.n_evaluated,
+            "n_feasible": self.n_feasible,
+            "n_front": self.n_front,
+            "candidates": [candidate.to_dict() for candidate in self.candidates],
+        }
+
     def to_json(self) -> str:
-        return json.dumps(
-            {
-                "seed": self.seed,
-                "settings": self.settings,
-                "n_evaluated": self.n_evaluated,
-                "n_feasible": self.n_feasible,
-                "n_front": self.n_front,
-                "candidates": [candidate.to_dict() for candidate in self.candidates],
-            },
-            indent=2,
-        )
+        return json.dumps(self.to_dict(), indent=2)
 
 
 def _lattice(units: int, k: int):
@@ -139,6 +119,40 @@ def _lattice(units: int, k: int):
     for first in range(1, units - k + 2):
         for rest in _lattice(units - first, k - 1):
             yield (first, *rest)
+
+
+def _validate_step(step: float) -> int:
+    """Turn a lattice step into integer units, or raise the shared error."""
+    units = round(1.0 / step)
+    if abs(units * step - 1.0) > 1e-9 or units < 2:
+        raise ValueError(
+            f"step must divide 1 exactly (got {step!r}); try 0.05, 0.1, 0.2, 0.25"
+        )
+    return units
+
+
+def _within_bounds(comp: Composition, bounds: dict) -> bool:
+    """Every present or bounded element inside its [min, max] window."""
+    return all(
+        bounds.get(el, (0.0, 1.0))[0] - 1e-9
+        <= comp.get(el, 0.0)
+        <= bounds.get(el, (0.0, 1.0))[1] + 1e-9
+        for el in set(comp) | set(bounds)
+    )
+
+
+def _lattice_compositions(palette, low: int, high: int, units: int):
+    """Every composition on the step lattice, by subset size then order.
+
+    The deterministic enumeration both the search and the campaign pool
+    walk: element subsets of ``palette`` of size ``low``..``high``
+    (clamped to the palette size), each filled with the positive integer
+    lattice points summing to ``units``.
+    """
+    for k in range(low, min(high, len(palette)) + 1):
+        for subset in combinations(palette, k):
+            for point in _lattice(units, k):
+                yield {el: n / units for el, n in zip(subset, point)}
 
 
 def search(
@@ -209,10 +223,7 @@ def search(
     if len(palette) < 2:
         raise ValueError("palette needs at least two elements")
     backend = NativeBackend()
-    from ..descriptors.data.elemental import covered_elements as _elemental
-    from ..descriptors.data.pair_enthalpies import covered_elements as _pairs
-
-    covered = _elemental() & _pairs()
+    covered = scorable_elements()
     missing = [element for element in palette if element not in covered]
     if missing:
         raise ValueError(
@@ -220,9 +231,7 @@ def search(
             f"{', '.join(missing)}"
         )
 
-    units = round(1.0 / step)
-    if abs(units * step - 1.0) > 1e-9 or units < 2:
-        raise ValueError(f"step must divide 1 exactly (got {step!r}); try 0.05, 0.1, 0.2, 0.25")
+    units = _validate_step(step)
 
     low, high = n_elements
     if not 1 <= low <= high <= len(palette):
@@ -256,9 +265,9 @@ def search(
 
     rule_constraints = [c for c in constraints if isinstance(c, RuleConstraint)]
     for constraint in rule_constraints:
-        if constraint.rule not in _RULES:
+        if canonical_rule_name(constraint.rule) not in VERDICT_FUNCTIONS:
             raise ValueError(
-                f"unknown rule {constraint.rule!r}; available: {sorted(_RULES)}"
+                f"unknown rule {constraint.rule!r}; available: {sorted(VERDICT_FUNCTIONS)}"
             )
     property_constraints = [c for c in constraints if isinstance(c, PropertyConstraint)]
     for constraint in property_constraints:
@@ -290,82 +299,86 @@ def search(
             "card) or opt out explicitly with DomainConstraint(in_domain=None)."
         )
 
+    # Filters run cheapest-first (bounds, then only the constrained
+    # rules, then the domain flag, then fitted properties); the full
+    # receipt, every rule verdict plus all descriptors, is computed only
+    # for candidates that survive them all. The surviving set is
+    # identical to filtering in any other order.
+    constrained_rules = tuple(
+        dict.fromkeys(canonical_rule_name(c.rule) for c in rule_constraints)
+    )
     n_evaluated = 0
     feasible: list[Candidate] = []
-    for k in range(low, high + 1):
-        for subset in combinations(palette, k):
-            for point in _lattice(units, k):
-                n_evaluated += 1
-                comp = {el: n / units for el, n in zip(subset, point)}
-                if any(
-                    not bounds.get(el, (0.0, 1.0))[0] - 1e-9
-                    <= comp.get(el, 0.0)
-                    <= bounds.get(el, (0.0, 1.0))[1] + 1e-9
-                    for el in set(comp) | set(bounds)
-                ):
-                    continue
+    for comp in _lattice_compositions(palette, low, high, units):
+        n_evaluated += 1
+        if not _within_bounds(comp, bounds):
+            continue
 
-                verdicts = {}
-                for name, rule in _RULES.items():
-                    try:
-                        verdicts[name] = rule(comp)
-                    except Exception:
-                        verdicts[name] = None
-                if not all(c.matches(verdicts[c.rule]) for c in rule_constraints):
-                    continue
+        verdicts = {name: _rule_verdict(name, comp) for name in constrained_rules}
+        if not all(
+            c.matches(verdicts[canonical_rule_name(c.rule)]) for c in rule_constraints
+        ):
+            continue
 
-                predictions = {}
-                unavailable = False
-                for name in needed_properties:
-                    try:
-                        predictions[name] = predict_property(comp, name, alpha=alpha)
-                    except PropertyUnavailableError:
-                        unavailable = True
-                        break
-                if unavailable:
-                    continue
+        novelty = domain.novelty(comp) if domain is not None else None
+        in_domain = novelty["in_domain"] if novelty is not None else None
+        if domain_required is not None and in_domain != domain_required:
+            continue
 
-                ok = True
-                for constraint in property_constraints:
-                    prediction = predictions[constraint.prop]
-                    if prediction.interval is not None and constraint.bound == "lower":
-                        compared = prediction.interval[0]
-                    elif prediction.interval is not None and constraint.bound == "upper":
-                        compared = prediction.interval[1]
-                    else:
-                        compared = prediction.value
-                    if constraint.min is not None and compared < constraint.min - 1e-9:
-                        ok = False
-                    if constraint.max is not None and compared > constraint.max + 1e-9:
-                        ok = False
-                if not ok:
-                    continue
+        predictions = {}
+        unavailable = False
+        for name in needed_properties:
+            try:
+                predictions[name] = predict_property(comp, name, alpha=alpha)
+            except PropertyUnavailableError:
+                unavailable = True
+                break
+        if unavailable:
+            continue
 
-                novelty = domain.novelty(comp) if domain is not None else None
-                in_domain = novelty["in_domain"] if novelty is not None else None
-                if domain_required is not None and in_domain != domain_required:
-                    continue
+        ok = True
+        for constraint in property_constraints:
+            prediction = predictions[constraint.prop]
+            if prediction.interval is not None and constraint.bound == "lower":
+                compared = prediction.interval[0]
+            elif prediction.interval is not None and constraint.bound == "upper":
+                compared = prediction.interval[1]
+            else:
+                compared = prediction.value
+            if constraint.min is not None and compared < constraint.min - 1e-9:
+                ok = False
+            if constraint.max is not None and compared > constraint.max + 1e-9:
+                ok = False
+        if not ok:
+            continue
 
-                objective_values = {}
-                for name, maximize in objective_specs:
-                    prediction = predictions[name]
-                    if prediction.interval is not None and optimize_bound == "lower":
-                        value = prediction.interval[0] if maximize else prediction.interval[1]
-                    else:
-                        value = prediction.value
-                    objective_values[name] = value
+        objective_values = {}
+        for name, maximize in objective_specs:
+            prediction = predictions[name]
+            if prediction.interval is not None and optimize_bound == "lower":
+                value = prediction.interval[0] if maximize else prediction.interval[1]
+            else:
+                value = prediction.value
+            objective_values[name] = value
 
-                feasible.append(
-                    Candidate(
-                        composition=comp,
-                        descriptors=backend.compute(comp),
-                        rules=verdicts,
-                        properties=predictions,
-                        novelty=novelty,
-                        in_domain=in_domain,
-                        objective_values=objective_values,
+        feasible.append(
+            Candidate(
+                composition=comp,
+                descriptors=backend.compute(comp),
+                rules={
+                    name: (
+                        verdicts[name]
+                        if name in verdicts
+                        else _rule_verdict(name, comp)
                     )
-                )
+                    for name in VERDICT_FUNCTIONS
+                },
+                properties=predictions,
+                novelty=novelty,
+                in_domain=in_domain,
+                objective_values=objective_values,
+            )
+        )
 
     def minimized(candidate: Candidate) -> tuple:
         out = []
@@ -375,15 +388,25 @@ def search(
         return tuple(out)
 
     if objective_specs:
-        vectors = [minimized(candidate) for candidate in feasible]
-        front = [
-            candidate
-            for candidate, vector in zip(feasible, vectors)
-            if not any(
+        # Simple cull against the running front instead of all pairs.
+        # Equal vectors never dominate each other, so exact ties are all
+        # kept; the surviving set is the same non-dominated set the
+        # all-pairs comparison produced.
+        front_pairs: list[tuple[Candidate, tuple]] = []
+        for candidate in feasible:
+            vector = minimized(candidate)
+            if any(
                 all(o <= v for o, v in zip(other, vector)) and other != vector
-                for other in vectors
-            )
-        ]
+                for _c, other in front_pairs
+            ):
+                continue
+            front_pairs = [
+                (c, other)
+                for c, other in front_pairs
+                if not (all(v <= o for v, o in zip(vector, other)) and vector != other)
+            ]
+            front_pairs.append((candidate, vector))
+        front = [candidate for candidate, _vector in front_pairs]
     else:
         front = list(feasible)
 

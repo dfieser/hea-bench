@@ -18,12 +18,12 @@ wheel; the ``properties`` extra pins the series instead.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
 from functools import lru_cache
 
 from ..composition import Composition, family_of, normalize
-from ..descriptors.backend import NativeBackend
+from ..descriptors.backend import matrix_vector
 from ..uncertainty import ConformalRegressor, fit_domain
+from ..uncertainty.applicability import DomainRow
 from ..uncertainty.splitting import grouped_calibration_split
 from .borg import hardness_records
 
@@ -43,15 +43,6 @@ class PropertyUnavailableError(RuntimeError):
     """
 
 
-@dataclass(frozen=True)
-class _DomainRow:
-    """Adapter giving fit_domain what it needs from a property record."""
-
-    composition: Composition
-    family: str
-    descriptor_ready: bool = True
-
-
 def _require_random_forest():
     try:
         from sklearn.ensemble import RandomForestRegressor
@@ -61,15 +52,6 @@ def _require_random_forest():
             'installed. Install it with: pip install "hea-bench[properties]"'
         ) from exc
     return RandomForestRegressor
-
-
-def _feature_vector(composition: Composition) -> list[float] | None:
-    backend = NativeBackend()
-    values = backend.compute(composition)
-    vector = [values.get(name) for name in backend.matrix_names()]
-    if all(value is not None and math.isfinite(value) for value in vector):
-        return [float(value) for value in vector]
-    return None
 
 
 @lru_cache(maxsize=8)
@@ -85,7 +67,7 @@ def _fitted(processing: str | None):
     usable = []
     features = []
     for record in records:
-        vector = _feature_vector(record.composition)
+        vector = matrix_vector(record.composition)
         if vector is not None:
             usable.append(record)
             features.append(vector)
@@ -108,7 +90,7 @@ def _fitted(processing: str | None):
         [features[i] for i in calibration], [usable[i].value for i in calibration]
     )
     domain = fit_domain(
-        [_DomainRow(record.composition, family) for record, family in zip(usable, families)]
+        [DomainRow(record.composition, family) for record, family in zip(usable, families)]
     )
     return model, conformal, domain, len(usable)
 
@@ -120,7 +102,7 @@ def predict_hardness(
     comp = normalize(composition)
     model, conformal, domain, n_training = _fitted(processing)
 
-    vector = _feature_vector(comp)
+    vector = matrix_vector(comp)
     if vector is None:
         raise PropertyUnavailableError(
             f"hardness needs all 14 descriptor features and at least one is "
@@ -129,7 +111,15 @@ def predict_hardness(
         )
 
     value = float(model.predict([vector])[0])
-    interval = conformal.predict_interval([vector], alpha=alpha)[0]
+    # The interval is the calibrated threshold around the prediction just
+    # made; rebuilding it via predict_interval would run the forest a
+    # second time on the same row for the same numbers.
+    threshold = conformal._threshold(alpha)
+    interval = (
+        (-math.inf, math.inf)
+        if threshold is None
+        else (value - threshold, value + threshold)
+    )
     novelty = domain.novelty(comp)
 
     warnings: list[str] = []
@@ -139,7 +129,7 @@ def predict_hardness(
             "powder and more); pass processing='CAST' style filters to "
             "condition, at the cost of training rows"
         )
-    if conformal.degenerate(alpha):
+    if threshold is None:
         warnings.append(
             f"calibration size cannot support alpha={alpha}; the interval is "
             f"unbounded at this level"

@@ -27,20 +27,23 @@ import statistics
 from dataclasses import dataclass
 from functools import lru_cache
 
+from ..benchmark.loaders.borg2020 import (
+    _COL_DOI,
+    _COL_FORMULA,
+    _COL_PROCESSING,
+    _COL_REF_ID,
+)
 from ..composition import Composition, parse_formula
 
 _REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 _DEFAULT_CSV = _REPO_ROOT / "data" / "raw" / "borg2020" / "MPEA_dataset.csv"
 
-# Borg's upstream headers, verbatim (including the raw LaTeX), matching
-# the phase loader's convention.
-_COL_REF_ID = "IDENTIFIER: Reference ID"
-_COL_FORMULA = "FORMULA"
-_COL_PROCESSING = "PROPERTY: Processing method"
+# Property-tier columns this module adds to the phase loader's shared
+# Borg header constants imported above (verbatim upstream headers,
+# including the raw LaTeX).
 _COL_HV = "PROPERTY: HV"
 _COL_TEST_TEMPERATURE = "PROPERTY: Test temperature ($^\\circ$C)"
 _COL_EXP_DENSITY = "PROPERTY: Exp. Density (g/cm$^3$)"
-_COL_DOI = "REFERENCE: doi"
 _COL_YEAR = "REFERENCE: year"
 
 _ROOM_TEMPERATURE_MAX_C = 35.0

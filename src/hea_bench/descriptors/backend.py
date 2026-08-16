@@ -30,6 +30,7 @@ ImportError at package import time.
 
 from __future__ import annotations
 
+import math
 from functools import lru_cache
 from typing import Protocol, runtime_checkable
 
@@ -171,6 +172,42 @@ class NativeBackend:
 
 
 @lru_cache(maxsize=1)
+def scorable_elements() -> frozenset[str]:
+    """Elements covered by BOTH the elemental and pair-enthalpy tables.
+
+    This intersection is the single definition of descriptor-scorable
+    chemistry: it decides the corpus ``descriptor_ready`` flag, the
+    design-search palette check, and the applicability domain model's
+    element coverage. Cached, since the tables are frozen per process.
+    """
+    from .data.elemental import covered_elements as _elemental
+    from .data.pair_enthalpies import covered_elements as _pairs
+
+    return frozenset(_elemental() & _pairs())
+
+
+def matrix_vector(
+    composition: Composition, backend: "DescriptorBackend | None" = None
+) -> list[float] | None:
+    """One all-float feature row over the backend's matrix descriptors.
+
+    Computes the active backend's ``matrix_names()`` subset for
+    ``composition`` and returns it as a list of floats, or ``None`` when
+    any entry is missing or non-finite. This is the benchmark's finite
+    filter, the single definition of "descriptor-scorable row" shared by
+    the hardness surrogate, campaign training, and the applicability
+    domain model; those feature spaces are only meaningful because they
+    all come from here.
+    """
+    resolved = backend if backend is not None else NativeBackend()
+    values = resolved.compute(composition)
+    vector = [values.get(name) for name in resolved.matrix_names()]
+    if all(value is not None and math.isfinite(value) for value in vector):
+        return [float(value) for value in vector]
+    return None
+
+
+@lru_cache(maxsize=1)
 def _heacalculator_api():
     """Import HEACalculator lazily, translating absence to the typed error."""
     try:
@@ -302,4 +339,6 @@ __all__ = [
     "HEACalculatorBackend",
     "NativeBackend",
     "get_backend",
+    "matrix_vector",
+    "scorable_elements",
 ]

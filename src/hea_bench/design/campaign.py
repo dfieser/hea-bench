@@ -42,15 +42,22 @@ from dataclasses import dataclass
 
 from .. import __version__
 from ..composition import Composition, family_of, normalize
-from ..descriptors.backend import NativeBackend
+from ..descriptors.backend import NativeBackend, matrix_vector
+from ..rules import canonical_rule_name
 from ..uncertainty import fit_domain
+from ..uncertainty.applicability import DomainRow
 from .constraints import (
     CompositionConstraint,
     DomainConstraint,
     PropertyConstraint,
     RuleConstraint,
 )
-from .search import _RULES, _lattice
+from .search import (
+    _lattice_compositions,
+    _rule_verdict,
+    _validate_step,
+    _within_bounds,
+)
 
 #: Below this many informative rows suggest() refuses.
 COLD_START_FLOOR = 10
@@ -131,6 +138,9 @@ class Campaign:
         self.n_elements = tuple(n_elements)
         self.warm_start = warm_start
         self.observations: list[dict] = []
+        # (observation count, training triple) memo: observations are
+        # append-only through observe(), so the count keys the cache.
+        self._training_cache: tuple[int, tuple] | None = None
 
     # -- state ---------------------------------------------------------------
 
@@ -206,18 +216,20 @@ class Campaign:
         ]
 
     def _training(self):
+        key = len(self.observations)
+        if self._training_cache is not None and self._training_cache[0] == key:
+            return self._training_cache[1]
         backend = NativeBackend()
-        names = backend.matrix_names()
         rows: list[tuple[Composition, float]] = self._warm_rows()
         rows += [(obs["composition"], obs["value"]) for obs in self.observations]
         X, y, comps = [], [], []
         for comp, value in rows:
-            values = backend.compute(comp)
-            vector = [values.get(name) for name in names]
-            if all(v is not None and math.isfinite(v) for v in vector):
-                X.append([float(v) for v in vector])
+            vector = matrix_vector(comp, backend)
+            if vector is not None:
+                X.append(vector)
                 y.append(value)
                 comps.append(comp)
+        self._training_cache = (key, (X, y, comps))
         return X, y, comps
 
     def n_informative(self) -> int:
@@ -225,11 +237,7 @@ class Campaign:
         return len(self._training()[0])
 
     def _pool(self) -> list[Composition]:
-        from itertools import combinations
-
-        units = round(1.0 / self.step)
-        if abs(units * self.step - 1.0) > 1e-9:
-            raise ValueError(f"step must divide 1 exactly, got {self.step!r}")
+        units = _validate_step(self.step)
         bounds = {
             c.element: (c.min, c.max)
             for c in self.constraints
@@ -255,34 +263,23 @@ class Campaign:
         }
         pool: list[Composition] = []
         low, high = self.n_elements
-        for k in range(low, min(high, len(self.palette)) + 1):
-            for subset in combinations(self.palette, k):
-                for point in _lattice(units, k):
-                    comp = {el: n / units for el, n in zip(subset, point)}
-                    if any(
-                        not bounds.get(el, (0.0, 1.0))[0] - 1e-9
-                        <= comp.get(el, 0.0)
-                        <= bounds.get(el, (0.0, 1.0))[1] + 1e-9
-                        for el in set(comp) | set(bounds)
-                    ):
-                        continue
-                    if tuple(sorted(comp.items())) in observed:
-                        continue
-                    keep = True
-                    for constraint in rule_constraints:
-                        try:
-                            verdict = _RULES[constraint.rule](comp)
-                        except Exception:
-                            verdict = None
-                        if not constraint.matches(verdict):
-                            keep = False
-                            break
-                    if not keep:
-                        continue
-                    if domain is not None and domain_required is not None:
-                        if domain.novelty(comp)["in_domain"] != domain_required:
-                            continue
-                    pool.append(comp)
+        for comp in _lattice_compositions(self.palette, low, high, units):
+            if not _within_bounds(comp, bounds):
+                continue
+            if tuple(sorted(comp.items())) in observed:
+                continue
+            keep = True
+            for constraint in rule_constraints:
+                verdict = _rule_verdict(canonical_rule_name(constraint.rule), comp)
+                if not constraint.matches(verdict):
+                    keep = False
+                    break
+            if not keep:
+                continue
+            if domain is not None and domain_required is not None:
+                if domain.novelty(comp)["in_domain"] != domain_required:
+                    continue
+            pool.append(comp)
         return pool
 
     def suggest(self, n: int = 5, strategy: str = "ei") -> list[Suggestion]:
@@ -323,27 +320,28 @@ class Campaign:
         if not pool:
             raise ValueError("no unexplored lattice compositions satisfy the constraints")
         backend = NativeBackend()
-        names = backend.matrix_names()
         pool_vectors = []
         pool_comps = []
         for comp in pool:
-            values = backend.compute(comp)
-            vector = [values.get(name) for name in names]
-            if all(v is not None and math.isfinite(v) for v in vector):
-                pool_vectors.append([float(v) for v in vector])
+            vector = matrix_vector(comp, backend)
+            if vector is not None:
+                pool_vectors.append(vector)
                 pool_comps.append(comp)
 
         sign = 1.0 if self.direction == "maximize" else -1.0
-        campaign_domain = None
         try:
             campaign_domain = fit_domain(
-                [
-                    _CampaignRow(comp, family_of(comp))
-                    for comp in _comps
-                ]
+                [DomainRow(comp, family_of(comp)) for comp in _comps]
             )
         except ValueError:
             campaign_domain = None
+
+        # One ndarray for the whole pool: handing the same list-of-lists
+        # to all 300 trees would re-validate and re-convert it per tree,
+        # per pick. Values are unchanged (numpy ships with sklearn).
+        import numpy
+
+        pool_matrix = numpy.asarray(pool_vectors)
 
         X_now = [list(row) for row in X]
         y_now = list(y)
@@ -352,7 +350,7 @@ class Campaign:
         for _pick in range(min(n, len(pool_comps))):
             model = RandomForestRegressor(n_estimators=300, random_state=self.seed)
             model.fit(X_now, y_now)
-            per_tree = [tree.predict(pool_vectors) for tree in model.estimators_]
+            per_tree = [tree.predict(pool_matrix) for tree in model.estimators_]
             best = max(sign * value for value in y_now)
 
             scored: list[tuple[float, int, float, tuple[float, float]]] = []
@@ -402,13 +400,6 @@ class Campaign:
             y_now.append(sign * mean)
 
         return chosen
-
-
-@dataclass(frozen=True)
-class _CampaignRow:
-    composition: Composition
-    family: str
-    descriptor_ready: bool = True
 
 
 def _expected_improvement(mean: float, sigma: float, best: float) -> float:

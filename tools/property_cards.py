@@ -22,13 +22,14 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "src"))
 
 from hea_bench import __version__ as _hea_bench_version  # noqa: E402
+from hea_bench.benchmark.metrics import standard_error  # noqa: E402
 from hea_bench.benchmark.splits import grouped_split  # noqa: E402
 from hea_bench.composition import family_of  # noqa: E402
+from hea_bench.descriptors.backend import matrix_vector  # noqa: E402
 from hea_bench.properties.borg import (  # noqa: E402
     experimental_density_records,
     hardness_records,
 )
-from hea_bench.properties.hardness import _feature_vector  # noqa: E402
 from hea_bench.properties.tier_a import density  # noqa: E402
 from hea_bench.uncertainty import ConformalRegressor  # noqa: E402
 from hea_bench.uncertainty.splitting import grouped_calibration_split  # noqa: E402
@@ -45,7 +46,7 @@ def _hardness_study() -> dict:
     records = hardness_records()
     usable, features = [], []
     for record in records:
-        vector = _feature_vector(record.composition)
+        vector = matrix_vector(record.composition)
         if vector is not None:
             usable.append(record)
             features.append(vector)
@@ -68,7 +69,16 @@ def _hardness_study() -> dict:
             [features[i] for i in calibration_ids], [values[i] for i in calibration_ids]
         )
         predictions = model.predict([features[i] for i in fold.test])
-        intervals = conformal.predict_interval([features[i] for i in fold.test], alpha=ALPHA)
+        # The interval is the calibrated threshold around each prediction
+        # already in hand; predict_interval would run the forest again on
+        # the same rows for the same numbers.
+        threshold = conformal._threshold(ALPHA)
+        intervals = [
+            (-math.inf, math.inf)
+            if threshold is None
+            else (float(p) - threshold, float(p) + threshold)
+            for p in predictions
+        ]
         errors = [abs(float(p) - values[i]) for p, i in zip(predictions, fold.test)]
         errors_all.extend(errors)
         fold_mae.append(sum(errors) / len(errors))
@@ -98,7 +108,7 @@ def _hardness_study() -> dict:
         "hv_max": max(values),
         "processing_mix": dict(sorted(processing_mix.items(), key=lambda kv: -kv[1])),
         "mae_mean": statistics.mean(fold_mae),
-        "mae_se": statistics.stdev(fold_mae) / math.sqrt(len(fold_mae)),
+        "mae_se": standard_error(fold_mae),
         "median_abs_error": statistics.median(errors_all),
         "coverage_mean": statistics.mean(fold_cover),
         "width_mean": statistics.mean(fold_width),
@@ -174,8 +184,8 @@ def main() -> int:
         f"protocol), with a family-grouped 20 percent calibration split "
         f"inside each training fold for the conformal interval.",
         "",
-        f"| quantity | value |",
-        f"|---|---:|",
+        "| quantity | value |",
+        "|---|---:|",
         f"| grouped CV mean absolute error | {hardness['mae_mean']:.0f} HV "
         f"(fold-to-fold standard error {hardness['mae_se']:.0f}) |",
         f"| grouped CV median absolute error | {hardness['median_abs_error']:.0f} HV |",

@@ -49,6 +49,7 @@ import math
 
 from ..composition import Composition, normalize
 from ..descriptors.data.elemental import ELEMENTAL_DATA as _ELEMENTS
+from ..oxides.descriptors import R_GAS
 
 SOURCES = {
     "Oses2020": (
@@ -130,13 +131,15 @@ _NOTES = (
 
 
 def _entropy(metals: Composition, atoms_per_formula_unit: int) -> dict:
+    # The single-sublattice case of oxides.descriptors.sublattice_entropy,
+    # kept inline (in R units) so the R-unit field is exact; the gas
+    # constant is shared with the oxide surface rather than re-declared.
     per_cation_r = -sum(x * math.log(x) for x in metals.values() if x > 0)
-    gas_constant = 8.314462618
     return {
         "per_mole_cation_r_units": per_cation_r,
-        "per_mole_cation_j_mol_k": gas_constant * per_cation_r,
-        "per_formula_unit_j_mol_k": gas_constant * per_cation_r,
-        "per_mole_atoms_j_mol_k": gas_constant * per_cation_r / atoms_per_formula_unit,
+        "per_mole_cation_j_mol_k": R_GAS * per_cation_r,
+        "per_formula_unit_j_mol_k": R_GAS * per_cation_r,
+        "per_mole_atoms_j_mol_k": R_GAS * per_cation_r / atoms_per_formula_unit,
         "note": (
             "metal-sublattice ideal mixing; anion sublattice ordered "
             "(Oses2020). All normalization conventions reported because "

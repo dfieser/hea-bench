@@ -50,7 +50,42 @@ def _quantile_rank(n: int, alpha: float) -> int:
     return math.ceil((n + 1) * (1.0 - alpha))
 
 
-class ConformalClassifier:
+class _SplitConformal:
+    """Calibration-quantile machinery shared by both wrappers.
+
+    Subclasses store their sorted nonconformity scores in ``_scores``;
+    everything about turning those scores into a finite-sample threshold
+    lives here, once, because this is the trust layer and divergence
+    between the two wrappers would be worst.
+    """
+
+    _scores: list[float] | None
+
+    @staticmethod
+    def _check_calibration(X_cal: Sequence, y_cal: Sequence) -> None:
+        if len(X_cal) == 0 or len(X_cal) != len(y_cal):
+            raise ValueError("calibration data must be non-empty and aligned in length")
+
+    def _threshold(self, alpha: float) -> float | None:
+        _check_alpha(alpha)
+        if self._scores is None:
+            raise ValueError("call fit_calibrate before predicting")
+        rank = _quantile_rank(len(self._scores), alpha)
+        if rank > len(self._scores):
+            return None
+        return self._scores[rank - 1]
+
+    def degenerate(self, alpha: float = 0.1) -> bool:
+        """True when this alpha is unreachable with the calibration size.
+
+        In that regime the prediction is maximal for every query (the
+        full class set, or an unbounded interval), which satisfies the
+        guarantee vacuously.
+        """
+        return self._threshold(alpha) is None
+
+
+class ConformalClassifier(_SplitConformal):
     """Wrap a fitted probabilistic classifier with conformal sets.
 
     Parameters
@@ -79,8 +114,7 @@ class ConformalClassifier:
         Calibration rows must be disjoint from the rows the model was
         fitted on, or the guarantee is void.
         """
-        if len(X_cal) == 0 or len(X_cal) != len(y_cal):
-            raise ValueError("calibration data must be non-empty and aligned in length")
+        self._check_calibration(X_cal, y_cal)
         index_of = {label: index for index, label in enumerate(self._classes)}
         scores: list[float] = []
         for row, label in zip(self._model.predict_proba(list(X_cal)), y_cal):
@@ -93,23 +127,6 @@ class ConformalClassifier:
             scores.append(1.0 - float(row[index_of[key]]))
         self._scores = sorted(scores)
         return self
-
-    def _threshold(self, alpha: float) -> float | None:
-        _check_alpha(alpha)
-        if self._scores is None:
-            raise ValueError("call fit_calibrate before predicting")
-        rank = _quantile_rank(len(self._scores), alpha)
-        if rank > len(self._scores):
-            return None
-        return self._scores[rank - 1]
-
-    def degenerate(self, alpha: float = 0.1) -> bool:
-        """True when this alpha is unreachable with the calibration size.
-
-        In that regime :meth:`predict_set` returns the full class set for
-        every query, which satisfies the guarantee vacuously.
-        """
-        return self._threshold(alpha) is None
 
     def predict_set(self, X: Sequence, alpha: float = 0.1) -> list[set[str]]:
         """One label set per query row; may be empty, may be the full set."""
@@ -127,7 +144,7 @@ class ConformalClassifier:
         ]
 
 
-class ConformalRegressor:
+class ConformalRegressor(_SplitConformal):
     """Wrap a fitted regressor with symmetric conformal intervals."""
 
     def __init__(self, model) -> None:
@@ -138,27 +155,13 @@ class ConformalRegressor:
 
     def fit_calibrate(self, X_cal: Sequence, y_cal: Sequence[float]) -> "ConformalRegressor":
         """Store sorted absolute residuals from held-out calibration rows."""
-        if len(X_cal) == 0 or len(X_cal) != len(y_cal):
-            raise ValueError("calibration data must be non-empty and aligned in length")
+        self._check_calibration(X_cal, y_cal)
         predictions = self._model.predict(list(X_cal))
         self._scores = sorted(
             abs(float(observed) - float(predicted))
             for observed, predicted in zip(y_cal, predictions)
         )
         return self
-
-    def _threshold(self, alpha: float) -> float | None:
-        _check_alpha(alpha)
-        if self._scores is None:
-            raise ValueError("call fit_calibrate before predicting")
-        rank = _quantile_rank(len(self._scores), alpha)
-        if rank > len(self._scores):
-            return None
-        return self._scores[rank - 1]
-
-    def degenerate(self, alpha: float = 0.1) -> bool:
-        """True when this alpha is unreachable with the calibration size."""
-        return self._threshold(alpha) is None
 
     def predict_interval(
         self, X: Sequence, alpha: float = 0.1

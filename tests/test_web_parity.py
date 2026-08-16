@@ -2,11 +2,7 @@ from __future__ import annotations
 
 import json
 import math
-import shutil
-import subprocess
 from pathlib import Path
-
-import pytest
 
 import hea_bench as hb
 from hea_bench.rules import (
@@ -61,20 +57,6 @@ RULE_KEYS = (
 
 def _load_cases() -> list[dict]:
     return json.loads(CASES_PATH.read_text(encoding="utf-8"))
-
-
-def _node_executable() -> str | None:
-    path = shutil.which("node")
-    if path:
-        return path
-
-    try:
-        import nodejs  # type: ignore
-    except ImportError:
-        return None
-
-    candidate = getattr(nodejs, "path", None)
-    return str(candidate) if candidate else None
 
 
 def _python_snapshot() -> dict[str, dict]:
@@ -158,21 +140,6 @@ def _decode_special_numbers(value):
     return value
 
 
-def _js_snapshot() -> dict[str, dict]:
-    node = _node_executable()
-    if node is None:
-        pytest.skip("Node.js executable not available for browser parity snapshot")
-
-    completed = subprocess.run(
-        [node, str(NODE_SNAPSHOT_SCRIPT)],
-        cwd=ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return _decode_special_numbers(json.loads(completed.stdout))
-
-
 def _assert_close(left: float, right: float, label: str) -> None:
     if math.isinf(left) or math.isinf(right):
         assert left == right, f"{label}: expected {left}, got {right}"
@@ -183,9 +150,9 @@ def _assert_close(left: float, right: float, label: str) -> None:
     )
 
 
-def test_browser_core_matches_python_descriptors_and_rules() -> None:
+def test_browser_core_matches_python_descriptors_and_rules(node_snapshot) -> None:
     python_snapshot = _python_snapshot()
-    js_snapshot = _js_snapshot()
+    js_snapshot = _decode_special_numbers(node_snapshot(NODE_SNAPSHOT_SCRIPT))
 
     assert set(js_snapshot) == set(python_snapshot)
 
