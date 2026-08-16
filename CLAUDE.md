@@ -6,13 +6,20 @@
   `Auto release` workflow. Do not hand-tag or bump versions for routine
   changes; push, then confirm the run goes green with `gh run list`.
   Opt out with `[no-release]` in the head commit message.
-- **Run `python tools/preflight.py` before ANY push that touches a
-  shippable path, and only push when it passes.** It runs every release
-  gate that can run locally plus the external-registry metadata limits;
-  the failure catalog behind it is in RELEASING.md. If a release ever
-  fails for a new reason, the fix commit must also teach preflight (or
-  CI) to catch that reason, and add the catalog row — checks are only
-  added, never removed.
+- **The pre-push hook runs the release preflight; do not fight it.**
+  Pushing a shippable path triggers `python tools/preflight.py`
+  (every locally runnable release gate plus the external-registry
+  metadata limits) via `tools/git-hooks/pre-push`, enabled by the same
+  one-per-clone `git config core.hooksPath tools/git-hooks` as the
+  commit-msg hook. Agent push sequence, mechanically: (1) `git push` —
+  the hook runs the preflight and refuses a failing push; (2) fix
+  whatever it names and push again, NEVER `--no-verify` and never
+  delete a check; (3) `gh run list` and watch the `Auto release` run
+  to green. Heed preflight's "gate NOT pre-verified" warnings before
+  touching benchmark, corpus, split, or web-parity code. If a release
+  ever fails for a reason the preflight did not catch, the fix commit
+  must also add the check and a RELEASING.md catalog row — checks are
+  only added, never removed.
 - The one version number lives in `src/hea_bench/__init__.py`; the only
   legal way to change it is `python tools/version.py --set X.Y.Z`.
 - NEVER touch the GitHub↔Zenodo integration; it can irreversibly fork

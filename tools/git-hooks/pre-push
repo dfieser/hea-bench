@@ -1,0 +1,55 @@
+#!/bin/sh
+# Run the release preflight before any push whose range touches a
+# shippable path (src/, web/, src-tauri/, server.json, pyproject.toml).
+#
+# Pushing those paths to main IS releasing, and agents make most pushes
+# here, so the preflight cannot depend on any one tool or session
+# remembering to run it. This hook is the mechanical enforcement: a
+# shippable push runs `python tools/preflight.py` (every release gate
+# that can run locally, including the external-registry metadata limits)
+# and the push is refused while it fails. The failure catalog behind
+# every check is in RELEASING.md. Never bypass with --no-verify; if the
+# preflight is wrong, fix the preflight in the same change.
+#
+# Non-shippable pushes (docs, tools, tests, CI) pass through untouched.
+#
+# Enable once per clone:
+#     git config core.hooksPath tools/git-hooks
+
+zero=0000000000000000000000000000000000000000
+shippable='^(src/|web/|src-tauri/|server\.json$|pyproject\.toml$)'
+
+need_preflight=0
+while read -r local_ref local_sha remote_ref remote_sha; do
+    # Deleting a remote ref pushes nothing shippable.
+    [ "$local_sha" = "$zero" ] && continue
+    # No known base (new ref, or a base commit this clone has never
+    # fetched): be safe and run the preflight rather than guessing.
+    if [ "$remote_sha" = "$zero" ] || ! git cat-file -e "$remote_sha" 2>/dev/null; then
+        need_preflight=1
+        break
+    fi
+    if git diff --name-only "$remote_sha".."$local_sha" | grep -qE "$shippable"; then
+        need_preflight=1
+        break
+    fi
+done
+
+[ "$need_preflight" = 1 ] || exit 0
+
+if ! command -v python >/dev/null 2>&1; then
+    echo "pre-push hook: python is not on PATH, so the release preflight cannot run." >&2
+    echo "  A shippable path is in this push; refusing to push it unverified." >&2
+    exit 1
+fi
+
+echo "pre-push hook: shippable paths in this push; running the release preflight." >&2
+if ! python tools/preflight.py; then
+    echo "" >&2
+    echo "pre-push hook: the release preflight failed, so this push would" >&2
+    echo "  cut a broken release. Fix the problems above, re-run" >&2
+    echo "  'python tools/preflight.py' until it passes, then push again." >&2
+    echo "  Do not bypass with --no-verify; see RELEASING.md." >&2
+    exit 1
+fi
+exit 0

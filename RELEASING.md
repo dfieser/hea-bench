@@ -150,26 +150,28 @@ before the push and did not, or lived only inside an external publisher.
 | 2026-07-24 | app-icon push | release-gate ruff | unpinned ruff minor release changed the rules mid-week | ruff pinned to the 0.15 series in `pyproject.toml` |
 | 2026-08-10 | v2.2.0 | benchmark-freeze gate | benchmark code changed without regenerating the frozen digests; the local suite silently skipped those tests because no corpus was built | `tools/preflight.py` reports every locally skipped test and names the benchmark-freeze gate as unverified when the corpus is absent |
 | 2026-08-11 | v2.4.0 watch | verify-release went red on a green release | one transient GitHub API timeout failed the whole watch | watcher treats unreadable status as "still running" and polls again |
-| 2026-08-16 | v2.5.0 | `mcp` publish, HTTP 422 | `server.json` description was 199 characters; the MCP registry caps it at 100, and nothing anywhere validated registry constraints | `tools/preflight.py --metadata` encodes the registry limits and runs in three places: locally, in CI on every push, and in the release bot before it stamps or tags |
+| 2026-08-16 | v2.5.0 | `mcp` publish, HTTP 422 | `server.json` description was 199 characters; the MCP registry caps it at 100, and nothing anywhere validated registry constraints | `tools/preflight.py --metadata` encodes the registry limits and runs in four places: the pre-push hook, by hand locally, in CI on every push, and in the release bot before it stamps or tags |
 
-The defense has three layers, in firing order:
+The defense has four layers, in firing order:
 
-1. **Locally, before any push touching a shippable path** (`src/**`,
-   `web/**`, `src-tauri/**`, `server.json`, `pyproject.toml`), run:
-
-   ```bash
-   python tools/preflight.py
-   ```
-
-   It runs the publish-metadata checks, `version.py --check`, the exact
-   release-gate ruff invocation, and the full pytest suite, then names
-   any release gate it could NOT verify locally (missing corpus, missing
-   Node) so pushing anyway is a knowing choice. Do not push a shippable
-   change while it fails.
-2. **CI on every push and pull request** runs
+1. **The pre-push hook** (`tools/git-hooks/pre-push`, enabled by the
+   same one-per-clone `git config core.hooksPath tools/git-hooks` as
+   the commit-msg hook) detects shippable paths (`src/**`, `web/**`,
+   `src-tauri/**`, `server.json`, `pyproject.toml`) in the pushed range
+   and refuses the push until the preflight passes. Nobody — human or
+   agent — has to remember anything; forgetting is not possible, and
+   `--no-verify` is never an acceptable answer to a red preflight.
+   Non-shippable pushes (docs, tools, tests, CI) pass through silently.
+2. **`python tools/preflight.py` by hand**, while iterating on a
+   shippable change. It runs the publish-metadata checks,
+   `version.py --check`, the exact release-gate ruff invocation, and
+   the full pytest suite, then names any release gate it could NOT
+   verify locally (missing corpus, missing Node) so pushing anyway is a
+   knowing choice rather than an accident.
+3. **CI on every push and pull request** runs
    `tools/preflight.py --metadata`, so externally enforced constraints
    are checked long before a release exists.
-3. **The release bot** runs the same metadata check before it stamps,
+4. **The release bot** runs the same metadata check before it stamps,
    commits, or tags, so invalid metadata fails the run cleanly instead
    of half-releasing (tag cut, PyPI published, registry rejected — the
    v2.5.0 shape).
