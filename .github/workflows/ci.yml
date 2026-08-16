@@ -122,6 +122,13 @@ jobs:
       - name: Lint with ruff
         run: ruff check src tests
 
+      - name: Validate publish metadata (external registry limits)
+        # External publishers (the MCP registry) enforce constraints no
+        # test would otherwise see; tools/preflight.py encodes every one
+        # that has bitten. Runs here AND in the release bot before it
+        # tags, so invalid metadata can never reach a publish step.
+        run: python tools/preflight.py --metadata
+
       - name: Run test suite
         run: pytest tests/ -q
         # Node is installed so the Python<->JS parity test

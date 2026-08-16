@@ -134,6 +134,51 @@ gh workflow run pages.yml --ref main       # the site, if it is stale too
 The `verify-release` and `verify-live` jobs already do this once
 automatically when they see a *cancelled* (as opposed to failed) run.
 
+## Why releases have failed, and the preflight that prevents it
+
+Every failed release cycle to date, with its root cause and the guard
+that now exists against it. This table is maintained deliberately: a
+release process that fails a quarter of the time is a process problem,
+not bad luck, and each row below was a check that either could have run
+before the push and did not, or lived only inside an external publisher.
+
+| Date | Release | What failed | Root cause | Guard now in place |
+| --- | --- | --- | --- | --- |
+| 2026-07-06 | v2.0.3, v2.0.4 | manual tag flow | lightweight tag + `--follow-tags` silently pushed no tag; bare commit push released nothing | manual flow retired; push = release automation, and the manual recipe above pushes tags by name and verifies with `ls-remote` |
+| 2026-07-09 | landing-page push | every gate job cancelled | runner eviction, not a code fault | verify jobs distinguish cancelled from failed and re-dispatch once |
+| 2026-07-23 | v2.1.0 | release-gate ruff | new descriptors missing from `__all__`; lint never ran locally before the push | `tools/preflight.py` runs the exact gate lint pre-push |
+| 2026-07-24 | app-icon push | release-gate ruff | unpinned ruff minor release changed the rules mid-week | ruff pinned to the 0.15 series in `pyproject.toml` |
+| 2026-08-10 | v2.2.0 | benchmark-freeze gate | benchmark code changed without regenerating the frozen digests; the local suite silently skipped those tests because no corpus was built | `tools/preflight.py` reports every locally skipped test and names the benchmark-freeze gate as unverified when the corpus is absent |
+| 2026-08-11 | v2.4.0 watch | verify-release went red on a green release | one transient GitHub API timeout failed the whole watch | watcher treats unreadable status as "still running" and polls again |
+| 2026-08-16 | v2.5.0 | `mcp` publish, HTTP 422 | `server.json` description was 199 characters; the MCP registry caps it at 100, and nothing anywhere validated registry constraints | `tools/preflight.py --metadata` encodes the registry limits and runs in three places: locally, in CI on every push, and in the release bot before it stamps or tags |
+
+The defense has three layers, in firing order:
+
+1. **Locally, before any push touching a shippable path** (`src/**`,
+   `web/**`, `src-tauri/**`, `server.json`, `pyproject.toml`), run:
+
+   ```bash
+   python tools/preflight.py
+   ```
+
+   It runs the publish-metadata checks, `version.py --check`, the exact
+   release-gate ruff invocation, and the full pytest suite, then names
+   any release gate it could NOT verify locally (missing corpus, missing
+   Node) so pushing anyway is a knowing choice. Do not push a shippable
+   change while it fails.
+2. **CI on every push and pull request** runs
+   `tools/preflight.py --metadata`, so externally enforced constraints
+   are checked long before a release exists.
+3. **The release bot** runs the same metadata check before it stamps,
+   commits, or tags, so invalid metadata fails the run cleanly instead
+   of half-releasing (tag cut, PyPI published, registry rejected — the
+   v2.5.0 shape).
+
+**The ratchet rule.** When a release fails for a reason this table does
+not list, the fix is not complete until the same change teaches
+`tools/preflight.py` (or the CI gate) to catch that reason before the
+next push, and adds the row here. Checks are only added, never removed.
+
 ## One-time setup
 
 These are configured once, in the GitHub and PyPI web consoles. Until they are

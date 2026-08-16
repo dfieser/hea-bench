@@ -6,6 +6,13 @@
   `Auto release` workflow. Do not hand-tag or bump versions for routine
   changes; push, then confirm the run goes green with `gh run list`.
   Opt out with `[no-release]` in the head commit message.
+- **Run `python tools/preflight.py` before ANY push that touches a
+  shippable path, and only push when it passes.** It runs every release
+  gate that can run locally plus the external-registry metadata limits;
+  the failure catalog behind it is in RELEASING.md. If a release ever
+  fails for a new reason, the fix commit must also teach preflight (or
+  CI) to catch that reason, and add the catalog row — checks are only
+  added, never removed.
 - The one version number lives in `src/hea_bench/__init__.py`; the only
   legal way to change it is `python tools/version.py --set X.Y.Z`.
 - NEVER touch the GitHub↔Zenodo integration; it can irreversibly fork

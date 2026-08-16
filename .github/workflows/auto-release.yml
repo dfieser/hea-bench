@@ -62,6 +62,12 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+      - name: Refuse to cut a release from invalid publish metadata
+        # Stops BEFORE anything is stamped, committed, or tagged, so a
+        # constraint an external registry would reject (the v2.5.0
+        # lesson: description over 100 characters, HTTP 422 at the mcp
+        # job) fails this run cleanly instead of half-releasing.
+        run: python tools/preflight.py --metadata
       - name: Pick the version, stamp all surfaces, write changelog + history
         id: prep
         run: |
