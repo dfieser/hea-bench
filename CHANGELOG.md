@@ -10,6 +10,12 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.5.1] — 2026-08-16
+
+### Changed
+
+- Shorten the MCP registry description to the 100-character limit
+
 ## [2.5.0] — 2026-08-16
 
 ### Added
