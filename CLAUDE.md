@@ -1,5 +1,12 @@
 # hea-bench — rules that override defaults
 
+- **Agents operate this repo** (commits, pushes, releases). Optimize
+  every rule, doc, and process for agents by default: enforce
+  mechanically (hooks, CI) rather than by convention, write mechanical
+  sequences rather than advice, and make error messages name the exact
+  fix. A fresh agent session that has read nothing should still be
+  forced into the right behavior.
+
 - **Shipping = pushing.** Any push to `main` touching `src/**`, `web/**`,
   `src-tauri/**`, `server.json`, or `pyproject.toml` auto-releases all
   four surfaces (PyPI, MCP registry, desktop exe, web site) via the
