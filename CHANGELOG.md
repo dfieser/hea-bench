@@ -146,6 +146,34 @@ The format is loosely based on
   HEACalculator's 2.0 `get_dict` schema, and compositions outside its
   element database come back as typed None values rather than numbers.
 
+### Changed
+
+- The web app's Miedema solid-solution / amorphous / compound
+  decomposition moved from hand-maintained page script into the
+  parity-tested core. Its per-element parameter table is now generated
+  from the vendored matminer `Miedema.csv` (the same file the Python
+  mechanics table reads) by `tests/data/_sync_js_tables.py`, and a
+  Node regression suite pins the decomposition's values. Reconciling
+  the old hand table against the CSV corrects several displayed
+  numbers, most visibly: the Ti and Ru surface areas V^(2/3) (the hand
+  table carried 4.12 and 4.60 where the CSV volumes give 4.82 and
+  4.07, shifting Ti- and Ru-pair chemical terms by roughly ten
+  percent), silicon's metallic molar volume (12.06 -> 8.6 cm3/mol,
+  which shrinks Ni-Si elastic mismatch terms severalfold and makes the
+  volume consistent with the V^(2/3) the page already used), manganese
+  and chromium bulk moduli (120 -> 59.67 and 160 -> 190.3 GPa), and
+  yttrium's volume-correction constant (0.04 -> 0.07). Bulk and shear
+  moduli and molar volumes for all 37 covered elements now match the
+  vendored table exactly (Fe 170 -> 168.3 GPa and similar
+  rounding-level shifts elsewhere).
+- Internal consolidation across surfaces with no API change: one JSON
+  non-finite sanitizer, one 14-descriptor feature-row builder, one
+  scorable-element set, and one rules registry shared by the design
+  search, campaigns, and the MCP surface, which also makes
+  `yeh_entropy` accepted as an alias of `yeh_smix` in rule
+  constraints. Caching the pair-table coverage set makes a full native
+  descriptor profile about eight times faster.
+
 ## [2.4.0] — 2026-08-11
 
 ### Changed
