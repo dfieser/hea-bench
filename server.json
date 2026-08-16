@@ -3,7 +3,7 @@
   "name": "io.github.dfieser/hea-bench",
   "title": "HEA-Bench",
   "description": "High-entropy alloy and oxide descriptors, phase-prediction rules, a provenance-tracked experimental corpus, property predictions with intervals and domain flags, and constrained alloy design tools.",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "repository": {
     "url": "https://github.com/dfieser/hea-bench",
     "source": "github"
@@ -12,7 +12,7 @@
     {
       "registryType": "pypi",
       "identifier": "hea-bench",
-      "version": "2.4.0",
+      "version": "2.5.0",
       "runtimeHint": "uvx",
       "runtimeArguments": [
         { "type": "named", "name": "--from", "value": "hea-bench[mcp]" },
