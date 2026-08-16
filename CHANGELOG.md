@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.5.0] — 2026-08-16
+
 ### Added
 
 - `hea_bench.ceramics`: the calculator extends to high-entropy
