@@ -1,6 +1,18 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/dfieser/hea-bench/main/docs/assets/banner-dark.png">
+  <img src="https://raw.githubusercontent.com/dfieser/hea-bench/main/docs/assets/banner-light.png" alt="HEA-Bench: the standard descriptors for high-entropy alloys and oxides, with the work shown.">
+</picture>
+
 # hea-bench
 
 <!-- mcp-name: io.github.dfieser/hea-bench -->
+
+[![Paper](https://img.shields.io/badge/Materials-10.3390%2Fma19143075-2f7d3b)](https://doi.org/10.3390/ma19143075)
+[![DOI](https://zenodo.org/badge/1246292321.svg)](https://doi.org/10.5281/zenodo.20346287)
+[![PyPI](https://img.shields.io/pypi/v/hea-bench?color=8b3a2f)](https://pypi.org/project/hea-bench/)
+[![Python](https://img.shields.io/pypi/pyversions/hea-bench)](https://pypi.org/project/hea-bench/)
+[![CI](https://github.com/dfieser/hea-bench/actions/workflows/ci.yml/badge.svg)](https://github.com/dfieser/hea-bench/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
 Open, interpretable tools for computing the standard **high-entropy-alloy
 (HEA) and high-entropy-oxide (HEO) thermodynamic and geometric
@@ -12,10 +24,14 @@ validated against the primary literature.
 **Try it now:** <https://dfieser.github.io/hea-bench/>. No install, it runs
 entirely in your browser.
 
-[![Paper](https://img.shields.io/badge/Materials-10.3390%2Fma19143075-2f7d3b)](https://doi.org/10.3390/ma19143075)
-[![DOI](https://zenodo.org/badge/1246292321.svg)](https://doi.org/10.5281/zenodo.20346287)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-![tests: passing](https://img.shields.io/badge/tests-passing-success)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/dfieser/hea-bench/main/docs/assets/screenshot-calculator-dark.png">
+  <img src="https://raw.githubusercontent.com/dfieser/hea-bench/main/docs/assets/screenshot-calculator-light.png" alt="The HEA-Bench browser calculator showing the equimolar Cantor alloy CoCrFeMnNi, with the composition on the left and the computed descriptors on the right.">
+</picture>
+
+<sup>The equimolar Cantor alloy CoCrFeMnNi, as the browser app reports it.
+The Python library, the desktop app and this page print the same digits, and
+a parity suite keeps it that way.</sup>
 
 > **Using an AI coding agent to integrate this?** See
 > [AGENTS.md](./AGENTS.md) for a machine-oriented guide to the API,
@@ -51,6 +67,21 @@ covering the full experimentally active rare-earth HEA palette plus the
 nuclear, solder, and HE-BMG corners); the Miedema pair table covers
 75 (1484 of our 1485 pairs; the lone Th-U gap is reported, never
 zeroed); the oxide module's Shannon table covers 94.
+
+## How a number gets made
+
+No fitted model sits anywhere in this chain. Each descriptor is a
+closed-form expression over curated tables, and the report carries the
+literature source of every input alongside the value.
+
+```mermaid
+flowchart LR
+    A["Composition<br/>CoCrFeMnNi"] --> B["Curated element tables<br/>55 elements, 1484 Miedema pairs"]
+    B --> C["Closed-form descriptors<br/>ΔS, δ, VEC, ΔH, Ω, Φ, φ, Λ, γ, κ"]
+    C --> D["Empirical phase rules<br/>Yeh, Zhang, Guo-Liu, Yang-Zhang, King, Ye"]
+    C --> E["Report<br/>per-value provenance, content-hashed result ID"]
+    D --> E
+```
 
 ## Four ways to run it
 

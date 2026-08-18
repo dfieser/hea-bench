@@ -10,6 +10,27 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Added
+
+- README graphics: a banner and a screenshot of the browser calculator
+  computing the Cantor alloy, each in a light and a dark cut served
+  through `<picture>` so GitHub matches the reader's theme. PyPI strips
+  `<source>` but keeps the `<img>`, so the light cut is the fallback
+  there. A mermaid diagram of the path from composition to report
+  replaces the claim that nothing is fitted with a picture of it.
+- `tools/make_screenshots.py` re-captures those screenshots from the
+  current `web/` sources with Playwright, so refreshing them is a
+  command rather than a manual capture that nobody repeats.
+- `tools/preflight.py` checks the README graphics exist and that every
+  image URL in the README is absolute. `pyproject` uses this README as
+  the PyPI long description, where a relative path renders broken.
+
+### Changed
+
+- The README's `tests: passing` badge was hard-coded and could not go
+  red. It now points at the CI workflow. Added PyPI version and
+  supported-Python badges.
+
 ## [2.5.2] — 2026-08-18
 
 ### Added

@@ -38,6 +38,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parent.parent
 ICONS = ROOT / "src-tauri" / "icons"
 WEB = ROOT / "web"
+ASSETS = ROOT / "docs" / "assets"  # README graphics, served raw from GitHub
 
 TERRACOTTA = (139, 58, 47, 255)   # --accent  #8b3a2f
 RIM = (94, 42, 35, 255)           # --accent-2 #5e2a23
@@ -252,6 +253,73 @@ def write_og_card(master: Image.Image, path: Path) -> None:
     card.save(path, optimize=True)
 
 
+#: Light and dark skins for the README banner. GitHub serves whichever
+#: matches the reader's theme through a <picture> element, so the banner
+#: never sits on a field that fights it.
+BANNER_SKINS = {
+    "light": dict(bg=CREAM[:3], ink=INK[:3], muted=MUTED[:3], accent=TERRACOTTA[:3]),
+    "dark": dict(bg=(20, 20, 15), ink=(230, 227, 218), muted=(160, 157, 146), accent=(217, 119, 87)),
+}
+
+#: The descriptors the calculator reports, as the reader would write
+#: them. A banner that names them says more about the tool than any
+#: amount of adjective.
+DESCRIPTOR_STRIP = "ΔS · δ · VEC · ΔH · Ω · Δχ · Φ · φ · Λ · γ · κ"
+
+
+def write_banner(master: Image.Image, path: Path, skin: dict) -> None:
+    """The README hero, 2400x600, drawn at 2x for high-density screens.
+
+    The vertical layout is computed, not hand-placed: the tagline wraps
+    to however many lines it needs and everything below follows, so
+    editing the wording cannot silently drop a line of text on top of
+    the descriptor strip.
+    """
+    s = 2  # supersample factor: design in 1200x300, emit at 2x
+    w, h = 1200 * s, 300 * s
+    card = Image.new("RGB", (w, h), skin["bg"])
+    d = ImageDraw.Draw(card)
+
+    mark_px = 148 * s
+    mark = sized(master, mark_px)
+    card.paste(mark, (64 * s, (h - mark_px) // 2), mark)
+
+    x = 262 * s
+    wordmark = _font("DejaVuSerif-Bold.ttf", 64 * s)
+    tagline = _font("DejaVuSerif.ttf", 24 * s)
+    strip = _font("DejaVuSerif.ttf", 21 * s)
+    lines = _wrap(d, "The standard descriptors for high-entropy alloys and "
+                     "oxides, with the work shown.", tagline, w - x - 60 * s)
+
+    # Baselines relative to the wordmark's, then shifted so the whole
+    # block sits centered between the top and bottom edges.
+    rule_dy, first_tag_dy, line_h = 21 * s, 61 * s, 34 * s
+    strip_dy = first_tag_dy + len(lines) * line_h + 8 * s
+    cap, desc = 46 * s, 8 * s  # wordmark cap height, strip descender
+    top = (h - (strip_dy + cap + desc)) // 2 + cap
+
+    d.text((x, top), "HEA-Bench", font=wordmark, fill=skin["ink"], anchor="ls")
+    d.line([(x, top + rule_dy), (x + 226 * s, top + rule_dy)],
+           fill=skin["accent"], width=3 * s)
+    for i, line in enumerate(lines):
+        d.text((x, top + first_tag_dy + i * line_h), line, font=tagline,
+               fill=skin["muted"], anchor="ls")
+    d.text((x, top + strip_dy), DESCRIPTOR_STRIP, font=strip,
+           fill=skin["accent"], anchor="ls")
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    card.save(path, optimize=True)
+
+
+def write_banners(master: Image.Image) -> list[str]:
+    names = []
+    for skin_name, skin in BANNER_SKINS.items():
+        name = f"banner-{skin_name}.png"
+        write_banner(master, ASSETS / name, skin)
+        names.append(name)
+    return names
+
+
 def write_web_icons(master: Image.Image, small: Image.Image) -> list[str]:
     """The crawlable icon set for the GitHub Pages site.
 
@@ -325,8 +393,12 @@ def main() -> None:
     write_icns(master, ICONS / "icon.icns")
     print(f"wrote {len(pngs)} PNGs + icon.ico + icon.icns to {ICONS}")
 
-    web_files = write_web_icons(draw_master(**WEB_MARK), draw_master(**SMALL_MARK))
+    web_mark = draw_master(**WEB_MARK)
+    web_files = write_web_icons(web_mark, draw_master(**SMALL_MARK))
     print(f"wrote {', '.join(web_files)} to {WEB}")
+
+    banners = write_banners(web_mark)
+    print(f"wrote {', '.join(banners)} to {ASSETS}")
 
 
 if __name__ == "__main__":
