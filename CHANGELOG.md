@@ -10,6 +10,22 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Added
+
+- A crawlable favicon set for the web app: `favicon.ico` (16/32/48),
+  `favicon.svg`, `apple-touch-icon.png`, PWA icons and a web manifest.
+  The site previously declared its icon as a `data:` URI, which browsers
+  render but Google cannot crawl, so search results carried no favicon.
+  The 16 px frame drops the lattice's ring bonds and fattens the spokes,
+  because the full mark averages to a smudge at that size.
+- An Open Graph social card (`web/og-image.png`, 1200x630), so a link to
+  the site renders with the mark, the tagline and the citation instead of
+  bare text. Twitter card upgraded to `summary_large_image`.
+- `tools/preflight.py` now checks the web assets the `<head>` promises:
+  every icon exists at its declared size, the card is exactly 1200x630,
+  the manifest and JSON-LD parse, and no icon is a `data:` URI or a
+  root-absolute path. These fail silently in production otherwise.
+
 ## [2.5.1] — 2026-08-16
 
 ### Changed

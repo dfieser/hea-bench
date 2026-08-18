@@ -151,6 +151,7 @@ before the push and did not, or lived only inside an external publisher.
 | 2026-08-10 | v2.2.0 | benchmark-freeze gate | benchmark code changed without regenerating the frozen digests; the local suite silently skipped those tests because no corpus was built | `tools/preflight.py` reports every locally skipped test and names the benchmark-freeze gate as unverified when the corpus is absent |
 | 2026-08-11 | v2.4.0 watch | verify-release went red on a green release | one transient GitHub API timeout failed the whole watch | watcher treats unreadable status as "still running" and polls again |
 | 2026-08-16 | v2.5.0 | `mcp` publish, HTTP 422 | `server.json` description was 199 characters; the MCP registry caps it at 100, and nothing anywhere validated registry constraints | `tools/preflight.py --metadata` encodes the registry limits and runs in four places: the pre-push hook, by hand locally, in CI on every push, and in the release bot before it stamps or tags |
+| 2026-08-17 | no red run; found by inspection | the live site never showed a favicon in Google results | the icon was a `data:` URI, which Google cannot crawl, and no gate has ever opened a file under `web/` that is not code | `tools/preflight.py --metadata` checks the icon set, the 1200x630 social card, the manifest and the JSON-LD, and rejects a `data:` URI or a root-absolute icon path |
 
 The defense has four layers, in firing order:
 

@@ -29,6 +29,7 @@ import json
 import os
 import re
 import shutil
+import struct
 import subprocess
 import sys
 from pathlib import Path
@@ -95,6 +96,118 @@ def check_metadata() -> list[str]:
     return problems
 
 
+#: Web assets the live site's <head> promises. Each maps to the exact
+#: square size it must be, or None when only existence matters.
+WEB_ASSETS: dict[str, tuple[int, int] | None] = {
+    "favicon.ico": None,          # frames checked separately
+    "favicon.svg": None,
+    "apple-touch-icon.png": (180, 180),
+    "icon-192.png": (192, 192),
+    "icon-512.png": (512, 512),
+    "og-image.png": (1200, 630),  # the Open Graph standard; scrapers crop off-size cards
+    "site.webmanifest": None,
+}
+
+
+def _png_size(data: bytes) -> tuple[int, int] | None:
+    if data[:8] != b"\x89PNG\r\n\x1a\n" or data[12:16] != b"IHDR":
+        return None
+    return struct.unpack(">II", data[16:24])
+
+
+def _ico_sizes(data: bytes) -> set[int]:
+    """Widths present in an ICO directory (0 in the header means 256)."""
+    if len(data) < 6 or data[2:4] != b"\x01\x00":
+        return set()
+    count = struct.unpack("<H", data[4:6])[0]
+    widths = set()
+    for i in range(count):
+        entry = 6 + i * 16
+        if entry + 16 > len(data):
+            break
+        widths.add(data[entry] or 256)
+    return widths
+
+
+def check_web_assets() -> list[str]:
+    """Guard the SEO assets the <head> promises but no test would open.
+
+    Everything here fails silently and invisibly in production: a missing
+    file just means no favicon in Google's results or a blank social
+    card, with no error anywhere. Added 2026-08-17 with the crawlable
+    favicon set, per the ratchet rule.
+    """
+    problems: list[str] = []
+    web = ROOT / "web"
+    head = (web / "index.html").read_text(encoding="utf-8", errors="replace")[:12000]
+
+    for name, expected in WEB_ASSETS.items():
+        path = web / name
+        if not path.exists():
+            problems.append(f"web/{name}: missing; run: python tools/make_icons.py")
+            continue
+        if expected and name.endswith(".png"):
+            actual = _png_size(path.read_bytes())
+            if actual != expected:
+                problems.append(
+                    f"web/{name}: is {actual[0]}x{actual[1]} but must be "
+                    f"{expected[0]}x{expected[1]}; run: python tools/make_icons.py"
+                )
+
+    ico = web / "favicon.ico"
+    if ico.exists() and 48 not in _ico_sizes(ico.read_bytes()):
+        problems.append(
+            "web/favicon.ico: no 48x48 frame, which is the size Google's "
+            "result-favicon crawler requests; run: python tools/make_icons.py"
+        )
+
+    # A data: URI or a missing tag means no favicon in search results.
+    for name in ("favicon.ico", "favicon.svg", "apple-touch-icon.png", "site.webmanifest"):
+        if f'href="{name}"' not in head:
+            problems.append(
+                f'web/index.html: <head> does not reference {name} with a relative '
+                f'href="{name}"'
+            )
+    if 'href="data:image' in head:
+        problems.append(
+            "web/index.html: a data: URI icon is back in <head>; Google cannot "
+            "crawl it, so search results lose the favicon"
+        )
+    # Project page: a root-absolute icon path resolves against the user
+    # site (dfieser.github.io), which this repository does not own.
+    if re.search(r'<link[^>]+rel="(?:icon|apple-touch-icon|manifest)"[^>]+href="/', head):
+        problems.append(
+            'web/index.html: root-absolute icon href; this is a project page '
+            'served from /hea-bench/, so icon paths must be relative'
+        )
+    # Scrapers do not resolve relative og:image URLs.
+    match = re.search(r'<meta property="og:image" content="([^"]+)"', head)
+    if not match:
+        problems.append('web/index.html: no og:image, so shared links render a blank card')
+    elif not match.group(1).startswith("https://"):
+        problems.append(
+            f'web/index.html: og:image {match.group(1)!r} is not absolute; '
+            f"scrapers do not resolve relative Open Graph URLs"
+        )
+
+    # A malformed manifest or JSON-LD block fails silently: the browser
+    # drops the manifest, and Google drops the rich result, with no error.
+    try:
+        json.loads((web / "site.webmanifest").read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        problems.append(f"web/site.webmanifest: invalid JSON ({exc})")
+    full = (web / "index.html").read_text(encoding="utf-8", errors="replace")
+    blocks = re.findall(r'<script type="application/ld\+json">(.*?)</script>', full, re.S)
+    if not blocks:
+        problems.append("web/index.html: the JSON-LD structured-data block is gone")
+    for i, block in enumerate(blocks):
+        try:
+            json.loads(block)
+        except ValueError as exc:
+            problems.append(f"web/index.html: JSON-LD block {i} is invalid JSON ({exc})")
+    return problems
+
+
 def _run(label: str, command: list[str]) -> tuple[str, int, str]:
     completed = subprocess.run(
         command, cwd=ROOT, capture_output=True, text=True, encoding="utf-8"
@@ -119,6 +232,13 @@ def main(argv: list[str]) -> int:
     if problems:
         failures.extend(problems)
     print(("FAIL" if problems else "ok  ") + "  publish metadata (server.json)")
+    for problem in problems:
+        print(f"      {problem}")
+
+    problems = check_web_assets()
+    if problems:
+        failures.extend(problems)
+    print(("FAIL" if problems else "ok  ") + "  web assets (icons, social card)")
     for problem in problems:
         print(f"      {problem}")
 
