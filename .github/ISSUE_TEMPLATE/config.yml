@@ -1,0 +1,21 @@
+# Routes questions and ideas to Discussions at the moment someone is
+# choosing what to open, rather than relying on them having read
+# CONTRIBUTING.md first. Blank issues stay enabled: there are no issue
+# forms in this repository, so disabling them would leave no way to
+# report a bug at all.
+blank_issues_enabled: true
+contact_links:
+  - name: Question about using hea-bench
+    url: https://github.com/dfieser/hea-bench/discussions/new?category=q-a
+    about: >-
+      Ask in Discussions Q&A. Which descriptor applies, how to read a
+      result, why two sources disagree, how to call it from an agent.
+  - name: Idea or feature suggestion
+    url: https://github.com/dfieser/hea-bench/discussions/new?category=ideas
+    about: >-
+      Propose it in Discussions so the design can be talked through
+      before it becomes tracked work.
+  - name: Show what you built with it
+    url: https://github.com/dfieser/hea-bench/discussions/new?category=show-and-tell
+    about: >-
+      Share a screening run, a campaign, or a paper that used hea-bench.

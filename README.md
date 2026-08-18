@@ -496,8 +496,16 @@ under their upstream BSD-3-Clause license, preserved at
 
 Contributions and bug reports are welcome. See
 [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup and the
-testing convention. To report a bug or ask a question, open a GitHub
-issue; for direct contact, email the maintainer at `davjfies@gmail.com`.
+testing convention.
+
+Report a bug or request a feature in the
+[issue tracker](https://github.com/dfieser/hea-bench/issues). Ask a
+question or float an idea in
+[Discussions](https://github.com/dfieser/hea-bench/discussions), where
+the Q&A category is the right place for how a descriptor is defined,
+which rule applies to a composition, or why two sources disagree.
+Answers there stay findable for the next person with the same question.
+For direct contact, email the maintainer at `davjfies@gmail.com`.
 Participation is governed by the [Code of Conduct](./CODE_OF_CONDUCT.md).
 
 ## Acknowledgements

@@ -30,6 +30,14 @@ The format is loosely based on
 - The README's `tests: passing` badge was hard-coded and could not go
   red. It now points at the CI workflow. Added PyPI version and
   supported-Python badges.
+- Questions and ideas now route to GitHub Discussions instead of the
+  issue tracker, via a `.github/ISSUE_TEMPLATE/config.yml` that offers
+  the Q&A, Ideas and Show-and-tell categories on the New Issue chooser.
+  README and CONTRIBUTING follow the same split: issues for bugs and
+  feature requests, Discussions for everything else.
+- The maintainer contact in CONTRIBUTING is now the academic address
+  already used in the Code of Conduct, so the two public contact points
+  agree.
 
 ## [2.5.2] — 2026-08-18
 

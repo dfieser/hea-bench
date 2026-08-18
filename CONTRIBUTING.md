@@ -10,8 +10,11 @@ improvements.
   tracker. For a bug, please include the `hea-bench` version, your
   Python version and operating system, a minimal composition or
   command that reproduces the problem, and the full traceback.
-- **Questions and support:** open a GitHub issue with the
-  `question` label, or email the maintainer at `dfieser9@gmail.com`.
+- **Questions and support:** ask in
+  [Discussions](https://github.com/dfieser/hea-bench/discussions/categories/q-a)
+  rather than the issue tracker, so answers stay findable for the next
+  person with the same question. For direct contact, email the
+  maintainer at `davjfies@gmail.com`.
 
 ## Development setup
 
