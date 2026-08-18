@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.5.2] — 2026-08-18
+
 ### Added
 
 - A crawlable favicon set for the web app: `favicon.ico` (16/32/48),

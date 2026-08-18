@@ -50,8 +50,8 @@ keywords:
   - alloy design
 license: MIT
 repository-code: 'https://github.com/dfieser/hea-bench'
-version: 2.5.1
-date-released: '2026-08-16'
+version: 2.5.2
+date-released: '2026-08-18'
 doi: 10.5281/zenodo.20346287
 identifiers:
   - type: doi
