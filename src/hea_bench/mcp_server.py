@@ -22,7 +22,12 @@ or register it with an MCP client (Claude Desktop, Cursor, ...)::
     {"command": "hea-bench-mcp"}
 """
 
-from __future__ import annotations
+# Do NOT add `from __future__ import annotations` here. It stringizes
+# every tool signature, and the MCP SDK inspects those signatures with
+# `issubclass(param.annotation, Context)`, which raises TypeError on a
+# string and kills the whole server before it serves one tool. The
+# module targets Python >=3.10, so `list[str]` and `float | None`
+# already evaluate natively without it.
 
 from itertools import combinations
 
@@ -903,10 +908,23 @@ def build_server():
     """
     try:
         from mcp.server.fastmcp import FastMCP
+        from mcp.types import ToolAnnotations
     except ImportError as exc:
+        try:
+            from importlib.metadata import version
+
+            installed = version("mcp")
+        except Exception:
+            installed = None
+        if installed is None:
+            raise SystemExit(
+                "The MCP surface needs the optional 'mcp' package. "
+                "Install it with: pip install 'hea-bench[mcp]'"
+            ) from exc
         raise SystemExit(
-            "The MCP surface needs the optional 'mcp' package. "
-            "Install it with: pip install hea-bench[mcp]"
+            f"The installed MCP SDK (mcp {installed}) is not compatible "
+            "with hea-bench-mcp: it no longer provides mcp.server.fastmcp. "
+            "Install a supported one with: pip install 'mcp>=1.9.4,<2'"
         ) from exc
 
     server = FastMCP(
@@ -927,8 +945,21 @@ def build_server():
             "available in this environment."
         ),
     )
+    # Every tool is a pure local computation: it reads curated tables and
+    # returns numbers. Nothing writes and nothing reaches the network, so
+    # an agent can tell from the manifest alone that calling any of these
+    # is safe. Titles are derived from the function name so a tool cannot
+    # be added without one.
     for tool in _TOOLS:
-        server.tool()(tool)
+        server.tool(
+            annotations=ToolAnnotations(
+                title=tool.__name__.replace("_", " ").capitalize(),
+                readOnlyHint=True,
+                destructiveHint=False,
+                idempotentHint=True,
+                openWorldHint=False,
+            )
+        )(tool)
     return server
 
 

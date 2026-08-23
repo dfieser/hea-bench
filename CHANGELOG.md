@@ -10,6 +10,31 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Fixed
+
+- `hea-bench-mcp` could not start. The `mcp` extra declared an
+  unbounded `mcp>=1.2`, so a fresh `uvx --from hea-bench[mcp]
+  hea-bench-mcp` resolved the MCP SDK to 2.0.0, which removed the
+  `mcp.server.fastmcp` module the server is built on, and the server
+  exited claiming the `mcp` package was not installed. The extra now
+  requires `mcp>=1.9.4,<2`. The floor also clears CVE-2025-53366 (HIGH)
+  in SDKs older than 1.9.4, and the failure path now names the
+  installed SDK version and the exact command that fixes it instead of
+  telling the reader to install a package they already have.
+- Registering the tools raised `TypeError: issubclass() arg 1 must be a
+  class` on MCP SDKs that inspect parameter annotations directly, so no
+  tool was ever served. `mcp_server.py` no longer uses
+  `from __future__ import annotations`, which had stringized every tool
+  signature. Two tests now build the real server and assert all
+  thirteen tools register.
+
+### Added
+
+- Every MCP tool now carries `ToolAnnotations` (`readOnlyHint`,
+  `destructiveHint`, `idempotentHint`, `openWorldHint`, and a title), so
+  an agent can see from the manifest that these tools only read curated
+  tables and never touch the network.
+
 ### Changed
 
 - `verify-release` no longer waits for the desktop exe. It goes green

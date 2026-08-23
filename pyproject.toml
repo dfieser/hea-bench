@@ -51,8 +51,13 @@ dev = [
 ]
 # The MCP agent surface (hea-bench-mcp) needs the official MCP SDK; the
 # calculator core itself stays dependency-free.
+# Floor 1.9.4: earlier releases carry CVE-2025-53366 (HIGH, unhandled
+# exception on a malformed request). Ceiling <2: mcp 2.0.0 deleted the
+# mcp.server.fastmcp module this server is built on, so an unbounded
+# floor silently resolves to a version where hea-bench-mcp cannot start.
+# Lifting the ceiling means porting build_server() to mcp.server.mcpserver.
 mcp = [
-    "mcp>=1.2",
+    "mcp>=1.9.4,<2",
 ]
 # The benchmark subpackage itself (splits, metrics, load_benchmark,
 # evaluate) is standard-library only, like the core. This extra is for

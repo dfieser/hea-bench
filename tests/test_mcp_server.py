@@ -172,3 +172,32 @@ def test_about_has_version_and_sources():
     assert out["hea_bench_version"] == hb.__version__
     assert out["license"] == "MIT"
     assert "Takeuchi2005" in out["sources"]
+
+
+def test_build_server_registers_every_tool():
+    """The server must actually start and expose all of _TOOLS.
+
+    Older MCP SDKs resolve parameter annotations by calling issubclass
+    on them directly, so a stringized annotation raises TypeError and
+    the server dies before serving a single tool.
+    """
+    pytest.importorskip("mcp")
+    from hea_bench.mcp_server import _TOOLS, build_server
+
+    registered = build_server()._tool_manager.list_tools()
+    assert len(registered) == len(_TOOLS)
+    assert {t.name for t in registered} == {f.__name__ for f in _TOOLS}
+
+
+def test_every_tool_declares_safety_annotations():
+    """Agents should see these tools are safe without having to call one."""
+    pytest.importorskip("mcp")
+    from hea_bench.mcp_server import build_server
+
+    for tool in build_server()._tool_manager.list_tools():
+        ann = tool.annotations
+        assert ann is not None, f"{tool.name} has no annotations"
+        assert ann.readOnlyHint is True, f"{tool.name} not marked read-only"
+        assert ann.destructiveHint is False, f"{tool.name} not marked non-destructive"
+        assert ann.openWorldHint is False, f"{tool.name} not marked closed-world"
+        assert ann.title, f"{tool.name} has no human-readable title"
