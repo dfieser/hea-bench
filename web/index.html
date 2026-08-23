@@ -7766,9 +7766,10 @@ font-family: 'Source Sans Pro'
 
     <script src="hea-calculator-core.js"></script>
     <script>
-      const VERSION = "2.5.3";
+      const VERSION = "2.5.4";
       const VERSION_DATE = "2026-08-23";
       const VERSION_HISTORY = [
+        { version: "2.5.4", date: "2026-08-23", notes: "Fix hea-bench-mcp failing to start, and annotate every tool; Stop waiting for the desktop exe; open an issue that emails the owner if it fails" },
         { version: "2.5.3", date: "2026-08-23", notes: "Landing design pass, and fix the overlay rendering at 733px on phones; Route questions to Discussions, and agree on one contact address; Give the README a banner, a screenshot and a pipeline diagram" },
         { version: "2.5.2", date: "2026-08-18", notes: "Ship a crawlable favicon set and an Open Graph card for the site; State the agent-first operating rule at the top of the repo contract; Enforce the release preflight in a pre-push hook so no session can skip it; Add a release preflight: the failure catalog, a local gate runner, and metadata checks in CI and the bot" },
         { version: "2.5.1", date: "2026-08-16", notes: "Shorten the MCP registry description to the 100-character limit" },

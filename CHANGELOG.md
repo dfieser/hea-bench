@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.5.4] — 2026-08-23
+
 ### Fixed
 
 - `hea-bench-mcp` could not start. The `mcp` extra declared an
