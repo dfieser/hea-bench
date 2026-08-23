@@ -5142,10 +5142,14 @@ font-family: 'Source Sans Pro'
         --text:#1b1b18; --text-strong:#000000; --text-muted:#5a5a52; --text-muted-2:#8a8880;
         --border:#d9d6cc; --border-2:#c5c2b6; --rule:#1b1b18; --accent:#8b3a2f; --accent-2:#5e2a23;
         --btn-ink:#ffffff;
-        --lat1:#2a78d6; --lat2:#eb6834; --lat3:#1baf7a; --lat4:#eda100; --lat5:#e87ba4; --lat6:#008300; --lat7:#4a3aa7; --lat8:#e34948;
+        --lat1:#1b1b18; --lat2:#8b3a2f; --lat3:#5e2a23; --lat4:#8a8880; --lat5:#9c9a8e;
         --serif:"Charter","Iowan Old Style","Sitka Text","Cambria","Source Serif Pro","Hoefler Text",Georgia,serif;
         --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
         --mono:"JetBrains Mono","SF Mono",Menlo,Consolas,monospace;
+        /* Figures may extend this far into the right margin; text never
+           does. Zero below 948px of viewport (948 rather than 928 leaves
+           room for the overlay's own scrollbar, which 100vw ignores). */
+        --bleed: clamp(0px, (100vw - 948px) / 2, 120px);
         background: var(--bg); color: var(--text); font-family: var(--serif);
         font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased;
         border-top: 3px solid var(--accent);
@@ -5156,7 +5160,7 @@ font-family: 'Source Sans Pro'
           --text:#e6e3da; --text-strong:#ffffff; --text-muted:#a09d92; --text-muted-2:#75726a;
           --border:#33322c; --border-2:#4a4842; --rule:#75726a; --accent:#d97757; --accent-2:#b85a3d;
           --btn-ink:#14140f;
-          --lat1:#3987e5; --lat2:#d95926; --lat3:#199e70; --lat4:#c98500; --lat5:#d55181; --lat6:#008300; --lat7:#9085e9; --lat8:#e66767;
+          --lat1:#e6e3da; --lat2:#d97757; --lat3:#b85a3d; --lat4:#a09d92; --lat5:#6e6b62;
         }
       }
       :root[data-theme="dark"] #landing {
@@ -5164,20 +5168,30 @@ font-family: 'Source Sans Pro'
         --text:#e6e3da; --text-strong:#ffffff; --text-muted:#a09d92; --text-muted-2:#75726a;
         --border:#33322c; --border-2:#4a4842; --rule:#75726a; --accent:#d97757; --accent-2:#b85a3d;
         --btn-ink:#14140f;
-        --lat1:#3987e5; --lat2:#d95926; --lat3:#199e70; --lat4:#c98500; --lat5:#d55181; --lat6:#008300; --lat7:#9085e9; --lat8:#e66767;
+        --lat1:#e6e3da; --lat2:#d97757; --lat3:#b85a3d; --lat4:#a09d92; --lat5:#6e6b62;
       }
       body.show-app #landing { display: none; }
+      /* While the landing is up, the calculator underneath still lays out,
+         and its saved-results table (min-width 820px) escapes its scroll
+         wrapper and makes the body 733px wide on a phone. Mobile Chrome
+         then grows the layout viewport to fit that overflow, and a
+         position: fixed overlay grows with it, so the landing rendered at
+         733px on a 390px screen with the title running off the right
+         edge. Clipping the app while it is hidden keeps the body at the
+         viewport width; the rule stops applying the moment the app shows. */
+      body:not(.show-app) .app { overflow: hidden; }
       #landing * { box-sizing: border-box; }
       #landing ::selection { background: var(--accent); color: #fff; }
       #landing a { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
       #landing a:hover { text-decoration-thickness: 2px; }
       #landing a:focus-visible, #landing .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
       #landing p { margin: 0 0 1em; }
-      #landing .abstract, #landing .example__caption, #landing .example__open,
+      #landing .abstract, #landing .example__open,
       #landing .sec p, #landing .foot__inner p {
         text-align: justify;
         -webkit-hyphens: auto;
         hyphens: auto;
+        hyphenate-limit-chars: 7 3 3;
       }
       #landing sub, #landing sup { line-height: 0; }
       #landing code { font-family: var(--mono); font-size: 0.8em; background: var(--surface-muted); border: 1px solid var(--border); border-radius: 2px; padding: 1px 5px; white-space: nowrap; }
@@ -5194,9 +5208,9 @@ font-family: 'Source Sans Pro'
 
       #landing .titleblock { padding-top: 52px; }
       #landing h1 { font-family: var(--serif); font-size: clamp(29px, 4.4vw, 38px); line-height: 1.18; font-weight: 700; color: var(--text-strong); letter-spacing: -0.005em; margin: 0 0 20px; max-width: 28ch; }
-      #landing .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 8px 52px; align-items: start; }
+      #landing .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 8px 52px; align-items: start; margin-right: calc(-1 * var(--bleed)); }
       @media (max-width: 880px) {
-        #landing .hero-grid { grid-template-columns: 1fr; }
+        #landing .hero-grid { grid-template-columns: 1fr; margin-right: 0; }
         #landing .lattice { margin-top: 30px; max-width: 360px; }
       }
       #landing .abstract { max-width: 66ch; margin-bottom: 26px; }
@@ -5208,17 +5222,48 @@ font-family: 'Source Sans Pro'
       #landing .actions .alt { font-family: var(--sans); font-size: 14px; color: var(--text-muted); }
       #landing .pipnote { font-size: 14.5px; color: var(--text-muted); margin: 16px 0 0; }
 
-      #landing .example { margin-top: 46px; }
-      #landing .example__caption { font-size: 14px; color: var(--text-muted); max-width: 64ch; margin-bottom: 10px; }
+      /* The worked example: one band under a rule, the composition set as
+         display type, the two tables side by side where the width allows.
+         The formula is the subject's own notation and the one display-size
+         element besides the title, so it is set regular weight to read as
+         a specimen label rather than a second heading. */
+      #landing .example { margin-top: 58px; padding-top: 20px; border-top: 2px solid var(--rule); margin-right: calc(-1 * var(--bleed)); }
+      #landing .example__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 24px; margin-bottom: 24px; }
+      #landing .example__formula { font-family: var(--serif); font-size: 34px; font-weight: 400; line-height: 1.1; letter-spacing: -0.012em; color: var(--text-strong); margin: 0; }
+      #landing .example__lede { font-size: 15.5px; color: var(--text-muted); margin: 0; }
+      #landing .example__grid { display: grid; grid-template-columns: 1fr; gap: 30px 36px; align-items: start; }
+      /* Side by side only once the bleed has grown enough that neither
+         table has to wrap a cell; below that they stack at full width. */
+      @media (min-width: 1120px) {
+        #landing .example__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); grid-template-rows: auto auto; row-gap: 10px; }
+        #landing .example__cap1 { grid-area: 1 / 1; }
+        #landing .example__cap2 { grid-area: 1 / 2; }
+        #landing .example__t1 { grid-area: 2 / 1; }
+        #landing .example__t2 { grid-area: 2 / 2; }
+        #landing .example__caption { margin-bottom: 0; align-self: end; }
+      }
+      #landing .example__caption { font-size: 14px; line-height: 1.5; color: var(--text-muted); margin-bottom: 10px; text-align: left; }
       #landing .example__caption b { color: var(--text); }
-      #landing .example__caption--second { margin-top: 30px; }
-      #landing .extable { border-collapse: collapse; border-top: 2px solid var(--rule); border-bottom: 2px solid var(--rule); font-variant-numeric: tabular-nums; }
-      #landing .extable th { font-family: var(--sans); font-size: 12.5px; font-weight: 600; color: var(--text-muted); text-align: left; padding: 8px 26px 6px 0; border-bottom: 1px solid var(--rule); }
-      #landing .extable td { font-size: 15px; padding: 7px 26px 7px 0; vertical-align: baseline; }
+      #landing .extable { width: 100%; border-collapse: collapse; border-top: 2px solid var(--rule); border-bottom: 2px solid var(--rule); font-variant-numeric: tabular-nums; }
+      #landing .extable th { font-family: var(--sans); font-size: 12.5px; font-weight: 600; color: var(--text-muted); text-align: left; padding: 8px 18px 6px 0; border-bottom: 1px solid var(--rule); }
+      #landing .extable td { font-size: 15px; padding: 7px 18px 7px 0; vertical-align: baseline; }
       #landing .extable th:last-child, #landing .extable td:last-child { padding-right: 0; }
-      #landing .extable td.val { font-family: var(--mono); font-size: 13px; }
-      @media (max-width: 480px) { #landing .extable th, #landing .extable td { padding-right: 14px; } }
-      #landing .example__open { font-size: 14.5px; margin: 12px 0 0; }
+      #landing .extable td.sym { font-size: 16.5px; white-space: nowrap; }
+      #landing .extable td.val { font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+      #landing .extable td.verdict, #landing .extable td.screen { white-space: nowrap; }
+      /* On a phone the rules table keeps one line per row and scrolls
+         sideways, the way a typeset table does, rather than crushing the
+         first column into three lines. */
+      #landing .tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      @media (max-width: 480px) {
+        #landing .extable th, #landing .extable td { padding-right: 12px; font-size: 14px; }
+        #landing .extable td.sym { font-size: 15.5px; }
+        #landing .extable td.val { font-size: 12px; }
+        #landing .example__t2 .extable { min-width: 440px; }
+        #landing .example__t2 .extable td:first-child { white-space: nowrap; }
+        #landing .example__formula { font-size: 30px; }
+      }
+      #landing .example__open { font-size: 14.5px; margin: 22px 0 0; max-width: 70ch; }
 
       #landing section.sec { margin-top: 54px; }
       #landing h2 { font-family: var(--serif); font-size: 23px; line-height: 1.25; font-weight: 700; color: var(--text-strong); margin: 0 0 14px; text-transform: none; letter-spacing: normal; padding-bottom: 0; border-bottom: none; }
@@ -5323,41 +5368,51 @@ font-family: 'Source Sans Pro'
         </div>
 
         <div class="example">
-          <p class="example__caption">
-            <b>Table 1.</b> The equimolar Cantor alloy CoCrFeMnNi, as the calculator reports it.
-            The browser, the desktop app, and the Python library print the same digits, and an
-            automated parity suite keeps it that way.
-          </p>
-          <table class="extable">
-            <thead>
-              <tr><th scope="col">Quantity</th><th scope="col">Symbol</th><th scope="col">Value</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Mixing entropy</td><td>ΔS<sub>mix</sub></td><td class="val">13.38 J/mol·K</td></tr>
-              <tr><td>Atomic size difference</td><td>δ</td><td class="val">3.164 %</td></tr>
-              <tr><td>Mixing enthalpy</td><td>ΔH<sub>mix</sub></td><td class="val">&minus;4.160 kJ/mol</td></tr>
-              <tr><td>Valence electron concentration</td><td>VEC</td><td class="val">8.000</td></tr>
-              <tr><td>Mean melting temperature</td><td><i>T</i><sub>m</sub></td><td class="val">1801 K</td></tr>
-              <tr><td>Omega parameter</td><td>Ω</td><td class="val">5.794</td></tr>
-            </tbody>
-          </table>
-          <p class="example__caption example__caption--second">
-            <b>Table 2.</b> The six phase rules for the same composition, each with the window the
-            app judged it against. The verdicts are the app's own.
-          </p>
-          <table class="extable">
-            <thead>
-              <tr><th scope="col">Rule</th><th scope="col">Screen</th><th scope="col">Value</th><th scope="col">Verdict</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Yeh entropy</td><td>ΔS<sub>mix</sub> vs 1.5<i>R</i></td><td class="val">13.38 J/mol·K</td><td>HEA</td></tr>
-              <tr><td>Zhang size mismatch</td><td>δ ≤ 6.5 %</td><td class="val">3.164 %</td><td>single-phase</td></tr>
-              <tr><td>Guo&ndash;Liu VEC</td><td>≥ 8 FCC, &lt; 6.87 BCC</td><td class="val">8.000</td><td>FCC</td></tr>
-              <tr><td>Yang&ndash;Zhang Ω</td><td>Ω ≥ 1.1</td><td class="val">5.794</td><td>single-phase</td></tr>
-              <tr><td>King Φ</td><td>Φ ≥ 1 at <i>T</i><sub>m</sub></td><td class="val">3.533</td><td>solid solution</td></tr>
-              <tr><td>Ye φ</td><td>φ ≥ 20</td><td class="val">34.82</td><td>solid solution</td></tr>
-            </tbody>
-          </table>
+          <div class="example__head">
+            <p class="example__formula">CoCrFeMnNi</p>
+            <p class="example__lede">The equimolar Cantor alloy, as the calculator reports it.</p>
+          </div>
+          <div class="example__grid">
+              <p class="example__caption example__cap1">
+                <b>Table 1.</b> Six of the descriptors. The browser, the desktop app, and the
+                Python library print the same digits, and an automated parity suite keeps it
+                that way.
+              </p>
+              <div class="tablewrap example__t1">
+              <table class="extable">
+                <thead>
+                  <tr><th scope="col">Quantity</th><th scope="col">Symbol</th><th scope="col">Value</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Mixing entropy</td><td class="sym">ΔS<sub>mix</sub></td><td class="val">13.38 J/mol·K</td></tr>
+                  <tr><td>Atomic size difference</td><td class="sym">δ</td><td class="val">3.164 %</td></tr>
+                  <tr><td>Mixing enthalpy</td><td class="sym">ΔH<sub>mix</sub></td><td class="val">&minus;4.160 kJ/mol</td></tr>
+                  <tr><td>Valence electron concentration</td><td class="sym">VEC</td><td class="val">8.000</td></tr>
+                  <tr><td>Mean melting temperature</td><td class="sym"><i>T</i><sub>m</sub></td><td class="val">1801 K</td></tr>
+                  <tr><td>Omega parameter</td><td class="sym">Ω</td><td class="val">5.794</td></tr>
+                </tbody>
+              </table>
+            </div>
+              <p class="example__caption example__cap2">
+                <b>Table 2.</b> The six phase rules for the same composition, each with the window
+                the app judged it against. The verdicts are the app's own.
+              </p>
+              <div class="tablewrap example__t2">
+              <table class="extable">
+                <thead>
+                  <tr><th scope="col">Rule</th><th scope="col">Screen</th><th scope="col">Value</th><th scope="col">Verdict</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Yeh entropy</td><td class="screen">ΔS<sub>mix</sub> vs 1.5<i>R</i></td><td class="val">13.38 J/mol·K</td><td class="verdict">HEA</td></tr>
+                  <tr><td>Zhang size mismatch</td><td class="screen">δ ≤ 6.5 %</td><td class="val">3.164 %</td><td class="verdict">single-phase</td></tr>
+                  <tr><td>Guo&ndash;Liu VEC</td><td class="screen">≥ 8 FCC<br>&lt; 6.87 BCC</td><td class="val">8.000</td><td class="verdict">FCC</td></tr>
+                  <tr><td>Yang&ndash;Zhang Ω</td><td class="screen">Ω ≥ 1.1</td><td class="val">5.794</td><td class="verdict">single-phase</td></tr>
+                  <tr><td>King Φ</td><td class="screen">Φ ≥ 1 at <i>T</i><sub>m</sub></td><td class="val">3.533</td><td class="verdict">solid solution</td></tr>
+                  <tr><td>Ye φ</td><td class="screen">φ ≥ 20</td><td class="val">34.82</td><td class="verdict">solid solution</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
           <p class="example__open"><a href="?comp=CoCrFeMnNi">Open this composition in the calculator</a> for the full descriptor set, the newer screens (Singh Λ, Wang γ, Senkov&ndash;Miracle κ, Tsai σ, Sheikh ductility), and the per-value provenance behind every number here.</p>
         </div>
       </div>
@@ -5698,10 +5753,18 @@ font-family: 'Source Sans Pro'
             }
             ctx.beginPath();
             ctx.arc(s.x + jx, s.y + jy, s.r * grow, 0, 6.2832);
-            ctx.fillStyle = colors[s.el] || "#888";
-            ctx.fill();
             ctx.lineWidth = 1.5;
-            ctx.strokeStyle = gapColor;
+            if (s.el === 4) {
+              // The fifth species is a ring: the page ground with a thin
+              // outline, so the field keeps a light tone among four inks.
+              ctx.fillStyle = gapColor;
+              ctx.fill();
+              ctx.strokeStyle = colors[4] || "#999";
+            } else {
+              ctx.fillStyle = colors[s.el] || "#888";
+              ctx.fill();
+              ctx.strokeStyle = gapColor;
+            }
             ctx.stroke();
           }
         }
@@ -5747,9 +5810,15 @@ font-family: 'Source Sans Pro'
           document.addEventListener("DOMContentLoaded", refresh);
         }
         if (typeof IntersectionObserver !== "undefined") {
+          // On a phone the figure sits below the first screen, so the
+          // growth entrance is deferred until it is actually seen.
+          var seen = false;
           new IntersectionObserver(function (entries) {
             inView = entries[0].isIntersecting;
-            if (inView) kick();
+            if (inView) {
+              if (!seen) { seen = true; born = null; }
+              kick();
+            }
           }).observe(canvas);
         }
       })();

@@ -38,6 +38,30 @@ The format is loosely based on
 - The maintainer contact in CONTRIBUTING is now the academic address
   already used in the Code of Conduct, so the two public contact points
   agree.
+- Landing page design pass. The hero crystallite is drawn in the
+  brand's own tones (ink, terracotta, oxblood, warm grey, and a ringed
+  fifth species) instead of five categorical primaries, so it reads as
+  the mark grown large rather than a chart dropped onto a document. The
+  worked example is composed as one band: the composition set as a
+  label in display size, Table 1 and Table 2 side by side from 1120px,
+  both starting on the same line whatever their captions' length, and
+  the Guo-Liu screen set on two lines on purpose. Figures (the
+  crystallite and the worked example) may extend up to 120px into the
+  right margin on wide screens; text never does.
+
+### Fixed
+
+- On Android Chrome the landing rendered at 733px on a 390px phone,
+  with the title running off the right edge and the nav off-screen.
+  The calculator underneath the overlay still lays out, its
+  saved-results table escapes its scroll wrapper and widens the body,
+  and mobile Chrome grows the layout viewport to fit, dragging the
+  fixed overlay with it. The hidden app is now clipped while the
+  landing shows; the rule stops applying the moment the app opens.
+- The rules table on a phone now keeps one line per row and scrolls
+  sideways instead of crushing the first column into three lines.
+- The crystallite's growth entrance now plays when the figure is first
+  scrolled into view, rather than silently at load while off-screen.
 
 ## [2.5.2] — 2026-08-18
 
