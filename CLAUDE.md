@@ -22,7 +22,14 @@
   the hook runs the preflight and refuses a failing push; (2) fix
   whatever it names and push again, NEVER `--no-verify` and never
   delete a check; (3) `gh run list` and watch the `Auto release` run
-  to green. Heed preflight's "gate NOT pre-verified" warnings before
+  to green. Green means PyPI, the MCP registry, the GitHub Release and
+  the live site are verified; it does NOT wait for the desktop exe,
+  which is a 15-20 minute Rust build that nobody waits for. Never
+  watch or wait for `desktop-build`: if it fails, `release.yml` opens
+  an issue labelled `desktop-build` that mentions and assigns the
+  owner, so the owner is emailed by GitHub; a later session fixes it
+  and re-fires `gh workflow run release.yml --ref vX.Y.Z`. Heed
+  preflight's "gate NOT pre-verified" warnings before
   touching benchmark, corpus, split, or web-parity code. If a release
   ever fails for a reason the preflight did not catch, the fix commit
   must also add the check and a RELEASING.md catalog row — checks are

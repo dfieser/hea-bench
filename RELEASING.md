@@ -53,8 +53,9 @@ which with no further input:
 3. dispatches `release.yml` on that tag (the full pipeline below) and
    `pages.yml` on `main` (site redeploy), explicitly, because pushes made
    with the workflow token never trigger other workflows on their own;
-4. then **verifies**: the run goes red if the release pipeline fails or if
-   the live site is not serving the new version within 15 minutes.
+4. then **verifies**: the run goes red if PyPI, the MCP registry or the
+   GitHub Release fail, or if the live site is not serving the new version
+   within 15 minutes. It does not wait for the desktop exe (see below).
 
 So the day-to-day release procedure is, in full:
 
@@ -118,6 +119,33 @@ Two traps this recipe avoids, learned the hard way:
 - **A bare commit push is not a release.** Without a tag (or the bot), only
   the Pages site redeploys; PyPI, the MCP registry, the desktop exe, the
   GitHub Release, the Zenodo DOI, and the version badge all stay put.
+
+## The desktop exe is not waited for
+
+The Windows executable is a 15-20 minute Rust build on a Windows runner,
+and it is the only surface that takes longer than a coffee. So, as of
+2026-08-18, `verify-release` in `auto-release.yml` goes green as soon as
+the `pypi`, `mcp` and `release` jobs succeed, and the `Auto release` run
+is green while the exe is still compiling. Agents and humans stop
+watching at that point.
+
+A failure in `desktop-build` or `desktop-attach` would otherwise be
+silent, so `release.yml` has a `desktop-failed` job that runs only when
+one of those two actually failed (not when they were skipped because
+an upstream surface failed first, which the watch already reports). It
+opens an issue titled "Desktop exe failed to ship for vX.Y.Z", labelled
+`desktop-build`, that mentions and assigns the owner; GitHub delivers
+both as email. If an open `desktop-build` issue already exists it
+comments there instead, so a flaky runner cannot fan out into a pile of
+issues. The site's download link shows its update-in-progress notice
+until an exe is attached.
+
+To recover, fix the cause on `main`, then re-fire only the release
+pipeline for that tag and close the issue once the exe is attached:
+
+```bash
+gh workflow run release.yml --ref vX.Y.Z
+```
 
 ## Recovering an interrupted release
 

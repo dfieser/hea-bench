@@ -107,12 +107,19 @@ jobs:
     if: needs.cut.outputs.version != ''
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for the release pipeline to finish green
+      # Green means the three surfaces that matter are live: PyPI, the MCP
+      # registry and the GitHub Release (which mints the Zenodo DOI). The
+      # desktop exe is a 15-20 minute Rust build on a Windows runner and
+      # nobody waits for it: release.yml opens an issue that emails the
+      # owner if that job fails (see desktop-failed there), so this watch
+      # finishes as soon as the three surface jobs succeed.
+      - name: Wait for PyPI, the MCP registry and the GitHub Release to go green
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
           tag="v${{ needs.cut.outputs.version }}"
+          surfaces="pypi mcp release"
           find_run() {
             gh run list --workflow=release.yml --branch "$tag" --limit 1 --json databaseId --jq '.[0].databaseId'
           }
@@ -130,31 +137,45 @@ jobs:
             # GitHub API over the network and a transient dial timeout here
             # once painted a fully successful release red (2026-08-11).
             # Treat an unreadable status as "still running" and poll again.
-            st=$(gh run view "$rid" --json status --jq .status 2>/dev/null || echo "")
-            if [ -z "$st" ]; then sleep 30; continue; fi
-            if [ "$st" = "completed" ]; then
-              cc=$(gh run view "$rid" --json conclusion --jq .conclusion 2>/dev/null || echo "")
-              if [ -z "$cc" ]; then sleep 30; continue; fi
-              if [ "$cc" = "success" ]; then echo "release ${tag}: success"; exit 0; fi
-              if [ "$cc" = "cancelled" ] && [ "$retried" = 0 ]; then
-                retried=1
-                echo "::warning::release ${tag} was cancelled, not failed; re-dispatching once"
-                gh workflow run release.yml --ref "$tag"
-                sleep 20
-                nrid=""
-                for j in $(seq 1 12); do
-                  nrid=$(find_run || true)
-                  if [ -n "$nrid" ] && [ "$nrid" != "$rid" ]; then break; fi
-                  sleep 10
-                done
-                if [ -n "$nrid" ] && [ "$nrid" != "$rid" ]; then
-                  rid="$nrid"
-                  echo "watching retry https://github.com/${GH_REPO}/actions/runs/${rid}"
-                  continue
-                fi
-                echo "::error::the retry dispatch for ${tag} never appeared"; exit 1
+            green=0; failed=""; unreadable=0
+            for j in $surfaces; do
+              # gh's built-in --jq, so this needs no jq on the runner.
+              c=$(gh run view "$rid" --json jobs --jq "[.jobs[] | select(.name == \"$j\")][0] | if . == null then \"pending\" elif .status != \"completed\" then \"running\" else .conclusion end" 2>/dev/null || echo "")
+              case "$c" in
+                success) green=$((green + 1)) ;;
+                pending|running) ;;
+                "") unreadable=1 ;;
+                *) failed="${failed} ${j}=${c}" ;;
+              esac
+            done
+            if [ "$unreadable" = 1 ]; then sleep 30; continue; fi
+            if [ -n "$failed" ]; then echo "::error::release ${tag}: surface job(s) did not succeed:${failed}"; exit 1; fi
+            if [ "$green" = 3 ]; then
+              echo "release ${tag}: pypi, mcp and release are green."
+              echo "desktop exe: building separately; a failure there opens an issue labelled desktop-build."
+              exit 0
+            fi
+            st=$(gh run view "$rid" --json status,conclusion --jq '.status + ":" + (.conclusion // "")' 2>/dev/null || echo "")
+            if [ "$st" = "completed:cancelled" ] && [ "$retried" = 0 ]; then
+              retried=1
+              echo "::warning::release ${tag} was cancelled, not failed; re-dispatching once"
+              gh workflow run release.yml --ref "$tag"
+              sleep 20
+              nrid=""
+              for j in $(seq 1 12); do
+                nrid=$(find_run || true)
+                if [ -n "$nrid" ] && [ "$nrid" != "$rid" ]; then break; fi
+                sleep 10
+              done
+              if [ -n "$nrid" ] && [ "$nrid" != "$rid" ]; then
+                rid="$nrid"
+                echo "watching retry https://github.com/${GH_REPO}/actions/runs/${rid}"
+                continue
               fi
-              echo "::error::release ${tag} finished with conclusion: ${cc}"; exit 1
+              echo "::error::the retry dispatch for ${tag} never appeared"; exit 1
+            fi
+            if [ "${st%%:*}" = "completed" ]; then
+              echo "::error::release ${tag} finished (${st#*:}) before pypi, mcp and release all succeeded"; exit 1
             fi
             sleep 30
           done

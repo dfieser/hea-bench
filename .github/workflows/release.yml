@@ -180,3 +180,50 @@ jobs:
         # --repo is required because this job does not check out the repo, so gh
         # cannot infer the target from a local git remote.
         run: gh release upload "${GITHUB_REF_NAME}" HEA-Bench.exe --clobber --repo "${{ github.repository }}"
+
+  # Nobody waits for the desktop exe: it is a 15-20 minute Rust build, and
+  # verify-release in auto-release.yml finishes as soon as PyPI, the MCP
+  # registry and the GitHub Release are green. A failure here would
+  # therefore be silent. This job opens an issue (or comments on the open
+  # one) that mentions and assigns the owner, which GitHub delivers by
+  # email with no SMTP secret to keep. It runs only when one of the two
+  # desktop jobs actually failed, not when they were skipped because an
+  # upstream surface failed first; that case is already red in the watch.
+  desktop-failed:
+    needs: [desktop-build, desktop-attach]
+    if: always() && (needs.desktop-build.result == 'failure' || needs.desktop-attach.result == 'failure')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Open or update the desktop-build issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          OWNER: dfieser
+          BUILD_RESULT: ${{ needs.desktop-build.result }}
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          run_url="https://github.com/${GH_REPO}/actions/runs/${GITHUB_RUN_ID}"
+          failed="desktop-build"
+          if [ "$BUILD_RESULT" = "success" ]; then failed="desktop-attach"; fi
+          gh label create desktop-build --repo "$GH_REPO" --color 8b3a2f --force \
+            --description "The Windows exe did not build or attach to a release"
+          body=$(printf '%s\n' \
+            "@${OWNER} the Windows executable for **${tag}** did not ship: job \`${failed}\` failed." \
+            "" \
+            "Run: ${run_url}" \
+            "" \
+            "PyPI, the MCP registry, the GitHub Release and the site are unaffected; only the exe asset is missing from the ${tag} release, and the site's download link shows its update-in-progress notice until one is attached. After a fix lands on main, re-fire just this pipeline:" \
+            "" \
+            "    gh workflow run release.yml --ref ${tag}" \
+            "" \
+            "Close this issue once the exe is attached.")
+          existing=$(gh issue list --repo "$GH_REPO" --label desktop-build --state open --limit 1 --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --repo "$GH_REPO" --body "$body"
+            echo "commented on open issue #${existing}"
+          else
+            gh issue create --repo "$GH_REPO" --title "Desktop exe failed to ship for ${tag}" \
+              --body "$body" --label desktop-build --assignee "$OWNER"
+          fi

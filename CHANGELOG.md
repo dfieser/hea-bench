@@ -10,6 +10,16 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Changed
+
+- `verify-release` no longer waits for the desktop exe. It goes green
+  once the `pypi`, `mcp` and `release` jobs succeed, so the `Auto
+  release` run finishes in minutes rather than after a 15-20 minute
+  Rust build. A new `desktop-failed` job in `release.yml` opens an
+  issue labelled `desktop-build` that mentions and assigns the owner
+  when `desktop-build` or `desktop-attach` fails, which GitHub delivers
+  by email, and comments on the open issue instead of opening another.
+
 ## [2.5.3] — 2026-08-23
 
 ### Added
