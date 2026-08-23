@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.5.3] — 2026-08-23
+
 ### Added
 
 - README graphics: a banner and a screenshot of the browser calculator
