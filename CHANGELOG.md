@@ -10,6 +10,12 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.5.5] — 2026-08-24
+
+### Changed
+
+- Document every MCP tool parameter, and add the container and Glama manifests
+
 ## [2.5.4] — 2026-08-23
 
 ### Fixed
