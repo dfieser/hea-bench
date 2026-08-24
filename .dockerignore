@@ -1,0 +1,21 @@
+# Keep the build context small. The wheel needs only src/hea_bench,
+# README.md, LICENSE, and pyproject.toml; everything below is either a
+# build cache or a surface the MCP server does not use. src-tauri alone
+# is ~1.5 GB of Rust artifacts, which would otherwise be uploaded to the
+# daemon on every build.
+.git
+.github
+src-tauri
+dist
+web
+manuscript
+docs
+data
+examples
+tools
+*.exe
+**/__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+.venv

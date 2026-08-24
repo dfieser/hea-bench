@@ -900,6 +900,203 @@ _TOOLS = (
 )
 
 
+# Prose for every tool parameter, keyed by tool then parameter name.
+# FastMCP derives each input schema from the function signature, which
+# carries types and defaults but no meaning, so without this table an
+# agent sees `phase: string` with no hint that the corpus holds only
+# four labels. The descriptions live here rather than in
+# ``Annotated[..., Field(description=...)]`` metadata because that
+# would pull pydantic into module scope and make importing
+# hea_bench.mcp_server fail without the optional ``mcp`` extra, which
+# is the same reason build_server imports lazily. Say what the schema
+# cannot: units, allowed values, caps, and whether a default is a real
+# choice or a placeholder.
+_CORPUS_FILTER_DOCS = {
+    "elements": (
+        "Exact element-set match: keep only rows whose element set is exactly "
+        "this list, e.g. ['Co', 'Cr', 'Fe', 'Mn', 'Ni']."
+    ),
+    "contains": "Keep only rows containing every one of these elements, in any larger alloy.",
+    "excludes": "Keep only rows containing none of these elements.",
+    "n_elements_min": "Fewest distinct elements a row may have.",
+    "n_elements_max": "Most distinct elements a row may have.",
+    "phase": "Consensus phase label to match, one of 'FCC', 'BCC', 'HCP', or 'multi-phase'.",
+    "source": "Contributing dataset to match, one of 'borg2020', 'pei2020', or 'peivaste'.",
+    "labelled": (
+        "True keeps only rows carrying a consensus phase label, false only "
+        "unlabelled rows; omit for both."
+    ),
+    "has_conflict": (
+        "True keeps only rows quarantined because their sources disagree on the "
+        "phase, false excludes them; omit for both."
+    ),
+    "descriptor_ready": (
+        "True keeps only rows whose every element is present in the descriptor "
+        "tables, so descriptors can actually be computed for them."
+    ),
+    "version": (
+        "Corpus version. '0.1.0' (default) is the hand-curated reference corpus "
+        "every published hea-bench number is measured on; '0.2.0' is larger but "
+        "its labels are LLM-extracted and agree with the reference on roughly 70% "
+        "of overlapping rows. This counter is independent of the package version."
+    ),
+}
+
+_BATCH_DOC = (
+    "Formulas to evaluate in a single call, e.g. ['CoCrFeMnNi', 'Al0.3CoCrFeNi']. "
+    "Element counts need not sum to 1; they are normalized to mole fractions. "
+    "Batch here rather than issuing one call per alloy."
+)
+_KING_TEMPERATURE_DOC = (
+    "Temperature in kelvin at which King's Phi is evaluated. Defaults to the "
+    "melting-point estimate derived from the composition; set it only to "
+    "reproduce a published value quoted at a stated temperature."
+)
+_ALPHA_DOC = (
+    "Miscoverage rate for the conformal interval on fitted (tier B) properties: "
+    "0.1, the default, gives a 90% interval. Tier A properties are closed-form and "
+    "ignore it."
+)
+
+_PARAM_DOCS: dict[str, dict[str, str]] = {
+    "parse_composition": {
+        "formula": (
+            "Chemical formula in element-count notation, e.g. 'CoCrFeMnNi' for an "
+            "equiatomic alloy or 'Al0.3CoCrFeNi' for a scaled one. Counts need not "
+            "sum to 1; they are normalized to mole fractions."
+        ),
+    },
+    "alloy_descriptors": {
+        "compositions": _BATCH_DOC,
+        "king_temperature": _KING_TEMPERATURE_DOC,
+    },
+    "alloy_rules": {
+        "compositions": _BATCH_DOC,
+        "king_temperature": _KING_TEMPERATURE_DOC,
+    },
+    "omega_sensitivity": {
+        "composition": (
+            "Single formula to stress-test. Worth running whenever a mixing "
+            "enthalpy near zero makes Omega blow up, which is exactly when its "
+            "magnitude should not be trusted."
+        ),
+        "perturbation_kj_mol": (
+            "Symmetric shift applied to the mixing enthalpy, in kJ/mol. Default "
+            "2.0, the typical spread between Miedema-model implementations."
+        ),
+    },
+    "oxide_report": {
+        "family": (
+            "Oxide structure family, one of 'rock_salt', 'perovskite', 'fluorite', "
+            "or 'pyrochlore'. It selects which formability screens apply."
+        ),
+        "cations": (
+            "Formula-style string for the cation sublattice, e.g. 'MgCoNiCuZn'. For "
+            "'perovskite' and 'pyrochlore' this is the A site and b_site_cations is "
+            "also required."
+        ),
+        "b_site_cations": (
+            "Formula-style string for the B-site cations. Required for 'perovskite' "
+            "and 'pyrochlore', ignored for the single-sublattice families."
+        ),
+        "oxygen_per_formula_unit": (
+            "Oxygen atoms per formula unit, used to close the charge balance. "
+            "Applies to 'fluorite' only, where it defaults to 2.0."
+        ),
+        "spin": (
+            "Spin state used to pick Shannon radii for the 3d cations whose tables "
+            "distinguish them: 'high' (default) or 'low'."
+        ),
+    },
+    "element_coverage": {},
+    "corpus_query": {
+        **_CORPUS_FILTER_DOCS,
+        "limit": (
+            "Rows to return in the sample, capped at 50. The reported match count "
+            "is always exact and unaffected by this cap."
+        ),
+    },
+    "corpus_describe": dict(_CORPUS_FILTER_DOCS),
+    "predict_properties": {
+        "compositions": _BATCH_DOC,
+        "properties": (
+            "Which properties to predict, any of 'density', 'melting_temperature', "
+            "'cost_per_kg' (closed-form, tier A) and 'hardness' (fitted surrogate, "
+            "tier B). Defaults to all four."
+        ),
+        "alpha": _ALPHA_DOC,
+        "processing": (
+            "Processing route to condition fitted models on, e.g. 'as-cast' or "
+            "'annealed'. Omit when the route is unknown."
+        ),
+    },
+    "check_applicability": {
+        "composition": (
+            "Single formula to test against the corpus's coverage. Run it before "
+            "trusting any prediction for an unusual chemistry."
+        ),
+    },
+    "design_search": {
+        "elements": (
+            "Element palette to screen over, at most 10 elements. An oversized "
+            "palette is refused outright rather than truncated."
+        ),
+        "n_elements_min": "Fewest distinct elements a candidate may contain. Default 3.",
+        "n_elements_max": "Most distinct elements a candidate may contain. Default 5.",
+        "step": (
+            "Mole-fraction spacing of the search lattice. Floor 0.05; finer "
+            "lattices belong in the Python API with an explicit evaluation budget."
+        ),
+        "objectives": (
+            "[direction, property] pairs, e.g. "
+            "[['maximize', 'hardness'], ['minimize', 'cost_per_kg']]. Direction is "
+            "'maximize' or 'minimize'. Omit to rank by constraint satisfaction alone."
+        ),
+        "composition_constraints": (
+            "Per-element mole-fraction bounds, each "
+            "{'element': 'Al', 'min': 0.0, 'max': 0.2}. Bounds default to 0.0 and 1.0."
+        ),
+        "rule_constraints": (
+            "Required phase-rule verdicts, each "
+            "{'rule': 'yang_omega', 'satisfied': true}; 'satisfied' also accepts a "
+            "list of acceptable verdicts. Rule names: guo_vec, king_phi, "
+            "senkov_kappa, sheikh_ductility, tsai_sigma, yang_omega, ye_phi, "
+            "yeh_entropy, zhang_delta."
+        ),
+        "property_constraints": (
+            "Bounds on predicted properties, each "
+            "{'prop': 'density', 'max': 8.0, 'bound': 'point'}. 'bound' selects what "
+            "is compared for fitted properties: 'point' (default), or 'lower'/"
+            "'upper' to compare that end of the interval when the constraint guards "
+            "against under- or overshooting."
+        ),
+        "include_out_of_domain": (
+            "True keeps candidates that fall outside the fitted models' training "
+            "domain, flagged rather than dropped. Default false."
+        ),
+        "optimize_bound": (
+            "Which end of the interval ranks fitted objectives: 'lower' (default, "
+            "the conservative choice) or 'point'."
+        ),
+        "max_candidates": "Candidates to return, capped at 20. Default 10.",
+        "alpha": _ALPHA_DOC,
+    },
+    "campaign_suggest": {
+        "campaign_path": (
+            "Filesystem path to a campaign JSON file written by "
+            "hea_bench.design.campaign.Campaign.save. Read only; this tool never "
+            "writes the file back."
+        ),
+        "n": "Suggestions to return in this batch, capped at 10. Default 5.",
+        "strategy": (
+            "Acquisition strategy: 'ei' (expected improvement, the default) or "
+            "'ucb' (upper confidence bound, which explores more)."
+        ),
+    },
+    "about": {},
+}
+
+
 def build_server():
     """Create the FastMCP server with all tools registered.
 
@@ -960,7 +1157,33 @@ def build_server():
                 openWorldHint=False,
             )
         )(tool)
+    _document_parameters(server)
     return server
+
+
+def _document_parameters(server) -> None:
+    """Copy _PARAM_DOCS onto the registered tools' input schemas.
+
+    Raises rather than warns when a parameter has no entry: an
+    undocumented parameter should break the test suite the moment it is
+    added, not ship as a blank field in the manifest.
+    """
+    for tool in server._tool_manager.list_tools():
+        docs = _PARAM_DOCS.get(tool.name)
+        if docs is None:
+            raise RuntimeError(
+                f"tool {tool.name!r} has no _PARAM_DOCS entry; add one, even if "
+                f"the tool takes no parameters"
+            )
+        properties = tool.parameters.get("properties", {})
+        undocumented = sorted(set(properties) - set(docs))
+        if undocumented:
+            raise RuntimeError(
+                f"tool {tool.name!r} has undocumented parameters: "
+                f"{', '.join(undocumented)}; add them to _PARAM_DOCS"
+            )
+        for name, schema in properties.items():
+            schema["description"] = docs[name]
 
 
 def main() -> None:

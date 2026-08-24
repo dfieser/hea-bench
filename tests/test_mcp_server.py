@@ -201,3 +201,24 @@ def test_every_tool_declares_safety_annotations():
         assert ann.destructiveHint is False, f"{tool.name} not marked non-destructive"
         assert ann.openWorldHint is False, f"{tool.name} not marked closed-world"
         assert ann.title, f"{tool.name} has no human-readable title"
+
+
+def test_every_tool_parameter_carries_a_description():
+    """A bare type is not a tool definition.
+
+    FastMCP builds each input schema from the signature, so without the
+    _PARAM_DOCS table an agent sees a parameter named "phase" typed
+    string with no hint that only four labels exist. Tool-definition
+    audits score parameter semantics directly, and build_server refuses
+    to start on an undocumented parameter, so this pins the contract.
+    """
+    pytest.importorskip("mcp")
+    from hea_bench.mcp_server import build_server
+
+    documented = 0
+    for tool in build_server()._tool_manager.list_tools():
+        for name, schema in tool.parameters.get("properties", {}).items():
+            description = schema.get("description", "")
+            assert description.strip(), f"{tool.name}.{name} has no description"
+            documented += 1
+    assert documented > 40, f"only {documented} parameters seen; did registration change?"
