@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.5.6] — 2026-08-25
+
 ### Changed
 
 - The landing hero now leads with the claim that distinguishes the tool
