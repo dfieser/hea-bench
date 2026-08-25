@@ -5207,7 +5207,7 @@ font-family: 'Source Sans Pro'
       #landing .masthead__nav a:hover { color: var(--accent); text-decoration: underline; }
 
       #landing .titleblock { padding-top: 52px; }
-      #landing h1 { font-family: var(--serif); font-size: clamp(29px, 4.4vw, 38px); line-height: 1.18; font-weight: 700; color: var(--text-strong); letter-spacing: -0.005em; margin: 0 0 20px; max-width: 28ch; }
+      #landing h1 { font-family: var(--serif); font-size: clamp(29px, 4.0vw, 35px); line-height: 1.18; font-weight: 700; color: var(--text-strong); letter-spacing: -0.005em; margin: 0 0 20px; max-width: 40ch; }
       #landing .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 8px 52px; align-items: start; margin-right: calc(-1 * var(--bleed)); }
       @media (max-width: 880px) {
         #landing .hero-grid { grid-template-columns: 1fr; margin-right: 0; }
@@ -5347,15 +5347,8 @@ font-family: 'Source Sans Pro'
         <div class="hero-grid">
           <div>
             <p class="abstract">
-              HEA-Bench computes the quantities used to screen multi-component alloys for
-              solid-solution formation, from the mixing entropy and enthalpy to the
-              Yang&ndash;Zhang Ω and King Φ parameters. It judges each composition against
-              the six empirical phase rules built on those quantities. An oxide mode adds
-              the matching formability screens for four high-entropy oxide families. Every
-              result states its formula and the literature source of each parameter, and
-              exports as a receipt with a content-hashed result ID. The code contains no
-              fitted model. Each number is a closed-form expression over data tables taken
-              from the primary literature.
+              No fitted model. Every number is a closed-form expression over curated data
+              tables, with its literature source attached.
             </p>
             <div class="actions">
               <a class="btn" href="#calculator">Open the calculator</a>

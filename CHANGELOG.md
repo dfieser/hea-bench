@@ -10,6 +10,15 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Changed
+
+- The landing hero now leads with the claim that distinguishes the tool
+  rather than an abstract. The headline sets at a scale that lands in two
+  lines instead of three, and the 88-word opening paragraph is cut to one
+  sentence. Everything the paragraph said about descriptors, phase rules,
+  oxide screens and receipts is already stated, in more detail, in the
+  sections below it, so nothing was lost by cutting rather than moving it.
+
 ## [2.5.5] — 2026-08-24
 
 ### Changed
