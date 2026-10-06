@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.7.2] — 2026-10-06
+
 ### Fixed
 
 - The landing page said the Dataset tab holds 7,783 alloys, the size of

@@ -17,7 +17,7 @@ models, (2) screen candidate alloys with the published empirical
 rules, (3) compute high-entropy-oxide (HEO) and ceramic formability
 descriptors, or (4) browse the corpus, predict properties and phases,
 search compositions and run the benchmark. Currently shipping
-version 2.7.1 under MIT.
+version 2.7.2 under MIT.
 
 ## For AI agents reading this first
 
@@ -167,7 +167,7 @@ archived software record:
 @software{hea_bench,
   author  = {Fieser, David and Dewanjee, Unmanaa and Hu, Anming},
   title   = {hea-bench: An open calculator of high-entropy-alloy and high-entropy-oxide thermodynamic descriptors and empirical phase-prediction rules},
-  version = {2.7.1},
+  version = {2.7.2},
   license = {MIT},
   doi     = {10.5281/zenodo.20346287},
   url     = {https://github.com/dfieser/hea-bench},
