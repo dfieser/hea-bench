@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.6.1] — 2026-10-06
+
 ### Fixed
 
 - The `interop` extra now pins HEACalculator to the 2.0 series
