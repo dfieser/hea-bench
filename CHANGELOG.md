@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.7.1] — 2026-10-06
+
 2.7.1 is the first published 2.7 release. GitHub refused the v2.7.0 tag
 push, so 2.7.0 reached only the web site. 2.7.1 contains everything
 listed under 2.7.0 plus the changes below, which answer an outside
