@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.7.3] — 2026-10-06
+
 ### Fixed
 
 - The ceramic report cited Sangiovanni et al. (2021) as Mater. Des.
