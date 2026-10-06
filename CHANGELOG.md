@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.6.2] — 2026-10-06
+
 ### Added
 
 - A browser test, `tests/test_app_smoke.py`, opens the built site in
