@@ -12,10 +12,12 @@ script is the single command that closes that gap::
 
 Full mode runs, in order: the publish-metadata checks, the version
 consistency check, ruff over src and tests (the exact release-gate lint),
-and the full pytest suite, then reports which release gates could NOT be
-verified locally (a missing corpus skips the benchmark-freeze evidence, a
-missing Node skips the JS parity evidence) so the risk is taken knowingly
-rather than by accident.
+a rebuild of the in-app engine bundle when its pinned runtime is already
+on disk, and the full pytest suite, then reports which release gates
+could NOT be verified locally (a missing corpus skips the
+benchmark-freeze evidence, a missing Node skips the JS parity evidence,
+a missing engine bundle skips the engine parity evidence) so the risk is
+taken knowingly rather than by accident.
 
 The ratchet rule: whenever a release fails for a new reason, the same
 change that fixes it must teach this script (or the CI gate) to catch
@@ -305,6 +307,16 @@ def main(argv: list[str]) -> int:
             ("ruff (release-gate lint)", [sys.executable, "-m", "ruff", "check", "src", "tests"]),
             ("pytest (full suite)", [sys.executable, "-m", "pytest", "tests/", "-q", "-rs"]),
         ]
+        # The in-app engine bundle (web/engine/) is gitignored. When the
+        # pinned Pyodide runtime is already on disk, rebuild the package zip
+        # from this tree first (a second, no download), so the engine parity
+        # test checks the code being pushed and not an older build.
+        engine_runtime = ROOT / "web" / "engine" / "pyodide"
+        if engine_runtime.exists():
+            checks.insert(
+                2,
+                ("web engine bundle (rebuilt from this tree)", [sys.executable, "tools/build_web_engine.py"]),
+            )
         env_src = os.environ.get("PYTHONPATH", "")
         if "src" not in env_src.split(os.pathsep):
             os.environ["PYTHONPATH"] = os.pathsep.join(p for p in ("src", env_src) if p)
@@ -332,6 +344,14 @@ def main(argv: list[str]) -> int:
             warnings.append(
                 "JS parity gate NOT pre-verified: no Node.js on PATH, the web "
                 "parity suites were skipped."
+            )
+        if not engine_runtime.exists():
+            warnings.append(
+                "web-engine gate NOT pre-verified: no local engine bundle, so "
+                "tests/test_web_engine.py was skipped. If this push touches "
+                "src/hea_bench or web/, run python tools/build_web_engine.py once "
+                "(downloads the pinned ~30 MB Pyodide runtime) and preflight again, "
+                "or expect the CI web-engine job to be the first real run."
             )
 
     for warning in warnings:

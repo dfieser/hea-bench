@@ -116,6 +116,20 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: "src-tauri -> target"
+      # The exe embeds web/, including the gitignored in-app engine
+      # (web/engine/), so the engine is assembled before Tauri bundles the
+      # folder. Without it the desktop app's Dataset, Design and Benchmark
+      # tabs and the predictions panel would not start.
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Restore the pinned Pyodide runtime
+        uses: actions/cache@v4
+        with:
+          path: web/engine/pyodide
+          key: pyodide-${{ hashFiles('tools/build_web_engine.py') }}
+      - name: Assemble the in-app engine bundle
+        run: python tools/build_web_engine.py
       - name: Install the Tauri CLI
         run: cargo install tauri-cli --version "^2.0" --locked
       - name: Build the portable executable (no installer)

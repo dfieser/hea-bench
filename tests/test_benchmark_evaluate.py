@@ -3,7 +3,7 @@
 import pytest
 
 from hea_bench.benchmark.corpus import Benchmark, BenchmarkRow
-from hea_bench.benchmark.evaluate import MajorityClass, evaluate
+from hea_bench.benchmark.evaluate import MajorityClass, evaluate, score_predictions
 from hea_bench.benchmark.splits import family_of, grouped_split, random_split
 
 
@@ -164,3 +164,48 @@ def test_table_renders_both_columns_and_the_gap() -> None:
     assert "grouped (extrapolative)" in text
     assert "random (interpolative)" in text
     assert "balanced_accuracy" in text
+
+
+# --- uploaded predictions --------------------------------------------------
+
+
+def _fold_predictions(bench: Benchmark) -> dict:
+    """What a user would upload: FamilyLookup trained once per fold."""
+    predictions = {}
+    for name, scheme in (("grouped", bench.grouped), ("random", bench.random)):
+        predicted = {}
+        for fold in scheme.folds:
+            model = FamilyLookup().fit(
+                [bench.rows[i].composition for i in fold.train],
+                [bench.rows[i].label for i in fold.train],
+            )
+            labels = model.predict([bench.rows[i].composition for i in fold.test])
+            for index, label in zip(fold.test, labels):
+                predicted[bench.rows[index].composition_key] = label
+        predictions[name] = predicted
+    return predictions
+
+
+def test_uploaded_predictions_reproduce_evaluate() -> None:
+    bench = _synthetic_benchmark()
+    uploaded = score_predictions(bench, _fold_predictions(bench), model_name="upload")
+    direct = evaluate(FamilyLookup(), bench)
+    assert uploaded.model_name == "upload"
+    assert uploaded.grouped.digest == bench.grouped.digest
+    for key, value in direct.gap.items():
+        assert uploaded.gap[key] == pytest.approx(value)
+    for key in ("balanced_accuracy_mean", "macro_f1_mean", "mcc_mean", "n_scored"):
+        assert uploaded.grouped.summary[key] == pytest.approx(direct.grouped.summary[key])
+        assert uploaded.random.summary[key] == pytest.approx(direct.random.summary[key])
+
+
+def test_uploaded_predictions_are_validated() -> None:
+    bench = _synthetic_benchmark()
+    predictions = _fold_predictions(bench)
+    with pytest.raises(ValueError, match="'random' entry"):
+        score_predictions(bench, {"grouped": predictions["grouped"]})
+    with pytest.raises(ValueError, match="not in corpus"):
+        score_predictions(bench, {**predictions, "random": {"Xx1.0": "multi-phase"}})
+    first_key = next(iter(predictions["grouped"]))
+    with pytest.raises(ValueError, match="not classes"):
+        score_predictions(bench, {**predictions, "grouped": {first_key: "BCC"}})

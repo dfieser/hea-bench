@@ -1,102 +1,98 @@
-# web/ — self-contained browser calculator
+# web/: the HEA-Bench app
 
-The browser surface of `hea-bench`. It runs entirely client-side. No
-server, no install, no Python runtime in the browser.
+The app most people use. It runs entirely client-side: compositions never
+leave the user's machine. This folder is the site root of
+<https://dfieser.github.io/hea-bench/> (GitHub Pages deploys it) and the
+frontend the desktop `.exe` embeds (`src-tauri/`), so the website and the
+desktop app are the same app.
 
-This same folder is also the frontend bundled into the native desktop
-app (`src-tauri/`), so the browser page and the desktop `.exe` are the
-identical calculator. It is likewise what GitHub Pages deploys, so the
-folder is the site root of <https://dfieser.github.io/hea-bench/>.
+**Every user-facing library feature must appear and work here** (owner
+rule, see `../CLAUDE.md`). `tests/test_app_parity.py` enforces it: every
+public library name, MCP tool, phase rule and CLI command is mapped in
+`tests/data/app_parity.json` to the app elements, engine calls and tests
+that prove it works, and CI fails on any name without one.
 
-## How to use it
+## How to open it
 
-Three equivalent paths:
+- **Online:** <https://dfieser.github.io/hea-bench/>. The landing page
+  lists what each tab does. Everything works there.
+- **Desktop:** the portable `HEA-Bench.exe` on the GitHub release page.
+  Everything works offline except building the dataset, which downloads
+  the 6.4 MB Peivaste file from its authors' repository once.
+- **From a clone:** run `python tools/build_web_engine.py` once (it
+  assembles `web/engine/`, see below), then `python -m http.server -d web`
+  and open <http://localhost:8000>. Double-clicking `index.html` also
+  works, but only for the instant calculator: browsers block the engine
+  (a Web Worker) on `file://` pages, and the page says so.
 
-- **Online:** open <https://dfieser.github.io/hea-bench/>. It opens on
-  the landing page; press **Open the calculator** to start.
-- **Offline / from a local copy:** double-click `index.html`. It opens
-  in your browser and runs immediately. Everything it needs is in this
-  folder.
-- **Desktop app:** build the Tauri wrapper in `../src-tauri/` for a
-  single offline executable (see the repo `README.md`).
+## The tabs
 
-## What it does
+- **Calculator.** Alloy descriptors, the nine phase rules, the Miedema
+  decompositions and the Ω pair-table check, computed instantly by the
+  JavaScript core. The Properties and predictions panel adds density and
+  raw-material cost (instant) and, from the engine, hardness with its
+  conformal interval, the conformal phase prediction sets and the domain
+  flag. **Oxides** and **Ceramics** (carbides, nitrides, diborides) are
+  modes of the same tab, also instant.
+- **Dataset.** The consolidated experimental corpus (v0.1.0 by default,
+  v0.2.0 opt-in) with every source's label and paper, filters, paging and
+  CSV download, plus the measured hardness and density records.
+- **Design.** Composition search (grid, property limits, rule filters,
+  Pareto front) and experiment planning (record measurements, get the
+  next alloys to make, save and reopen the campaign file).
+- **Benchmark.** The frozen random and family-grouped splits with their
+  digests, live baseline reruns, scoring of uploaded predictions with the
+  gap, and the conformal coverage study.
+- **Element data, Theory, Equations, References.** The data behind every
+  number and the documentation, all offline.
 
-For any composition you enter, the calculator reports:
+## Two engines, one set of numbers
 
-- **Core descriptors** — mixing entropy ΔS_mix, atomic-size mismatch δ,
-  mean melting temperature T_m, mixing enthalpy ΔH_mix,
-  valence-electron concentration VEC, Yang-Zhang Ω, Pauling
-  electronegativity mismatch Δχ, Mansoori excess entropy `S_E`,
-  `DeltaG_ss`, `DeltaG_max`, King `Phi`, and Ye `phi`.
-- **Phase-prediction rules** — the verdicts of all six shipped rules:
-  Yeh entropy, Zhang size mismatch, Guo-Liu VEC, Yang-Zhang Ω,
-  King `Phi`, and Ye `phi`.
-- **King-temperature override** — leave it blank to use `T = T_m`, or
-  enter an explicit temperature in kelvin for the King `Phi` path.
-- **Miedema-model formation enthalpies** — compound enthalpy and the
-  solid-solution and amorphous enthalpies decomposed into chemical,
-  elastic, structural, and topological contributions.
-- **Oxides mode** — a mode switch at the top of the input rail flips the
-  calculator to high-entropy oxides: rock salt, perovskite, fluorite,
-  and pyrochlore families with automatic charge-balance oxidation-state
-  assignment, Shannon radii (94 elements), per-sublattice entropy and
-  size-disorder descriptors, the perovskite tolerance factors (t, μ,
-  Bartel τ), the fluorite radius-dispersion rule, the pyrochlore
-  radius-ratio window, and literature example presets. The oxide math
-  is parity-tested against the Python library
-  (`tests/test_web_oxides_parity.py`).
-
-The calculator also ships its own documentation: a **Theory** view that
-derives every alloy and oxide formula with citations, a grouped,
-filterable **Equations** reference, and a grouped **References**
-bibliography. Deep links open a view directly:
-`index.html#theory`, `#equations`, `#refs`, or any theory section
-id such as `index.html#sec-perovskite`.
-
-## What's here
-
-- `index.html` — the whole front end in one file: a short landing page
-  (hero, the four surfaces, citation) plus the calculator itself
-  (title-bar tabs, the two-pane workspace, the Theory/Equations/References
-  views, the Miedema decomposition). The landing shows first; **Open the
-  calculator** or any deep link such as `#theory` switches to the app via
-  the URL hash. This single file is what the hosted site serves and what
-  the desktop app loads.
-- `hea-calculator-core.js` — the shared calculation core for the
-  parity-critical descriptor and rule outputs. `Hmix` / `Omega` are
-  computed from the single vendored pair-enthalpy table, identical to
-  `hea_bench.mixing_enthalpy` / `hea_bench.omega` in the Python library.
-  The alloy and oxide data tables inside it are GENERATED from the
-  Python library by `tests/data/_sync_js_tables.py` and
+- `hea-calculator-core.js` is a pure-JavaScript port of the descriptor,
+  rule, oxide, ceramics, tier A property and Ω-sensitivity code. It is
+  instant and works even from `file://`. Its data tables are GENERATED
+  from the Python library by `tests/data/_sync_js_tables.py` and
   `tests/data/_sync_js_oxide_tables.py`; never hand-edit those blocks.
-- `mathjax/` — bundled MathJax build for math notation rendering.
-  Vendored so the page works fully offline.
-- `.nojekyll` — marks the directory so GitHub Pages serves files as-is.
+  Parity: `tests/test_web_parity.py`, `tests/test_web_oxides_parity.py`,
+  `tests/test_web_properties_parity.py`, `tests/test_web_miedema.py`.
+- `hea-engine-worker.js` runs the **real `hea_bench` Python package**,
+  unchanged, in a Web Worker through Pyodide, for everything that needs
+  the corpus or scikit-learn. `hea-engine.js` is the page's handle on it
+  (lazy start, progress, restart, a watchdog for stalled starts), and
+  `hea_bench.webapp` is the JSON bridge it calls. The built corpus and
+  the Peivaste download persist in IndexedDB, keyed by version. Parity:
+  `tests/test_web_engine.py` runs the shipped bundle under Node and
+  compares every call in `tests/data/web_engine_calls.json` with CPython.
+- `hea-features.js` and `hea-features.css` hold the Dataset, Design and
+  Benchmark tabs, the predictions panel, the Ω check and Ceramics mode.
 
-## Element coverage
+## web/engine/ (gitignored, built at deploy time)
 
-The calculator covers the same 55 elements as the Python library's
-`ELEMENTAL_DATA` table (see the app's Data view for the full table
-with per-value sources and cross-checks). Compositions containing any
-element outside this set surface a warning in the page rather than
-producing a number. The auxiliary Miedema formation-enthalpy
-decompositions still run on the original 37-element parameter set and
-simply stay blank outside it; the Andreoli elastic-strain energy and
-every core descriptor cover all 55. The oxide mode draws on a 94-element Shannon ionic-radius table
-vendored from pymatgen. Custom user-defined elements compute every core
-descriptor and rule; electronegativity and decomposition outputs
-degrade with a warning when their parameters are not supplied.
+`python tools/build_web_engine.py` writes `web/engine/`: the pinned
+Pyodide 0.29.3 runtime with the numpy, scipy and scikit-learn wheels
+(every file SHA-256 pinned in the script), `hea-bench.zip` (the package
+source, the shipped raw data and the published baselines, built
+deterministically from tracked files) and `manifest.json`. It is never
+committed. `pages.yml` and the desktop build in `release.yml` run it
+before shipping, the CI `web-engine` job tests the result, and the
+`verify-live` job in `auto-release.yml` checks that the live engine
+reports the released version. `python tools/build_web_engine.py --check`
+reports a stale or missing bundle and the exact fix.
 
-## Updating the calculator
+## Asset URLs
 
-For parity-critical descriptor or rule changes, update
-`hea-calculator-core.js` and then run the parity regressions in
-`tests/test_web_parity.py` (alloys, 1484 pairs plus multi-element
-fixtures) and `tests/test_web_oxides_parity.py` (oxides, including
-exact warning strings). Both execute the shared JS core under Node and
-compare against the matching Python APIs.
+The four scripts and the stylesheet load as `name?v=<version>`, stamped
+by `tools/version.py`, so a release never mixes a new page with cached
+old scripts. Do not edit those query strings by hand.
 
-For page-only UI work, edit `index.html`. The calculator stays fully
-offline, and the numerical drift risk is guarded by the automated
-Python-vs-JS parity tests.
+## Changing the app
+
+1. Library change that users should see: build its surface here, add the
+   bridge method to `hea_bench.webapp` if it needs Python, add the call to
+   `tests/data/web_engine_calls.json`, and map the public names in
+   `tests/data/app_parity.json`. `pytest tests/test_app_parity.py` names
+   anything missing and the exact fix.
+2. Descriptor, rule, oxide, ceramics or tier A change: update
+   `hea-calculator-core.js` and run the parity suites listed above.
+3. Page-only UI work: edit `index.html` (keep its CRLF line endings) or
+   `hea-features.js` / `hea-features.css`.

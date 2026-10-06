@@ -141,6 +141,28 @@ def _within_bounds(comp: Composition, bounds: dict) -> bool:
     )
 
 
+def passes_property_constraints(predictions: dict, property_constraints) -> bool:
+    """True when every PropertyConstraint holds for these predictions.
+
+    ``bound`` picks what is compared for a fitted property: the point
+    prediction, or the lower or upper end of its interval. Tier A
+    properties have no interval and always compare the value.
+    """
+    for constraint in property_constraints:
+        prediction = predictions[constraint.prop]
+        if prediction.interval is not None and constraint.bound == "lower":
+            compared = prediction.interval[0]
+        elif prediction.interval is not None and constraint.bound == "upper":
+            compared = prediction.interval[1]
+        else:
+            compared = prediction.value
+        if constraint.min is not None and compared < constraint.min - 1e-9:
+            return False
+        if constraint.max is not None and compared > constraint.max + 1e-9:
+            return False
+    return True
+
+
 def _lattice_compositions(palette, low: int, high: int, units: int):
     """Every composition on the step lattice, by subset size then order.
 
@@ -216,7 +238,11 @@ def search(
     RuntimeError
         A domain constraint was requested but no corpus is built.
     """
-    from ..properties import PropertyUnavailableError, available_properties, predict_property
+    from ..properties import (
+        PropertyUnavailableError,
+        available_properties,
+        predict_property_batch,
+    )
     from ..uncertainty import default_domain
 
     palette = sorted(dict.fromkeys(elements))
@@ -308,7 +334,7 @@ def search(
         dict.fromkeys(canonical_rule_name(c.rule) for c in rule_constraints)
     )
     n_evaluated = 0
-    feasible: list[Candidate] = []
+    survivors: list[tuple[Composition, dict, dict | None, bool | None]] = []
     for comp in _lattice_compositions(palette, low, high, units):
         n_evaluated += 1
         if not _within_bounds(comp, bounds):
@@ -324,32 +350,22 @@ def search(
         in_domain = novelty["in_domain"] if novelty is not None else None
         if domain_required is not None and in_domain != domain_required:
             continue
+        survivors.append((comp, verdicts, novelty, in_domain))
 
-        predictions = {}
-        unavailable = False
-        for name in needed_properties:
-            try:
-                predictions[name] = predict_property(comp, name, alpha=alpha)
-            except PropertyUnavailableError:
-                unavailable = True
-                break
-        if unavailable:
+    # Properties for every survivor at once: a fitted model scores the
+    # whole batch in one call instead of one call per lattice point,
+    # with identical numbers (see predict_property_batch).
+    batches = {
+        name: predict_property_batch([entry[0] for entry in survivors], name, alpha=alpha)
+        for name in needed_properties
+    }
+
+    feasible: list[Candidate] = []
+    for position, (comp, verdicts, novelty, in_domain) in enumerate(survivors):
+        predictions = {name: batches[name][position] for name in needed_properties}
+        if any(isinstance(p, PropertyUnavailableError) for p in predictions.values()):
             continue
-
-        ok = True
-        for constraint in property_constraints:
-            prediction = predictions[constraint.prop]
-            if prediction.interval is not None and constraint.bound == "lower":
-                compared = prediction.interval[0]
-            elif prediction.interval is not None and constraint.bound == "upper":
-                compared = prediction.interval[1]
-            else:
-                compared = prediction.value
-            if constraint.min is not None and compared < constraint.min - 1e-9:
-                ok = False
-            if constraint.max is not None and compared > constraint.max + 1e-9:
-                ok = False
-        if not ok:
+        if not passes_property_constraints(predictions, property_constraints):
             continue
 
         objective_values = {}

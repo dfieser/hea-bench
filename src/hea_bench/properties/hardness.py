@@ -111,6 +111,45 @@ def predict_hardness(
         )
 
     value = float(model.predict([vector])[0])
+    return _assemble(comp, value, conformal, domain, n_training, alpha, processing)
+
+
+def predict_hardness_batch(
+    compositions, *, alpha: float = 0.1, processing: str | None = None
+) -> list:
+    """:func:`predict_hardness` for many compositions in one forest call.
+
+    Returns one entry per input, in order: the same tuple
+    :func:`predict_hardness` returns, or the :class:`PropertyUnavailableError`
+    it would have raised. One forest call instead of one per row is what
+    makes a lattice search affordable in the browser engine; the numbers
+    are identical, because a forest averages its trees per row in the
+    same order either way.
+    """
+    model, conformal, domain, n_training = _fitted(processing)
+    comps = [normalize(composition) for composition in compositions]
+    vectors = [matrix_vector(comp) for comp in comps]
+    scorable = [vector for vector in vectors if vector is not None]
+    values = iter(model.predict(scorable)) if scorable else iter(())
+    results: list = []
+    for comp, vector in zip(comps, vectors):
+        if vector is None:
+            results.append(
+                PropertyUnavailableError(
+                    f"hardness needs all 14 descriptor features and at least one is "
+                    f"not computable for {comp!r} (element outside the descriptor "
+                    f"tables, or a singular descriptor)"
+                )
+            )
+            continue
+        results.append(
+            _assemble(comp, float(next(values)), conformal, domain, n_training, alpha, processing)
+        )
+    return results
+
+
+def _assemble(comp, value, conformal, domain, n_training, alpha, processing):
+    """The (value, interval, novelty, n_training, warnings) tuple for one row."""
     # The interval is the calibrated threshold around the prediction just
     # made; rebuilding it via predict_interval would run the forest a
     # second time on the same row for the same numbers.
@@ -142,4 +181,4 @@ def predict_hardness(
     return value, interval, novelty, n_training, tuple(warnings)
 
 
-__all__ = ["N_MIN", "PropertyUnavailableError", "predict_hardness"]
+__all__ = ["N_MIN", "PropertyUnavailableError", "predict_hardness", "predict_hardness_batch"]

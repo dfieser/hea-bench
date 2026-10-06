@@ -29,7 +29,7 @@ from dataclasses import dataclass
 from .._json import json_safe
 from ..composition import Composition, normalize
 from .data.element_prices import PRICE_ASOF
-from .hardness import PropertyUnavailableError, predict_hardness
+from .hardness import PropertyUnavailableError
 from .tier_a import cost_breakdown, cost_per_kg, density
 
 _TIER_A_NOTES = {
@@ -177,23 +177,10 @@ def predict_property(
     comp = normalize(composition)
 
     if prop == "hardness":
-        value, interval, novelty, n_training, warnings = predict_hardness(
-            comp, alpha=alpha, processing=processing
-        )
-        return PropertyPrediction(
-            prop="hardness",
-            value=value,
-            unit="HV",
-            interval=interval,
-            alpha=alpha,
-            tier="B",
-            in_domain=novelty["in_domain"],
-            novelty=novelty,
-            n_training=n_training,
-            model_card="docs/property-hardness.md",
-            asof=None,
-            warnings=warnings,
-        )
+        entry = predict_property_batch([comp], "hardness", alpha=alpha, processing=processing)[0]
+        if isinstance(entry, PropertyUnavailableError):
+            raise entry
+        return entry
 
     if prop in _TIER_A_NOTES and processing is not None:
         raise PropertyUnavailableError(
@@ -250,6 +237,59 @@ def predict_property(
     )
 
 
+def predict_property_batch(
+    compositions,
+    prop: str,
+    *,
+    alpha: float = 0.1,
+    processing: str | None = None,
+) -> list:
+    """:func:`predict_property` over many compositions, same numbers.
+
+    Returns one entry per input, in order: a :class:`PropertyPrediction`,
+    or the :class:`PropertyUnavailableError` :func:`predict_property`
+    would have raised for that row. Tier B runs its forest once for the
+    whole batch instead of once per row, which is what the composition
+    search needs; tier A is closed form and simply loops.
+    """
+    if prop != "hardness":
+        results: list = []
+        for composition in compositions:
+            try:
+                results.append(
+                    predict_property(composition, prop, alpha=alpha, processing=processing)
+                )
+            except PropertyUnavailableError as error:
+                results.append(error)
+        return results
+
+    from .hardness import predict_hardness_batch
+
+    results = []
+    for entry in predict_hardness_batch(compositions, alpha=alpha, processing=processing):
+        if isinstance(entry, PropertyUnavailableError):
+            results.append(entry)
+            continue
+        value, interval, novelty, n_training, warnings = entry
+        results.append(
+            PropertyPrediction(
+                prop="hardness",
+                value=value,
+                unit="HV",
+                interval=interval,
+                alpha=alpha,
+                tier="B",
+                in_domain=novelty["in_domain"],
+                novelty=novelty,
+                n_training=n_training,
+                model_card="docs/property-hardness.md",
+                asof=None,
+                warnings=warnings,
+            )
+        )
+    return results
+
+
 def _density_gap(element: str) -> bool:
     from ..descriptors.data.mechanics import mechanics
     from .data.atomic_masses import ATOMIC_MASS_G_MOL
@@ -270,4 +310,5 @@ __all__ = [
     "cost_per_kg",
     "density",
     "predict_property",
+    "predict_property_batch",
 ]

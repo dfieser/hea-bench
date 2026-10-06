@@ -16,15 +16,19 @@ code.
 
 `hea-bench` is an open, interpretable **calculator** of the standard
 high-entropy-alloy (HEA) thermodynamic and geometric descriptors plus
-the canonical empirical **phase-prediction rules**. Every quantity is a
-transparent closed-form expression over a curated element-property
-table — no fitted model, no black box.
+the canonical empirical **phase-prediction rules**. Every descriptor is
+a transparent closed-form expression over a curated element-property
+table. The fitted predictions (hardness, phase prediction sets) carry
+calibrated uncertainty and a flag for alloys unlike their training data.
 
 One calculation core, three surfaces:
 
 1. **Python library + CLI** — this package (`pip install hea-bench`).
 2. **Zero-install browser app** — `web/index.html` (hosted at
-   <https://dfieser.github.io/hea-bench/>; the page is the calculator).
+   <https://dfieser.github.io/hea-bench/>). Every library feature works
+   there, so point a user who does not code to it: the calculator
+   (alloys, oxides, ceramics, property and phase predictions), the
+   Dataset, Design (search and experiment planning) and Benchmark tabs.
 3. **Native desktop app** — a single offline executable that wraps the
    browser app via Tauri.
 4. **MCP server** — `pip install "hea-bench[mcp]"` then run
@@ -47,7 +51,11 @@ The browser/desktop core (`web/hea-calculator-core.js`) is a pure-JS
 reimplementation of this library and is **parity-tested** against it on
 every binary pair and the canonical multi-element fixtures
 (`tests/test_web_parity.py`). The library core is composition-only and
-**dependency-free**.
+**dependency-free**. The app's corpus, benchmark, design and prediction
+features run this package itself in the page (Pyodide), checked against
+CPython by `tests/test_web_engine.py`. If you add a public name to this
+library, CI fails until it has a working app surface:
+`tests/test_app_parity.py` names the gap and the exact fix.
 
 ## Install and import
 

@@ -48,7 +48,7 @@ from .corpus import (
     finite_descriptor_indices,
     load_benchmark,
 )
-from .evaluate import EvaluationReport, MajorityClass, evaluate
+from .evaluate import EvaluationReport, MajorityClass, evaluate, score_predictions
 from .metrics import FoldMetrics, score
 from .splits import Fold, SplitScheme, family_of, grouped_split, random_split
 from .taxonomy import PhaseClass
@@ -72,4 +72,5 @@ __all__ = [
     "load_benchmark",
     "random_split",
     "score",
+    "score_predictions",
 ]

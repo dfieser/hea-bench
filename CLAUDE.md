@@ -7,6 +7,30 @@
   fix. A fresh agent session that has read nothing should still be
   forced into the right behavior.
 
+- **APP PARITY IS MANDATORY (owner rule, 2026-10-05).** About 99% of
+  users only ever open the app: the web site built from `web/`, and the
+  desktop exe, which is the same `web/` folder in a Tauri shell with no
+  Rust commands. A feature that exists only in the Python library or the
+  MCP server is unreachable for anyone without coding or AI experience,
+  so it is a DEFECT, not a finished feature. Every user-facing feature
+  must appear AND function in the app. A new library feature is not done
+  until it works there. Since v2.6.0 every library feature does (the
+  Dataset, Design and Benchmark tabs, the predictions panel, the Ω
+  check, Ceramics mode), except the HEACalculator bridge, which the
+  owner deferred on 2026-10-05.
+
+  ENFORCED, not advised: `tests/test_app_parity.py` maps every public
+  name, MCP tool, phase rule and CLI command in
+  `tests/data/app_parity.json` to its app evidence (DOM ids, bridge
+  methods the page calls, browser-core functions it uses, and tests),
+  and fails CI with the exact fix when one is missing. Adding a public
+  feature, mechanically: (1) build its surface in `web/`
+  (`hea-features.js`, plus a `hea_bench.webapp` bridge method if it
+  needs Python); (2) add the bridge call to
+  `tests/data/web_engine_calls.json`; (3) list its names under a feature
+  in `tests/data/app_parity.json`; (4) `pytest tests/test_app_parity.py
+  tests/test_webapp.py`. How the app is built: `web/README.md`.
+
 - **Shipping = pushing.** Any push to `main` touching `src/**`, `web/**`,
   `src-tauri/**`, `server.json`, or `pyproject.toml` auto-releases all
   four surfaces (PyPI, MCP registry, desktop exe, web site) via the

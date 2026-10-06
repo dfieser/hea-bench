@@ -262,6 +262,97 @@ def evaluate(
     )
 
 
+def score_predictions(
+    benchmark: Benchmark,
+    predictions: dict,
+    *,
+    model_name: str = "uploaded predictions",
+) -> EvaluationReport:
+    """Score predictions made outside this package on the frozen folds.
+
+    For a model that cannot run here (another language, a remote
+    service, a colleague's spreadsheet), train it once per fold of each
+    scheme, predict that fold's test rows, and pass the labels in.
+
+    Parameters
+    ----------
+    benchmark
+        The loaded benchmark the predictions were made for.
+    predictions
+        ``{"grouped": {composition_key: label}, "random": {...}}``. Each
+        label must come from a model that did not train on that row's
+        test fold under that scheme. Rows missing from either scheme are
+        left out of both, so the two columns share one denominator.
+
+    Raises
+    ------
+    ValueError
+        A scheme is missing, a key is not in the benchmark, a label is not
+        one of the task's classes, or a fold has no predicted rows.
+    """
+    for name in ("grouped", "random"):
+        if name not in predictions:
+            raise ValueError(f"predictions need a {name!r} entry")
+    keys = {row.composition_key for row in benchmark.rows}
+    classes = set(benchmark.labels)
+    for name in ("grouped", "random"):
+        unknown = sorted(set(predictions[name]) - keys)
+        if unknown:
+            raise ValueError(
+                f"{len(unknown)} {name} composition keys are not in corpus "
+                f"v{benchmark.corpus_version} ({benchmark.task}), for example {unknown[0]!r}"
+            )
+        bad = sorted({str(label) for label in predictions[name].values()} - classes)
+        if bad:
+            raise ValueError(
+                f"{name} predictions use labels {bad} that are not classes of the "
+                f"{benchmark.task} task; expected one of {sorted(classes)}"
+            )
+    both = set(predictions["grouped"]) & set(predictions["random"])
+    active = [index for index, row in enumerate(benchmark.rows) if row.composition_key in both]
+    if not active:
+        raise ValueError("no row has a prediction under both schemes")
+
+    def scheme_result(scheme: SplitScheme, predicted: dict) -> SchemeResult:
+        active_set = set(active)
+        fold_scores: list[FoldMetrics] = []
+        for fold in scheme.folds:
+            test = [index for index in fold.test if index in active_set]
+            if not test:
+                raise ValueError(
+                    f"{scheme.name} fold {fold.index} has no predicted rows; every fold "
+                    f"needs at least one"
+                )
+            fold_scores.append(
+                _metrics.score(
+                    [str(predicted[benchmark.rows[index].composition_key]) for index in test],
+                    [benchmark.rows[index].label for index in test],
+                )
+            )
+        return SchemeResult(
+            scheme=scheme.name,
+            digest=scheme.digest,
+            folds=tuple(fold_scores),
+            summary=_metrics.aggregate(fold_scores),
+        )
+
+    grouped = scheme_result(benchmark.grouped, predictions["grouped"])
+    randomized = scheme_result(benchmark.random, predictions["random"])
+    return EvaluationReport(
+        model_name=model_name,
+        task=benchmark.task,
+        corpus_version=benchmark.corpus_version,
+        hea_bench_version=__version__,
+        n_rows_evaluated=len(active),
+        grouped=grouped,
+        random=randomized,
+        gap={
+            name: randomized.summary[f"{name}_mean"] - grouped.summary[f"{name}_mean"]
+            for name in METRIC_NAMES
+        },
+    )
+
+
 class MajorityClass:
     """The floor every other model has to clear.
 
@@ -296,4 +387,5 @@ __all__ = [
     "MajorityClass",
     "SchemeResult",
     "evaluate",
+    "score_predictions",
 ]

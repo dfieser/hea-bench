@@ -70,3 +70,7 @@ site/
 
 # Large LLM-DB provenance dump (phase-prediction research; re-downloadable via DOI 10.17632/j75v9bbbjz)
 data/raw/chizhevskiy2026/database_of_raw_responses.csv
+
+# The app's in-browser engine (Pyodide runtime, wheels, package zip) is
+# assembled at deploy time by tools/build_web_engine.py, never committed.
+web/engine/

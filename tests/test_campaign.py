@@ -109,3 +109,19 @@ def test_ucb_strategy_runs() -> None:
     suggestions = _campaign().suggest(n=2, strategy="ucb")
     assert len(suggestions) == 2
     assert all(s.strategy == "ucb" for s in suggestions)
+
+
+def test_property_constraint_bounds_the_pool_and_suggestions() -> None:
+    pytest.importorskip("sklearn")
+    from hea_bench.design import PropertyConstraint
+    from hea_bench.properties import density
+
+    unbounded = _campaign()._pool()
+    bounded_campaign = _campaign(
+        constraints=(NO_DOMAIN, PropertyConstraint("density", max=7.0))
+    )
+    bounded = bounded_campaign._pool()
+    assert 0 < len(bounded) < len(unbounded)
+    assert all(density(comp) <= 7.0 for comp in bounded)
+    for suggestion in bounded_campaign.suggest(n=2):
+        assert density(suggestion.composition) <= 7.0

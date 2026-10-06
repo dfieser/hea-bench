@@ -57,6 +57,7 @@ from .search import (
     _rule_verdict,
     _validate_step,
     _within_bounds,
+    passes_property_constraints,
 )
 
 #: Below this many informative rows suggest() refuses.
@@ -280,6 +281,30 @@ class Campaign:
                 if domain.novelty(comp)["in_domain"] != domain_required:
                     continue
             pool.append(comp)
+
+        # Property bounds hold exactly as in search(): one batched
+        # prediction per bounded property, and a candidate whose property
+        # cannot be computed fails the bound, conservatively.
+        property_constraints = [c for c in self.constraints if isinstance(c, PropertyConstraint)]
+        if property_constraints and pool:
+            from ..properties import PropertyUnavailableError, predict_property_batch
+
+            batches = {
+                name: predict_property_batch(pool, name)
+                for name in sorted({c.prop for c in property_constraints})
+            }
+            pool = [
+                comp
+                for position, comp in enumerate(pool)
+                if not any(
+                    isinstance(batch[position], PropertyUnavailableError)
+                    for batch in batches.values()
+                )
+                and passes_property_constraints(
+                    {name: batch[position] for name, batch in batches.items()},
+                    property_constraints,
+                )
+            ]
         return pool
 
     def suggest(self, n: int = 5, strategy: str = "ei") -> list[Suggestion]:

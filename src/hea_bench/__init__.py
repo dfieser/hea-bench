@@ -2,7 +2,7 @@
 alloy and high-entropy oxide thermodynamic and geometric descriptors plus the
 canonical empirical phase-prediction rules (oxides in ``hea_bench.oxides``).
 
-Every quantity is a transparent closed-form expression over a curated
+Every descriptor is a transparent closed-form expression over a curated
 element-property table — no fitted model, no black box. The same calculation
 core ships as this Python library, a zero-install browser app, and a native
 desktop app; the browser core is parity-tested against this library.
@@ -31,7 +31,7 @@ from .descriptors.phi import delta_g_max, delta_g_ss, delta_h_ss, phi_king, phi_
 from .descriptors.size import delta
 from .descriptors.vec import vec
 
-__version__ = "2.5.6"
+__version__ = "2.6.0"
 
 __all__ = [
     "__version__",

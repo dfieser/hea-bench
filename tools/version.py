@@ -40,7 +40,10 @@ VERSION_TARGETS = {
     "CITATION.cff": [(re.compile(r'(?m)^version: (\S+)'), "version")],
     "llms.txt": [(re.compile(r'shipping\s+version (\d+\.\d+\.\d+)'), "prose"),
                  (re.compile(r'version = \{([^}]+)\}'), "bibtex")],
-    "web/index.html": [(re.compile(r'const VERSION = "([^"]+)"'), "const VERSION")],
+    "web/index.html": [(re.compile(r'const VERSION = "([^"]+)"'), "const VERSION"),
+                       # cache-busters on the app's own scripts and stylesheet, so
+                       # a browser never pairs a new page with an old script
+                       (re.compile(r'\.(?:js|css)\?v=(\d+\.\d+\.\d+)"'), "asset ?v=")],
 }
 
 # (file, label) -> exact number of matches expected, so a structural change
@@ -48,6 +51,7 @@ VERSION_TARGETS = {
 # silently over-stamped or under-checked.
 EXPECTED_HITS = {
     ("server.json", "version"): 2,
+    ("web/index.html", "asset ?v="): 4,
 }
 
 # release-date fields moved to today on every --set: (prefix)(date)(suffix).

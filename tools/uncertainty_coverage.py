@@ -32,91 +32,37 @@ from __future__ import annotations
 
 import datetime
 import pathlib
-import random
 import sys
-from collections import defaultdict
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "src"))
 
 from hea_bench import __version__ as _hea_bench_version  # noqa: E402
-from hea_bench.benchmark import load_benchmark  # noqa: E402
-from hea_bench.benchmark.corpus import descriptor_matrix, finite_descriptor_indices  # noqa: E402
-from hea_bench.uncertainty import ConformalClassifier, fit_domain  # noqa: E402
+from hea_bench.uncertainty.coverage import (  # noqa: E402,F401  (re-exported for figure scripts)
+    ALPHAS,
+    CALIBRATION_FRACTION,
+    FOREST_TREES,
+    SEED,
+    coverage_study,
+)
+from hea_bench.uncertainty.coverage import (  # noqa: E402,F401
+    family_grouped_calibration_split as _family_grouped_calibration_split,
+)
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 OUT_MD = REPO_ROOT / "docs" / "uncertainty-coverage.md"
 
-ALPHAS = (0.2, 0.1, 0.05)
-SEED = 0
-FOREST_TREES = 300
-CALIBRATION_FRACTION = 0.2
-
-
-def _family_grouped_calibration_split(indices, families, rng):
-    """Split row indices into proper-train and calibration, whole families."""
-    rows_by_family = defaultdict(list)
-    for index in indices:
-        rows_by_family[families[index]].append(index)
-    family_keys = sorted(rows_by_family)
-    rng.shuffle(family_keys)
-    target = round(len(indices) * CALIBRATION_FRACTION)
-    calibration: list[int] = []
-    for key in family_keys:
-        if len(calibration) >= target:
-            break
-        calibration.extend(rows_by_family[key])
-    calibration_set = set(calibration)
-    proper = [index for index in indices if index not in calibration_set]
-    return proper, calibration
-
 
 def _run_task(task: str) -> dict:
-    from sklearn.ensemble import RandomForestClassifier
-
-    bench = load_benchmark(task=task)
-    finite = list(finite_descriptor_indices(bench))
-    finite_set = set(finite)
-    matrix = {index: row for index, row in zip(finite, descriptor_matrix(
-        [bench.rows[index].composition for index in finite]
-    ))}
-    families = {index: bench.rows[index].family for index in finite}
-    labels = {index: bench.rows[index].label for index in finite}
-
-    # accumulators[alpha][bucket] -> [covered, total, set_size_sum]
-    accumulators: dict[float, dict[str, list[float]]] = {
-        alpha: {"overall": [0, 0, 0.0], "in": [0, 0, 0.0], "out": [0, 0, 0.0]}
-        for alpha in ALPHAS
-    }
-    n_out_rows = 0
-
-    rng = random.Random(SEED)
-    for fold in bench.grouped.folds:
-        train = [index for index in fold.train if index in finite_set]
-        test = [index for index in fold.test if index in finite_set]
-        proper, calibration = _family_grouped_calibration_split(train, families, rng)
-
-        model = RandomForestClassifier(n_estimators=FOREST_TREES, random_state=SEED)
-        model.fit([matrix[i] for i in proper], [labels[i] for i in proper])
-        conformal = ConformalClassifier(model).fit_calibrate(
-            [matrix[i] for i in calibration], [labels[i] for i in calibration]
-        )
-        domain = fit_domain([bench.rows[i] for i in proper])
-        in_domain = {
-            i: domain.novelty(bench.rows[i].composition)["in_domain"] for i in test
+    """The study through the library, in the table shape this script writes."""
+    study = coverage_study(task)
+    table = {}
+    for level in study["levels"]:
+        groups = level["groups"]
+        table[level["alpha"]] = {
+            bucket: [groups[group]["covered"], groups[group]["n"], groups[group]["set_size_sum"]]
+            for bucket, group in (("overall", "all"), ("in", "in_domain"), ("out", "out_of_domain"))
         }
-        n_out_rows += sum(1 for i in test if not in_domain[i])
-
-        for alpha in ALPHAS:
-            sets = conformal.predict_set([matrix[i] for i in test], alpha=alpha)
-            for i, prediction_set in zip(test, sets):
-                buckets = ("overall", "in" if in_domain[i] else "out")
-                for bucket in buckets:
-                    cell = accumulators[alpha][bucket]
-                    cell[0] += 1 if labels[i] in prediction_set else 0
-                    cell[1] += 1
-                    cell[2] += len(prediction_set)
-
-    return {"task": task, "n_rows": len(finite), "n_out": n_out_rows, "table": accumulators}
+    return {"task": task, "n_rows": study["n_rows"], "n_out": study["n_out_of_domain"], "table": table}
 
 
 def _format_task(result: dict) -> list[str]:

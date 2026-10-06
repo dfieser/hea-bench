@@ -17,12 +17,16 @@
 Open, interpretable tools for computing the standard **high-entropy-alloy
 (HEA) and high-entropy-oxide (HEO) thermodynamic and geometric
 descriptors** and the classic empirical **phase-prediction rules**, from
-any composition, with no fitted model and no black box. Every number is a
-transparent closed-form expression over a curated element-property table,
-validated against the primary literature.
+any composition. Every descriptor is a transparent closed-form expression
+over a curated element-property table, validated against the primary
+literature. The fitted predictions (hardness, phase prediction sets) carry
+calibrated uncertainty and flag alloys unlike their training data.
 
 **Try it now:** <https://dfieser.github.io/hea-bench/>. No install, it runs
-entirely in your browser.
+entirely in your browser, and every library feature works there: the
+calculator for alloys, oxides and ceramics with property and phase
+predictions, the experimental dataset, alloy search and experiment
+planning, and the benchmark.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/dfieser/hea-bench/main/docs/assets/screenshot-calculator-dark.png">
@@ -90,14 +94,20 @@ flowchart LR
 | **Python library + CLI** | `pip install hea-bench` | done, tested |
 | **Zero-install browser app** | <https://dfieser.github.io/hea-bench/> · `web/index.html` | done, Python-parity-tested |
 | **Native desktop app** | a single portable `.exe`, [download (no install)](https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench.exe) (Tauri wrapper of the same page) | done, built from the same parity-tested core |
-| **MCP server for AI agents** | `pip install "hea-bench[mcp]"`, then `hea-bench-mcp` | done, seven tools over the same core |
+| **MCP server for AI agents** | `pip install "hea-bench[mcp]"`, then `hea-bench-mcp` | done, thirteen tools over the same core |
 
 The three surfaces share **one calculation core**. The browser/desktop
 core (`web/hea-calculator-core.js`) is a pure-JS port of the Python
 library, and `tests/test_web_parity.py` guarantees the two match on all
 1484 binary pairs and the canonical multi-element fixtures, while
 `tests/test_web_oxides_parity.py` does the same for the oxide module,
-down to identical warning messages.
+down to identical warning messages. The app's Dataset, Design and
+Benchmark tabs and its predictions panel run the Python package itself,
+unchanged, inside the page (Pyodide, `web/hea-engine-worker.js`), and
+`tests/test_web_engine.py` checks that it returns exactly what CPython
+returns. `tests/test_app_parity.py` fails CI whenever a public library
+feature has no working app surface, so the app never falls behind the
+library.
 
 ## Quick start (Python)
 
@@ -248,14 +258,31 @@ much to trust it.
 
 ## Quick start (browser, no install)
 
-A self-contained HTML calculator computes every descriptor, applies all
-six rules, runs the Miedema decompositions, and covers the oxide mode,
-entirely client-side. Two equivalent paths:
+The app runs entirely client-side. Its tabs:
 
-- Open the hosted site: **<https://dfieser.github.io/hea-bench/>**. The
-  page is the calculator.
-- Or clone the repo and open `web/index.html`. No install, no
-  terminal, no server.
+- **Calculator.** Every descriptor, all nine phase rules, the Miedema
+  decompositions, the robustness of Ω to the pair table, density, cost,
+  hardness with its interval, the phase prediction set and the domain
+  flag. Oxides and Ceramics (carbides, nitrides, diborides) are modes of
+  the same tab.
+- **Dataset.** The consolidated experimental corpus with every source's
+  label and paper, filters and CSV download, plus the measured hardness
+  and density data.
+- **Design.** Composition search with property limits, rule filters and
+  the Pareto front, and experiment planning from your own measurements.
+- **Benchmark.** The frozen random and family-grouped splits, live
+  baseline reruns, scoring of your own predictions, and the coverage
+  study.
+
+Two ways to open it:
+
+- Open the hosted site: **<https://dfieser.github.io/hea-bench/>**.
+- Or clone the repo, run `python tools/build_web_engine.py` once
+  (assembles the pinned in-page engine, about 30 MB), then
+  `python -m http.server -d web` and open <http://localhost:8000>.
+  Opening `web/index.html` directly from disk also works for the
+  calculator, but browsers block the engine on `file://` pages, so the
+  other tabs need the local server.
 
 The calculator ships its own documentation: a **Theory** view deriving
 every alloy and oxide formula with citations, a grouped, filterable

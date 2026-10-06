@@ -1803,6 +1803,7 @@
       .rail-resizer:focus-visible { outline: none; }
       body.is-resizing { cursor: col-resize; user-select: none; -webkit-user-select: none; }
     </style>
+    <link rel="stylesheet" href="hea-features.css?v=2.6.0">
 
     <script>
       window.MathJax = {
@@ -5334,6 +5335,9 @@ font-family: 'Source Sans Pro'
           <span class="masthead__name">HEA-Bench</span>
           <nav class="masthead__nav" aria-label="Project links">
             <a href="#calculator">Calculator</a>
+            <a href="#dataset">Dataset</a>
+            <a href="#design">Design</a>
+            <a href="#benchmark">Benchmark</a>
             <a href="#theory">Theory</a>
             <a href="#refs">References</a>
             <a href="https://github.com/dfieser/hea-bench">GitHub</a>
@@ -5347,8 +5351,9 @@ font-family: 'Source Sans Pro'
         <div class="hero-grid">
           <div>
             <p class="abstract">
-              No fitted model. Every number is a closed-form expression over curated data
-              tables, with its literature source attached.
+              Every descriptor is a closed-form expression over curated data tables, with its
+              literature source attached. Where a prediction needs a fitted model, it comes with
+              an honest interval and says when an alloy is unlike the data behind it.
             </p>
             <div class="actions">
               <a class="btn" href="#calculator">Open the calculator</a>
@@ -5412,18 +5417,51 @@ font-family: 'Source Sans Pro'
 
       <section class="sec">
         <div class="shell">
+          <h2>What you can do here</h2>
+          <div class="runs">
+            <div class="runs__row">
+              <span class="runs__name"><a href="#calculator">Calculator</a></span>
+              <p class="runs__desc">Type an alloy, an oxide or a carbide, nitride or diboride. Get every
+                 descriptor and phase rule with its source, plus density, raw-material cost, hardness
+                 and phase predictions, each with its uncertainty.</p>
+            </div>
+            <div class="runs__row">
+              <span class="runs__name"><a href="#dataset">Dataset</a></span>
+              <p class="runs__desc">Browse 7,783 alloy compositions with experimentally reported phases,
+                 each with every source's label and paper, and the measured hardness and density data.</p>
+            </div>
+            <div class="runs__row">
+              <span class="runs__name"><a href="#design">Design</a></span>
+              <p class="runs__desc">Search a composition space for the best trade-off between properties,
+                 and plan which alloys to make next from your own measurements.</p>
+            </div>
+            <div class="runs__row">
+              <span class="runs__name"><a href="#benchmark">Benchmark</a></span>
+              <p class="runs__desc">Score a phase-prediction model on frozen splits that separate
+                 interpolation from extrapolation, rerun the published baselines, and check that the
+                 prediction sets keep their promised coverage.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sec">
+        <div class="shell">
           <h2>Where it runs</h2>
           <p>
             The Python library is the reference implementation. The browser and the desktop app
-            run a JavaScript port of it. Parity tests pin the port to the Python outputs over
-            1484 element pairs and a fixture set of published oxide values. The agent server
-            exposes the same calls to AI tools.
+            run a JavaScript port of it for the instant results, and the library itself, unchanged,
+            for the dataset, benchmark, design and prediction features. Parity tests pin the port to
+            the Python outputs over 1484 element pairs and a fixture set of published oxide values,
+            and check that the in-page library returns what a normal Python install returns. The
+            agent server exposes the same calls to AI tools.
           </p>
           <div class="runs">
             <div class="runs__row">
               <span class="runs__name"><a href="#calculator">Browser</a></span>
-              <p class="runs__desc">This page. Compositions never leave your machine, and a saved
-                 copy of the page keeps working without a connection.</p>
+              <p class="runs__desc">This page. Compositions never leave your machine. A saved copy of
+                 the page runs the calculator without a connection, and the other tabs need the page
+                 opened from the web.</p>
             </div>
             <div class="runs__row">
               <span class="runs__name"><a href="https://pypi.org/project/hea-bench/">Python library and CLI</a></span>
@@ -5432,8 +5470,9 @@ font-family: 'Source Sans Pro'
             </div>
             <div class="runs__row">
               <span class="runs__name"><a id="exe-download" href="https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench.exe">Windows app</a></span>
-              <p class="runs__desc">One portable executable, about 14&nbsp;MB, no installer. Made for
-                 laboratory machines that never see the network.</p>
+              <p class="runs__desc">One portable executable, no installer. Everything runs offline
+                 except building the dataset, which downloads one 6.4&nbsp;MB source file from its
+                 authors' repository the first time.</p>
               <p class="runs__notice" id="exe-building" hidden>
                  <strong>Update in progress</strong>
                  A new release is building right now, and the Windows executable is not attached
@@ -5512,7 +5551,7 @@ font-family: 'Source Sans Pro'
                  topic, from Yeh's 2004 paper to the current oxide literature.</p>
             </div>
             <div class="runs__row">
-              <span class="runs__name"><a href="#data">Data</a></span>
+              <span class="runs__name"><a href="#data">Element data</a></span>
               <p class="runs__desc">The 55-element table with per-value sources and cross-checks,
                  the vendored pair-enthalpy table, the pinned data-file checksums, and a feature
                  coverage matrix.</p>
@@ -5862,7 +5901,10 @@ font-family: 'Source Sans Pro'
         </div>
         <nav class="titlebar__tabs" aria-label="Views">
           <button type="button" class="tab is-active" data-view="calc">Calculator</button>
-          <button type="button" class="tab" data-view="data">Data</button>
+          <button type="button" class="tab" data-view="dataset">Dataset</button>
+          <button type="button" class="tab" data-view="design">Design</button>
+          <button type="button" class="tab" data-view="benchmark">Benchmark</button>
+          <button type="button" class="tab" data-view="data">Element data</button>
           <button type="button" class="tab" data-view="theory">Theory</button>
           <button type="button" class="tab" data-view="reference">Equations</button>
           <button type="button" class="tab" data-view="refs">References</button>
@@ -6947,6 +6989,7 @@ font-family: 'Source Sans Pro'
       <div class="mode-switch" id="mode-switch" role="tablist" aria-label="Material class">
         <button type="button" class="mode-btn is-active" data-mode="alloy" role="tab">Alloys</button>
         <button type="button" class="mode-btn" data-mode="oxide" role="tab">Oxides</button>
+        <button type="button" class="mode-btn" data-mode="ceramic" role="tab">Ceramics</button>
       </div>
 
       <section class="panel mode-alloy">
@@ -7132,6 +7175,30 @@ font-family: 'Source Sans Pro'
         <p class="small-note">Subscripts are per-site fractions on any scale (the site is normalized internally). Oxidation states are assigned automatically by charge balance against the oxygen sublattice; the chosen states and the Shannon radii used are shown with the results.</p>
       </section>
 
+      <section class="panel mode-ceramic" id="ceramic-panel">
+        <h2>Ceramic composition</h2>
+        <div class="row" style="margin-bottom: 8px;">
+          <label for="ceramic-structure">Structure</label>
+          <select id="ceramic-structure">
+            <option value="rock_salt_carbide">Rock-salt carbide (MC)</option>
+            <option value="rock_salt_nitride">Rock-salt nitride (MN)</option>
+            <option value="diboride">Diboride (MB&#8322;)</option>
+          </select>
+          <select id="ceramic-example">
+            <option value="">Load example…</option>
+            <option value="carbide5">(Hf,Nb,Ta,Ti,Zr)C carbide</option>
+            <option value="nitride5">(Ti,Zr,Hf,V,Nb)N nitride</option>
+            <option value="diboride5">(Hf,Zr,Ta,Nb,Ti)B&#8322; diboride</option>
+          </select>
+        </div>
+        <div class="row" style="margin-bottom: 8px;">
+          <label for="ceramic-metals">Metal sublattice</label>
+          <input id="ceramic-metals" type="text" placeholder="e.g. HfNbTaTiZr or Ti0.5Zr0.5" class="feature-text-input">
+          <button id="ceramic-calculate" class="primary">Calculate</button>
+        </div>
+        <p class="small-note">Subscripts are metal-sublattice fractions on any scale. The anion sublattice is taken as fully ordered: one C or N per metal in rock salt, two B per metal in the diboride.</p>
+      </section>
+
             </aside>
             <div class="rail-resizer" id="rail-resizer" role="separator" aria-orientation="vertical" aria-label="Resize input panel" tabindex="0"></div>
             <main class="results-area">
@@ -7198,6 +7265,29 @@ font-family: 'Source Sans Pro'
         <h2>Phase-prediction rules</h2>
         <p class="small-note" style="margin: -4px 0 12px;">What each canonical empirical rule predicts for this composition, applied to the descriptor values above.</p>
         <div id="rule-predictions" class="results results-compact"></div>
+      </section>
+
+      <section class="panel panel-secondary mode-alloy hidden" id="omega-panel">
+        <h2>Is the Ω value robust to the pair table?</h2>
+        <p class="small-note" style="margin: -4px 0 12px;">Ω divides by |ΔH<sub>mix</sub>|, so when ΔH<sub>mix</sub> is close to zero a small change in the published pair enthalpies moves Ω a lot. This check takes the element that dominates ΔH<sub>mix</sub>, shifts all of its pair enthalpies down and up, and recomputes Ω. It uses the same pair values as the results above, including any you edited.</p>
+        <div class="feature-controls">
+          <label for="omega-perturbation">Shift its pair enthalpies by ±</label>
+          <input type="number" id="omega-perturbation" min="0" step="0.5" value="2" style="width: 84px">
+          <span class="small-note">kJ/mol. 2 is the typical spread between published Miedema tables.</span>
+        </div>
+        <div id="omega-sensitivity"></div>
+      </section>
+
+      <section class="panel mode-alloy hidden" id="predict-panel">
+        <h2>Properties and predictions</h2>
+        <p class="small-note" style="margin: -4px 0 12px;">Density and raw-material cost are closed-form arithmetic over cited tables and appear at once. Hardness, the phase prediction sets and the dataset check run the hea-bench Python library itself, inside this page.</p>
+        <div id="predict-tier-a" class="results results-compact"></div>
+        <details class="feature-details" id="predict-cost-details">
+          <summary>Raw-material cost by element</summary>
+          <div id="predict-cost-breakdown"></div>
+        </details>
+        <div class="engine-gate" id="predict-gate"></div>
+        <div id="predict-engine"></div>
       </section>
 
       <section class="panel panel-secondary mode-alloy" id="miedema-panel">
@@ -7340,6 +7430,23 @@ font-family: 'Source Sans Pro'
         <div id="oxide-verdicts" class="results results-compact"></div>
       </section>
 
+      <section class="panel mode-ceramic" id="ceramic-results-panel">
+        <h2>Ceramic results</h2>
+        <div class="actions" style="margin-bottom: 12px;">
+          <button id="ceramic-copy-json" class="ghost">Copy report (JSON)</button>
+          <div id="ceramic-copy-message" class="small-note" style="margin: 0;"></div>
+        </div>
+        <div id="ceramic-results"></div>
+        <div class="results-empty" id="ceramic-results-empty">
+          <div class="results-empty__mark" aria-hidden="true">⬢</div>
+          <p class="results-empty__title">No ceramic results yet</p>
+          <p class="results-empty__hint">Pick a structure and enter the metals on the left, then press <kbd>Calculate</kbd>.</p>
+          <div class="results-empty__actions">
+            <button type="button" class="secondary" id="ceramic-empty-example">Load (Hf,Nb,Ta,Ti,Zr)C</button>
+          </div>
+        </div>
+      </section>
+
       <section class="panel">
         <h2>Warnings</h2>
         <ul id="warnings" class="warnings"></ul>
@@ -7347,6 +7454,359 @@ font-family: 'Source Sans Pro'
 
             </main>
           </div>
+        </div>
+
+
+        <div class="view" data-view-panel="dataset">
+        <section class="theory-section docs feature-view" aria-labelledby="dataset-title">
+          <aside class="docs-nav" aria-label="On this page">
+            <div class="docs-nav__title">Contents</div>
+            <ol class="docs-nav__list">
+              <li><a href="#dataset-about">What is in it</a></li>
+              <li><a href="#dataset-filter">Filter</a></li>
+              <li><a href="#dataset-rows">Alloys and their sources</a></li>
+              <li><a href="#dataset-measured">Measured hardness and density</a></li>
+            </ol>
+          </aside>
+          <div class="docs-main">
+          <p class="theory-eyebrow">Experimental data</p>
+          <h2 class="theory-title" id="dataset-title">The consolidated alloy dataset</h2>
+          <p class="theory-lede">
+            Every experimentally reported phase label behind the benchmark, merged from published
+            datasets with each source's own label kept beside the consensus. The dataset is built
+            inside this page from the original files, so nothing is computed on a server.
+          </p>
+          <div class="engine-gate" id="dataset-gate"></div>
+
+          <h3 id="dataset-about"><span class="sec-num">01</span>What is in it</h3>
+          <p>
+            Corpus v0.1.0 merges Borg et al. (2020), Pei et al. (2020) and Peivaste et al. (2023).
+            When sources disagree about an alloy's phase, the row keeps every label and is marked as
+            a conflict instead of being decided by a vote. Version 0.2.0 adds the Chizhevskiy et al.
+            (2026) database, whose labels were extracted from papers by a language model and agree
+            with the reference labels on about 70 percent of shared alloys, so it is opt-in.
+          </p>
+          <p class="small-note">
+            The Peivaste dataset carries no license that permits redistribution, so this page
+            downloads it from the authors' repository and refuses it unless its SHA-256 matches the
+            pinned file. The other sources are CC BY 4.0 and ship with the app.
+          </p>
+          <div class="feature-controls">
+            <label for="dataset-version">Corpus version</label>
+            <select id="dataset-version">
+              <option value="0.1.0">v0.1.0, reference (default)</option>
+              <option value="0.2.0">v0.2.0, adds Chizhevskiy 2026</option>
+            </select>
+          </div>
+          <div id="dataset-summary"></div>
+
+          <h3 id="dataset-filter"><span class="sec-num">02</span>Filter</h3>
+          <form id="dataset-filters" class="feature-form" autocomplete="off">
+            <label>Contains all of <input type="text" name="contains" placeholder="e.g. Al Co"></label>
+            <label>Excludes <input type="text" name="excludes" placeholder="e.g. Cu"></label>
+            <label>Exactly these elements <input type="text" name="exact" placeholder="e.g. Co Cr Fe Mn Ni"></label>
+            <label>Elements, at least <input type="number" name="n_elements_min" min="1" max="12" placeholder="any"></label>
+            <label>Elements, at most <input type="number" name="n_elements_max" min="1" max="12" placeholder="any"></label>
+            <label>Consensus phase
+              <select name="phase">
+                <option value="">any</option>
+                <option value="FCC">FCC</option>
+                <option value="BCC">BCC</option>
+                <option value="HCP">HCP</option>
+                <option value="multi-phase">multi-phase</option>
+              </select>
+            </label>
+            <label>Source
+              <select name="source">
+                <option value="">any</option>
+                <option value="borg2020">Borg 2020</option>
+                <option value="pei2020">Pei 2020</option>
+                <option value="peivaste">Peivaste 2023</option>
+                <option value="chizhevskiy2026">Chizhevskiy 2026 (v0.2.0)</option>
+              </select>
+            </label>
+            <label>Source agreement
+              <select name="has_conflict">
+                <option value="">any</option>
+                <option value="false">sources agree</option>
+                <option value="true">sources disagree (conflicts)</option>
+              </select>
+            </label>
+            <div class="feature-form__actions">
+              <button type="submit" class="primary">Apply filters</button>
+              <button type="reset" class="ghost">Clear</button>
+            </div>
+          </form>
+
+          <h3 id="dataset-rows"><span class="sec-num">03</span>Alloys and their sources</h3>
+          <p class="small-note">Select a row to see every source's label as published, the processing route and the paper it came from.</p>
+          <div class="feature-controls">
+            <span id="dataset-count" class="small-note"></span>
+            <button type="button" class="ghost" id="dataset-prev">Previous</button>
+            <button type="button" class="ghost" id="dataset-next">Next</button>
+            <button type="button" class="secondary" id="dataset-download">Download these rows (CSV)</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data feature-table" id="dataset-table">
+              <thead><tr><th>Composition</th><th>n</th><th>Phase</th><th>Sources</th><th>Processing</th><th></th></tr></thead>
+              <tbody id="dataset-tbody"></tbody>
+            </table>
+          </div>
+
+          <h3 id="dataset-measured"><span class="sec-num">04</span>Measured hardness and density</h3>
+          <p>
+            The measurements behind the property predictions, from Borg et al. (2020). Hardness rows
+            are the room-temperature Vickers values the hardness model learns from, one row per alloy
+            and processing route, with repeated measurements reduced to their median. Density rows are
+            the measured densities that the instant density estimate is checked against, shown next to
+            that estimate.
+          </p>
+          <div class="engine-gate" id="measured-gate"></div>
+          <form id="measured-filters" class="feature-controls" autocomplete="off">
+            <label for="measured-property">Show</label>
+            <select id="measured-property">
+              <option value="hardness">Hardness (HV)</option>
+              <option value="density">Density (g/cm³)</option>
+            </select>
+            <label for="measured-contains">for alloys containing</label>
+            <input type="text" id="measured-contains" class="feature-text-input" placeholder="any elements, e.g. Al Co">
+            <button type="submit" class="primary">Show measurements</button>
+            <button type="button" class="secondary" id="measured-download">Download (CSV)</button>
+          </form>
+          <div id="measured-summary"></div>
+          <div class="table-wrap">
+            <table class="data feature-table" id="measured-table">
+              <thead id="measured-thead"></thead>
+              <tbody id="measured-tbody"></tbody>
+            </table>
+          </div>
+          </div>
+        </section>
+        </div>
+
+        <div class="view" data-view-panel="design">
+        <section class="theory-section docs feature-view" aria-labelledby="design-title">
+          <aside class="docs-nav" aria-label="On this page">
+            <div class="docs-nav__title">Contents</div>
+            <ol class="docs-nav__list">
+              <li><a href="#design-search">Composition search</a></li>
+              <li><a href="#design-campaign">Experiment planning</a></li>
+            </ol>
+          </aside>
+          <div class="docs-main">
+          <p class="theory-eyebrow">Alloy design</p>
+          <h2 class="theory-title" id="design-title">Search compositions and plan experiments</h2>
+          <p class="theory-lede">
+            Screen every composition on a grid for the best trade-off between properties, then plan
+            which alloys to make next from your own measurements. Results are screening aids with
+            their uncertainty shown, not answers.
+          </p>
+          <div class="engine-gate" id="design-gate"></div>
+
+          <h3 id="design-search"><span class="sec-num">01</span>Composition search</h3>
+          <p>
+            The search walks a grid of compositions over your elements, applies your requirements,
+            and returns the Pareto front: the alloys no other candidate beats on every objective at
+            once. By default it keeps only alloys that resemble the experimental dataset, because
+            optimizers exploit model error hardest where data runs out.
+          </p>
+          <p class="small-note">
+            To try it, keep the example (five elements, highest hardness at the lowest density) and
+            press <b>Run the search</b>. Then replace the elements, objectives and limits with your own.
+          </p>
+          <form id="search-form" class="feature-form" autocomplete="off">
+            <label class="feature-form__wide">Elements (up to 10) <input type="text" name="palette" value="Al Co Cr Fe Ni"></label>
+            <label>Elements per alloy, from <input type="number" name="n_elements_min" min="1" max="10" value="3"></label>
+            <label>to <input type="number" name="n_elements_max" min="1" max="10" value="5"></label>
+            <label>Grid step
+              <select name="step">
+                <option value="0.25">0.25 (25 at.% steps)</option>
+                <option value="0.2">0.2 (20 at.% steps)</option>
+                <option value="0.125">0.125 (12.5 at.% steps)</option>
+                <option value="0.1" selected>0.1 (10 at.% steps)</option>
+                <option value="0.05">0.05 (5 at.% steps, slowest)</option>
+              </select>
+            </label>
+            <fieldset class="feature-form__wide">
+              <legend>Objectives</legend>
+              <div class="feature-repeat" id="search-objectives"></div>
+              <button type="button" class="ghost" id="search-add-objective">Add objective</button>
+            </fieldset>
+            <fieldset class="feature-form__wide">
+              <legend>Property limits</legend>
+              <div class="feature-repeat" id="search-property-limits"></div>
+              <button type="button" class="ghost" id="search-add-limit">Add limit</button>
+            </fieldset>
+            <fieldset class="feature-form__wide">
+              <legend>Element fraction limits</legend>
+              <div class="feature-repeat" id="search-element-limits"></div>
+              <button type="button" class="ghost" id="search-add-element-limit">Add element limit</button>
+            </fieldset>
+            <fieldset class="feature-form__wide">
+              <legend>Rule requirements</legend>
+              <div class="feature-rules" id="search-rules"></div>
+            </fieldset>
+            <label>Results to return <input type="number" name="max_candidates" min="1" max="20" value="10"></label>
+            <label>Interval confidence
+              <select name="alpha">
+                <option value="0.2">80%</option>
+                <option value="0.1" selected>90%</option>
+                <option value="0.05">95%</option>
+              </select>
+            </label>
+            <label class="feature-check"><input type="checkbox" name="conservative" checked> Rank fitted properties by the cautious end of their interval</label>
+            <label class="feature-check"><input type="checkbox" name="include_out_of_domain"> Include alloys unlike the dataset</label>
+            <div class="feature-form__actions">
+              <button type="submit" class="primary">Run the search</button>
+            </div>
+          </form>
+          <div id="search-results"></div>
+
+          <h3 id="design-campaign"><span class="sec-num">02</span>Experiment planning</h3>
+          <p>
+            Record what you have made and measured, and get the next alloys worth making. A random
+            forest learns from your measurements (plus published hardness data when the target is
+            hardness) and ranks untried grid compositions by expected improvement or by an optimistic
+            upper bound. Everything stays in this page, and the campaign file you save opens in the
+            Python library unchanged.
+          </p>
+          <p class="small-note">
+            To try it, keep hardness as the target and press <b>Suggest next alloys</b>: the published
+            hardness data is enough to start. For any other property, first enter at least 10 alloys you
+            have measured, one per row. Save the campaign file to continue later, then add each new
+            result with <b>Record result</b> and ask again.
+          </p>
+          <form id="campaign-form" class="feature-form" autocomplete="off">
+            <label>Target property <input type="text" name="objective" value="hardness" list="campaign-objectives"></label>
+            <datalist id="campaign-objectives"><option value="hardness"></option></datalist>
+            <label>Goal
+              <select name="direction">
+                <option value="maximize">maximize</option>
+                <option value="minimize">minimize</option>
+              </select>
+            </label>
+            <label class="feature-form__wide">Elements <input type="text" name="palette" value="Al Co Cr Fe Ni"></label>
+            <label>Elements per alloy, from <input type="number" name="n_min" min="1" max="10" value="3"></label>
+            <label>to <input type="number" name="n_max" min="1" max="10" value="5"></label>
+            <label>Grid step
+              <select name="step">
+                <option value="0.25">0.25 (25 at.% steps)</option>
+                <option value="0.2">0.2 (20 at.% steps)</option>
+                <option value="0.125">0.125 (12.5 at.% steps)</option>
+                <option value="0.1" selected>0.1 (10 at.% steps)</option>
+                <option value="0.05">0.05 (5 at.% steps, slowest)</option>
+              </select>
+            </label>
+            <label class="feature-check"><input type="checkbox" name="warm_start" checked> Start from published hardness data (hardness only)</label>
+            <label class="feature-check"><input type="checkbox" name="in_domain" checked> Suggest only alloys that resemble the dataset</label>
+          </form>
+          <h4>Measurements</h4>
+          <div class="table-wrap">
+            <table class="data feature-table" id="campaign-observations">
+              <thead><tr><th>Composition</th><th>Measured value</th><th>Processing (optional)</th><th></th></tr></thead>
+              <tbody id="campaign-obs-tbody"></tbody>
+            </table>
+          </div>
+          <div class="feature-controls">
+            <button type="button" class="ghost" id="campaign-add-row">Add measurement</button>
+            <button type="button" class="ghost" id="campaign-open">Open campaign file</button>
+            <button type="button" class="ghost" id="campaign-save">Save campaign file</button>
+            <input type="file" id="campaign-file" accept=".json,application/json" hidden>
+          </div>
+          <div class="feature-controls">
+            <label for="campaign-n">Suggestions</label>
+            <input type="number" id="campaign-n" min="1" max="10" value="5">
+            <label for="campaign-strategy">Strategy</label>
+            <select id="campaign-strategy">
+              <option value="ei">Expected improvement: likeliest to beat your best result</option>
+              <option value="ucb">Optimistic bound: favors alloys the model is unsure about</option>
+            </select>
+            <button type="button" class="primary" id="campaign-suggest">Suggest next alloys</button>
+          </div>
+          <div id="campaign-results"></div>
+          </div>
+        </section>
+        </div>
+
+        <div class="view" data-view-panel="benchmark">
+        <section class="theory-section docs feature-view" aria-labelledby="benchmark-title">
+          <aside class="docs-nav" aria-label="On this page">
+            <div class="docs-nav__title">Contents</div>
+            <ol class="docs-nav__list">
+              <li><a href="#benchmark-splits">The two splits</a></li>
+              <li><a href="#benchmark-baselines">Baselines</a></li>
+              <li><a href="#benchmark-score">Score your model</a></li>
+              <li><a href="#benchmark-coverage">Prediction-set coverage</a></li>
+            </ol>
+          </aside>
+          <div class="docs-main">
+          <p class="theory-eyebrow">Benchmark</p>
+          <h2 class="theory-title" id="benchmark-title">Interpolation and extrapolation on frozen splits</h2>
+          <p class="theory-lede">
+            The benchmark scores phase-prediction models under two frozen five-fold splits of the
+            same alloys. The random split mostly tests interpolation, because a test alloy usually
+            has close relatives from its own alloy system in training. The family-grouped split holds
+            out whole alloy systems, so it tests extrapolation to chemistries the model has not seen.
+            The gap is the random score minus the grouped score.
+          </p>
+          <p class="small-note">
+            Each section below works on its own: check that the splits match the published ones,
+            rerun a baseline, score your own model, or test the prediction sets.
+          </p>
+          <div class="engine-gate" id="benchmark-gate"></div>
+          <div class="feature-controls">
+            <label for="benchmark-task">Task</label>
+            <select id="benchmark-task">
+              <option value="single_vs_multi">Single-phase solid solution or not</option>
+              <option value="phase4">BCC, FCC, HCP or multi-phase</option>
+            </select>
+            <label for="benchmark-version">Corpus</label>
+            <select id="benchmark-version">
+              <option value="0.1.0">v0.1.0 (published numbers)</option>
+              <option value="0.2.0">v0.2.0</option>
+            </select>
+          </div>
+
+          <h3 id="benchmark-splits"><span class="sec-num">01</span>The two splits</h3>
+          <div id="benchmark-splits-body"></div>
+
+          <h3 id="benchmark-baselines"><span class="sec-num">02</span>Baselines</h3>
+          <p>
+            Published results for the reference corpus, each re-runnable here. The rules have no
+            fitted parameters, so their two scores agree by construction. Compare rules with fitted
+            models on the grouped column.
+          </p>
+          <div id="benchmark-baselines-body"></div>
+
+          <h3 id="benchmark-score"><span class="sec-num">03</span>Score your model</h3>
+          <p>
+            Download the fold assignment, train your model once per fold of each split on the rows
+            outside that fold, and predict the rows inside it. Then upload one CSV with the columns
+            composition_key, grouped and random, holding each alloy's predicted label under each
+            split. The page scores it exactly as the library does. To see the format first, download
+            the example file, which predicts the most common label for every alloy, and upload it.
+          </p>
+          <div class="feature-controls">
+            <button type="button" class="secondary" id="benchmark-folds">Download the folds (CSV)</button>
+            <button type="button" class="ghost" id="benchmark-example">Download an example predictions file</button>
+            <button type="button" class="primary" id="benchmark-upload">Upload predictions (CSV)</button>
+            <input type="file" id="benchmark-upload-file" accept=".csv,text/csv" hidden>
+          </div>
+          <div id="benchmark-score-body"></div>
+
+          <h3 id="benchmark-coverage"><span class="sec-num">04</span>Prediction-set coverage</h3>
+          <p>
+            A conformal prediction set lists every phase the model cannot rule out at a chosen
+            confidence. This study checks how often the sets contain the true label when whole alloy
+            systems are unseen, overall and for alloys flagged as unlike the dataset. It takes a few
+            minutes in the browser.
+          </p>
+          <div class="feature-controls">
+            <button type="button" class="primary" id="benchmark-coverage-run">Run the coverage study</button>
+          </div>
+          <div id="benchmark-coverage-body"></div>
+          </div>
+        </section>
         </div>
 
         <div class="view" data-view-panel="data">
@@ -7648,7 +8108,7 @@ font-family: 'Source Sans Pro'
                 Gschneidner, K. A., Jr. (1966). Physical properties of the rare earth metals. In <em>Transactions of the Vacuum Metallurgy Conference 1965</em>. American Vacuum Society. (The source of LA-4003&rsquo;s rare-earth radii.)
               </li>
               <li id="ref-ms2017">
-                Miracle, D. B., &amp; Senkov, O. N. (2017). A critical review of high entropy alloys and related concepts. <em>Acta Materialia</em>, 122, 448&ndash;511. (Table 3 is the cross-check column in the Data view.)
+                Miracle, D. B., &amp; Senkov, O. N. (2017). A critical review of high entropy alloys and related concepts. <em>Acta Materialia</em>, 122, 448&ndash;511. (Table 3 is the cross-check column in the Element data view.)
                 <a href="https://doi.org/10.1016/j.actamat.2016.08.081" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.actamat.2016.08.081</a>
               </li>
               <li id="ref-crc">
@@ -7757,10 +8217,10 @@ font-family: 'Source Sans Pro'
       </footer>
     </div>
 
-    <script src="hea-calculator-core.js"></script>
+    <script src="hea-calculator-core.js?v=2.6.0"></script>
     <script>
-      const VERSION = "2.5.6";
-      const VERSION_DATE = "2026-08-25";
+      const VERSION = "2.6.0";
+      const VERSION_DATE = "2026-10-05";
       const VERSION_HISTORY = [
         { version: "2.5.6", date: "2026-08-25", notes: "Lead the hero with the claim, not the abstract" },
         { version: "2.5.5", date: "2026-08-24", notes: "Document every MCP tool parameter, and add the container and Glama manifests" },
@@ -9483,6 +9943,7 @@ font-family: 'Source Sans Pro'
       }
 
       function renderResults(payload) {
+        document.dispatchEvent(new CustomEvent("hea:alloy-result", { detail: payload || null }));
         resultsEl.innerHTML = "";
         miedemaResultsEl.innerHTML = "";
         const rulesPanelEl = document.getElementById("rules-panel");
@@ -9857,7 +10318,7 @@ font-family: 'Source Sans Pro'
             if (edited !== undefined) {
               sourceLabel = `<span class="pair-source pair-source-manual" title="User-entered value">manual</span>`;
             } else if (source === "miedema") {
-              sourceLabel = `<span class="pair-source pair-source-miedema" title="Miedema-model value: de Boer et al. (1988), digitized by matminer; provenance in the Data view">Miedema</span>`;
+              sourceLabel = `<span class="pair-source pair-source-miedema" title="Miedema-model value: de Boer et al. (1988), digitized by matminer; provenance in the Element data view">Miedema</span>`;
             }
 
             rows.push(`
@@ -10014,7 +10475,12 @@ font-family: 'Source Sans Pro'
 
         try {
           const { descriptors, rules, warnings } = calculateDescriptors(selected, fractions);
-          renderResults({ composition: fractions, descriptors, rules });
+          renderResults({
+            composition: fractions,
+            descriptors,
+            rules,
+            coreOptions: { elementData: ELEMENT_DATA, pairEnthalpyOverrides: { ...pairEnthalpyEdits } },
+          });
           renderWarnings(warnings);
           lastCalculation = {
             timestamp: Date.now(),
@@ -10436,6 +10902,7 @@ font-family: 'Source Sans Pro'
 
       function applyMode(mode) {
         document.body.classList.toggle("mode-oxide", mode === "oxide");
+        document.body.classList.toggle("mode-ceramic", mode === "ceramic");
         modeSwitchEl.querySelectorAll(".mode-btn").forEach((btn) => {
           btn.classList.toggle("is-active", btn.getAttribute("data-mode") === mode);
         });
@@ -10702,7 +11169,7 @@ font-family: 'Source Sans Pro'
       applyOxideFamily();
       let storedMode = "alloy";
       try { storedMode = localStorage.getItem(MODE_STORAGE_KEY) || "alloy"; } catch (e) { /* storage unavailable */ }
-      if (storedMode === "oxide") applyMode("oxide");
+      if (storedMode === "oxide" || storedMode === "ceramic") applyMode(storedMode);
 
       // ---------------------------------------------------------------
       // 1.6.1 polish: descriptor tooltips, click-to-copy cards, theme
@@ -10856,7 +11323,7 @@ font-family: 'Source Sans Pro'
           return `<tr><td><a href="#data" data-jump-view="data" data-jump-anchor="data-${el}">${el}</a></td><td>${v === null || v === undefined ? "—" : v}</td><td class="prov-src">${meta.unit}</td></tr>`;
         }).join("");
         return `<table class="prov-inputs"><thead><tr><th>${meta.label}</th><th>value</th><th></th></tr></thead><tbody>${rows}</tbody></table>` +
-          `<p class="prov-note">Source: ${provSourceLinks(srcKeys)}. Column conventions are in the <a href="#data" data-jump-view="data">Data view</a>.</p>`;
+          `<p class="prov-note">Source: ${provSourceLinks(srcKeys)}. Column conventions are in the <a href="#data" data-jump-view="data">Element data view</a>.</p>`;
       }
 
       function provPairRows() {
@@ -10873,7 +11340,7 @@ font-family: 'Source Sans Pro'
           }
         }
         return `<table class="prov-inputs"><thead><tr><th>Pair ΔH mix</th><th>value</th><th></th></tr></thead><tbody>${rows.join("")}</tbody></table>` +
-          `<p class="prov-note">Source: ${provSourceLinks(["deboer1988", "takeuchi2005", "matminer2018"])}. The vendored table is pinned by SHA in the <a href="#data" data-jump-view="data">Data view</a>.</p>`;
+          `<p class="prov-note">Source: ${provSourceLinks(["deboer1988", "takeuchi2005", "matminer2018"])}. The vendored table is pinned by SHA in the <a href="#data" data-jump-view="data">Element data view</a>.</p>`;
       }
 
       function provMechanicsRows() {
@@ -10884,7 +11351,7 @@ font-family: 'Source Sans Pro'
           return `<tr><td><a href="#data" data-jump-view="data" data-jump-anchor="data-${el}">${el}</a></td><td>${m ? formatNumber(m.B, 4) : "—"}</td><td>${m ? formatNumber(m.Vm, 4) : "—"}</td></tr>`;
         }).join("");
         return `<table class="prov-inputs"><thead><tr><th>El</th><th>B (GPa)</th><th>Vm (cm³/mol)</th></tr></thead><tbody>${rows}</tbody></table>` +
-          `<p class="prov-note">Source: ${provSourceLinks(["matminer2018", "deboer1988"])}. The upstream column named “compressibility” holds the bulk modulus in GPa. Details are in the <a href="#data" data-jump-view="data">Data view</a>.</p>`;
+          `<p class="prov-note">Source: ${provSourceLinks(["matminer2018", "deboer1988"])}. The upstream column named “compressibility” holds the bulk modulus in GPa. Details are in the <a href="#data" data-jump-view="data">Element data view</a>.</p>`;
       }
 
       function provShannonRows() {
@@ -10926,7 +11393,7 @@ font-family: 'Source Sans Pro'
           } else if (kind === "temperature") {
             html += provTemperatureRow();
           } else if (kind === "miedema-params") {
-            html += `<p class="prov-note">Per-element Miedema parameters (φ*, n<sub>ws</sub>, V<sup>2/3</sup>) from the vendored matminer table; see the <a href="#data" data-jump-view="data">Data view</a> for the file pin and license.</p>`;
+            html += `<p class="prov-note">Per-element Miedema parameters (φ*, n<sub>ws</sub>, V<sup>2/3</sup>) from the vendored matminer table; see the <a href="#data" data-jump-view="data">Element data view</a> for the file pin and license.</p>`;
           }
         });
         return html || `<p class="prov-note">Derived from the descriptors above; no additional element data enters.</p>`;
@@ -10964,7 +11431,7 @@ font-family: 'Source Sans Pro'
         const links = [];
         if (entry.theory) links.push(`<a href="#theory" data-jump-view="theory" data-jump-anchor="${entry.theory}">Derivation → Theory</a>`);
         if (entry.eqn) links.push(`<a href="#equations" data-jump-view="reference" data-jump-anchor="${entry.eqn}">Equation reference</a>`);
-        links.push(`<a href="#data" data-jump-view="data">Data view</a>`);
+        links.push(`<a href="#data" data-jump-view="data">Element data view</a>`);
         const body = document.getElementById("prov-drawer-body");
         body.innerHTML =
           (valueText ? `<div class="prov-sec"><h4>Value</h4><div class="prov-value">${valueText}<span class="prov-units">${unitsText}</span></div></div>` : "") +
@@ -11389,6 +11856,8 @@ font-family: 'Source Sans Pro'
         if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
           if (document.body.classList.contains("mode-oxide")) {
             handleOxideCalculate();
+          } else if (document.body.classList.contains("mode-ceramic")) {
+            document.getElementById("ceramic-calculate").click();
           } else {
             handleCalculate();
           }
@@ -11682,7 +12151,7 @@ font-family: 'Source Sans Pro'
           if (!link) return;
           event.preventDefault();
           const requested = link.dataset.jumpView;
-          const name = ({ theory: "theory", refs: "refs", references: "refs", equations: "reference", reference: "reference", calc: "calc", data: "data" })[requested] || requested;
+          const name = ({ theory: "theory", refs: "refs", references: "refs", equations: "reference", reference: "reference", calc: "calc", data: "data", dataset: "dataset", design: "design", benchmark: "benchmark" })[requested] || requested;
           show(name);
           const anchor = link.dataset.jumpAnchor;
           if (!anchor) return;
@@ -11698,7 +12167,7 @@ font-family: 'Source Sans Pro'
         // ---- Hash deep links (#theory, #refs, #equations, or a theory
         // section id like #sec-perovskite) so the landing page and external
         // documentation can link straight into a view. ----
-        const viewAliases = { theory: "theory", refs: "refs", references: "refs", equations: "reference", reference: "reference", calc: "calc", calculator: "calc", data: "data" };
+        const viewAliases = { theory: "theory", refs: "refs", references: "refs", equations: "reference", reference: "reference", calc: "calc", calculator: "calc", data: "data", dataset: "dataset", design: "design", benchmark: "benchmark" };
         function openFromHash() {
           const hash = (window.location.hash || "").replace(/^#/, "").toLowerCase();
           if (!hash) return;
@@ -11830,5 +12299,7 @@ font-family: 'Source Sans Pro'
         openFromHash();
       })();
     </script>
+    <script src="hea-engine.js?v=2.6.0"></script>
+    <script src="hea-features.js?v=2.6.0"></script>
 
 </body></html>

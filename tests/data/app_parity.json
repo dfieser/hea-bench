@@ -1,0 +1,251 @@
+{
+  "_read_me": "App-parity registry, enforced by tests/test_app_parity.py. Every public name of the library (every __all__ entry, every MCP tool, every phase rule, every CLI command) is listed exactly once: under a feature whose app surface exists and works, under 'internal' with the reason it needs no surface, or under 'deferred' with the owner's dated decision. A new public name fails CI until it is listed here, and a feature's evidence (DOM ids in web/index.html, bridge methods the front end calls, exported browser-core functions the page uses, tests that exist) is checked on every run.",
+  "features": {
+    "alloy-descriptors": {
+      "what": "Calculator tab: type an alloy formula, get every descriptor with units and sources.",
+      "covers": [
+        "hea_bench.Composition", "hea_bench.parse_formula", "hea_bench.normalize",
+        "hea_bench.smix", "hea_bench.delta", "hea_bench.vec", "hea_bench.melting_temperature",
+        "hea_bench.mixing_enthalpy", "hea_bench.omega", "hea_bench.delta_h_ss", "hea_bench.delta_g_ss",
+        "hea_bench.delta_g_max", "hea_bench.s_excess", "hea_bench.phi_king", "hea_bench.phi_ye",
+        "hea_bench.delta_chi", "hea_bench.mean_electronegativity", "hea_bench.singh_lambda",
+        "hea_bench.wang_gamma", "hea_bench.h_elastic",
+        "hea_bench.descriptors.phi.KING_PHI_THRESHOLD", "hea_bench.descriptors.phi.YE_PHI_THRESHOLD",
+        "hea_bench.descriptors.backend.NativeBackend", "hea_bench.descriptors.backend.UNITS",
+        "mcp:parse_composition", "mcp:alloy_descriptors", "cli:describe"
+      ],
+      "app": {
+        "dom": ["formula-input", "parse-formula", "calculate", "results", "king-temperature", "pair-enthalpy-editor", "miedema-results"],
+        "core": ["calculateDescriptors", "calculateMiedemaDescriptors", "KING_PHI_THRESHOLD", "YE_PHI_THRESHOLD"]
+      },
+      "tests": [
+        "tests/test_web_parity.py::test_browser_core_matches_python_descriptors_and_rules",
+        "tests/test_web_miedema.py::test_miedema_decomposition_matches_pinned_values"
+      ]
+    },
+    "phase-rules": {
+      "what": "Calculator tab: the verdict of each of the nine published phase rules.",
+      "covers": [
+        "rule:guo_vec", "rule:king_phi", "rule:senkov_kappa", "rule:sheikh_ductility", "rule:tsai_sigma",
+        "rule:yang_omega", "rule:ye_phi", "rule:yeh_smix", "rule:zhang_delta", "mcp:alloy_rules"
+      ],
+      "app": {"dom": ["rules-panel", "rule-predictions"], "core": ["rulePredictionsFromDescriptors"]},
+      "tests": ["tests/test_web_parity.py::test_browser_core_matches_python_descriptors_and_rules"]
+    },
+    "omega-robustness": {
+      "what": "Calculator tab: how far Omega moves when the dominant element's pair enthalpies shift by the spread between published tables.",
+      "covers": ["mcp:omega_sensitivity"],
+      "app": {"dom": ["omega-panel", "omega-perturbation", "omega-sensitivity"], "core": ["omegaSensitivity"]},
+      "tests": ["tests/test_web_properties_parity.py::test_browser_properties_and_ceramics_match_python"]
+    },
+    "element-data": {
+      "what": "Element data tab: every elemental value with its source, and which descriptors each element supports.",
+      "covers": ["mcp:element_coverage"],
+      "app": {"dom": ["data-element-table", "data-coverage", "data-coverage-table", "prov-drawer"], "core": ["ELEMENT_DATA", "PAIR_ENTHALPIES"]},
+      "tests": [
+        "tests/test_web_parity.py::test_browser_core_matches_python_descriptors_and_rules",
+        "tests/test_provenance_data.py::test_every_element_has_sources"
+      ]
+    },
+    "oxides": {
+      "what": "Calculator tab, Oxides mode: high-entropy oxide descriptors and formability verdicts for four structure families.",
+      "covers": [
+        "hea_bench.oxides.OXYGEN_RADIUS", "hea_bench.oxides.R_GAS", "hea_bench.oxides.assign_oxidation_states",
+        "hea_bench.oxides.bartel_tau", "hea_bench.oxides.combined_size_disorder", "hea_bench.oxides.delta_chi",
+        "hea_bench.oxides.describe_fluorite", "hea_bench.oxides.describe_perovskite", "hea_bench.oxides.describe_pyrochlore",
+        "hea_bench.oxides.describe_rock_salt", "hea_bench.oxides.goldschmidt_t", "hea_bench.oxides.mean_chi",
+        "hea_bench.oxides.octahedral_factor", "hea_bench.oxides.radius_ratio", "hea_bench.oxides.radius_sample_std",
+        "hea_bench.oxides.shannon_radius", "hea_bench.oxides.size_disorder", "hea_bench.oxides.sublattice_entropy",
+        "mcp:oxide_report"
+      ],
+      "app": {
+        "dom": ["oxide-panel", "oxide-family", "oxide-calculate", "oxide-results", "oxide-verdicts"],
+        "core": ["describeRockSalt", "describeFluorite", "describePerovskite", "describePyrochlore", "OXIDE_ELEMENT_DATA"]
+      },
+      "tests": ["tests/test_web_oxides_parity.py::test_browser_oxides_match_python"]
+    },
+    "ceramics": {
+      "what": "Calculator tab, Ceramics mode: carbides, nitrides and diborides with every entropy convention and the VEC reference points.",
+      "covers": [
+        "hea_bench.ceramics.SOURCES", "hea_bench.ceramics.describe_diboride",
+        "hea_bench.ceramics.describe_rock_salt_carbide", "hea_bench.ceramics.describe_rock_salt_nitride"
+      ],
+      "app": {
+        "dom": ["ceramic-panel", "ceramic-structure", "ceramic-metals", "ceramic-calculate", "ceramic-results"],
+        "core": ["describeRockSaltCarbide", "describeRockSaltNitride", "describeDiboride"]
+      },
+      "tests": ["tests/test_web_properties_parity.py::test_browser_properties_and_ceramics_match_python"]
+    },
+    "properties": {
+      "what": "Calculator tab, Properties and predictions: density and raw-material cost at once, hardness with its conformal interval from the engine.",
+      "covers": [
+        "hea_bench.properties.PropertyPrediction", "hea_bench.properties.PropertyUnavailableError",
+        "hea_bench.properties.available_properties", "hea_bench.properties.cost_breakdown",
+        "hea_bench.properties.cost_per_kg", "hea_bench.properties.density",
+        "hea_bench.properties.predict_property", "hea_bench.properties.predict_property_batch",
+        "hea_bench.properties.hardness.N_MIN", "hea_bench.properties.hardness.predict_hardness",
+        "hea_bench.properties.hardness.predict_hardness_batch",
+        "hea_bench.uncertainty.ConformalRegressor", "hea_bench.descriptors.backend.matrix_vector",
+        "mcp:predict_properties"
+      ],
+      "app": {
+        "dom": ["predict-panel", "predict-tier-a", "predict-cost-breakdown", "predict-engine"],
+        "bridge": ["properties"],
+        "core": ["tierADensity", "costBreakdown", "PRICE_ASOF"]
+      },
+      "tests": [
+        "tests/test_web_properties_parity.py::test_browser_properties_and_ceramics_match_python",
+        "tests/test_webapp.py::test_one_unavailable_property_does_not_hide_the_others",
+        "tests/test_web_engine.py::test_engine_matches_cpython"
+      ]
+    },
+    "measured-properties": {
+      "what": "Dataset tab, Measured hardness and density: the Borg 2020 measurements behind the predictions, filterable and downloadable.",
+      "covers": [
+        "hea_bench.properties.borg.PropertyRecord", "hea_bench.properties.borg.experimental_density_records",
+        "hea_bench.properties.borg.hardness_records"
+      ],
+      "app": {
+        "dom": ["dataset-measured", "measured-filters", "measured-property", "measured-tbody", "measured-download"],
+        "bridge": ["measured_properties"]
+      },
+      "tests": [
+        "tests/test_webapp.py::test_measured_properties_are_the_training_records",
+        "tests/test_web_engine.py::test_engine_matches_cpython"
+      ]
+    },
+    "phase-sets": {
+      "what": "Calculator tab, Properties and predictions: the conformal phase prediction set with its coverage guarantee.",
+      "covers": [
+        "hea_bench.uncertainty.ConformalClassifier", "hea_bench.uncertainty.phase.TASK_DESCRIPTIONS",
+        "hea_bench.uncertainty.phase.predict_phase_set", "hea_bench.uncertainty.splitting.grouped_calibration_split"
+      ],
+      "app": {"dom": ["predict-gate", "predict-engine"], "bridge": ["phase_prediction"]},
+      "tests": [
+        "tests/test_webapp.py::test_phase_set_for_the_cantor_alloy",
+        "tests/test_web_engine.py::test_engine_matches_cpython"
+      ]
+    },
+    "domain": {
+      "what": "Calculator tab, Properties and predictions: whether the alloy lies inside the data the models learned from, with the novelty measures.",
+      "covers": [
+        "hea_bench.uncertainty.DomainModel", "hea_bench.uncertainty.default_domain", "hea_bench.uncertainty.fit_domain",
+        "hea_bench.uncertainty.novelty_score", "hea_bench.uncertainty.applicability.FAMILY_DISTANCE_THRESHOLD",
+        "mcp:check_applicability"
+      ],
+      "app": {"dom": ["predict-engine"], "bridge": ["applicability"]},
+      "tests": ["tests/test_web_engine.py::test_engine_matches_cpython"]
+    },
+    "dataset": {
+      "what": "Dataset tab: the consolidated alloy dataset with every source's label and paper, filters, paging and CSV download.",
+      "covers": [
+        "hea_bench.corpus.DEFAULT_CORPUS_VERSION", "hea_bench.corpus.SOURCE_COLUMN_PREFIX", "hea_bench.corpus.Corpus",
+        "hea_bench.corpus.CorpusRow", "hea_bench.corpus.load_corpus",
+        "hea_bench.descriptors.backend.scorable_elements",
+        "mcp:corpus_query", "mcp:corpus_describe"
+      ],
+      "app": {
+        "dom": ["dataset-version", "dataset-filters", "dataset-summary", "dataset-tbody", "dataset-download"],
+        "bridge": ["dataset_query", "dataset_describe", "dataset_csv"]
+      },
+      "tests": [
+        "tests/test_webapp.py::test_dataset_pages_are_capped_and_carry_provenance",
+        "tests/test_webapp.py::test_peivaste_install_refuses_different_bytes",
+        "tests/test_web_engine.py::test_engine_matches_cpython"
+      ]
+    },
+    "benchmark": {
+      "what": "Benchmark tab: the frozen random and family-grouped splits with their digests, the baselines rerun live, and scoring of uploaded predictions with the gap.",
+      "covers": [
+        "hea_bench.benchmark.TASKS", "hea_bench.benchmark.Benchmark", "hea_bench.benchmark.BenchmarkRow",
+        "hea_bench.benchmark.EvaluationReport", "hea_bench.benchmark.Fold", "hea_bench.benchmark.FoldMetrics",
+        "hea_bench.benchmark.MajorityClass", "hea_bench.benchmark.PhaseClass", "hea_bench.benchmark.SplitScheme",
+        "hea_bench.benchmark.descriptor_matrix", "hea_bench.benchmark.descriptor_names", "hea_bench.benchmark.evaluate",
+        "hea_bench.benchmark.family_of", "hea_bench.benchmark.finite_descriptor_indices", "hea_bench.benchmark.grouped_split",
+        "hea_bench.benchmark.load_benchmark", "hea_bench.benchmark.random_split", "hea_bench.benchmark.score",
+        "hea_bench.benchmark.score_predictions",
+        "hea_bench.benchmark.baselines.BASELINE_NAMES", "hea_bench.benchmark.baselines.FOREST_SEED",
+        "hea_bench.benchmark.baselines.DescriptorModel", "hea_bench.benchmark.baselines.baseline_model",
+        "hea_bench.benchmark.baselines.build_models",
+        "hea_bench.benchmark.corpus.DEFAULT_CORPUS_VERSION", "hea_bench.benchmark.evaluate.SchemeResult",
+        "hea_bench.benchmark.frozen.FROZEN", "hea_bench.benchmark.frozen.verify_split_digests",
+        "hea_bench.benchmark.metrics.METRIC_NAMES", "hea_bench.benchmark.metrics.aggregate",
+        "hea_bench.benchmark.metrics.standard_error",
+        "hea_bench.benchmark.splits.DEFAULT_K", "hea_bench.benchmark.splits.DEFAULT_SEED",
+        "hea_bench.benchmark.splits.freeze_digest", "hea_bench.benchmark.splits.family_overlap_profile",
+        "hea_bench.benchmark.splits.straddling_families", "hea_bench.benchmark.splits.subset_closure_components"
+      ],
+      "app": {
+        "dom": ["benchmark-task", "benchmark-version", "benchmark-splits", "benchmark-baselines", "benchmark-score", "benchmark-folds", "benchmark-upload"],
+        "bridge": ["benchmark_summary", "benchmark_run", "benchmark_folds_csv", "benchmark_score"]
+      },
+      "tests": [
+        "tests/test_webapp.py::test_benchmark_summary_verifies_the_frozen_digests",
+        "tests/test_webapp.py::test_live_rule_baseline_reproduces_the_published_row",
+        "tests/test_webapp.py::test_uploaded_fold_predictions_match_evaluate",
+        "tests/test_web_engine.py::test_engine_matches_cpython"
+      ]
+    },
+    "coverage-study": {
+      "what": "Benchmark tab, coverage table: whether the 90 percent phase sets really cover 90 percent, overall and by group.",
+      "covers": [
+        "hea_bench.uncertainty.coverage.ALPHAS", "hea_bench.uncertainty.coverage.CALIBRATION_FRACTION",
+        "hea_bench.uncertainty.coverage.FOREST_TREES", "hea_bench.uncertainty.coverage.GROUPS",
+        "hea_bench.uncertainty.coverage.SEED", "hea_bench.uncertainty.coverage.coverage_study",
+        "hea_bench.uncertainty.coverage.family_grouped_calibration_split"
+      ],
+      "app": {"dom": ["benchmark-coverage", "benchmark-coverage-run", "benchmark-coverage-body"], "bridge": ["coverage"]},
+      "tests": ["tests/test_webapp.py::test_coverage_study_reproduces_the_published_table"]
+    },
+    "search": {
+      "what": "Design tab, Composition search: grid search over a palette with property limits, rule filters and the Pareto front.",
+      "covers": [
+        "hea_bench.design.Candidate", "hea_bench.design.CompositionConstraint", "hea_bench.design.DomainConstraint",
+        "hea_bench.design.Maximize", "hea_bench.design.Minimize", "hea_bench.design.ParetoResult",
+        "hea_bench.design.PropertyConstraint", "hea_bench.design.RuleConstraint", "hea_bench.design.search",
+        "mcp:design_search"
+      ],
+      "app": {"dom": ["search-form", "search-objectives", "search-property-limits", "search-rules", "search-results"], "bridge": ["search"]},
+      "tests": ["tests/test_web_engine.py::test_engine_matches_cpython"]
+    },
+    "campaigns": {
+      "what": "Design tab, Experiment planning: record measured results and get the next compositions to test.",
+      "covers": [
+        "hea_bench.design.campaign.COLD_START_FLOOR", "hea_bench.design.campaign.Campaign",
+        "hea_bench.design.campaign.ColdStartError", "hea_bench.design.campaign.Suggestion",
+        "mcp:campaign_suggest"
+      ],
+      "app": {"dom": ["campaign-form", "campaign-obs-tbody", "campaign-open", "campaign-save", "campaign-suggest", "campaign-results"], "bridge": ["campaign_suggest"]},
+      "tests": [
+        "tests/test_webapp.py::test_campaign_round_trips_formula_observations",
+        "tests/test_web_engine.py::test_engine_matches_cpython"
+      ]
+    },
+    "about": {
+      "what": "Title bar: the library version and the release history.",
+      "covers": ["hea_bench.__version__", "mcp:about"],
+      "app": {"dom": ["version-badge", "about-popover", "about-history"]},
+      "tests": ["tests/test_version_sync.py::test_all_targets_currently_agree"]
+    }
+  },
+  "internal": {
+    "hea_bench.corpus.corpus_location": "Where the library writes a built corpus on disk. The app builds the corpus into browser storage behind its Start button and has no file path to show.",
+    "hea_bench.corpus.missing_corpus_error": "Builds the error a library user sees before building the corpus. The app builds the corpus on demand, so this error cannot reach an app user.",
+    "hea_bench.webapp.METHODS": "The app's own engine bridge, called by web/hea-engine-worker.js. It is the app surface itself, not a feature behind it.",
+    "hea_bench.webapp.PAGE_CAP": "The app's own engine bridge, called by web/hea-engine-worker.js. It is the app surface itself, not a feature behind it.",
+    "hea_bench.webapp.call": "The app's own engine bridge, called by web/hea-engine-worker.js. It is the app surface itself, not a feature behind it.",
+    "hea_bench.webapp.set_progress": "The app's own engine bridge, called by web/hea-engine-worker.js. It is the app surface itself, not a feature behind it."
+  },
+  "deferred": {
+    "heacalculator-bridge": {
+      "what": "Computing the descriptors with a user-installed HEACalculator (GPLv3) instead of the built-in tables, and comparing the two.",
+      "covers": [
+        "hea_bench.descriptors.backend.HEACalculatorBackend", "hea_bench.descriptors.backend.get_backend",
+        "hea_bench.descriptors.backend.BackendUnavailableError", "hea_bench.descriptors.backend.DescriptorBackend",
+        "hea_bench.descriptors.backend.UNION_DESCRIPTOR_NAMES"
+      ],
+      "decision": "Owner, 2026-10-05: the HEACalculator bridge is low priority for the app and is allowlisted. It needs the user's own HEACalculator install, which a web page cannot provide.",
+      "date": "2026-10-05"
+    }
+  }
+}

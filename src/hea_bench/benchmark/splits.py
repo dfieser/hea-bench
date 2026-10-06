@@ -54,7 +54,7 @@ The random scheme is seeded and stratified by class, so it too is
 reproducible, and it is fair to the grouped scheme in class balance.
 
 Both schemes carry a SHA-256 digest of their own fold assignment.
-:func:`freeze_digest` computes it and the corpus manifest pins it, which
+:func:`freeze_digest` computes it and :mod:`hea_bench.benchmark.frozen` pins it, which
 is what makes a split "frozen" in a way a reader can check rather than
 trust.
 

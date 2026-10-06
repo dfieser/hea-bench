@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - 'web/**'
+      # The site ships the package inside its engine bundle.
+      - 'src/**'
+      - 'tools/build_web_engine.py'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -42,6 +45,22 @@ jobs:
             echo '</urlset>'
           } > web/sitemap.xml
           cat web/sitemap.xml
+      # The engine (web/engine/: the Pyodide runtime, numpy, scipy and
+      # scikit-learn wheels, and the hea-bench package zip) is gitignored
+      # and assembled here, so the Dataset, Design and Benchmark tabs and
+      # the predictions panel work on the live site. Every file is SHA-256
+      # pinned in the build script; verify-live in auto-release.yml checks
+      # that the live engine reports the released version.
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Restore the pinned Pyodide runtime
+        uses: actions/cache@v4
+        with:
+          path: web/engine/pyodide
+          key: pyodide-${{ hashFiles('tools/build_web_engine.py') }}
+      - name: Assemble the in-app engine bundle
+        run: python tools/build_web_engine.py
       - name: Configure Pages
         uses: actions/configure-pages@v6
       - name: Upload web/ as Pages artifact

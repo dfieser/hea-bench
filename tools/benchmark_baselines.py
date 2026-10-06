@@ -30,106 +30,23 @@ import pathlib
 import platform
 import sys
 from collections import Counter
-from collections.abc import Sequence
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "src"))
 
 from hea_bench.benchmark import (  # noqa: E402
-    MajorityClass,
-    descriptor_matrix,
     evaluate,
     finite_descriptor_indices,
     load_benchmark,
 )
-from hea_bench.composition import Composition  # noqa: E402
-from hea_bench.rules import guo_vec, yang_omega, zhang_delta  # noqa: E402
+from hea_bench.benchmark.baselines import (  # noqa: E402,F401  (re-exported for scripts)
+    FOREST_SEED,
+    DescriptorModel,
+    build_models,
+)
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 OUT_MD = REPO_ROOT / "docs" / "benchmark-baselines.md"
 OUT_JSON = REPO_ROOT / "docs" / "benchmark-baselines.json"
-
-# Fixed so a rerun reproduces the table. Any change here changes every
-# number below it.
-FOREST_SEED = 0
-
-
-#: Composition (as a sorted item tuple) -> descriptor row. Every fold of
-#: every scheme of every fitted model featurizes the same ~7k corpus
-#: compositions; computing each row once cuts minutes from a run without
-#: touching a single value.
-_MATRIX_CACHE: dict[tuple, list[float]] = {}
-
-
-def _cached_matrix(compositions: Sequence[Composition]) -> list[list[float]]:
-    rows = []
-    for comp in compositions:
-        key = tuple(sorted(comp.items()))
-        row = _MATRIX_CACHE.get(key)
-        if row is None:
-            row = descriptor_matrix([comp])[0]
-            _MATRIX_CACHE[key] = row
-        rows.append(row)
-    return rows
-
-
-class DescriptorModel:
-    """Adapter fitting any scikit-learn classifier on this package's descriptors."""
-
-    def __init__(self, estimator, name: str) -> None:
-        self.estimator = estimator
-        self.name = name
-
-    def fit(self, compositions: Sequence[Composition], labels: Sequence[str]) -> DescriptorModel:
-        self.estimator.fit(_cached_matrix(compositions), list(labels))
-        return self
-
-    def predict(self, compositions: Sequence[Composition]) -> list[str]:
-        return list(self.estimator.predict(_cached_matrix(compositions)))
-
-
-def _rule_single_vs_multi(rule) -> object:
-    def predict(composition: Composition) -> str:
-        return rule.predict(composition)
-
-    predict.__name__ = f"rule:{rule.__name__.rsplit('.', 1)[-1]}"
-    return predict
-
-
-def _rule_guo_phase4(composition: Composition) -> str:
-    # Guo's VEC bounds emit FCC, BCC, or mixed. "mixed" is the rule
-    # saying no single phase is expected, which is what multi-phase
-    # means in this taxonomy. The rule cannot emit HCP at all, so it
-    # scores zero recall on that class by construction.
-    verdict = guo_vec.predict(composition)
-    return "multi-phase" if verdict == "mixed" else verdict
-
-
-_rule_guo_phase4.__name__ = "rule:guo_vec"
-
-
-def build_models(task: str) -> list[object]:
-    """Baselines for one task, all scored on the same rows so they compare."""
-    from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
-
-    models: list[object] = [MajorityClass()]
-    if task == "single_vs_multi":
-        models.append(_rule_single_vs_multi(zhang_delta))
-        models.append(_rule_single_vs_multi(yang_omega))
-    else:
-        models.append(_rule_guo_phase4)
-    models.append(
-        DescriptorModel(
-            RandomForestClassifier(n_estimators=300, random_state=FOREST_SEED, n_jobs=-1),
-            "random-forest",
-        )
-    )
-    models.append(
-        DescriptorModel(
-            GradientBoostingClassifier(random_state=FOREST_SEED),
-            "gradient-boosting",
-        )
-    )
-    return models
 
 
 def _closure_paragraph(bench) -> str:

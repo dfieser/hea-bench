@@ -54,8 +54,9 @@ which with no further input:
    `pages.yml` on `main` (site redeploy), explicitly, because pushes made
    with the workflow token never trigger other workflows on their own;
 4. then **verifies**: the run goes red if PyPI, the MCP registry or the
-   GitHub Release fail, or if the live site is not serving the new version
-   within 15 minutes. It does not wait for the desktop exe (see below).
+   GitHub Release fail, or if the live site, and its in-app engine
+   (`engine/manifest.json`), are not serving the new version within 15
+   minutes. It does not wait for the desktop exe (see below).
 
 So the day-to-day release procedure is, in full:
 
@@ -83,8 +84,10 @@ Whether cut by the bot or by hand, a `vX.Y.Z` tag drives
 [`.github/workflows/release.yml`](.github/workflows/release.yml), which runs
 with no further input:
 
-1. **gate** — the full pytest 3.10–3.12 matrix, the JS parity test, and the
-   version-consistency check on the tagged commit.
+1. **gate** — the full pytest 3.10–3.12 matrix, the JS parity test, the
+   version-consistency check, and the `web-engine` job (the in-app engine
+   bundle assembled and checked against CPython, plus the app-parity
+   registry) on the tagged commit.
 2. **pypi** — build the sdist and wheel and publish to PyPI over OIDC Trusted
    Publishing (no token).
 3. **mcp** — wait until PyPI serves the new version, then publish `server.json`
@@ -93,8 +96,9 @@ with no further input:
    notes and the sdist/wheel attached. Publishing the Release fires the
    GitHub↔Zenodo integration, which archives the tag and mints the new version
    DOI under the concept DOI.
-5. **desktop** — build the portable `HEA-Bench.exe` and attach it to the
-   release.
+5. **desktop** — assemble the in-app engine (`tools/build_web_engine.py`,
+   gitignored `web/engine/`), build the portable `HEA-Bench.exe` around
+   `web/`, and attach it to the release.
 
 ## Manual fallback (only if the automation is down)
 
@@ -180,6 +184,7 @@ before the push and did not, or lived only inside an external publisher.
 | 2026-08-11 | v2.4.0 watch | verify-release went red on a green release | one transient GitHub API timeout failed the whole watch | watcher treats unreadable status as "still running" and polls again |
 | 2026-08-16 | v2.5.0 | `mcp` publish, HTTP 422 | `server.json` description was 199 characters; the MCP registry caps it at 100, and nothing anywhere validated registry constraints | `tools/preflight.py --metadata` encodes the registry limits and runs in four places: the pre-push hook, by hand locally, in CI on every push, and in the release bot before it stamps or tags |
 | 2026-08-17 | no red run; found by inspection | the live site never showed a favicon in Google results | the icon was a `data:` URI, which Google cannot crawl, and no gate has ever opened a file under `web/` that is not code | `tools/preflight.py --metadata` checks the icon set, the 1200x630 social card, the manifest and the JSON-LD, and rejects a `data:` URI or a root-absolute icon path |
+| 2026-10-05 | no red run; found by inspection | most library features (dataset, benchmark, phase sets, domain flag, properties, search, campaigns, ceramics) were unreachable in the app, where about 99% of users are | features were only ever finished in the library, and nothing compared the two surfaces | `tests/test_app_parity.py` maps every public name to working app evidence and fails CI otherwise; the CI `web-engine` job checks the in-app engine against CPython; `verify-live` requires the live engine to report the released version |
 
 The defense has four layers, in firing order:
 
@@ -193,10 +198,11 @@ The defense has four layers, in firing order:
    Non-shippable pushes (docs, tools, tests, CI) pass through silently.
 2. **`python tools/preflight.py` by hand**, while iterating on a
    shippable change. It runs the publish-metadata checks,
-   `version.py --check`, the exact release-gate ruff invocation, and
+   `version.py --check`, the exact release-gate ruff invocation, a
+   rebuild of the in-app engine bundle when its runtime is cached, and
    the full pytest suite, then names any release gate it could NOT
-   verify locally (missing corpus, missing Node) so pushing anyway is a
-   knowing choice rather than an accident.
+   verify locally (missing corpus, missing Node, missing engine bundle)
+   so pushing anyway is a knowing choice rather than an accident.
 3. **CI on every push and pull request** runs
    `tools/preflight.py --metadata`, so externally enforced constraints
    are checked long before a release exists.

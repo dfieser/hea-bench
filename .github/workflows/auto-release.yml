@@ -197,10 +197,16 @@ jobs:
         run: |
           v="${{ needs.cut.outputs.version }}"
           want="const VERSION = \"${v}\""
+          # The page AND its in-app engine (built at deploy time by
+          # tools/build_web_engine.py) must both be the new version: a
+          # deploy without the engine would break the Dataset, Design and
+          # Benchmark tabs while the page itself looked fine.
+          want_engine="\"hea_bench_version\": \"${v}\""
           retried=0
           for i in $(seq 1 90); do   # up to ~22 minutes, covering one retry + CDN cache
             got=$(curl -fsS -H 'Cache-Control: no-cache' "https://dfieser.github.io/hea-bench/?cb=${GITHUB_RUN_ID}${i}" | grep -oE 'const VERSION = "[^"]+"' | head -1 || true)
-            if [ "$got" = "$want" ]; then echo "live site serves ${v}"; exit 0; fi
+            engine=$(curl -fsS -H 'Cache-Control: no-cache' "https://dfieser.github.io/hea-bench/engine/manifest.json?cb=${GITHUB_RUN_ID}${i}" | grep -oE '"hea_bench_version": "[^"]+"' | head -1 || true)
+            if [ "$got" = "$want" ] && [ "$engine" = "$want_engine" ]; then echo "live site and its engine serve ${v}"; exit 0; fi
             if [ "$retried" = 0 ]; then
               pc=$(gh run list --workflow=pages.yml --branch main --limit 1 --json conclusion --jq '.[0].conclusion // ""' || true)
               if [ "$pc" = "cancelled" ] || [ "$pc" = "failure" ]; then
@@ -209,7 +215,7 @@ jobs:
                 gh workflow run pages.yml --ref main
               fi
             fi
-            echo "attempt ${i}: live site has '${got:-no response}', want ${v}"
+            echo "attempt ${i}: live site has '${got:-no response}', engine has '${engine:-no response}', want ${v}"
             sleep 15
           done
           echo "::error::live site did not serve ${v} within the watch window"; exit 1

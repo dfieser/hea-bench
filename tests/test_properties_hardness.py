@@ -9,6 +9,7 @@ from hea_bench.properties import (
     PropertyUnavailableError,
     available_properties,
     predict_property,
+    predict_property_batch,
 )
 
 CANTOR = {"Co": 0.2, "Cr": 0.2, "Fe": 0.2, "Mn": 0.2, "Ni": 0.2}
@@ -101,3 +102,13 @@ def test_processing_floor_refuses_rather_than_pretending() -> None:
 def test_unscorable_composition_is_typed() -> None:
     with pytest.raises(PropertyUnavailableError, match="descriptor"):
         predict_property({"Fr": 0.5, "Co": 0.5}, "hardness")
+
+
+def test_batch_matches_single_predictions_row_for_row() -> None:
+    unscorable = {"Fr": 0.5, "Co": 0.5}
+    batch = predict_property_batch([CANTOR, unscorable, AL_CANTOR], "hardness")
+    assert batch[0] == predict_property(CANTOR, "hardness")
+    assert batch[2] == predict_property(AL_CANTOR, "hardness")
+    assert isinstance(batch[1], PropertyUnavailableError)
+    density_batch = predict_property_batch([CANTOR, AL_CANTOR], "density")
+    assert density_batch == [predict_property(CANTOR, "density"), predict_property(AL_CANTOR, "density")]

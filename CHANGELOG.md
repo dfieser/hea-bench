@@ -10,6 +10,62 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Added
+
+- **Every library feature now works in the app**, on the website and in
+  the desktop exe, for people who never write code. New tabs:
+  **Dataset** (the consolidated corpus with every source's label and
+  paper, filters, paging, CSV download, and the measured hardness and
+  density records), **Design** (composition search with property
+  limits, rule filters and the Pareto front, and experiment planning
+  from your own measurements with save and reopen) and **Benchmark**
+  (the frozen random and family-grouped splits with their digests,
+  live baseline reruns, scoring of uploaded predictions with the gap,
+  an example predictions file, and the coverage study). The Calculator
+  gains a Properties and predictions panel (density and raw-material
+  cost instantly, hardness with its conformal interval, the conformal
+  phase prediction sets and the domain flag), a check of how far Ω
+  moves under the spread between published pair tables, and a
+  Ceramics mode for carbides, nitrides and diborides.
+- The app runs the `hea_bench` package itself, unchanged, inside the
+  page (Pyodide 0.29.3 in a Web Worker, `web/hea-engine-worker.js`),
+  with the built corpus kept in browser storage. The engine bundle is
+  assembled at deploy time by `tools/build_web_engine.py` with every
+  file SHA-256 pinned, and `tests/test_web_engine.py` runs the shipped
+  bundle under Node and checks that it returns what CPython returns.
+  The new `hea_bench.webapp` module is the JSON bridge it calls.
+- App parity is enforced: `tests/test_app_parity.py` maps every public
+  name, MCP tool, phase rule and CLI command to its app surface in
+  `tests/data/app_parity.json` and fails CI, with the exact fix, when
+  one has none. The HEACalculator bridge is the one owner-deferred
+  exception.
+- `score_predictions` scores labels predicted outside the package on the
+  frozen folds, `predict_property_batch` and `predict_hardness_batch`
+  predict many compositions in one call, and the benchmark baselines,
+  frozen digest table, coverage study and phase prediction sets moved
+  from `tools/` scripts into `hea_bench.benchmark.baselines`,
+  `hea_bench.benchmark.frozen`, `hea_bench.uncertainty.coverage` and
+  `hea_bench.uncertainty.phase`, so the app, the tests and CI share one
+  implementation. The published numbers reproduce exactly.
+- CI gains a `web-engine` job that builds the corpus and the engine
+  bundle and runs the engine, bridge and parity suites with skips
+  turned into failures. The site deploy and the desktop build assemble
+  the engine, and the release check now also requires the live engine
+  to report the released version.
+
+### Changed
+
+- The calculator stacks its input panel above the results on phones and
+  narrow windows instead of squeezing the results into a sliver.
+- The landing page lists what each tab does and no longer claims the
+  app has no fitted model or that the exe is 14 MB (the exe now carries
+  the engine).
+
+### Fixed
+
+- Experiment-planning campaigns ignored `PropertyConstraint` limits.
+  They now apply them to the candidate pool exactly as `search()` does.
+
 ## [2.5.6] — 2026-08-25
 
 ### Changed

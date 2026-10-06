@@ -35,7 +35,7 @@ abstract: >-
   structure families (rock salt, perovskite, fluorite, pyrochlore), with a
   charge-neutrality oxidation-state solver, Shannon ionic radii, sublattice
   configurational entropy, the Goldschmidt and Bartel tolerance factors, and
-  the published fluorite and pyrochlore formability criteria. Every quantity
+  the published fluorite and pyrochlore formability criteria. Every descriptor
   is a transparent closed-form expression over a curated element-property
   table, with no fitted model. The same calculation core ships as a Python
   library, a zero-install browser app, and a native desktop app; the browser
@@ -50,8 +50,8 @@ keywords:
   - alloy design
 license: MIT
 repository-code: 'https://github.com/dfieser/hea-bench'
-version: 2.5.6
-date-released: '2026-08-25'
+version: 2.6.0
+date-released: '2026-10-05'
 doi: 10.5281/zenodo.20346287
 identifiers:
   - type: doi
