@@ -33,7 +33,7 @@ reference points rather than one window: a hardness maximum near 8.4
 (Jhi, Ihm, Louie and Cohen, Nature 399, 132 (1999)), enhanced fracture
 resistance above about 9.4 in five-metal carbides (Sangiovanni,
 Kaufmann and Vecchio, Sci. Adv. 9, eadi2960 (2023)), a plasticity
-criterion above about 9.5 (Sangiovanni et al., Mater. Des. 204, 109932
+criterion above about 9.5 (Sangiovanni et al., Mater. Des. 209, 109932
 (2021)), against binary-systematics trends (Balasubramanian, Khare and
 Gall, Acta Mater. 152, 175 (2018)). Because that span is a composite
 of separate results, the module annotates the points and refuses to

@@ -64,8 +64,11 @@
   which is a 15-20 minute Rust build that nobody waits for. Never
   watch or wait for `desktop-build`: if it fails, `release.yml` opens
   an issue labelled `desktop-build` that mentions and assigns the
-  owner, so the owner is emailed by GitHub; a later session fixes it
-  and re-fires `gh workflow run release.yml --ref vX.Y.Z`. Heed
+  owner, so the owner is emailed by GitHub; a later session fixes it.
+  A transient failure is re-fired with `gh workflow run release.yml
+  --ref vX.Y.Z`, but a re-fire builds the tagged code, so a code fix
+  needs a green `gh workflow run desktop-smoke.yml --ref main` and then
+  ships with the next releasing push (preflight enforces this). Heed
   preflight's "gate NOT pre-verified" warnings before
   touching benchmark, corpus, split, or web-parity code. If a release
   ever fails for a reason the preflight did not catch, the fix commit

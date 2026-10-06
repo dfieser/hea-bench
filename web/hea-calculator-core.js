@@ -3930,7 +3930,7 @@
         "maximum in rock-salt carbonitrides.",
       Sangiovanni2021:
         "Sangiovanni, Mellor, Harrington, Kaufmann and Vecchio (2021). " +
-        "Mater. Des. 204, 109932. VEC above about 9.5 for plasticity in B1 " +
+        "Mater. Des. 209, 109932. VEC above about 9.5 for plasticity in B1 " +
         "high-entropy carbides.",
       Sangiovanni2023:
         "Sangiovanni, Kaufmann and Vecchio (2023). Sci. Adv. 9, eadi2960. " +
@@ -3955,7 +3955,7 @@
     var CERAMIC_VEC_REFERENCE_POINTS = [
       { value: 8.4, marks: "hardness maximum in rock-salt carbonitrides", source: "Jhi et al. 1999 (Nature 399, 132)" },
       { value: 9.4, marks: "enhanced fracture resistance in five-metal rock-salt carbides", source: "Sangiovanni et al. 2023 (Sci. Adv. 9, eadi2960)" },
-      { value: 9.5, marks: "plasticity criterion for B1 high-entropy ceramics", source: "Sangiovanni et al. 2021 (Mater. Des. 204, 109932)" }
+      { value: 9.5, marks: "plasticity criterion for B1 high-entropy ceramics", source: "Sangiovanni et al. 2021 (Mater. Des. 209, 109932)" }
     ];
 
     var CERAMIC_NOTES = [

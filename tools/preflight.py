@@ -322,6 +322,48 @@ def check_docker_context() -> list[str]:
     return problems
 
 
+#: What the desktop exe smoke test runs besides web/. A releasing push
+#: that changes any of these since the last release needs a green
+#: Desktop smoke run on the same files first: v2.7.1 and v2.7.2 shipped
+#: no exe because the test passed on a desktop, and its first run on
+#: GitHub's elevated Windows runners was inside the release.
+DESKTOP_SMOKE_INPUTS = ("src-tauri", "tests/test_desktop_smoke.py", ".github/workflows/desktop-smoke.yml")
+
+
+def _git(*args: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
+
+
+def check_desktop_smoke() -> list[str]:
+    if "[no-release]" in _git("log", "-1", "--format=%B").stdout:
+        return []
+    _git("fetch", "--tags", "--quiet")  # the release bot makes the tags, so a clone can lag
+    tag = _git("describe", "--tags", "--abbrev=0", "--match", "v*").stdout.strip()
+    if not tag:
+        return ["no release tag in this clone to compare against: run git fetch --tags, then preflight again"]
+    changed = _git("diff", "--name-only", tag, "HEAD", "--", *DESKTOP_SMOKE_INPUTS).stdout.split()
+    if not changed:
+        return []
+    try:
+        listed = subprocess.run(
+            ["gh", "run", "list", "--workflow", "desktop-smoke.yml", "--status", "success",
+             "--limit", "50", "--json", "headSha"],
+            cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
+        )
+    except OSError:
+        return ["the GitHub CLI (gh) is needed to find a green Desktop smoke run: install it, gh auth login"]
+    shas = [run["headSha"] for run in json.loads(listed.stdout or "[]")] if listed.returncode == 0 else []
+    if any(_git("diff", "--quiet", sha, "HEAD", "--", *DESKTOP_SMOKE_INPUTS).returncode == 0 for sha in shas):
+        return []
+    return [
+        f"the desktop exe's inputs changed since {tag} ({', '.join(changed)}) and no green "
+        "Desktop smoke run covers them, so the release's desktop-build job would be their "
+        "first run on GitHub's runners. Commit them with [no-release] in the message, push, "
+        "run gh workflow run desktop-smoke.yml --ref main, wait for it to pass (gh run "
+        "watch), then push the release."
+    ]
+
+
 def _run(label: str, command: list[str]) -> tuple[str, int, str]:
     completed = subprocess.run(
         command, cwd=ROOT, capture_output=True, text=True, encoding="utf-8"
@@ -371,6 +413,13 @@ def main(argv: list[str]) -> int:
         print(f"      {problem}")
 
     if not args.metadata:
+        problems = check_desktop_smoke()
+        if problems:
+            failures.extend(problems)
+        print(("FAIL" if problems else "ok  ") + "  desktop exe inputs smoke-tested on GitHub's runners")
+        for problem in problems:
+            print(f"      {problem}")
+
         checks = [
             ("version consistency", [sys.executable, "tools/version.py", "--check"]),
             ("ruff (release-gate lint)", [sys.executable, "-m", "ruff", "check", "src", "tests"]),

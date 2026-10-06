@@ -263,11 +263,15 @@ jobs:
             "" \
             "Run: ${run_url}" \
             "" \
-            "PyPI, the MCP registry, the GitHub Release and the site are unaffected; only the exe asset is missing from the ${tag} release, and the site's download link shows its update-in-progress notice until one is attached. After a fix lands on main, re-fire just this pipeline:" \
+            "PyPI, the MCP registry, the GitHub Release and the site are unaffected; only the exe asset is missing from the ${tag} release, and the site's download link shows its update-in-progress notice until one is attached. If the failure was transient (a runner, the network), re-fire just this pipeline:" \
             "" \
             "    gh workflow run release.yml --ref ${tag}" \
             "" \
-            "Close this issue once the exe is attached.")
+            "A re-fire builds the code at ${tag}, so it cannot pick up a fix. If the cause was in the code, the tests or the workflow, fix it on main with [no-release], confirm it with a green run of" \
+            "" \
+            "    gh workflow run desktop-smoke.yml --ref main" \
+            "" \
+            "and the next releasing push ships the exe. Close this issue once an exe is attached.")
           existing=$(gh issue list --repo "$GH_REPO" --label desktop-build --state open --limit 1 --json number --jq '.[0].number')
           if [ -n "$existing" ]; then
             gh issue comment "$existing" --repo "$GH_REPO" --body "$body"

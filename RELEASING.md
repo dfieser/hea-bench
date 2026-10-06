@@ -147,12 +147,19 @@ comments there instead, so a flaky runner cannot fan out into a pile of
 issues. The site's download link shows its update-in-progress notice
 until an exe is attached.
 
-To recover, fix the cause on `main`, then re-fire only the release
-pipeline for that tag and close the issue once the exe is attached:
+To recover from a transient failure (a runner, the network, an outage),
+re-fire only the release pipeline for that tag and close the issue once
+the exe is attached:
 
 ```bash
 gh workflow run release.yml --ref vX.Y.Z
 ```
+
+A re-fire builds the code the tag points at, so it cannot pick up a
+fix. When the cause was in the code, the tests or the workflow, fix it
+on `main` with `[no-release]`, confirm it with a green
+`gh workflow run desktop-smoke.yml --ref main`, and the next releasing
+push ships the exe. Close the issue once an exe is attached.
 
 ## Recovering an interrupted release
 
@@ -208,6 +215,7 @@ before the push and did not, or lived only inside an external publisher.
 | 2026-10-06 | no red run; found by inspection | the MCP server lacked eleven of the package's features (dataset build and export, measured properties, phase sets, the benchmark, the coverage study, ceramics, element data), custom elements and the Miedema breakdown; nothing ever ran the published wheel or the built exe | parity was checked only between the library and the web app, always from a repository checkout | owner rule: every feature in all four parts. `tests/test_feature_parity.py` requires a library name, an MCP tool, app evidence and tests for every feature; the CI `package` job installs the built wheel fresh and calls every MCP tool over stdio (`tests/test_installed_package.py`, also run by the preflight); the release `desktop-build` job uses every tab inside the built exe before attaching it (`tests/test_desktop_smoke.py`) |
 | 2026-10-06 | no red run; caught before release | the MCP container image (`Dockerfile`, which directory listings such as Glama build) would have stopped building | the wheel started bundling files from `data/` and `docs/`, which the Dockerfile never copied and `.dockerignore` excluded | `tools/preflight.py`, in every mode (so also CI and the release bot), checks that every file the wheel force-includes reaches the image build stage and that the unlicensed Peivaste file never does |
 | 2026-10-06 | v2.7.0 | `Auto release` cut job, tag push | GitHub refused the tag push with a bare `remote rejected (failed)` after the release commit was already on `main`, and the tag push had no retry, so the release stopped with no tag | the tag push retries three times with a growing pause, and the recovery section above covers a stranded release commit (tag it by name, never re-run the cut) |
+| 2026-10-06 | v2.7.1, v2.7.2 | `desktop-build`, the exe smoke test, so neither release got an exe | the new test passed on a desktop but timed out on GitHub's runners waiting for WebView2's DevTools port. The runners run elevated, and WebView2 ignores `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS` and per-user policies for an elevated app. The test's first run on a runner was inside the release | the test also sets the machine-wide `AdditionalBrowserArguments` policy, which WebView2 honors, when it runs elevated. `tools/preflight.py` refuses a releasing push whose desktop inputs (`src-tauri/`, the test, `desktop-smoke.yml`) changed since the last release until a green `Desktop smoke` run covers them |
 
 The defense has four layers, in firing order:
 

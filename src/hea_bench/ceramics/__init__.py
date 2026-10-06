@@ -71,7 +71,7 @@ SOURCES = {
     ),
     "Sangiovanni2021": (
         "Sangiovanni, Mellor, Harrington, Kaufmann and Vecchio (2021). "
-        "Mater. Des. 204, 109932. VEC above about 9.5 for plasticity in B1 "
+        "Mater. Des. 209, 109932. VEC above about 9.5 for plasticity in B1 "
         "high-entropy carbides."
     ),
     "Sangiovanni2023": (
@@ -114,7 +114,7 @@ _VEC_REFERENCE_POINTS = (
     {
         "value": 9.5,
         "marks": "plasticity criterion for B1 high-entropy ceramics",
-        "source": "Sangiovanni et al. 2021 (Mater. Des. 204, 109932)",
+        "source": "Sangiovanni et al. 2021 (Mater. Des. 209, 109932)",
     },
 )
 

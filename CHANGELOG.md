@@ -10,6 +10,19 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Fixed
+
+- The ceramic report cited Sangiovanni et al. (2021) as Mater. Des.
+  204, 109932. The article is in volume 209 (Crossref). Found by the
+  preprint's citation audit.
+- The Windows exe ships again. 2.7.1 and 2.7.2 have none, because the
+  exe smoke test could not open WebView2's DevTools port on GitHub's
+  runners: they run elevated, and WebView2 ignores
+  `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS` for an elevated app. The test
+  now also sets the machine-wide policy WebView2 honors there, and the
+  release preflight refuses a releasing push whose desktop files
+  changed until a `Desktop smoke` run on GitHub passes.
+
 ## [2.7.2] — 2026-10-06
 
 ### Fixed
