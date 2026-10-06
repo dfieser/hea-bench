@@ -13,7 +13,9 @@ owner's dated decision. These tests fail when
 - a feature's evidence is missing: a DOM id not in web/index.html, a
   bridge method that is not registered or that no app code calls, a
   browser-core function that is not exported or that the page never
-  uses, or a named test that does not exist.
+  uses, or a named test that does not exist,
+- a feature that runs in the in-page engine is not used, through its
+  UI, by the browser smoke test tests/app_smoke.cjs.
 
 Every failure message names the exact fix.
 """
@@ -38,6 +40,7 @@ INDEX = (WEB / "index.html").read_text(encoding="utf-8")
 FRONT_END = INDEX + (WEB / "hea-features.js").read_text(encoding="utf-8")
 WORKER = (WEB / "hea-engine-worker.js").read_text(encoding="utf-8")
 CORE = (WEB / "hea-calculator-core.js").read_text(encoding="utf-8")
+SMOKE = (ROOT / "tests" / "app_smoke.cjs").read_text(encoding="utf-8")
 
 DOM_IDS = set(re.findall(r'\bid="([^"$]+)"', INDEX))
 _EXPORT_BLOCK = CORE[CORE.rindex("    return {\n") :].split("\n    };", 1)[0]
@@ -158,6 +161,20 @@ def test_every_bridge_method_is_reachable_from_the_app() -> None:
         f"hea_bench.webapp methods that no app code calls: {orphans}. Fix: call each one from "
         "web/hea-features.js (engine.call) or web/hea-engine-worker.js (callPython), or delete it."
     )
+
+
+def test_every_engine_feature_is_used_in_the_browser_smoke_test() -> None:
+    """The Node engine tests prove the answers; only a browser proves the tab works."""
+    problems = []
+    for feature_id, feature in REGISTRY["features"].items():
+        dom = feature.get("app", {}).get("dom", [])
+        if feature.get("app", {}).get("bridge") and not any(f'"{element_id}"' in SMOKE for element_id in dom):
+            problems.append(
+                f"{feature_id}: tests/app_smoke.cjs never uses its UI. Fix: add a step to STEPS there that "
+                f"uses it the way a person would, through one of its elements {dom}, then run "
+                "pytest tests/test_app_smoke.py (needs the engine build and Chrome or Edge)."
+            )
+    assert not problems, "\n".join(problems)
 
 
 def test_internal_and_deferred_entries_are_justified() -> None:

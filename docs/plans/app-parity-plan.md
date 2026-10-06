@@ -40,13 +40,16 @@ coverage study), the phone layout of the calculator, and the library
 fixes (finding 1 as `hea_bench.uncertainty.phase.predict_phase_set`,
 finding 3 as batched predictions, finding 4 as a fix, finding 5 as
 `hea_bench.benchmark.frozen`). Every engine feature was exercised in a
-browser and inside the built Windows exe.
+browser and inside the built Windows exe. Also done, in the release
+after 2.6.1: the headless-browser test (`tests/test_app_smoke.py`, every
+tab used through its UI in the CI `web-engine` job, with a parity check
+that every engine feature has a step in it) and Order of work step 2
+(the saved-page styles and demo cards removed from `index.html`, and the
+unused MathJax bundles removed after a network check of everything the
+page and the MathJax menu load).
 
-Not done: a headless-browser end-to-end test (the engine is tested under
-Node against CPython instead, and the page was exercised by hand), the
-removal of saved-page leftovers from `index.html` (Order of work step 2),
-the HEACalculator bridge (deferred by David), and the preprint wording
-(step 11).
+Not done: the HEACalculator bridge (deferred by David) and the preprint
+wording (step 11).
 
 ## Goal
 

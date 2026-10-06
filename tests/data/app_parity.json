@@ -176,7 +176,7 @@
         "hea_bench.benchmark.splits.straddling_families", "hea_bench.benchmark.splits.subset_closure_components"
       ],
       "app": {
-        "dom": ["benchmark-task", "benchmark-version", "benchmark-splits", "benchmark-baselines", "benchmark-score", "benchmark-folds", "benchmark-upload"],
+        "dom": ["benchmark-task", "benchmark-version", "benchmark-splits", "benchmark-baselines", "benchmark-score", "benchmark-folds", "benchmark-example", "benchmark-upload", "benchmark-upload-file", "benchmark-score-body", "benchmark-baselines-body"],
         "bridge": ["benchmark_summary", "benchmark_run", "benchmark_folds_csv", "benchmark_score"]
       },
       "tests": [

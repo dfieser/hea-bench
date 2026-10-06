@@ -107,7 +107,8 @@ unchanged, inside the page (Pyodide, `web/hea-engine-worker.js`), and
 `tests/test_web_engine.py` checks that it returns exactly what CPython
 returns. `tests/test_app_parity.py` fails CI whenever a public library
 feature has no working app surface, so the app never falls behind the
-library.
+library, and before every release a headless browser uses every tab of
+the built site the way a person would.
 
 ## Quick start (Python)
 

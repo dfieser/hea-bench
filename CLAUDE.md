@@ -23,13 +23,18 @@
   name, MCP tool, phase rule and CLI command in
   `tests/data/app_parity.json` to its app evidence (DOM ids, bridge
   methods the page calls, browser-core functions it uses, and tests),
-  and fails CI with the exact fix when one is missing. Adding a public
-  feature, mechanically: (1) build its surface in `web/`
-  (`hea-features.js`, plus a `hea_bench.webapp` bridge method if it
-  needs Python); (2) add the bridge call to
+  and fails CI with the exact fix when one is missing, and
+  `tests/test_app_smoke.py` uses every tab of the built site in a
+  headless browser (CI `web-engine` job, so a broken tab blocks a
+  release). Adding a public feature, mechanically: (1) build its surface
+  in `web/` (`hea-features.js`, plus a `hea_bench.webapp` bridge method
+  if it needs Python); (2) add the bridge call to
   `tests/data/web_engine_calls.json`; (3) list its names under a feature
-  in `tests/data/app_parity.json`; (4) `pytest tests/test_app_parity.py
-  tests/test_webapp.py`. How the app is built: `web/README.md`.
+  in `tests/data/app_parity.json`; (4) if it uses the engine, add a step
+  to `STEPS` in `tests/app_smoke.cjs` that uses it through its UI;
+  (5) `python tools/build_web_engine.py`, then `pytest
+  tests/test_app_parity.py tests/test_webapp.py tests/test_app_smoke.py`.
+  How the app is built: `web/README.md`.
 
 - **Shipping = pushing.** Any push to `main` touching `src/**`, `web/**`,
   `src-tauri/**`, `server.json`, or `pyproject.toml` auto-releases all

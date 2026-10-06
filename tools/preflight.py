@@ -328,6 +328,15 @@ def main(argv: list[str]) -> int:
             elif label.startswith("pytest") and " skipped" in output:
                 summary = output.strip().splitlines()[-1]
                 warnings.append(f"pytest skipped tests locally: {summary}")
+                smoke = [line.strip() for line in output.splitlines() if "test_app_smoke.py" in line]
+                if smoke:
+                    warnings.append(
+                        f"browser smoke gate NOT pre-verified ({smoke[0]}). If this push "
+                        "touches web/ or src/hea_bench, build the engine (python "
+                        "tools/build_web_engine.py) and install Chrome or Edge (or set "
+                        "HEA_BENCH_BROWSER), then preflight again, or expect the CI "
+                        "web-engine job to be the first real run."
+                    )
 
         # Gates that cannot run without local assets: name them so the
         # risk of pushing anyway is taken knowingly.

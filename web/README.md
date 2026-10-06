@@ -10,7 +10,9 @@ desktop app are the same app.
 rule, see `../CLAUDE.md`). `tests/test_app_parity.py` enforces it: every
 public library name, MCP tool, phase rule and CLI command is mapped in
 `tests/data/app_parity.json` to the app elements, engine calls and tests
-that prove it works, and CI fails on any name without one.
+that prove it works, and CI fails on any name without one. Then
+`tests/test_app_smoke.py` opens the built site in headless Chrome or Edge
+and uses every tab the way a person does, before every release.
 
 ## How to open it
 
@@ -89,8 +91,10 @@ old scripts. Do not edit those query strings by hand.
 
 1. Library change that users should see: build its surface here, add the
    bridge method to `hea_bench.webapp` if it needs Python, add the call to
-   `tests/data/web_engine_calls.json`, and map the public names in
-   `tests/data/app_parity.json`. `pytest tests/test_app_parity.py` names
+   `tests/data/web_engine_calls.json`, map the public names in
+   `tests/data/app_parity.json`, and, if it uses the engine, add a step to
+   `STEPS` in `tests/app_smoke.cjs` that uses it through its UI.
+   `pytest tests/test_app_parity.py tests/test_app_smoke.py` names
    anything missing and the exact fix.
 2. Descriptor, rule, oxide, ceramics or tier A change: update
    `hea-calculator-core.js` and run the parity suites listed above.

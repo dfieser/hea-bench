@@ -10,6 +10,31 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Added
+
+- A browser test, `tests/test_app_smoke.py`, opens the built site in
+  headless Chrome or Edge and uses every tab the way a person does: the
+  calculator in its three modes, the predictions panel, the dataset, the
+  benchmark (including an uploaded predictions file scored with the gap)
+  and the design tab. It runs in the CI `web-engine` job, so a broken tab
+  now blocks a release, and `tests/test_app_parity.py` fails when a
+  feature that uses the engine has no step in it.
+
+### Fixed
+
+- A returning visitor no longer sees numbers for a different alloy. The
+  calculator restored the last inputs but showed leftover example
+  results beside them until Calculate was pressed. It now shows the
+  welcome screen until then.
+
+### Changed
+
+- The site and the desktop app are lighter. `index.html` drops about
+  150 KB of styles left over from a saved copy of the page, none of which
+  matched anything on it, and `web/mathjax/` drops 14 MB of bundles the
+  page never loads. Equations, the MathJax menu, its SVG renderer and its
+  accessibility tools work as before.
+
 ## [2.6.1] — 2026-10-06
 
 ### Fixed
