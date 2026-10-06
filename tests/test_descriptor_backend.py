@@ -8,9 +8,13 @@ with a typed error naming the install, never a bare ImportError.
 """
 
 import math
+import re
 import sys
+from pathlib import Path
 
 import pytest
+from packaging.specifiers import SpecifierSet
+from packaging.version import Version
 
 import hea_bench as hb
 from hea_bench.descriptors import backend as backend_mod
@@ -195,6 +199,28 @@ def test_heacalculator_uncovered_composition_is_all_none() -> None:
     """Their calculator refuses at construction for uncovered elements."""
     values = get_backend("heacalculator").compute({"U": 0.5, "Th": 0.5})
     assert all(value is None for value in values.values())
+
+
+def test_interop_pin_admits_only_the_verified_series() -> None:
+    """CI installs the newest HEACalculator the [interop] pin admits.
+
+    The old ~=2.0 let their 2.2.0, with changed reference data, into the
+    v2.6.0 release gate (2026-10-05). The pin must admit the version
+    docs/backend-agreement.md was generated with and no later minor.
+    """
+    root = Path(__file__).resolve().parent.parent
+    pyproject = (root / "pyproject.toml").read_text(encoding="utf-8")
+    agreement = (root / "docs" / "backend-agreement.md").read_text(encoding="utf-8")
+    pin = SpecifierSet(re.search(r'"HEACalculator([^"]+)"', pyproject).group(1))
+    verified = Version(re.search(r"HEACalculator (\d+\.\d+\.\d+)", agreement).group(1))
+    next_minor = f"{verified.major}.{verified.minor + 1}.0"
+    fix = (
+        f'set the [interop] pin in pyproject.toml to "HEACalculator~={verified}", '
+        "or regenerate docs/backend-agreement.md against the newer series first "
+        "(PYTHONPATH=src python tools/backend_agreement.py)"
+    )
+    assert pin.contains(verified), f"HEACalculator{pin} excludes the verified {verified}: {fix}"
+    assert not pin.contains(next_minor), f"HEACalculator{pin} admits the unverified {next_minor}: {fix}"
 
 
 def test_heacalculator_values_are_plain_floats() -> None:

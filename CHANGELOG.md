@@ -10,6 +10,16 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Fixed
+
+- The `interop` extra now pins HEACalculator to the 2.0 series
+  (`~=2.0.1`), the one the comparison in `docs/backend-agreement.md` was
+  made with. Their 2.1.0 and 2.2.0 changed the reference data, and the
+  looser pin let them into the release checks, which stopped 2.6.0
+  before it reached PyPI, the MCP registry and GitHub Releases. 2.6.1 is
+  the first 2.6 release there, and it contains everything listed under
+  2.6.0.
+
 ## [2.6.0] — 2026-10-06
 
 ### Added
