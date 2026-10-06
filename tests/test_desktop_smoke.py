@@ -16,6 +16,8 @@ the release.
 
 from __future__ import annotations
 
+import contextlib
+import ctypes
 import os
 import shutil
 import subprocess
@@ -45,6 +47,31 @@ def _devtools_ready(port: int) -> bool:
         return False
 
 
+# WebView2 ignores WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS and the per-user
+# policy when the exe runs elevated, as on GitHub's Windows runners, but
+# honors this machine-wide policy, keyed by the exe's file name:
+# https://learn.microsoft.com/microsoft-edge/webview2/concepts/security
+POLICY = r"Software\Policies\Microsoft\Edge\WebView2\AdditionalBrowserArguments"
+
+
+@contextlib.contextmanager
+def _machine_policy(exe_name: str, browser_args: str):
+    """Sets the machine-wide browser arguments for the exe while elevated,
+    and removes them afterwards. Not elevated, the variable alone works."""
+    if not ctypes.windll.shell32.IsUserAnAdmin():
+        yield
+        return
+    import winreg
+
+    with winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, POLICY) as key:
+        winreg.SetValueEx(key, exe_name, 0, winreg.REG_SZ, browser_args)
+    try:
+        yield
+    finally:
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, POLICY, 0, winreg.KEY_SET_VALUE) as key:
+            winreg.DeleteValue(key, exe_name)
+
+
 def _webview_processes() -> str:
     """The running WebView2 processes' command lines, for a failure message:
     they show whether the browser started and which arguments reached it."""
@@ -69,39 +96,41 @@ def test_every_tab_works_in_the_desktop_exe(tmp_path) -> None:
     assert Path(EXE).is_file(), f"no exe at {EXE}"
     assert PEIVASTE.exists(), "run python data/raw/peivaste/fetch.py first"
     port = _free_port()
+    # The app fetches the Peivaste file at launch, before the driver can
+    # hook the page. Failing that host's DNS makes the launch fetch fail as
+    # it would offline; the driver then reloads the hooked page and answers
+    # the second fetch from the local file.
+    browser_args = (
+        f"--remote-debugging-port={port} "
+        '--host-resolver-rules="MAP raw.githubusercontent.com ~NOTFOUND"'
+    )
     env = dict(
         os.environ,
-        # The app fetches the Peivaste file at launch, before the driver can
-        # hook the page. Failing that host's DNS makes the launch fetch fail
-        # as it would offline; the driver then reloads the hooked page and
-        # answers the second fetch from the local file.
-        WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=(
-            f"--remote-debugging-port={port} "
-            '--host-resolver-rules="MAP raw.githubusercontent.com ~NOTFOUND"'
-        ),
+        WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=browser_args,
         WEBVIEW2_USER_DATA_FOLDER=str(tmp_path / "profile"),
     )
-    app = subprocess.Popen([EXE], env=env)
-    try:
-        until = time.monotonic() + 120
-        while not _devtools_ready(port):
-            if app.poll() is not None:
-                pytest.fail(f"the exe exited with code {app.returncode} before opening its DevTools port")
-            if time.monotonic() > until:
-                pytest.fail(
-                    "timed out after 120 s waiting for the exe's DevTools port. "
-                    f"WebView2 processes:\n{_webview_processes()}"
-                )
-            time.sleep(0.2)
-        completed = subprocess.run(
-            [node, str(DRIVER), str(port), "attach", str(PEIVASTE), webapp.peivaste_source()["url"],
-             hea_bench.__version__],
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            timeout=1800,
-        )
-    finally:
-        app.kill()
-        app.wait(timeout=30)
+    with _machine_policy(Path(EXE).name, browser_args):
+        app = subprocess.Popen([EXE], env=env)
+        try:
+            until = time.monotonic() + 120
+            while not _devtools_ready(port):
+                if app.poll() is not None:
+                    pytest.fail(f"the exe exited with code {app.returncode} before opening its DevTools port")
+                if time.monotonic() > until:
+                    pytest.fail(
+                        "timed out after 120 s waiting for the exe's DevTools port. "
+                        f"WebView2 processes:\n{_webview_processes()}"
+                    )
+                time.sleep(0.2)
+            completed = subprocess.run(
+                [node, str(DRIVER), str(port), "attach", str(PEIVASTE), webapp.peivaste_source()["url"],
+                 hea_bench.__version__],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                timeout=1800,
+            )
+        finally:
+            app.kill()
+            app.wait(timeout=30)
     check_report(completed, "the desktop exe")
