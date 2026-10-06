@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.6.0] — 2026-10-06
+
 ### Added
 
 - **Every library feature now works in the app**, on the website and in
