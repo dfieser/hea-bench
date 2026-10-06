@@ -10,6 +10,16 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Fixed
+
+- The landing page said the Dataset tab holds 7,783 alloys, the size of
+  corpus v0.1.0. The tab has opened on v0.2.0, 10,290 alloys, since
+  2.7.0. A test now ties that number to the corpus the tab opens.
+- Documentation that still called corpus v0.2.0 opt-in, or called the
+  Chizhevskiy rows in group notation unparseable, now matches 2.7.1.
+  Those rows parse, and the loader keeps them out because v0.2.0 is
+  frozen.
+
 ## [2.7.1] — 2026-10-06
 
 2.7.1 is the first published 2.7 release. GitHub refused the v2.7.0 tag

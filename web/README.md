@@ -43,9 +43,10 @@ built exe before it is attached to a release.
   conformal interval, the conformal phase prediction sets and the domain
   flag. **Oxides** and **Ceramics** (carbides, nitrides, diborides) are
   modes of the same tab, also instant.
-- **Dataset.** The consolidated experimental corpus (v0.1.0 by default,
-  v0.2.0 opt-in) with every source's label and paper, filters, paging and
-  CSV download, plus the measured hardness and density records.
+- **Dataset.** The consolidated experimental corpus (v0.2.0, the largest,
+  by default, and v0.1.0, the benchmark's reference, one click away) with
+  every source's label and paper, filters, paging and CSV download, plus
+  the measured hardness and density records.
 - **Design.** Composition search (grid, property limits, rule filters,
   Pareto front) and experiment planning (record measurements, get the
   next alloys to make, save and reopen the campaign file).

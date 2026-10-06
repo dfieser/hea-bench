@@ -57,11 +57,12 @@ checks are `tests/test_feature_parity.py`.
    and the domain flag stay on v0.1.0, where the published numbers are
    measured.
 6. Dependencies and CI brought up to date, docs and the preprint's
-   agent-server wording updated, released as 2.7.0.
+   agent-server wording updated, released as 2.7.1.
 
 ## Status
 
-Shipped in 2.7.0 (2026-10-06). Every step above is done: 24 MCP tools,
+Built as 2.7.0 and first published as 2.7.1 (2026-10-06), because
+GitHub refused the v2.7.0 tag push. Every step above is done: 24 MCP tools,
 the datasets in the wheel with `build_corpus()`, the `[all]` extra,
 custom elements and the Miedema breakdown in the library and over MCP,
 and four gates (`tests/test_feature_parity.py`,

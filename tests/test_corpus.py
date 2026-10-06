@@ -206,3 +206,21 @@ def test_corpus_defaults_to_the_largest_version_and_the_benchmark_to_the_referen
     assert inspect.signature(load_benchmark).parameters["version"].default == "0.1.0"
     with pytest.raises(ValueError, match="9.9.9"):
         build_corpus("9.9.9")
+
+
+@pytest.mark.skipif(
+    not (_DATA_DIR / "v0.2.0" / "consolidated.csv").exists(), reason="corpus v0.2.0 not built"
+)
+def test_landing_page_counts_the_corpus_the_dataset_tab_opens() -> None:
+    """The landing page quotes the size of the default corpus. It went
+    stale once, still saying 7,783 after the default moved to v0.2.0."""
+    import re
+
+    html = (_DATA_DIR.parents[1] / "web" / "index.html").read_text(encoding="utf-8")
+    shown = re.search(r"Browse ([\d,]+) alloy compositions", html)
+    assert shown, "web/index.html no longer says 'Browse N alloy compositions'; update this test"
+    size = len(load_corpus())
+    assert int(shown.group(1).replace(",", "")) == size, (
+        f"Fix: write 'Browse {size:,} alloy compositions' in web/index.html, the size "
+        "of the corpus the Dataset tab opens (load_corpus())."
+    )
