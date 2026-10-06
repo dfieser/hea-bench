@@ -56,7 +56,7 @@ def test_corpus_describe_summarizes_a_slice() -> None:
 
 def test_corpus_query_missing_corpus_is_structured(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("HEA_BENCH_BENCHMARK_DIR", str(tmp_path))
-    with pytest.raises(ValueError, match="consolidate"):
+    with pytest.raises(ValueError, match="corpus_build"):
         corpus_query(contains=["Al"])
 
 

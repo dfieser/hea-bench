@@ -55,6 +55,15 @@ When adding a new descriptor or rule, add tests that cover at least one
 canonical reference case (the equiatomic Cantor alloy CoCrFeMnNi is the
 standard sanity check) plus the error paths.
 
+## Every feature in all four parts
+
+hea-bench ships as four parts: the Python package, the MCP server, the
+web app and the desktop exe. A user-facing feature must appear and work
+in all four, so a person only ever needs one of them. A feature that
+works in only some of them is not finished. `CLAUDE.md` lists the steps
+in order, and `python -m pytest tests/test_feature_parity.py` names
+whatever part is still missing and the exact fix.
+
 ## Documentation and writing style
 
 Write so a reader understands the document on the **first read**, in
@@ -123,7 +132,8 @@ for the new values.
 ## Pull requests
 
 - Open PRs against the default branch.
-- Keep the test suite green. New functionality needs new tests.
+- Keep the test suite green. New functionality needs new tests, and a
+  user-facing feature needs all four parts (see above).
 - Run `ruff` for linting before submitting.
 - Describe what changed and why in the PR description.
 

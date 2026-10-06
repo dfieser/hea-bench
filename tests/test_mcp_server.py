@@ -181,7 +181,7 @@ def test_build_server_registers_every_tool():
     on them directly, so a stringized annotation raises TypeError and
     the server dies before serving a single tool.
     """
-    pytest.importorskip("mcp")
+    pytest.importorskip("mcp.server.mcpserver")
     from hea_bench.mcp_server import _TOOLS, build_server
 
     registered = build_server()._tool_manager.list_tools()
@@ -190,29 +190,32 @@ def test_build_server_registers_every_tool():
 
 
 def test_every_tool_declares_safety_annotations():
-    """Agents should see these tools are safe without having to call one."""
-    pytest.importorskip("mcp")
-    from hea_bench.mcp_server import build_server
+    """Agents should see which tools are safe without having to call one."""
+    pytest.importorskip("mcp.server.mcpserver")
+    from hea_bench.mcp_server import _TOOL_HINTS, build_server
 
     for tool in build_server()._tool_manager.list_tools():
         ann = tool.annotations
+        hints = _TOOL_HINTS.get(tool.name, {})
         assert ann is not None, f"{tool.name} has no annotations"
-        assert ann.readOnlyHint is True, f"{tool.name} not marked read-only"
-        assert ann.destructiveHint is False, f"{tool.name} not marked non-destructive"
-        assert ann.openWorldHint is False, f"{tool.name} not marked closed-world"
+        assert ann.read_only_hint is hints.get("readOnlyHint", True), tool.name
+        assert ann.destructive_hint is False, f"{tool.name} not marked non-destructive"
+        assert ann.open_world_hint is hints.get("openWorldHint", False), tool.name
         assert ann.title, f"{tool.name} has no human-readable title"
+    # Only these touch the disk or the network; every other tool is a pure read.
+    assert set(_TOOL_HINTS) == {"corpus_build", "corpus_export", "benchmark_folds"}
 
 
 def test_every_tool_parameter_carries_a_description():
     """A bare type is not a tool definition.
 
-    FastMCP builds each input schema from the signature, so without the
+    The MCP SDK builds each input schema from the signature, so without the
     _PARAM_DOCS table an agent sees a parameter named "phase" typed
     string with no hint that only four labels exist. Tool-definition
     audits score parameter semantics directly, and build_server refuses
     to start on an undocumented parameter, so this pins the contract.
     """
-    pytest.importorskip("mcp")
+    pytest.importorskip("mcp.server.mcpserver")
     from hea_bench.mcp_server import build_server
 
     documented = 0

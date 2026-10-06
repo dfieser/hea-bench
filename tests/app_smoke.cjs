@@ -1,8 +1,11 @@
 // Uses the built app the way a person does, in a headless Chromium driven
 // over the DevTools protocol, and prints a JSON report. Run by
-// tests/test_app_smoke.py, which starts the browser and a static server.
+// tests/test_app_smoke.py, which starts the browser and a static server,
+// and by tests/test_desktop_smoke.py, which starts the desktop exe with
+// WebView2's DevTools port open and passes "attach" as the app URL: the
+// steps then drive the page the exe already shows.
 //
-// Usage: node app_smoke.cjs <devtools-port> <app-url> <peivaste-csv> <peivaste-url> <version>
+// Usage: node app_smoke.cjs <devtools-port> <app-url | attach> <peivaste-csv> <peivaste-url> <version>
 //
 // The engine's Peivaste download is answered from the local file, so the
 // run never depends on the network. Uncaught errors, console errors and
@@ -316,12 +319,29 @@ const STEPS = [
     }
   });
 
-  const { targetId } = await cdp.send("Target.createTarget", { url: "about:blank" });
+  let targetId;
+  if (appUrl === "attach") {
+    // The desktop exe opens one window; Tauri serves web/ from
+    // http://tauri.localhost/ inside it. Wait until it shows the app.
+    const until = Date.now() + 60000;
+    while (!targetId) {
+      const { targetInfos } = await cdp.send("Target.getTargets");
+      const page = targetInfos.find((info) => info.type === "page" && /^https?:\/\/tauri\.localhost\//.test(info.url));
+      if (page) targetId = page.targetId;
+      else if (Date.now() > until) report({ fatal: "the desktop app never showed its page at http://tauri.localhost/: " + JSON.stringify(targetInfos) });
+      else await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+  } else {
+    ({ targetId } = await cdp.send("Target.createTarget", { url: "about:blank" }));
+  }
   const { sessionId } = await cdp.send("Target.attachToTarget", { targetId, flatten: true });
   await instrument(sessionId);
   await cdp.send("Page.enable", {}, sessionId);
   const loaded = new Promise((resolve) => cdp.on((msg) => msg.sessionId === sessionId && msg.method === "Page.loadEventFired" && resolve()));
-  await cdp.send("Page.navigate", { url: appUrl }, sessionId);
+  // A reload in attach mode, so the error listeners and the Peivaste
+  // answer are in place before the page's first script runs.
+  if (appUrl === "attach") await cdp.send("Page.reload", { ignoreCache: true }, sessionId);
+  else await cdp.send("Page.navigate", { url: appUrl }, sessionId);
   await loaded;
 
   async function evaluate(source) {

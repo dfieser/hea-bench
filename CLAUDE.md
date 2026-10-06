@@ -7,34 +7,42 @@
   fix. A fresh agent session that has read nothing should still be
   forced into the right behavior.
 
-- **APP PARITY IS MANDATORY (owner rule, 2026-10-05).** About 99% of
-  users only ever open the app: the web site built from `web/`, and the
-  desktop exe, which is the same `web/` folder in a Tauri shell with no
-  Rust commands. A feature that exists only in the Python library or the
-  MCP server is unreachable for anyone without coding or AI experience,
-  so it is a DEFECT, not a finished feature. Every user-facing feature
-  must appear AND function in the app. A new library feature is not done
-  until it works there. Since v2.6.0 every library feature does (the
-  Dataset, Design and Benchmark tabs, the predictions panel, the Ω
-  check, Ceramics mode), except the HEACalculator bridge, which the
-  owner deferred on 2026-10-05.
+- **FOUR-PART PARITY IS MANDATORY (owner rule, 2026-10-06; it widens
+  the 2026-10-05 app-parity rule).** hea-bench ships as four parts, and
+  a person should only ever need ONE of them: the Python package
+  (PyPI), the MCP server (`hea-bench-mcp`, in the official MCP
+  registry), the desktop exe (the `web/` folder in a Tauri shell with no
+  Rust commands) and the web site (built from `web/`). From now on every
+  user-facing feature must appear AND work in all four. A feature
+  missing from any part is a DEFECT, not a finished feature, and a new
+  feature is not done until it works in all four. Since v2.7.0 they all
+  do, except the HEACalculator bridge, which the owner deferred on
+  2026-10-05 (it needs the user's own HEACalculator install).
 
-  ENFORCED, not advised: `tests/test_app_parity.py` maps every public
-  name, MCP tool, phase rule and CLI command in
-  `tests/data/app_parity.json` to its app evidence (DOM ids, bridge
-  methods the page calls, browser-core functions it uses, and tests),
-  and fails CI with the exact fix when one is missing, and
-  `tests/test_app_smoke.py` uses every tab of the built site in a
-  headless browser (CI `web-engine` job, so a broken tab blocks a
-  release). Adding a public feature, mechanically: (1) build its surface
-  in `web/` (`hea-features.js`, plus a `hea_bench.webapp` bridge method
-  if it needs Python); (2) add the bridge call to
-  `tests/data/web_engine_calls.json`; (3) list its names under a feature
-  in `tests/data/app_parity.json`; (4) if it uses the engine, add a step
-  to `STEPS` in `tests/app_smoke.cjs` that uses it through its UI;
-  (5) `python tools/build_web_engine.py`, then `pytest
-  tests/test_app_parity.py tests/test_webapp.py tests/test_app_smoke.py`.
-  How the app is built: `web/README.md`.
+  ENFORCED, not advised. `tests/test_feature_parity.py` reads
+  `tests/data/feature_parity.json`, where every public name, MCP tool,
+  phase rule and CLI command is listed once, and fails CI with the
+  exact fix when a feature lacks a library name, an MCP tool, app
+  evidence (DOM ids, bridge methods the page calls, browser-core
+  functions it uses) or tests. `tests/test_app_smoke.py` uses every tab
+  of the built site in a headless browser (CI `web-engine` job).
+  `tests/test_installed_package.py` builds the wheel, installs it fresh
+  and calls every MCP tool over stdio (CI `package` job).
+  `tests/test_desktop_smoke.py` uses every tab inside the built exe
+  (release `desktop-build` job). Adding a public feature, mechanically:
+  (1) the library function, public in some `__all__`; (2) its MCP tool
+  in `_TOOLS` in `src/hea_bench/mcp_server.py`, a thin wrapper with a
+  `_PARAM_DOCS` entry, and a call to it in `TOOL_CALLS` in
+  `tests/package_smoke.py`; (3) its app surface in `web/`
+  (`hea-features.js`, plus a `hea_bench.webapp` bridge method if it
+  needs Python, added to `tests/data/web_engine_calls.json`); (4) its
+  names under one feature in `tests/data/feature_parity.json`; (5) if
+  it uses the engine, a step in `STEPS` in `tests/app_smoke.cjs` that
+  uses it through its UI; (6) `python tools/build_web_engine.py`, then
+  `pytest tests/test_feature_parity.py tests/test_webapp.py
+  tests/test_app_smoke.py` and `HEA_BENCH_PACKAGE_SMOKE=1 pytest
+  tests/test_installed_package.py`. How the app is built:
+  `web/README.md`.
 
 - **Shipping = pushing.** Any push to `main` touching `src/**`, `web/**`,
   `src-tauri/**`, `server.json`, or `pyproject.toml` auto-releases all

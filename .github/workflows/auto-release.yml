@@ -59,7 +59,7 @@ jobs:
         with:
           ref: main        # release the branch tip, not a possibly stale push SHA
           fetch-depth: 0   # autorelease.py needs the tags and the commit subjects
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Refuse to cut a release from invalid publish metadata

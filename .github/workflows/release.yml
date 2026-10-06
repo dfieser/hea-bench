@@ -43,8 +43,9 @@ jobs:
             exit 1
           fi
 
-  # Full test matrix (pytest 3.10-3.12 + JS parity) + the version-consistency
-  # drift-check on the tagged commit.
+  # The whole CI workflow on the tagged commit: the pytest 3.10-3.14 matrix,
+  # JS parity, the in-app engine and browser smoke test, the installed-wheel
+  # and MCP stdio test, and the version-consistency drift check.
   gate:
     uses: ./.github/workflows/ci.yml
 
@@ -56,7 +57,7 @@ jobs:
       id-token: write        # OIDC mints a short-lived token; no PYPI_API_TOKEN
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Build sdist and wheel
@@ -120,11 +121,11 @@ jobs:
       # (web/engine/), so the engine is assembled before Tauri bundles the
       # folder. Without it the desktop app's Dataset, Design and Benchmark
       # tabs and the predictions panel would not start.
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Restore the pinned Pyodide runtime
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: web/engine/pyodide
           key: pyodide-${{ hashFiles('tools/build_web_engine.py') }}
@@ -134,6 +135,40 @@ jobs:
         run: cargo install tauri-cli --version "^2.0" --locked
       - name: Build the portable executable (no installer)
         run: cargo tauri build --no-bundle
+      # The built exe goes through every tab before it can be attached: the
+      # same steps as the site's headless-browser smoke test, run inside the
+      # exe itself (tests/test_desktop_smoke.py), engine and dataset build
+      # included. A failure fails this job, so desktop-failed opens the
+      # desktop-build issue and no broken exe reaches the release.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"   # the version the smoke driver was verified on
+      - name: Restore the pinned Peivaste snapshot
+        uses: actions/cache@v6
+        with:
+          path: data/raw/peivaste/dataset11252_79.csv
+          key: peivaste-655a43e521003f5c8973050b5f7c0a5d4b9ab902ca4ecc9c8a7d9813b2b0ba10
+      - name: Fetch the Peivaste snapshot (verifies the pinned SHA-256 either way)
+        run: python data/raw/peivaste/fetch.py
+      - name: Make sure the WebView2 runtime is installed (the exe renders in it)
+        shell: pwsh
+        run: |
+          $key = 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}'
+          $pv = (Get-ItemProperty -Path $key -ErrorAction SilentlyContinue).pv
+          if ($pv -and $pv -ne '0.0.0.0') { "WebView2 runtime $pv is installed"; exit 0 }
+          Invoke-WebRequest 'https://go.microsoft.com/fwlink/p/?LinkId=2124703' -OutFile "$env:RUNNER_TEMP\webview2-setup.exe"
+          Start-Process "$env:RUNNER_TEMP\webview2-setup.exe" -ArgumentList '/silent', '/install' -Wait
+          $pv = (Get-ItemProperty -Path $key -ErrorAction SilentlyContinue).pv
+          if (-not $pv -or $pv -eq '0.0.0.0') { throw 'the WebView2 runtime did not install' }
+          "WebView2 runtime $pv installed"
+      - name: Use every tab inside the built exe
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          $env:HEA_BENCH_DESKTOP_EXE = "$PWD\src-tauri\target\release\hea-bench.exe"
+          $env:HEA_BENCH_REQUIRE_ENGINE = "1"   # a skip is a failure here
+          python -m pytest tests/test_desktop_smoke.py -q -rs -p no:cacheprovider
       - name: Stage the portable exe
         shell: pwsh
         run: Copy-Item "src-tauri/target/release/hea-bench.exe" "HEA-Bench.exe"

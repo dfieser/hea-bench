@@ -1,12 +1,12 @@
 """Model Context Protocol (MCP) surface for hea-bench.
 
-Exposes the parity-tested calculator to LLM agents as a small set of
-deterministic, batch-oriented tools. Design follows the published
-MCP-for-science experience: few tools, explicit typed schemas, bounded
-execution, structured errors, and provenance in-band — every numeric
-result carries its unit, the citation key of its parametrization, and
-the library version, so an agent's reasoning trace contains auditable
-receipts rather than bare floats.
+Exposes every feature of the package, the same set the web and desktop
+app has, to LLM agents as deterministic, batch-oriented tools. Design
+follows the published MCP-for-science experience: explicit typed
+schemas, bounded execution, structured errors, and provenance in-band:
+every numeric result carries its unit, the citation key of its
+parametrization, and the library version, so an agent's reasoning trace
+contains auditable receipts rather than bare floats.
 
 The tool bodies below are plain functions with no MCP dependency, so
 they are unit-tested in CI like the rest of the library. The ``mcp``
@@ -29,13 +29,14 @@ or register it with an MCP client (Claude Desktop, Cursor, ...)::
 # module targets Python >=3.10, so `list[str]` and `float | None`
 # already evaluate natively without it.
 
-from itertools import combinations
+import pathlib
 
 import hea_bench as hb
 from . import __version__
-from ._json import json_safe
+from ._json import json_safe, strict_json
+from .ceramics import describe_diboride, describe_rock_salt_carbide, describe_rock_salt_nitride
 from .descriptors.backend import UNITS
-from .descriptors.miedema import pair_enthalpy
+from .descriptors.miedema_decomposition import miedema_decomposition
 from .oxides import (
     describe_fluorite,
     describe_perovskite,
@@ -140,11 +141,17 @@ _OXIDE_FAMILIES = {
     "pyrochlore": (describe_pyrochlore, ["Subramanian1983", "Shannon1976"]),
 }
 
+_CERAMIC_STRUCTURES = {
+    "rock_salt_carbide": describe_rock_salt_carbide,
+    "rock_salt_nitride": describe_rock_salt_nitride,
+    "diboride": describe_diboride,
+}
+
 
 def _stamp(payload: dict) -> dict:
-    """Attach the library version to a tool response."""
+    """Attach the library version to a tool response, as strict JSON."""
     payload["hea_bench_version"] = __version__
-    return payload
+    return strict_json(payload)
 
 
 def _parse(formula: str) -> dict[str, float]:
@@ -170,58 +177,87 @@ def parse_composition(formula: str) -> dict:
     return _stamp({"input": formula, "composition": comp})
 
 
-def alloy_descriptors(compositions: list[str], king_temperature: float | None = None) -> dict:
+def alloy_descriptors(
+    compositions: list[str],
+    king_temperature: float | None = None,
+    custom_elements: dict[str, dict] | None = None,
+    pair_enthalpies: dict[str, float] | None = None,
+) -> dict:
     """Compute every alloy descriptor for a batch of compositions.
 
     Each value is returned with its unit and the citation key of its
     parametrization (see ``about()`` for the key -> reference map).
     Compositions containing elements outside the curated 55-element
     table return ``null`` for the affected descriptors plus a warning,
-    never a silent wrong number.
+    never a silent wrong number. ``miedema_enthalpies`` carries the
+    compound, solid-solution and amorphous formation enthalpies of the
+    Miedema model (37 elements).
 
     ``king_temperature`` (kelvin) optionally overrides the
     rule-of-mixtures melting temperature used by the King Phi proxy
-    and the Senkov-Miracle kappa criterion.
+    and the Senkov-Miracle kappa criterion. ``custom_elements`` and
+    ``pair_enthalpies`` add elements and pair values for this call only,
+    like the app's custom-element and pair editors.
     """
     results = []
-    for formula in compositions:
-        comp = _parse(formula)
-        descriptors: dict[str, dict] = {}
-        warnings: list[str] = []
-        for name, (func, unit, source) in _DESCRIPTORS.items():
-            try:
-                if name == "phi_king" and king_temperature is not None:
-                    value = func(comp, temperature=king_temperature)
-                else:
-                    value = func(comp)
-            except Exception as exc:
-                descriptors[name] = {"value": None, "unit": unit, "source": source}
-                warnings.append(f"{name}: not computable for {formula!r} ({exc})")
-                continue
-            safe = json_safe(value)
-            descriptors[name] = {"value": safe, "unit": unit, "source": source}
-            if safe is None and value is not None:
-                reason = _DIVERGENCE_REASONS.get(name, _DEFAULT_DIVERGENCE)
-                warnings.append(f"{name}: value is unbounded for {formula!r} ({reason})")
-            elif value is None:
-                warnings.append(
-                    f"{name}: not computable for {formula!r} "
-                    f"(an element lacks the required per-element data)"
-                )
-        results.append(
-            {"input": formula, "composition": comp, "descriptors": descriptors, "warnings": warnings}
-        )
+    with hb.custom_data(elements=custom_elements, pair_enthalpies=pair_enthalpies):
+        for formula in compositions:
+            comp = _parse(formula)
+            descriptors: dict[str, dict] = {}
+            warnings: list[str] = []
+            for name, (func, unit, source) in _DESCRIPTORS.items():
+                try:
+                    if name == "phi_king" and king_temperature is not None:
+                        value = func(comp, temperature=king_temperature)
+                    else:
+                        value = func(comp)
+                except Exception as exc:
+                    descriptors[name] = {"value": None, "unit": unit, "source": source}
+                    warnings.append(f"{name}: not computable for {formula!r} ({exc})")
+                    continue
+                safe = json_safe(value)
+                descriptors[name] = {"value": safe, "unit": unit, "source": source}
+                if safe is None and value is not None:
+                    reason = _DIVERGENCE_REASONS.get(name, _DEFAULT_DIVERGENCE)
+                    warnings.append(f"{name}: value is unbounded for {formula!r} ({reason})")
+                elif value is None:
+                    warnings.append(
+                        f"{name}: not computable for {formula!r} "
+                        f"(an element lacks the required per-element data)"
+                    )
+            miedema = miedema_decomposition(comp)
+            warnings.extend(miedema.pop("warnings"))
+            results.append(
+                {
+                    "input": formula,
+                    "composition": comp,
+                    "descriptors": descriptors,
+                    "miedema_enthalpies": {**miedema, "unit": "kJ/mol", "source": "deBoer1988"},
+                    "warnings": warnings,
+                }
+            )
     return _stamp({"results": results})
 
 
-def alloy_rules(compositions: list[str], king_temperature: float | None = None) -> dict:
+def alloy_rules(
+    compositions: list[str],
+    king_temperature: float | None = None,
+    custom_elements: dict[str, dict] | None = None,
+    pair_enthalpies: dict[str, float] | None = None,
+) -> dict:
     """Apply the nine canonical empirical phase-prediction rules to a batch.
 
     Each verdict is returned with the descriptor value it was judged on
     and the published threshold, so the margin is auditable. These rules
     are weak empirical screens calibrated on small historical datasets;
-    treat verdicts as hints, never ground truth.
+    treat verdicts as hints, never ground truth. ``custom_elements`` and
+    ``pair_enthalpies`` work as in ``alloy_descriptors``.
     """
+    with hb.custom_data(elements=custom_elements, pair_enthalpies=pair_enthalpies):
+        return _alloy_rules(compositions, king_temperature)
+
+
+def _alloy_rules(compositions: list[str], king_temperature: float | None) -> dict:
     def fixed(module, value_func, **predict_kw):
         """Rule whose verdict comes with a descriptor value and static threshold."""
         def evaluate(comp):
@@ -317,7 +353,12 @@ def alloy_rules(compositions: list[str], king_temperature: float | None = None) 
     return _stamp({"results": results})
 
 
-def omega_sensitivity(composition: str, perturbation_kj_mol: float = 2.0) -> dict:
+def omega_sensitivity(
+    composition: str,
+    perturbation_kj_mol: float = 2.0,
+    custom_elements: dict[str, dict] | None = None,
+    pair_enthalpies: dict[str, float] | None = None,
+) -> dict:
     """Report how robust Omega is to the Miedema pair-table choice.
 
     Omega diverges as the mixing enthalpy approaches zero, so its value
@@ -329,64 +370,9 @@ def omega_sensitivity(composition: str, perturbation_kj_mol: float = 2.0) -> dic
     typical spread between published Miedema compilations). A wide
     Omega range means the verdict, not the number, is what to trust.
     """
-    if perturbation_kj_mol < 0:
-        raise ValueError("perturbation_kj_mol must be non-negative")
-    comp = _parse(composition)
-    if len(comp) < 2:
-        raise ValueError("need at least two elements for pair contributions")
-
-    contributions = []
-    per_element: dict[str, float] = {el: 0.0 for el in comp}
-    for a, b in combinations(sorted(comp), 2):
-        h = pair_enthalpy(a, b)
-        weight = 4.0 * comp[a] * comp[b]
-        contrib = weight * h
-        contributions.append(
-            {"pair": f"{a}-{b}", "pair_enthalpy_kj_mol": h, "weight": weight,
-             "contribution_kj_mol": contrib}
-        )
-        per_element[a] += abs(contrib)
-        per_element[b] += abs(contrib)
-    contributions.sort(key=lambda c: c["contribution_kj_mol"])
-
-    dominant = max(per_element, key=lambda el: per_element[el])
-    shift = perturbation_kj_mol * sum(
-        c["weight"] for c in contributions if dominant in c["pair"].split("-")
-    )
-
-    h_mix = hb.mixing_enthalpy(comp)
-    t_m = hb.melting_temperature(comp)
-    s_mix = hb.smix(comp)
-
-    def omega_at(h: float) -> float | None:
-        if h == 0:
-            return None
-        return t_m * s_mix / (abs(h) * 1000.0)
-
-    h_low, h_high = h_mix - shift, h_mix + shift
-    crosses_zero = h_low < 0 < h_high
-    endpoint_omegas = [o for o in (omega_at(h_low), omega_at(h_high)) if o is not None]
-
-    return _stamp({
-        "input": composition,
-        "composition": comp,
-        "h_mix_kj_mol": h_mix,
-        "omega": omega_at(h_mix),
-        "pair_contributions": contributions,
-        "dominant_element": dominant,
-        "perturbation_kj_mol": perturbation_kj_mol,
-        "h_mix_range_kj_mol": [h_low, h_high],
-        "omega_at_range_endpoints": endpoint_omegas,
-        "diverges_within_range": crosses_zero,
-        "advice": (
-            "The perturbation interval crosses h_mix = 0, so Omega is unbounded "
-            "within the spread of published pair tables. Use the phase verdict, "
-            "not the Omega magnitude." if crosses_zero else
-            "Omega varies between the endpoint values across the typical spread "
-            "of published Miedema pair tables."
-        ),
-        "source": "deBoer1988 / Takeuchi2005 pair table; Yang2012 Omega",
-    })
+    with hb.custom_data(elements=custom_elements, pair_enthalpies=pair_enthalpies):
+        report = hb.omega_sensitivity(_parse(composition), perturbation_kj_mol)
+    return _stamp({"input": composition, **report})
 
 
 def oxide_report(
@@ -435,6 +421,37 @@ def oxide_report(
     return _stamp(report)
 
 
+def ceramic_report(structure: str, metals: str) -> dict:
+    """Composition-only descriptors for a high-entropy carbide, nitride or diboride.
+
+    ``structure`` is ``rock_salt_carbide``, ``rock_salt_nitride`` or
+    ``diboride``; ``metals`` is the metal-sublattice formula. The report
+    gives the configurational entropy in every normalization papers use,
+    and for the rock-salt structures the VEC per formula unit against
+    the literature's reference points. It deliberately gives no
+    formability verdict, because no single published window exists.
+    """
+    if structure not in _CERAMIC_STRUCTURES:
+        raise ValueError(
+            f"unknown structure {structure!r}; expected one of {sorted(_CERAMIC_STRUCTURES)}"
+        )
+    return _stamp(dict(_CERAMIC_STRUCTURES[structure](_parse(metals))))
+
+
+def element_data(elements: list[str] | None = None) -> dict:
+    """The tabulated values behind every number, per element, with sources.
+
+    Radius, melting point, valence, electronegativity, molar volume and
+    moduli, each with its unit; the radius source and where good sources
+    disagree; which features each element supports; the cited
+    references; and the SHA-256 of every data file. All 55 elements
+    when ``elements`` is omitted.
+    """
+    from .descriptors.elements import element_data as tabulated
+
+    return _stamp(tabulated(elements))
+
+
 def element_coverage() -> dict:
     """List which elements each data table covers.
 
@@ -475,6 +492,10 @@ _DESIGN_BUDGET = 50_000
 _CAMPAIGN_MAX_BATCH = 10
 
 
+def _needs_corpus(exc: FileNotFoundError) -> ValueError:
+    return ValueError(f"{exc}\nFrom an MCP client, call the corpus_build tool once instead.")
+
+
 def _corpus_slice(
     version: str,
     elements: list[str] | None,
@@ -493,7 +514,7 @@ def _corpus_slice(
     try:
         corpus = load_corpus(version=version)
     except FileNotFoundError as exc:
-        raise ValueError(str(exc)) from None
+        raise _needs_corpus(exc) from None
     n_range = None
     if n_elements_min is not None or n_elements_max is not None:
         n_range = (n_elements_min or 1, n_elements_max or 99)
@@ -521,7 +542,7 @@ def corpus_query(
     labelled: bool | None = None,
     has_conflict: bool | None = None,
     descriptor_ready: bool | None = None,
-    version: str = "0.1.0",
+    version: str = "0.2.0",
     limit: int = 25,
 ) -> dict:
     """Filter the consolidated experimental corpus and sample matching rows.
@@ -531,9 +552,10 @@ def corpus_query(
     consensus label, ``source`` the contributing dataset. Returns the
     match count plus a sample capped at 50 rows, each carrying full
     provenance (per-source canonical and verbatim labels, processing,
-    DOI, upstream row ids). Works from a repository checkout or
-    ``HEA_BENCH_BENCHMARK_DIR``; the corpus is not shipped, for the
-    licensing reasons in the corpus card.
+    DOI, upstream row ids). ``corpus_export`` writes the whole slice to
+    a CSV file. The corpus is built on this machine rather than shipped,
+    for the licensing reasons in the corpus card; ``corpus_build`` builds
+    it once.
     """
     subset = _corpus_slice(
         version, elements, contains, excludes, n_elements_min, n_elements_max,
@@ -579,7 +601,7 @@ def corpus_describe(
     labelled: bool | None = None,
     has_conflict: bool | None = None,
     descriptor_ready: bool | None = None,
-    version: str = "0.1.0",
+    version: str = "0.2.0",
 ) -> dict:
     """Summary statistics for a filtered corpus slice.
 
@@ -592,6 +614,63 @@ def corpus_describe(
         phase, source, labelled, has_conflict, descriptor_ready,
     )
     return _stamp(subset.describe())
+
+
+def corpus_export(
+    path: str,
+    elements: list[str] | None = None,
+    contains: list[str] | None = None,
+    excludes: list[str] | None = None,
+    n_elements_min: int | None = None,
+    n_elements_max: int | None = None,
+    phase: str | None = None,
+    source: str | None = None,
+    labelled: bool | None = None,
+    has_conflict: bool | None = None,
+    descriptor_ready: bool | None = None,
+    version: str = "0.2.0",
+) -> dict:
+    """Write a filtered corpus slice to a new CSV file, every column kept.
+
+    Same filters as ``corpus_query``, in the consolidated-CSV schema the
+    app's Download button produces. Refuses to overwrite an existing
+    file.
+    """
+    target = _new_file(path)
+    subset = _corpus_slice(
+        version, elements, contains, excludes, n_elements_min, n_elements_max,
+        phase, source, labelled, has_conflict, descriptor_ready,
+    )
+    n_rows = subset.to_csv(target)
+    return _stamp({"path": str(target.resolve()), "n_rows": n_rows, "corpus_version": subset.version})
+
+
+def corpus_build(versions: list[str] | None = None, peivaste_csv: str | None = None) -> dict:
+    """Build the corpus on this machine, once. Every corpus tool needs it.
+
+    Every source dataset ships with the package except one, which
+    declares no license, so it is downloaded from its upstream
+    repository (6.4 MB) and accepted only if its SHA-256 matches the
+    pinned value; ``peivaste_csv`` uses a copy you already have instead.
+    Builds every version by default. Rebuilding reproduces the same
+    corpus, so calling it again is harmless.
+    """
+    from .corpus import build_corpus
+    from .webapp import _clear_caches
+
+    try:
+        built = build_corpus(*(versions or ()), peivaste_csv=peivaste_csv)
+    except OSError as exc:
+        raise ValueError(str(exc)) from None
+    _clear_caches()
+    return _stamp(
+        {
+            "built": {
+                version: {"location": manifest["location"], "totals": manifest["totals"]}
+                for version, manifest in built.items()
+            }
+        }
+    )
 
 
 def predict_properties(
@@ -638,6 +717,24 @@ def predict_properties(
     return _stamp({"results": results})
 
 
+def measured_properties(
+    prop: str = "hardness", contains: list[str] | None = None, limit: int = 25
+) -> dict:
+    """Measured hardness or density from Borg et al. (2020), with DOIs.
+
+    The measurements the hardness model trains on, or the densities the
+    rule-of-mixtures estimate is checked against, optionally only alloys
+    containing every element in ``contains``. Returns the exact match
+    count and a sample capped at 50 rows.
+    """
+    from .webapp import measured_properties as records
+
+    payload = records(prop, contains)
+    payload["rows"] = payload["rows"][: min(max(0, limit), _CORPUS_SAMPLE_CAP)]
+    payload["sample_capped_at"] = _CORPUS_SAMPLE_CAP
+    return _stamp(payload)
+
+
 def check_applicability(composition: str) -> dict:
     """Report whether a composition sits inside what the corpus covers.
 
@@ -653,14 +750,49 @@ def check_applicability(composition: str) -> dict:
     domain = default_domain()
     if domain is None:
         raise ValueError(
-            "no corpus is built in this environment, so applicability cannot "
-            "be assessed. Build it (see the corpus card) or set "
-            "HEA_BENCH_BENCHMARK_DIR."
+            "the corpus is not built on this machine, so applicability cannot be "
+            "assessed. Call the corpus_build tool once, then try again."
         )
     payload = domain.novelty(comp)
     payload["input"] = composition
     payload["corpus_version"] = domain.corpus_version
     return _stamp(payload)
+
+
+def predict_phase_set(
+    compositions: list[str],
+    task: str = "single_vs_multi",
+    alpha: float = 0.1,
+    version: str = "0.1.0",
+) -> dict:
+    """Phase prediction with a conformal prediction set, per composition.
+
+    A random forest on the 14 descriptors, trained on the corpus, with
+    split-conformal calibration: the set contains the true label about
+    ``1 - alpha`` of the time on alloys like the calibration set. A set
+    with more than one label means the model cannot decide. Each entry
+    carries class probabilities, the corpus ``in_domain`` flag and
+    novelty measures, and plain-language warnings. The first call per
+    task fits the model (several seconds).
+    """
+    from .benchmark.corpus import TASKS
+    from .uncertainty.phase import predict_phase_set as predict
+
+    if task not in TASKS:
+        raise ValueError(f"unknown task {task!r}; expected one of {sorted(TASKS)}")
+    results = []
+    for formula in compositions:
+        comp = _parse(formula)
+        try:
+            entry = predict(comp, task=task, alpha=alpha, version=version)
+        except FileNotFoundError as exc:
+            raise _needs_corpus(exc) from None
+        except ImportError:
+            raise ValueError('phase prediction needs scikit-learn: pip install "hea-bench[mcp]"') from None
+        except ValueError as exc:
+            entry = {"error": str(exc)}
+        results.append({"input": formula, "composition": comp, **entry})
+    return _stamp({"task": task, "alpha": alpha, "corpus_version": version, "results": results})
 
 
 def design_search(
@@ -772,21 +904,35 @@ def design_search(
     return _stamp(result.to_dict())
 
 
-def campaign_suggest(campaign_path: str, n: int = 5, strategy: str = "ei") -> dict:
-    """Next-batch suggestions from a campaign file the user supplies.
+def campaign_suggest(
+    campaign_path: str | None = None,
+    n: int = 5,
+    strategy: str = "ei",
+    campaign: dict | None = None,
+) -> dict:
+    """Next-batch suggestions for a campaign, from a file or inline.
 
-    The campaign is plain JSON created by
-    ``hea_bench.design.campaign.Campaign.save``; this tool never writes
-    it. Batch size is capped at 10. Suggestions carry the ensemble mean,
-    the ensemble-spread interval (model disagreement, not a coverage
-    guarantee; the module docstring explains), and the domain flag.
-    Below the 10-observation floor the loop refuses rather than
+    The campaign is plain JSON, as the app's Campaign panel and
+    ``hea_bench.design.campaign.Campaign.save`` write it: give its path
+    as ``campaign_path`` or its contents as ``campaign``. This tool
+    never writes the file; inline calls get the canonical campaign back
+    to save. Batch size is capped at 10. Suggestions carry the ensemble
+    mean, the ensemble-spread interval (model disagreement, not a
+    coverage guarantee; the module docstring explains), and the domain
+    flag. Below the 10-observation floor the loop refuses rather than
     guessing.
     """
-    import pathlib
-
     from .design.campaign import Campaign, ColdStartError
 
+    if (campaign_path is None) == (campaign is None):
+        raise ValueError(
+            "give exactly one of campaign_path (a campaign JSON file) or campaign "
+            "(the file's contents)"
+        )
+    if campaign is not None:
+        from .webapp import campaign_suggest as suggest_inline
+
+        return _stamp(suggest_inline(campaign, n=n, strategy=strategy))
     if n > _CAMPAIGN_MAX_BATCH:
         raise ValueError(
             f"batch of {n} exceeds the tool cap of {_CAMPAIGN_MAX_BATCH}"
@@ -824,45 +970,161 @@ def campaign_suggest(campaign_path: str, n: int = 5, strategy: str = "ei") -> di
     )
 
 
+# -- benchmark ----------------------------------------------------------------
+#
+# Thin wrappers over the app's own bridge methods (hea_bench.webapp), so
+# the Benchmark tab and these tools return the same numbers.
+
+
+def _bench(method, *args, **kwargs) -> dict:
+    try:
+        return method(*args, **kwargs)
+    except FileNotFoundError as exc:
+        raise _needs_corpus(exc) from None
+    except ImportError:
+        raise ValueError(
+            'the fitted baselines need scikit-learn: pip install "hea-bench[mcp]"'
+        ) from None
+
+
+def _new_file(path: str) -> pathlib.Path:
+    target = pathlib.Path(path).expanduser()
+    if target.exists():
+        raise ValueError(f"{str(target)!r} already exists; choose a new file name")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    return target
+
+
+def benchmark_summary(task: str = "single_vs_multi", version: str = "0.1.0") -> dict:
+    """The paired benchmark at a glance: splits, digests and the published table.
+
+    Two frozen 5-fold schemes over the same rows: random folds measure
+    interpolation within known alloy families, family-grouped folds
+    measure extrapolation to unseen element systems. Returns the class
+    balance and family overlap of each scheme, whether both match their
+    frozen SHA-256 digests, the baselines you can score live with
+    ``benchmark_run``, and the published results table for v0.1.0.
+    """
+    from .webapp import benchmark_summary as summary
+
+    return _stamp(_bench(summary, task, version))
+
+
+def benchmark_run(model: str, task: str = "single_vs_multi", version: str = "0.1.0") -> dict:
+    """Score one published baseline live under both split schemes.
+
+    Fits and scores ``model`` on every fold of the random and the
+    family-grouped scheme, on the same rows as the published table, and
+    reports per-scheme metrics plus the ``gap`` (random minus grouped),
+    which measures how much harder extrapolation is than interpolation.
+    The fitted baselines take tens of seconds.
+    """
+    from .webapp import benchmark_run as run
+
+    return _stamp(_bench(run, model, task, version))
+
+
+def benchmark_folds(path: str, task: str = "single_vs_multi", version: str = "0.1.0") -> dict:
+    """Write every benchmark row with its fold under both schemes to a new CSV.
+
+    The file for training your own model offline: ``composition_key``,
+    ``family``, ``label``, ``grouped_fold``, ``random_fold``,
+    ``n_elements`` and ``descriptors_finite``. Score the predictions
+    with ``benchmark_score``. Refuses to overwrite an existing file.
+    """
+    from .webapp import benchmark_folds_csv
+
+    target = _new_file(path)
+    folds = _bench(benchmark_folds_csv, task, version)
+    target.write_text(folds["text"], encoding="utf-8", newline="")
+    return _stamp({"path": str(target.resolve()), "n_rows": folds["n_rows"], "task": task})
+
+
+def benchmark_score(
+    predictions_path: str,
+    task: str = "single_vs_multi",
+    version: str = "0.1.0",
+    model_name: str = "",
+) -> dict:
+    """Score your own model's predictions under both split schemes.
+
+    ``predictions_path`` is a CSV with the columns ``composition_key``,
+    ``grouped`` and ``random``: for each row, the label your model
+    predicted when that row was in the test fold of each scheme (the
+    folds come from ``benchmark_folds``). Returns the same report as
+    ``benchmark_run``, including the ``gap``.
+    """
+    from .webapp import benchmark_score as score
+
+    source = pathlib.Path(predictions_path).expanduser()
+    if not source.exists():
+        raise ValueError(f"no predictions file at {predictions_path!r}")
+    text = source.read_text(encoding="utf-8-sig")
+    return _stamp(_bench(score, text, task, version, model_name))
+
+
+def coverage_study(task: str = "single_vs_multi", version: str = "0.1.0") -> dict:
+    """Check the phase prediction sets' coverage on held-out alloy families.
+
+    Reruns the conformal coverage study: under the family-grouped
+    scheme, how often the prediction set contains the true label, at
+    several miscoverage levels, for all test alloys and for the in- and
+    out-of-domain groups separately. Takes a minute or more.
+    """
+    from .webapp import coverage
+
+    return _stamp(_bench(coverage, task, version))
+
+
 def about() -> dict:
     """Version, provenance, license, capability availability, citations."""
     import importlib.util
-    import os
 
+    from .benchmark.consolidate import SOURCES_BY_VERSION
     from .corpus import corpus_location
 
-    corpus_built = (corpus_location("0.1.0") / "consolidated.csv").exists() or bool(
-        os.environ.get("HEA_BENCH_BENCHMARK_DIR")
-    )
+    built = {
+        version: (corpus_location(version) / "consolidated.csv").exists()
+        for version in SOURCES_BY_VERSION
+    }
     sklearn_present = importlib.util.find_spec("sklearn") is not None
     heacalculator_present = importlib.util.find_spec("HEACalculator") is not None
     capabilities = {
-        "corpus": corpus_built,
+        "corpus": any(built.values()),
         "properties_tier_a": True,
         "properties_tier_b": sklearn_present,
+        "phase_prediction": sklearn_present,
+        "benchmark_baselines": sklearn_present,
         "design_search": True,
         "campaigns": sklearn_present,
         "interop": heacalculator_present,
     }
     return _stamp({
         "capabilities": capabilities,
+        "corpus_versions_built": built,
         "capability_notes": {
             "corpus": (
-                "corpus_query / corpus_describe / check_applicability need the "
-                "locally built corpus (repo checkout or HEA_BENCH_BENCHMARK_DIR); "
-                "the data is not shipped, see docs/corpus-card.md"
+                "the dataset tools, check_applicability, predict_phase_set and the "
+                "benchmark tools need the corpus, which is built on this machine "
+                "rather than shipped because one source is not licensed for "
+                "redistribution. Call corpus_build once (it downloads one 6.4 MB "
+                "file and checks its SHA-256)."
             ),
-            "properties_tier_b": 'pip install "hea-bench[properties]"',
-            "campaigns": 'pip install "hea-bench[properties]"',
+            "properties_tier_b": 'pip install "hea-bench[mcp]" (includes scikit-learn)',
+            "phase_prediction": 'pip install "hea-bench[mcp]" (includes scikit-learn)',
+            "benchmark_baselines": 'pip install "hea-bench[mcp]" (includes scikit-learn)',
+            "campaigns": 'pip install "hea-bench[mcp]" (includes scikit-learn)',
             "interop": 'pip install "hea-bench[interop]"',
         },
         "name": "hea-bench",
         "description": (
-            "Open, parity-tested calculator of high-entropy alloy and oxide "
-            "thermodynamic descriptors and empirical phase-prediction rules. "
-            "Every value is a closed-form expression over curated, cited "
-            "element-property tables; the Python core and the browser/desktop "
-            "JavaScript port are kept identical by automated parity tests."
+            "Open, parity-tested calculator of high-entropy alloy, oxide and "
+            "ceramic descriptors and empirical phase-prediction rules, with an "
+            "experimental phase dataset, a paired interpolative and extrapolative "
+            "benchmark, property and phase predictions with uncertainty, and an "
+            "alloy search. Every descriptor is a closed-form expression over "
+            "curated, cited element-property tables. The Python package, this MCP "
+            "server, the web app and the desktop app have the same features."
         ),
         "license": "MIT",
         "repository": "https://github.com/dfieser/hea-bench",
@@ -889,19 +1151,39 @@ _TOOLS = (
     alloy_rules,
     omega_sensitivity,
     oxide_report,
+    ceramic_report,
+    element_data,
     element_coverage,
+    corpus_build,
     corpus_query,
     corpus_describe,
+    corpus_export,
+    measured_properties,
     predict_properties,
+    predict_phase_set,
     check_applicability,
     design_search,
     campaign_suggest,
+    benchmark_summary,
+    benchmark_run,
+    benchmark_folds,
+    benchmark_score,
+    coverage_study,
     about,
 )
 
+#: The tools that are not pure local reads, and the hints that differ.
+#: Every other tool reads curated tables or the built corpus and returns
+#: numbers: nothing writes and nothing reaches the network.
+_TOOL_HINTS = {
+    "corpus_build": {"readOnlyHint": False, "openWorldHint": True},
+    "corpus_export": {"readOnlyHint": False},
+    "benchmark_folds": {"readOnlyHint": False},
+}
+
 
 # Prose for every tool parameter, keyed by tool then parameter name.
-# FastMCP derives each input schema from the function signature, which
+# The MCP SDK derives each input schema from the function signature, which
 # carries types and defaults but no meaning, so without this table an
 # agent sees `phase: string` with no hint that the corpus holds only
 # four labels. The descriptions live here rather than in
@@ -921,7 +1203,10 @@ _CORPUS_FILTER_DOCS = {
     "n_elements_min": "Fewest distinct elements a row may have.",
     "n_elements_max": "Most distinct elements a row may have.",
     "phase": "Consensus phase label to match, one of 'FCC', 'BCC', 'HCP', or 'multi-phase'.",
-    "source": "Contributing dataset to match, one of 'borg2020', 'pei2020', or 'peivaste'.",
+    "source": (
+        "Contributing dataset to match, one of 'borg2020', 'pei2020', 'peivaste', or "
+        "(version '0.2.0' only) 'chizhevskiy2026'."
+    ),
     "labelled": (
         "True keeps only rows carrying a consensus phase label, false only "
         "unlabelled rows; omit for both."
@@ -935,10 +1220,11 @@ _CORPUS_FILTER_DOCS = {
         "tables, so descriptors can actually be computed for them."
     ),
     "version": (
-        "Corpus version. '0.1.0' (default) is the hand-curated reference corpus "
-        "every published hea-bench number is measured on; '0.2.0' is larger but "
-        "its labels are LLM-extracted and agree with the reference on roughly 70% "
-        "of overlapping rows. This counter is independent of the package version."
+        "Corpus version. '0.2.0' (default) is the largest: it adds an LLM-extracted "
+        "database whose labels agree with the reference on roughly 70% of "
+        "overlapping rows, every disagreement quarantined as a conflict. '0.1.0' is "
+        "the hand-curated reference corpus every published hea-bench number is "
+        "measured on. This counter is independent of the package version."
     ),
 }
 
@@ -951,6 +1237,29 @@ _KING_TEMPERATURE_DOC = (
     "Temperature in kelvin at which King's Phi is evaluated. Defaults to the "
     "melting-point estimate derived from the composition; set it only to "
     "reproduce a published value quoted at a stated temperature."
+)
+_CUSTOM_ELEMENTS_DOC = (
+    "Elements outside the 55-element table, for this call only, keyed by a label "
+    "shaped like an element symbol that is not a real one (a capital letter, "
+    "optionally one lowercase letter), so formulas can use it, e.g. "
+    "{'Xx': {'radius_pm': 140, 'melting_K': 1800, 'valence': 6, "
+    "'electronegativity': 1.7}} with the formula 'CoCrFeNiXx'. radius_pm, melting_K "
+    "and valence are required; electronegativity is optional."
+)
+_PAIR_ENTHALPIES_DOC = (
+    "Mixing enthalpies in kJ/mol that replace or add Miedema pair values for this "
+    "call only, keyed 'A-B', e.g. {'Co-Xx': -5.0, 'Cr-Fe': -2.0}. A custom element "
+    "needs a value for every pair it forms before the mixing enthalpy and Omega can "
+    "be computed."
+)
+_TASK_DOC = (
+    "Benchmark task: 'single_vs_multi' (single-phase solid solution or not, the "
+    "default) or 'phase4' (multi-phase, BCC, FCC or HCP)."
+)
+_BENCH_VERSION_DOC = (
+    "Corpus version the benchmark runs on. '0.1.0' (default) is the reference "
+    "every published number is measured on; '0.2.0' is larger but its added labels "
+    "are noisier."
 )
 _ALPHA_DOC = (
     "Miscoverage rate for the conformal interval on fitted (tier B) properties: "
@@ -969,10 +1278,14 @@ _PARAM_DOCS: dict[str, dict[str, str]] = {
     "alloy_descriptors": {
         "compositions": _BATCH_DOC,
         "king_temperature": _KING_TEMPERATURE_DOC,
+        "custom_elements": _CUSTOM_ELEMENTS_DOC,
+        "pair_enthalpies": _PAIR_ENTHALPIES_DOC,
     },
     "alloy_rules": {
         "compositions": _BATCH_DOC,
         "king_temperature": _KING_TEMPERATURE_DOC,
+        "custom_elements": _CUSTOM_ELEMENTS_DOC,
+        "pair_enthalpies": _PAIR_ENTHALPIES_DOC,
     },
     "omega_sensitivity": {
         "composition": (
@@ -984,6 +1297,8 @@ _PARAM_DOCS: dict[str, dict[str, str]] = {
             "Symmetric shift applied to the mixing enthalpy, in kJ/mol. Default "
             "2.0, the typical spread between Miedema-model implementations."
         ),
+        "custom_elements": _CUSTOM_ELEMENTS_DOC,
+        "pair_enthalpies": _PAIR_ENTHALPIES_DOC,
     },
     "oxide_report": {
         "family": (
@@ -1008,7 +1323,34 @@ _PARAM_DOCS: dict[str, dict[str, str]] = {
             "distinguish them: 'high' (default) or 'low'."
         ),
     },
+    "ceramic_report": {
+        "structure": (
+            "Ceramic structure: 'rock_salt_carbide', 'rock_salt_nitride', or "
+            "'diboride'."
+        ),
+        "metals": (
+            "Formula of the metal sublattice only, e.g. 'HfNbTaTiZr'. The anion "
+            "sublattice follows from the structure."
+        ),
+    },
+    "element_data": {
+        "elements": (
+            "Element symbols to report, e.g. ['Co', 'Cr']. Omit for all 55. Unknown "
+            "symbols are refused with their names."
+        ),
+    },
     "element_coverage": {},
+    "corpus_build": {
+        "versions": (
+            "Corpus versions to build, e.g. ['0.2.0']. Omit to build every version, "
+            "which is what the other tools expect."
+        ),
+        "peivaste_csv": (
+            "Path to a copy of the Peivaste CSV you already have, used instead of "
+            "downloading it. It is accepted only if its SHA-256 matches the pinned "
+            "value."
+        ),
+    },
     "corpus_query": {
         **_CORPUS_FILTER_DOCS,
         "limit": (
@@ -1017,6 +1359,21 @@ _PARAM_DOCS: dict[str, dict[str, str]] = {
         ),
     },
     "corpus_describe": dict(_CORPUS_FILTER_DOCS),
+    "corpus_export": {
+        **_CORPUS_FILTER_DOCS,
+        "path": (
+            "Path of the new CSV file to write. An existing file is never "
+            "overwritten."
+        ),
+    },
+    "measured_properties": {
+        "prop": "Which measurement: 'hardness' (Vickers, HV, the default) or 'density' (g/cm^3).",
+        "contains": "Keep only alloys containing every one of these elements, e.g. ['Al', 'Ti'].",
+        "limit": (
+            "Rows to return in the sample, capped at 50. The reported match count "
+            "is always exact."
+        ),
+    },
     "predict_properties": {
         "compositions": _BATCH_DOC,
         "properties": (
@@ -1028,6 +1385,18 @@ _PARAM_DOCS: dict[str, dict[str, str]] = {
         "processing": (
             "Processing route to condition fitted models on, e.g. 'as-cast' or "
             "'annealed'. Omit when the route is unknown."
+        ),
+    },
+    "predict_phase_set": {
+        "compositions": _BATCH_DOC,
+        "task": _TASK_DOC,
+        "alpha": (
+            "Miscoverage rate: 0.1, the default, asks for a set that contains the "
+            "true label about 90% of the time on alloys like the calibration set."
+        ),
+        "version": (
+            "Corpus version the model trains on. '0.1.0' (default) is the reference "
+            "corpus every published number is measured on."
         ),
     },
     "check_applicability": {
@@ -1083,9 +1452,18 @@ _PARAM_DOCS: dict[str, dict[str, str]] = {
     },
     "campaign_suggest": {
         "campaign_path": (
-            "Filesystem path to a campaign JSON file written by "
-            "hea_bench.design.campaign.Campaign.save. Read only; this tool never "
-            "writes the file back."
+            "Filesystem path to a campaign JSON file, as the app's Campaign panel "
+            "or hea_bench.design.campaign.Campaign.save writes it. Read only; this "
+            "tool never writes the file back. Give this or campaign, not both."
+        ),
+        "campaign": (
+            "The campaign file's contents as an object, instead of campaign_path, in "
+            "the schema the app saves: {'schema': 1, 'objective': 'hardness', "
+            "'direction': 'maximize', 'palette': ['Co', 'Cr', 'Fe', 'Ni', 'Al'], "
+            "'constraints': [], 'seed': 0, 'step': 0.1, 'n_elements': [3, 5], "
+            "'warm_start': true, 'observations': [{'composition': 'CoCrFeNi', "
+            "'value': 160}]}. Observation compositions may be formulas. The response "
+            "carries the canonical campaign back."
         ),
         "n": "Suggestions to return in this batch, capped at 10. Default 5.",
         "strategy": (
@@ -1093,18 +1471,44 @@ _PARAM_DOCS: dict[str, dict[str, str]] = {
             "'ucb' (upper confidence bound, which explores more)."
         ),
     },
+    "benchmark_summary": {"task": _TASK_DOC, "version": _BENCH_VERSION_DOC},
+    "benchmark_run": {
+        "model": (
+            "Published baseline to score. For 'single_vs_multi': 'majority-class', "
+            "'rule:zhang_delta', 'rule:yang_omega', 'random-forest', "
+            "'gradient-boosting'. For 'phase4': 'majority-class', 'rule:guo_vec', "
+            "'random-forest', 'gradient-boosting'."
+        ),
+        "task": _TASK_DOC,
+        "version": _BENCH_VERSION_DOC,
+    },
+    "benchmark_folds": {
+        "path": "Path of the new CSV file to write. An existing file is never overwritten.",
+        "task": _TASK_DOC,
+        "version": _BENCH_VERSION_DOC,
+    },
+    "benchmark_score": {
+        "predictions_path": (
+            "Path to your predictions CSV with the columns composition_key, grouped "
+            "and random."
+        ),
+        "task": _TASK_DOC,
+        "version": _BENCH_VERSION_DOC,
+        "model_name": "Name to print on the report. Optional.",
+    },
+    "coverage_study": {"task": _TASK_DOC, "version": _BENCH_VERSION_DOC},
     "about": {},
 }
 
 
 def build_server():
-    """Create the FastMCP server with all tools registered.
+    """Create the MCP server with all tools registered.
 
     Requires the optional ``mcp`` dependency
     (``pip install hea-bench[mcp]``).
     """
     try:
-        from mcp.server.fastmcp import FastMCP
+        from mcp.server.mcpserver import MCPServer
         from mcp.types import ToolAnnotations
     except ImportError as exc:
         try:
@@ -1119,42 +1523,47 @@ def build_server():
                 "Install it with: pip install 'hea-bench[mcp]'"
             ) from exc
         raise SystemExit(
-            f"The installed MCP SDK (mcp {installed}) is not compatible "
-            "with hea-bench-mcp: it no longer provides mcp.server.fastmcp. "
-            "Install a supported one with: pip install 'mcp>=1.9.4,<2'"
+            f"The installed MCP SDK (mcp {installed}) is too old for "
+            "hea-bench-mcp, which is built on mcp 2 (mcp.server.mcpserver). "
+            "Upgrade it with: pip install 'hea-bench[mcp]'"
         ) from exc
 
-    server = FastMCP(
+    server = MCPServer(
         "hea-bench",
+        version=__version__,
         instructions=(
-            "Verified high-entropy alloy and oxide descriptor calculator plus "
-            "a corpus, property, applicability, and design layer. "
-            "Deterministic closed-form values carry units and citation keys; "
-            "every prediction carries an interval (where a model is fitted) "
-            "and an in_domain flag at the top level of its payload. Batch "
-            "compositions into one alloy_descriptors / alloy_rules / "
-            "predict_properties call. Check element_coverage before large "
-            "sweeps, omega_sensitivity before trusting any Omega magnitude "
-            "for a near-ideal alloy, and check_applicability before trusting "
-            "any prediction for an unusual chemistry. corpus_query needs the "
-            "locally built corpus; design_search is the expensive call and "
-            "enforces hard caps; about() reports which capabilities are "
-            "available in this environment."
+            "High-entropy alloy, oxide and ceramic calculator with an "
+            "experimental phase dataset, a paired benchmark, predictions with "
+            "uncertainty and an alloy search: the same features as the hea-bench "
+            "web and desktop app. Deterministic closed-form values carry units "
+            "and citation keys; every prediction carries an interval (where a "
+            "model is fitted) and an in_domain flag at the top level of its "
+            "payload. Batch compositions into one alloy_descriptors / "
+            "alloy_rules / predict_properties / predict_phase_set call. Check "
+            "element_coverage before large sweeps, omega_sensitivity before "
+            "trusting any Omega magnitude for a near-ideal alloy, and "
+            "check_applicability before trusting any prediction for an unusual "
+            "chemistry. The dataset, phase-set, applicability and benchmark "
+            "tools need the corpus: call corpus_build once. design_search is "
+            "the expensive call and enforces hard caps; about() reports which "
+            "capabilities are available in this environment."
         ),
     )
-    # Every tool is a pure local computation: it reads curated tables and
-    # returns numbers. Nothing writes and nothing reaches the network, so
-    # an agent can tell from the manifest alone that calling any of these
-    # is safe. Titles are derived from the function name so a tool cannot
-    # be added without one.
+    # Every tool but those in _TOOL_HINTS is a pure local computation, so
+    # an agent can tell from the manifest alone which calls are safe.
+    # Titles are derived from the function name so a tool cannot be added
+    # without one.
     for tool in _TOOLS:
+        hints = {
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": False,
+            **_TOOL_HINTS.get(tool.__name__, {}),
+        }
         server.tool(
             annotations=ToolAnnotations(
-                title=tool.__name__.replace("_", " ").capitalize(),
-                readOnlyHint=True,
-                destructiveHint=False,
-                idempotentHint=True,
-                openWorldHint=False,
+                title=tool.__name__.replace("_", " ").capitalize(), **hints
             )
         )(tool)
     _document_parameters(server)

@@ -235,10 +235,11 @@ def default_domain() -> DomainModel | None:
     managing their own DomainModel. None, never an exception, when the
     corpus is not built, so callers can degrade to a typed warning.
     """
+    from .._model_cache import cached
     from ..corpus import load_corpus
 
     try:
-        return fit_domain(load_corpus())
+        return cached("domain-v0.1.0", lambda: fit_domain(load_corpus(version="0.1.0")))
     except FileNotFoundError:
         return None
 

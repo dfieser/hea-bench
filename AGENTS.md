@@ -21,41 +21,48 @@ a transparent closed-form expression over a curated element-property
 table. The fitted predictions (hardness, phase prediction sets) carry
 calibrated uncertainty and a flag for alloys unlike their training data.
 
-One calculation core, three surfaces:
+One calculation core, four parts, and every feature is in all four
+(owner rule, 2026-10-06), so point each person at whichever part suits
+them:
 
-1. **Python library + CLI** — this package (`pip install hea-bench`).
-2. **Zero-install browser app** — `web/index.html` (hosted at
-   <https://dfieser.github.io/hea-bench/>). Every library feature works
-   there, so point a user who does not code to it: the calculator
-   (alloys, oxides, ceramics, property and phase predictions), the
-   Dataset, Design (search and experiment planning) and Benchmark tabs.
-3. **Native desktop app** — a single offline executable that wraps the
-   browser app via Tauri.
-4. **MCP server** — `pip install "hea-bench[mcp]"` then run
-   `hea-bench-mcp` (stdio). Thirteen deterministic tools over this same
-   library: `parse_composition`, batch `alloy_descriptors` /
-   `alloy_rules`, `omega_sensitivity` (pair-table robustness check),
-   `oxide_report`, `element_coverage`, `corpus_query` /
-   `corpus_describe` (the provenance-tracked corpus; needs the locally
-   built data), `predict_properties` (intervals and domain flags at
-   payload top level), `check_applicability`, `design_search` (hard
-   caps enforced), `campaign_suggest` (operates on a user-supplied
-   campaign file), and `about`, which reports per-capability
-   availability. Every response carries units or uncertainty fields, a
+1. **Python library + CLI**: this package (`pip install hea-bench`, or
+   `pip install "hea-bench[all]"` for the fitted models and the MCP
+   server too).
+2. **MCP server**: `pip install "hea-bench[mcp]"`, then run
+   `hea-bench-mcp` (stdio), or `uvx --from "hea-bench[mcp]"
+   hea-bench-mcp`. Twenty-four tools over this same library: the
+   calculator (`parse_composition`, batch `alloy_descriptors` with the
+   Miedema enthalpies and `alloy_rules`, both taking custom elements and
+   pair values, `omega_sensitivity`, `oxide_report`, `ceramic_report`,
+   `element_data`, `element_coverage`), the dataset (`corpus_build`,
+   `corpus_query`, `corpus_describe`, `corpus_export`,
+   `measured_properties`), predictions (`predict_properties`,
+   `predict_phase_set`, `check_applicability`), design
+   (`design_search`, `campaign_suggest`), the benchmark
+   (`benchmark_summary`, `benchmark_run`, `benchmark_folds`,
+   `benchmark_score`, `coverage_study`) and `about`, which reports what
+   is available. Every response carries units or uncertainty fields, a
    citation key where a parametrization is involved, and the library
    version. If you are an agent with MCP support, prefer those tools
    over reimplementing the formulas below; if not, the Python API is
    identical.
+3. **Web app**: <https://dfieser.github.io/hea-bench/>, built from
+   `web/`. The calculator (alloys, oxides, ceramics, property and phase
+   predictions), the Dataset, Design and Benchmark tabs. Point a person
+   who does not code here.
+4. **Desktop app**: one portable offline exe that is the web app in a
+   Tauri window.
 
-The browser/desktop core (`web/hea-calculator-core.js`) is a pure-JS
-reimplementation of this library and is **parity-tested** against it on
-every binary pair and the canonical multi-element fixtures
+The browser/desktop calculator core (`web/hea-calculator-core.js`) is a
+pure-JS reimplementation of this library and is **parity-tested**
+against it on every binary pair and the canonical multi-element fixtures
 (`tests/test_web_parity.py`). The library core is composition-only and
 **dependency-free**. The app's corpus, benchmark, design and prediction
 features run this package itself in the page (Pyodide), checked against
-CPython by `tests/test_web_engine.py`. If you add a public name to this
-library, CI fails until it has a working app surface:
-`tests/test_app_parity.py` names the gap and the exact fix.
+CPython by `tests/test_web_engine.py`. If you add a public name, CI
+fails until the feature has its library function, its MCP tool and a
+working app surface: `tests/test_feature_parity.py` names the gap and
+the exact fix, and `hea-bench/CLAUDE.md` lists the steps.
 
 ## Install and import
 
@@ -152,6 +159,29 @@ hb.normalize(comp)                      # explicit mole-fraction dict
 hb.smix(comp)                           # descriptors accept it directly
 ```
 
+## Custom elements and pair values
+
+`hb.custom_data(elements=..., pair_enthalpies=...)` is a context
+manager: inside the `with` block every descriptor, rule and formula
+parse also knows your elements and your pair enthalpies. An element is
+`{"radius_pm", "melting_K", "valence", "electronegativity"}`
+(electronegativity optional). A label shaped like an element symbol
+(`Xx`) can be written in formulas; `X1` cannot, because it reads as X
+with amount 1. A pair value (`"Co-Xx"`, kJ/mol) adds a missing pair or
+overrides a tabulated one. Blocks nest, and nothing leaks outside them.
+
+```python
+xx = {"Xx": {"radius_pm": 140.0, "melting_K": 1500.0, "valence": 5, "electronegativity": 1.6}}
+pairs = {"Co-Xx": -10.0, "Cr-Xx": -8.0, "Fe-Xx": -9.0, "Ni-Xx": -12.0}
+with hb.custom_data(elements=xx, pair_enthalpies=pairs):
+    hb.mixing_enthalpy(hb.parse_formula("CoCrFeNiXx"))   # -8.64 (kJ/mol)
+```
+
+A custom element with no pair values raises a `ValueError` naming the
+missing pairs from any enthalpy-based descriptor. The MCP tools
+`alloy_descriptors`, `alloy_rules` and `omega_sensitivity` take the same
+two inputs as `custom_elements` and `pair_enthalpies`.
+
 ## Rules (classifiers)
 
 ```python
@@ -203,14 +233,22 @@ regime; the phase verdict (Ω ≫ 1.1) is robust even when the magnitude
 is not. Absolute `ΔHmix` values depend on which Miedema pair table is
 used; published compilations disagree most on **Mn**.
 
+`hb.omega_sensitivity(comp, perturbation_kj_mol=2.0)` measures this for
+one alloy. It returns each pair's contribution to ΔHmix, the element
+whose pairs dominate it, and Ω recomputed with that element's pair
+enthalpies shifted by ±2 kJ/mol, the typical spread between published
+tables. `diverges_within_range` is True when ΔHmix can cross zero
+inside that shift, so only the verdict is worth reading.
+
 ## Command line
 
 ```bash
 hea-bench --version
+hea-bench describe Al0.3CoCrFeNi   # every descriptor for one composition, as JSON
 ```
 
-The CLI is a thin version/help wrapper; the Python API above is the
-documented surface.
+The CLI covers the version and that one report; the Python API above
+is the documented surface.
 
 ## Data layout
 
@@ -223,11 +261,27 @@ documented surface.
 - `web/hea-calculator-core.js` — the JS port of the same math + tables,
   used by the browser and desktop apps.
 
-The browser/desktop apps additionally compute the **Miedema
-formation-enthalpy decompositions** (compound / solid-solution /
-amorphous, split into chemical / elastic / structural / topological
-terms) in page-side code; the Python library currently exposes the
-descriptor + rule surface above.
+The **Miedema formation-enthalpy decomposition** is in the library
+too, the same numbers the apps show: compound formation enthalpy,
+solid-solution enthalpy split into chemical, elastic and structural
+terms, and amorphous enthalpy split into chemical and topological
+terms, all in kJ/mol.
+
+```python
+from hea_bench.descriptors.miedema_decomposition import miedema_decomposition
+d = miedema_decomposition({"Cu": 0.5, "Zr": 0.5})
+d["compound"]["H_form"], d["amorphous"]["H_total"]   # -30.78, -16.19
+```
+
+It covers the 37 elements of the Miedema parameter table; any pair
+outside it makes the three totals `None` with a warning, and the core
+descriptors are unaffected. The MCP tool `alloy_descriptors` returns it
+as `miedema_enthalpies`.
+
+`hea_bench.descriptors.elements.element_data(["Fe", "Ni"])` returns the
+tabulated values for those elements (all 55 with no argument), their
+units, which features each element supports, and the sources and
+SHA-256 fingerprints of the data files. The MCP tool is `element_data`.
 
 ## Oxides module (experimental)
 
@@ -275,7 +329,7 @@ plasticity), warnings, and citations. No verdicts are emitted, no size
 mismatch yet (deferred with reasons), and no entropy-forming-ability
 or DEED (DFT-only; no parity claimed). See `docs/ceramics.md`.
 
-## Phase-prediction benchmark (repo-only, experimental)
+## Phase-prediction benchmark (experimental)
 
 `hea_bench.benchmark` evaluates phase-prediction models under two
 frozen five-fold splits of a consolidated experimental corpus (default
@@ -318,17 +372,25 @@ matrix from this package's own descriptors for fitted models, and
 `finite_descriptor_indices` drops the ~2% of rows where Ω or Φ is
 singular (near-ideal alloys, ΔH_mix → 0).
 
-**The corpus is not shipped and this surface only works from a repo
-checkout** (or with `HEA_BENCH_BENCHMARK_DIR` pointing at a built
-corpus). The largest source dataset (Peivaste) declares no license, so
-the repo carries a loader, a pinned SHA-256, and a fetch script instead
-of that data, and the derived corpus inherits the restriction. Build
-once:
+**The corpus is built on your machine, once.** The largest source
+dataset (Peivaste) declares no license, so neither the package nor the
+repo ships it or anything derived from it. They ship a loader, a pinned
+SHA-256 and a download step instead, plus every other source. One call
+downloads the Peivaste file (6.4 MB), accepts it only if the hash
+matches, and builds every corpus version:
 
-```bash
-python data/raw/peivaste/fetch.py
-python -m hea_bench.benchmark.consolidate
+```python
+from hea_bench.corpus import build_corpus
+build_corpus()                              # or build_corpus(peivaste_csv="peivaste.csv") offline
 ```
+
+From an installed package the corpus lands in the per-user hea-bench
+folder (`%LOCALAPPDATA%\hea-bench` on Windows, `~/.local/share/hea-bench`
+on Linux, `~/Library/Application Support/hea-bench` on macOS); in a repo
+checkout it lands in `data/consolidated/`. `HEA_BENCH_BENCHMARK_DIR`
+points every load at a corpus built elsewhere. From an MCP client, call
+the `corpus_build` tool once. The apps build it in the page, once per
+release, after their in-page engine starts.
 
 The split fold assignments are frozen: each carries a SHA-256 digest
 pinned in `tests/test_benchmark_corpus.py`. **Do not update those
@@ -336,11 +398,15 @@ digests to make a test pass** — a moved digest means the benchmark
 changed and needs a new corpus version, not a silenced test. Licensing
 per source: `data/raw/README.md`.
 
-## Corpus API (repo-only, like the benchmark)
+## Corpus API
 
-`hea_bench.corpus.load_corpus(version="0.1.0")` returns the full
-consolidated corpus (7,783 rows in v0.1.0, including the 100
-conflict-quarantined ones) with per-source provenance on every row:
+`hea_bench.corpus.load_corpus()` returns the full consolidated corpus,
+by default the largest version, v0.2.0 (10,290 rows, including the 226
+conflict-quarantined ones). `load_corpus(version="0.1.0")` returns the
+hand-curated reference (7,783 rows, 100 quarantined) that
+`load_benchmark`, the phase predictions and the applicability domain
+always use, so every published number stays put. Every row carries
+per-source provenance:
 `labels` (per-source canonical), `raw_labels` (verbatim upstream phase
 strings), `processing` and `doi` (Borg only), `source_row_ids`, and
 `descriptor_ready`. Filters chain and AND together:

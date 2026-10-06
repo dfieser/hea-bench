@@ -28,6 +28,8 @@ from __future__ import annotations
 import math
 import re
 
+from . import _overrides
+
 Composition = dict[str, float]
 """Mapping of element symbol to mole fraction. Must sum to ~1.0 after
 normalization. Element symbols are canonical (first letter upper, second
@@ -112,7 +114,7 @@ def parse_formula(formula: str) -> Composition:
         el, coef = match.groups()
         if not el:
             continue
-        if el not in _VALID_ELEMENTS:
+        if el not in _VALID_ELEMENTS and el not in _overrides.custom_labels():
             bad.append(el)
             continue
         amount = float(coef) if coef else 1.0

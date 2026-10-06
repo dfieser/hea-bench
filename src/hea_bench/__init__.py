@@ -19,6 +19,7 @@ Quick start::
 """
 
 from .composition import Composition, normalize, parse_formula
+from .custom import custom_data
 from .descriptors.elastic import h_elastic
 from .descriptors.electronegativity import delta_chi, mean_electronegativity
 from .descriptors.entropy import smix
@@ -26,12 +27,12 @@ from .descriptors.gamma import wang_gamma
 from .descriptors.lam import singh_lambda
 from .descriptors.melting import melting_temperature
 from .descriptors.miedema import mixing_enthalpy
-from .descriptors.omega import omega
+from .descriptors.omega import omega, omega_sensitivity
 from .descriptors.phi import delta_g_max, delta_g_ss, delta_h_ss, phi_king, phi_ye, s_excess
 from .descriptors.size import delta
 from .descriptors.vec import vec
 
-__version__ = "2.6.2"
+__version__ = "2.7.0"
 
 __all__ = [
     "__version__",
@@ -39,6 +40,7 @@ __all__ = [
     "Composition",
     "parse_formula",
     "normalize",
+    "custom_data",
     # descriptors
     "smix",
     "delta",
@@ -46,6 +48,7 @@ __all__ = [
     "melting_temperature",
     "mixing_enthalpy",
     "omega",
+    "omega_sensitivity",
     "delta_h_ss",
     "delta_g_ss",
     "delta_g_max",

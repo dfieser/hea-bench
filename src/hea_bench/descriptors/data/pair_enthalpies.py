@@ -22,6 +22,7 @@ Values are ΔH^mix for the equiatomic A-B liquid alloy in kJ/mol.
 
 from __future__ import annotations
 
+from ... import _overrides
 import functools
 import importlib.resources
 
@@ -65,8 +66,11 @@ def pair_enthalpy(elem_a: str, elem_b: str) -> float:
     """
     if elem_a == elem_b:
         return 0.0
-    table = _load_table()
     key = frozenset((elem_a, elem_b))
+    custom = _overrides.PAIRS.get()
+    if custom and key in custom:
+        return custom[key]
+    table = _load_table()
     if key not in table:
         raise KeyError(
             f"pair {elem_a}-{elem_b} not in Miedema pair-enthalpy table "

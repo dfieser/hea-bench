@@ -38,7 +38,13 @@ TASK_DESCRIPTIONS = {
 
 @lru_cache(maxsize=4)
 def _fitted(task: str, version: str):
-    """Fit (model, conformal, n_proper, n_calibration) once per task and version."""
+    """(model, conformal, n_proper, n_calibration), fitted once per task and version."""
+    from .._model_cache import cached
+
+    return cached(f"phase-{task}-v{version}", lambda: _fit(task, version))
+
+
+def _fit(task: str, version: str):
     from sklearn.ensemble import RandomForestClassifier
 
     from ..benchmark import load_benchmark
@@ -160,10 +166,11 @@ def predict_phase_set(
 
 @lru_cache(maxsize=4)
 def _domain_for(version: str):
+    from .._model_cache import cached
     from ..corpus import load_corpus
     from .applicability import fit_domain
 
-    return fit_domain(load_corpus(version=version))
+    return cached(f"domain-v{version}", lambda: fit_domain(load_corpus(version=version)))
 
 
 def _corpus_domain(version: str):

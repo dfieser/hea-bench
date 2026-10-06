@@ -82,8 +82,7 @@ def test_missing_corpus_raises_with_the_build_commands() -> None:
     with pytest.raises(FileNotFoundError) as caught:
         load_benchmark(corpus_dir=pathlib.Path("no-such-directory"))
     message = str(caught.value)
-    assert "consolidate" in message
-    assert "fetch.py" in message
+    assert "build_corpus()" in message
 
 
 def test_unknown_task_is_rejected() -> None:

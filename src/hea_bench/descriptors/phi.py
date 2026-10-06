@@ -25,7 +25,7 @@ from ..constants import (
     R,
     YE_PHI_THRESHOLD,
 )
-from .data.elemental import ELEMENTAL_DATA, missing_elements
+from ._tables import element, missing_elements
 from .data.pair_enthalpies import pair_enthalpy
 from .entropy import smix
 from .melting import melting_temperature
@@ -94,7 +94,7 @@ def _mansoori_excess_entropy(composition: Composition, packing_fraction: float) 
         raise ValueError("packing_fraction must be between 0 and 1")
 
     norm = _normalize(composition)
-    diameters = {el: 2.0 * ELEMENTAL_DATA[el].radius_pm for el in norm}
+    diameters = {el: 2.0 * element(el).radius_pm for el in norm}
     sigma_2 = sum(norm[el] * diameters[el] ** 2 for el in norm)
     sigma_3 = sum(norm[el] * diameters[el] ** 3 for el in norm)
 

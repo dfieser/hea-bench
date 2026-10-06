@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Every version-bearing file must agree with the canonical __version__
@@ -38,11 +38,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Restore the pinned Peivaste snapshot
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: data/raw/peivaste/dataset11252_79.csv
           # Keyed by the pinned SHA-256 in fetch.py, so a deliberate re-pin
@@ -66,7 +66,7 @@ jobs:
     # file SHA-256 pinned), rebuilds the corpus, and proves that the bundle,
     # run under Node, answers every bridge call in
     # tests/data/web_engine_calls.json exactly as CPython does, plus the
-    # corpus-backed bridge tests and the app-parity registry. Last, it opens
+    # corpus-backed bridge tests and the four-part parity registry. Last, it opens
     # the built site in headless Chrome (preinstalled on the runner) and
     # uses every tab the way a person does (tests/test_app_smoke.py).
     # HEA_BENCH_REQUIRE_ENGINE=1 turns every skip into a failure, so a
@@ -75,21 +75,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: "24"   # the version the engine harness was verified on
       - name: Restore the pinned Peivaste snapshot
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: data/raw/peivaste/dataset11252_79.csv
           key: peivaste-655a43e521003f5c8973050b5f7c0a5d4b9ab902ca4ecc9c8a7d9813b2b0ba10
       - name: Fetch the Peivaste snapshot (verifies the pinned SHA-256 either way)
         run: python data/raw/peivaste/fetch.py
       - name: Restore the pinned Pyodide runtime
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: web/engine/pyodide
           # The pins live in the build script, so editing them re-downloads.
@@ -105,7 +105,39 @@ jobs:
       - name: The app computes what the library computes, and every tab works in a browser
         env:
           HEA_BENCH_REQUIRE_ENGINE: "1"
-        run: pytest tests/test_web_engine.py tests/test_webapp.py tests/test_app_parity.py tests/test_app_smoke.py -q
+        run: pytest tests/test_web_engine.py tests/test_webapp.py tests/test_feature_parity.py tests/test_app_smoke.py -q
+
+  package:
+    # Every other job imports the package from this checkout, where the
+    # data files sit in data/ and docs/. PyPI users get the wheel. This
+    # builds the sdist and the wheel, checks what they ship (the data,
+    # never the unlicensed Peivaste file), installs the wheel with its mcp
+    # extra in a fresh virtual environment, and from an empty per-user
+    # data folder calls every MCP tool over real stdio through the
+    # installed hea-bench-mcp command, then uses the library
+    # (tests/package_smoke.py). Via the workflow_call gate in release.yml
+    # it blocks a release whose PyPI package or MCP server would be broken.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Restore the pinned Peivaste snapshot
+        uses: actions/cache@v6
+        with:
+          path: data/raw/peivaste/dataset11252_79.csv
+          key: peivaste-655a43e521003f5c8973050b5f7c0a5d4b9ab902ca4ecc9c8a7d9813b2b0ba10
+      - name: Fetch the Peivaste snapshot (verifies the pinned SHA-256 either way)
+        run: python data/raw/peivaste/fetch.py
+      - name: Install the build and test tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Build, install fresh, and use every feature from the wheel
+        env:
+          HEA_BENCH_PACKAGE_SMOKE: "1"
+        run: pytest tests/test_installed_package.py -q
 
   interop:
     # The HEACalculator backend adapter is exercised against a real
@@ -115,7 +147,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Install package with dev and interop extras
@@ -128,19 +160,20 @@ jobs:
   test-extras:
     # scikit-learn-backed layers (conformal integration, property
     # surrogates) only exercise their sklearn paths where the pinned
-    # version is installed; this job provides that environment. The
-    # plain test job stays extras-free as the bare-package proof.
+    # version is installed, and the MCP server tests that build the real
+    # server need the MCP SDK; this job provides both. The plain test job
+    # stays extras-free as the bare-package proof.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - name: Install package with dev and benchmark extras
+      - name: Install package with dev, benchmark and mcp extras
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[dev,benchmark]"
-      - name: Run the full suite with scikit-learn available
+          pip install -e ".[dev,benchmark,mcp]"
+      - name: Run the full suite with scikit-learn and the MCP SDK available
         run: pytest tests/ -q
 
   test:
@@ -148,20 +181,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
 
     steps:
       - uses: actions/checkout@v7
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
-          node-version: "20"
+          node-version: "24"
 
       - name: Install package with dev extras
         run: |

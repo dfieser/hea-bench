@@ -1,12 +1,12 @@
 [package]
 name = "hea-bench"
-version = "2.6.2"
+version = "2.7.0"
 description = "HEA-Bench — offline calculator of high-entropy-alloy and high-entropy-oxide thermodynamic descriptors and empirical phase-prediction rules"
 authors = ["David Fieser <dfieser9@gmail.com>"]
 license = "MIT"
 repository = "https://github.com/dfieser/hea-bench"
 edition = "2021"
-rust-version = "1.77.2"
+rust-version = "1.90"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -20,6 +20,4 @@ tauri-build = { version = "2.6.2", features = [] }
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-log = "0.4"
 tauri = { version = "2.11.2", features = [] }
-tauri-plugin-log = "2"

@@ -52,10 +52,13 @@ For any composition it reports:
   Yang–Zhang Ω, Pauling electronegativity mismatch Δχ, Mansoori excess
   entropy S<sub>E</sub>, ΔG<sub>ss</sub>, ΔG<sub>max</sub>, King Φ, Ye φ.
 - **Phase-prediction rules:** Yeh entropy, Zhang δ, Guo–Liu VEC,
-  Yang–Zhang Ω, King Φ, Ye φ.
-- **Miedema formation enthalpies** (browser/desktop apps): compound /
-  solid-solution / amorphous, decomposed into chemical, elastic,
-  structural, and topological terms.
+  Yang–Zhang Ω, King Φ, Ye φ, Senkov–Miracle κ, the Tsai σ-phase
+  window and Sheikh ductility.
+- **Miedema formation enthalpies:** compound / solid-solution /
+  amorphous, decomposed into chemical, elastic, structural, and
+  topological terms.
+- **Your own elements and pair values:** any descriptor or rule, for a
+  composition with an element or pair enthalpy that is not tabulated.
 - **High-entropy oxides** (`hea_bench.oxides` + the apps' Oxides mode):
   rock-salt, perovskite, fluorite, and pyrochlore formability
   descriptors over Shannon ionic radii with automatic charge-balance
@@ -87,16 +90,27 @@ flowchart LR
     D --> E
 ```
 
-## Four ways to run it
+## Four ways to run it, each with every feature
 
-| Surface | Where | Status |
+| Part | Where | Best for |
 |---|---|---|
-| **Python library + CLI** | `pip install hea-bench` | done, tested |
-| **Zero-install browser app** | <https://dfieser.github.io/hea-bench/> · `web/index.html` | done, Python-parity-tested |
-| **Native desktop app** | a single portable `.exe`, [download (no install)](https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench.exe) (Tauri wrapper of the same page) | done, built from the same parity-tested core |
-| **MCP server for AI agents** | `pip install "hea-bench[mcp]"`, then `hea-bench-mcp` | done, thirteen tools over the same core |
+| **Web app** | <https://dfieser.github.io/hea-bench/> | anyone, no install |
+| **Desktop app** | one portable `.exe`, [download (no install)](https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench.exe), the same app in its own window | Windows users who want it local |
+| **Python library + CLI** | `pip install "hea-bench[all]"` | scripts and notebooks |
+| **MCP server for AI agents** | `pip install "hea-bench[mcp]"`, then `hea-bench-mcp` | Claude, Cursor and other MCP clients, as 24 tools |
 
-The three surfaces share **one calculation core**. The browser/desktop
+Every feature is in all four parts, so pick whichever suits you and you
+lose nothing. That is a standing project rule, and CI enforces it:
+`tests/test_feature_parity.py` fails whenever a public feature lacks
+its library function, its MCP tool or a working app surface, a headless
+browser uses every tab of the built site, the built desktop exe goes
+through the same steps before it is attached to a release, and a
+freshly installed wheel answers every MCP tool. `pip install
+hea-bench` alone has no dependencies and covers everything except the
+fitted models and the MCP server; the `[all]` extra adds scikit-learn
+and the MCP SDK for those.
+
+All four share **one calculation core**. The browser/desktop
 core (`web/hea-calculator-core.js`) is a pure-JS port of the Python
 library, and `tests/test_web_parity.py` guarantees the two match on all
 1484 binary pairs and the canonical multi-element fixtures, while
@@ -105,10 +119,7 @@ down to identical warning messages. The app's Dataset, Design and
 Benchmark tabs and its predictions panel run the Python package itself,
 unchanged, inside the page (Pyodide, `web/hea-engine-worker.js`), and
 `tests/test_web_engine.py` checks that it returns exactly what CPython
-returns. `tests/test_app_parity.py` fails CI whenever a public library
-feature has no working app surface, so the app never falls behind the
-library, and before every release a headless browser uses every tab of
-the built site the way a person would.
+returns.
 
 ## Quick start (Python)
 
@@ -222,18 +233,22 @@ ceramics datasets: [docs/ceramics.md](docs/ceramics.md).
 ## Quick start (AI agents, MCP)
 
 LLM agents hallucinate descriptor values; this server grounds them.
-`hea_bench.mcp_server` exposes the whole workflow over the
-[Model Context Protocol](https://modelcontextprotocol.io/) as thirteen
-deterministic tools: the original calculator seven
-(`parse_composition`, batch `alloy_descriptors` and `alloy_rules`,
-`omega_sensitivity`, `oxide_report`, `element_coverage`, `about`) plus
-the capability layers (`corpus_query` and `corpus_describe` over the
-provenance-tracked experimental corpus, `predict_properties` with
-intervals and domain flags at the top level of every payload,
-`check_applicability` for the novelty components, `design_search` with
-hard caps on palette, step, and candidate count, and
-`campaign_suggest` operating on a campaign file the user supplies).
-Every response carries units or uncertainty fields, citation keys
+`hea_bench.mcp_server` exposes every feature of the package over the
+[Model Context Protocol](https://modelcontextprotocol.io/) as 24
+deterministic tools. The calculator: `parse_composition`, batch
+`alloy_descriptors` (with the Miedema enthalpies) and `alloy_rules`,
+both taking custom elements and pair values, `omega_sensitivity`,
+`oxide_report`, `ceramic_report`, `element_data` and
+`element_coverage`. The dataset: `corpus_build` (once, to build the
+corpus locally), `corpus_query`, `corpus_describe`, `corpus_export` and
+`measured_properties`. Predictions: `predict_properties` with
+intervals and `predict_phase_set` with prediction sets, both carrying
+the domain flag, and `check_applicability`. Design:
+`design_search`, with hard caps on palette, step and candidate count,
+and `campaign_suggest`, on a campaign file or an inline campaign. The
+benchmark: `benchmark_summary`, `benchmark_run`, `benchmark_folds`,
+`benchmark_score` and `coverage_study`. And `about`. Every response
+carries units or uncertainty fields, citation keys
 where a parametrization is involved, and the library version, so an
 agent's reasoning trace contains auditable receipts rather than bare
 floats; `about()` reports which capabilities are available in the
@@ -320,10 +335,13 @@ Li et al., *Commun. Mater.* **6**:9 (2025),
 Baselines, split digests, and full provenance:
 [`docs/benchmark-baselines.md`](./docs/benchmark-baselines.md).
 
-This surface currently works from a repository checkout only: the
-corpus's largest source dataset declares no license, so the corpus is
-rebuilt locally from a fetch script and pinned hashes rather than
-redistributed (see [`data/raw/README.md`](./data/raw/README.md)).
+The corpus is built on your machine, once, because its largest source
+dataset declares no license and is never redistributed (see
+[`data/raw/README.md`](./data/raw/README.md)).
+`hea_bench.corpus.build_corpus()` downloads that file from its authors'
+repository, accepts it only if its pinned SHA-256 matches, and builds
+every corpus version. The apps and the MCP server's `corpus_build` tool
+do the same.
 
 ## The corpus as a standalone product
 
@@ -333,7 +351,7 @@ addressable directly, with no task or split machinery involved:
 ```python
 from hea_bench.corpus import load_corpus
 
-corpus = load_corpus()                # v0.1.0, every row, full provenance
+corpus = load_corpus()                # v0.2.0 (10,290 alloys), every row, full provenance
 corpus.describe()                     # counts, families, agreement rate
 al_bcc = corpus.query(contains=["Al"], phase="BCC", descriptor_ready=True)
 al_bcc.rows[0].raw_labels             # each source's verbatim reported phase
@@ -345,8 +363,11 @@ processing route and primary-literature DOI where available, and
 upstream record identifiers, so a label can be audited without leaving
 the package. Provenance chains, per-source license status,
 harmonization rules, and known limitations are documented in the
-[corpus card](docs/corpus-card.md). The corpus data is still built
-locally from the recipe above, for the same licensing reason.
+[corpus card](docs/corpus-card.md). `load_corpus()` opens the largest
+version, v0.2.0, which adds the LLM-extracted Chizhevskiy database.
+`load_corpus(version="0.1.0")` is the hand-curated reference (7,783
+alloys) that the benchmark, the phase predictions and the domain flag
+always use, so every published number stays put.
 
 ## Uncertainty and domain of applicability
 
@@ -360,7 +381,7 @@ guarantee's exchangeability assumption plausibly holds for your query:
 from hea_bench.corpus import load_corpus
 from hea_bench.uncertainty import ConformalClassifier, fit_domain
 
-domain = fit_domain(load_corpus())
+domain = fit_domain(load_corpus(version="0.1.0"))
 domain.novelty({"Hf": 0.2, "Nb": 0.2, "Ta": 0.2, "Ti": 0.2, "Zr": 0.2})
 # {'element_set_seen': True, 'family_count': ..., 'nearest_family_distance': 0.0,
 #  'descriptor_distance': ..., 'element_coverage': True, 'in_domain': True, ...}
@@ -479,11 +500,18 @@ the number does not, so read Ω qualitatively in that regime.
 hea-bench/
 ├── src/hea_bench/
 │   ├── descriptors/     ΔS_mix, δ, VEC, T_m, ΔH_mix, Ω, S_E, φ + data tables
-│   ├── rules/           the six empirical phase-prediction rules
+│   ├── rules/           the nine empirical phase-prediction rules
 │   ├── oxides/          HEO module: families, oxidation-state solver,
 │   │                    Shannon radii (94 elements, vendored from pymatgen)
+│   ├── ceramics/        carbides, nitrides, diborides
+│   ├── corpus/          the experimental corpus: build_corpus, load_corpus
 │   ├── benchmark/       frozen family-grouped + random paired splits and evaluation
-│   │                    (repo-only; corpus is built locally, see data/raw/)
+│   ├── properties/      density, melting point, cost, hardness
+│   ├── uncertainty/     conformal sets and intervals, phase sets, domain flag
+│   ├── design/          composition search and campaigns
+│   ├── mcp_server.py    the MCP server (hea-bench-mcp)
+│   ├── webapp.py        the bridge the in-page engine calls
+│   ├── custom.py        custom elements and pair values
 │   ├── composition.py   formula parser, normalizer
 │   ├── constants.py     R = 8.314
 │   └── cli.py           command-line entry point

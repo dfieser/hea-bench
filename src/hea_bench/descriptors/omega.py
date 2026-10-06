@@ -29,11 +29,12 @@ Physics* **132**, 233-238.
 from __future__ import annotations
 
 import math
+from itertools import combinations
 
-from ..composition import Composition
+from ..composition import Composition, normalize
 from .entropy import smix
 from .melting import melting_temperature
-from .miedema import mixing_enthalpy
+from .miedema import mixing_enthalpy, pair_enthalpy
 
 
 def omega(composition: Composition) -> float:
@@ -75,3 +76,91 @@ def omega(composition: Composition) -> float:
     # T_m [K] · ΔS_mix [J/(mol·K)] = J/mol
     # |ΔH_mix| converted from kJ/mol to J/mol via factor 1000.
     return (tm * s) / (abs(h) * 1000.0)
+
+
+def omega_sensitivity(composition: Composition, perturbation_kj_mol: float = 2.0) -> dict:
+    """How robust Omega is to the choice of Miedema pair table.
+
+    Omega diverges as the mixing enthalpy approaches zero, so its value
+    for near-ideal alloys depends strongly on which published pair table
+    is used. This returns the per-pair contributions ``4 H_ij c_i c_j``,
+    the element whose pairs dominate the enthalpy, and Omega recomputed
+    with that element's pair enthalpies shifted by +/-
+    ``perturbation_kj_mol`` (default 2 kJ/mol, the typical spread between
+    published Miedema compilations). A wide Omega range means the
+    verdict, not the number, is what to trust.
+
+    Parameters
+    ----------
+    composition
+        Mapping of element symbol to amount (normalized here), with at
+        least two elements.
+    perturbation_kj_mol
+        Non-negative shift applied to the dominant element's pairs.
+
+    Returns
+    -------
+    dict
+        ``composition``, ``h_mix_kj_mol``, ``omega`` (None when the
+        mixing enthalpy is exactly zero), ``pair_contributions``,
+        ``dominant_element``, ``perturbation_kj_mol``,
+        ``h_mix_range_kj_mol``, ``omega_at_range_endpoints``,
+        ``diverges_within_range``, ``advice`` and ``source``.
+    """
+    if perturbation_kj_mol < 0:
+        raise ValueError("perturbation_kj_mol must be non-negative")
+    comp = dict(normalize(composition))
+    if len(comp) < 2:
+        raise ValueError("need at least two elements for pair contributions")
+
+    contributions = []
+    per_element: dict[str, float] = {el: 0.0 for el in comp}
+    for a, b in combinations(sorted(comp), 2):
+        h = pair_enthalpy(a, b)
+        weight = 4.0 * comp[a] * comp[b]
+        contrib = weight * h
+        contributions.append(
+            {"pair": f"{a}-{b}", "pair_enthalpy_kj_mol": h, "weight": weight,
+             "contribution_kj_mol": contrib}
+        )
+        per_element[a] += abs(contrib)
+        per_element[b] += abs(contrib)
+    contributions.sort(key=lambda c: c["contribution_kj_mol"])
+
+    dominant = max(per_element, key=lambda el: per_element[el])
+    shift = perturbation_kj_mol * sum(
+        c["weight"] for c in contributions if dominant in c["pair"].split("-")
+    )
+
+    h_mix = mixing_enthalpy(comp)
+    t_m = melting_temperature(comp)
+    s_mix = smix(comp)
+
+    def omega_at(h: float) -> float | None:
+        if h == 0:
+            return None
+        return t_m * s_mix / (abs(h) * 1000.0)
+
+    h_low, h_high = h_mix - shift, h_mix + shift
+    crosses_zero = h_low < 0 < h_high
+    endpoint_omegas = [o for o in (omega_at(h_low), omega_at(h_high)) if o is not None]
+
+    return {
+        "composition": comp,
+        "h_mix_kj_mol": h_mix,
+        "omega": omega_at(h_mix),
+        "pair_contributions": contributions,
+        "dominant_element": dominant,
+        "perturbation_kj_mol": perturbation_kj_mol,
+        "h_mix_range_kj_mol": [h_low, h_high],
+        "omega_at_range_endpoints": endpoint_omegas,
+        "diverges_within_range": crosses_zero,
+        "advice": (
+            "The perturbation interval crosses h_mix = 0, so Omega is unbounded "
+            "within the spread of published pair tables. Use the phase verdict, "
+            "not the Omega magnitude." if crosses_zero else
+            "Omega varies between the endpoint values across the typical spread "
+            "of published Miedema pair tables."
+        ),
+        "source": "deBoer1988 / Takeuchi2005 pair table; Yang2012 Omega",
+    }

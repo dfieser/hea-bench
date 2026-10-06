@@ -4,9 +4,12 @@ Walks each source loader, merges records on a *composition-only* join
 key (Borg's processing column is preserved as side-channel data but
 does **not** participate in the join), and produces:
 
-- ``data/consolidated/<version>/consolidated.csv``  — the benchmark
-- ``data/consolidated/<version>/manifest.json``     — provenance, dedup
-                                                       stats, SHA-256s
+- ``<corpus dir>/consolidated.csv``  — the benchmark
+- ``<corpus dir>/manifest.json``     — provenance, dedup stats, SHA-256s
+
+where the corpus dir is ``hea_bench.corpus.corpus_location(version)``:
+``data/consolidated/v<version>`` in a checkout, a per-user folder in an
+installed wheel.
 
 Label conflict handling: when two or more sources contribute records for
 the same composition but disagree on the canonical phase class, the
@@ -14,9 +17,12 @@ output row has ``canonical_phase`` blank and ``has_conflict=1``. The
 per-source labels are still recorded so users can resolve the conflict
 however they want.
 
-Run as a module to (re)build v0.1.0:
+Run as a module to (re)build every version from a checkout:
 
     python -m hea_bench.benchmark.consolidate
+
+From an installed wheel, ``hea_bench.corpus.build_corpus()`` also
+fetches the one source that is not shipped.
 """
 
 from __future__ import annotations
@@ -31,6 +37,7 @@ from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 
+from .. import _paths
 from ..composition import Composition
 from .loaders import AlloyRecord, borg2020, chizhevskiy2026, pei2020, peivaste
 from .taxonomy import PhaseClass
@@ -56,11 +63,6 @@ SOURCES_BY_VERSION: dict[str, tuple[str, ...]] = {
     "0.2.0": ("borg2020", "pei2020", "peivaste", "chizhevskiy2026"),
 }
 
-# Repo-relative paths (repo root is 3 parents up from this file:
-# hea-bench/src/hea_bench/benchmark/consolidate.py → hea-bench/).
-_REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
-_RAW_DIR = _REPO_ROOT / "data" / "raw"
-_CONSOLIDATED_DIR = _REPO_ROOT / "data" / "consolidated"
 
 
 def canonical_formula_key(composition: Composition, precision: int = 4) -> str:
@@ -278,11 +280,13 @@ def build_manifest(
     }
 
 
+# Source files, from hea_bench._paths: data/raw in a checkout, inside the
+# package in a wheel, except Peivaste, which is downloaded, never shipped.
 _SOURCE_PATHS = {
-    "borg2020": _RAW_DIR / "borg2020" / "MPEA_dataset.csv",
-    "pei2020":  _RAW_DIR / "pei2020"  / "pei2020_alloys_phases.csv",
-    "peivaste": _RAW_DIR / "peivaste" / "dataset11252_79.csv",
-    "chizhevskiy2026": _RAW_DIR / "chizhevskiy2026" / "database_of_HEAs.csv",
+    "borg2020": _paths.raw_dir() / "borg2020" / "MPEA_dataset.csv",
+    "pei2020": _paths.raw_dir() / "pei2020" / "pei2020_alloys_phases.csv",
+    "peivaste": _paths.peivaste_csv(),
+    "chizhevskiy2026": _paths.raw_dir() / "chizhevskiy2026" / "database_of_HEAs.csv",
 }
 
 _LOADERS = {
@@ -298,8 +302,10 @@ def build(version: str = DEFAULT_VERSION, out_dir: pathlib.Path | None = None) -
 
     Returns the manifest dict (also written to disk).
     """
+    from ..corpus import corpus_location
+
     source_names = SOURCES_BY_VERSION[version]
-    out_dir = out_dir or (_CONSOLIDATED_DIR / f"v{version}")
+    out_dir = out_dir or corpus_location(version)
 
     source_paths = {name: _SOURCE_PATHS[name] for name in source_names}
     missing = [name for name in source_names if not source_paths[name].exists()]
@@ -307,9 +313,11 @@ def build(version: str = DEFAULT_VERSION, out_dir: pathlib.Path | None = None) -
         instructions = []
         for name in missing:
             fix = (
-                "python data/raw/peivaste/fetch.py"
+                "hea_bench.corpus.build_corpus() downloads it and checks its SHA-256 "
+                "(in a checkout, python data/raw/peivaste/fetch.py does the same)"
                 if name == "peivaste"
-                else f"restore the mirrored file from the repository (see data/raw/{name}/README.md)"
+                else f"reinstall hea-bench, or restore the file from the repository "
+                f"(see data/raw/{name}/README.md)"
             )
             instructions.append(f"  {name}: expected {source_paths[name]}\n    fix: {fix}")
         raise FileNotFoundError(

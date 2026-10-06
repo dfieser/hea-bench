@@ -1,21 +1,25 @@
-"""Every library feature must exist and work in the app (owner rule, 2026-10-05).
+"""Every feature must exist and work in all four parts (owner rule, 2026-10-06).
 
-About 99% of users only open the app: the site built from web/, and the
-desktop exe that wraps the same folder. A feature that exists only in the
-Python library or the MCP server is unreachable for anyone who does not
-code, so it is a defect. tests/data/app_parity.json lists every public
-name exactly once: under a feature with app evidence, under "internal"
-with the reason no surface is needed, or under "deferred" with the
-owner's dated decision. These tests fail when
+hea-bench ships as four parts: the Python package (PyPI), the MCP server,
+the desktop exe and the web site. The exe is the site's web/ folder in a
+desktop shell, so the app evidence below covers both. A person should
+only ever need one part, so a feature missing from any of them is a
+defect. tests/data/feature_parity.json lists every public name exactly
+once: under a feature, under "internal" with the reason no surface is
+needed, or under "deferred" with the owner's dated decision. These tests
+fail when
 
-- a public name is not listed (a new feature with no app surface),
+- a public name is not listed (a new feature not yet placed),
 - a listed name no longer exists (a stale entry),
-- a feature's evidence is missing: a DOM id not in web/index.html, a
+- a feature has no library name or no MCP tool,
+- a feature's app evidence is missing: a DOM id not in web/index.html, a
   bridge method that is not registered or that no app code calls, a
   browser-core function that is not exported or that the page never
   uses, or a named test that does not exist,
 - a feature that runs in the in-page engine is not used, through its
-  UI, by the browser smoke test tests/app_smoke.cjs.
+  UI, by the browser smoke test tests/app_smoke.cjs,
+- an MCP tool is never called by tests/package_smoke.py, which installs
+  the built wheel in a fresh environment and calls every tool over stdio.
 
 Every failure message names the exact fix.
 """
@@ -33,7 +37,7 @@ import hea_bench.rules
 from hea_bench import mcp_server, webapp
 
 ROOT = Path(__file__).resolve().parents[1]
-REL = "tests/data/app_parity.json"
+REL = "tests/data/feature_parity.json"
 REGISTRY = json.loads((ROOT / REL).read_text(encoding="utf-8"))
 WEB = ROOT / "web"
 INDEX = (WEB / "index.html").read_text(encoding="utf-8")
@@ -41,6 +45,7 @@ FRONT_END = INDEX + (WEB / "hea-features.js").read_text(encoding="utf-8")
 WORKER = (WEB / "hea-engine-worker.js").read_text(encoding="utf-8")
 CORE = (WEB / "hea-calculator-core.js").read_text(encoding="utf-8")
 SMOKE = (ROOT / "tests" / "app_smoke.cjs").read_text(encoding="utf-8")
+PACKAGE_SMOKE = (ROOT / "tests" / "package_smoke.py").read_text(encoding="utf-8")
 
 DOM_IDS = set(re.findall(r'\bid="([^"$]+)"', INDEX))
 _EXPORT_BLOCK = CORE[CORE.rindex("    return {\n") :].split("\n    };", 1)[0]
@@ -89,13 +94,14 @@ def assignments() -> dict[str, list[str]]:
     return where
 
 
-def test_every_public_name_has_an_app_surface_or_a_reason() -> None:
+def test_every_public_name_is_placed_in_a_feature_or_has_a_reason() -> None:
     missing = [key for key in public_surface() if key not in assignments()]
     assert not missing, (
-        f"{len(missing)} public name(s) have no app surface: {missing}.\n"
-        "Every library feature must appear AND work in the app (hea-bench/CLAUDE.md, APP PARITY). "
-        "Fix: build the feature in web/ (index.html and hea-features.js, through hea_bench.webapp "
-        f"when it needs Python), then add the name to that feature's 'covers' list in {REL}. "
+        f"{len(missing)} public name(s) are not placed: {missing}.\n"
+        "Every feature must appear AND work in all four parts (hea-bench/CLAUDE.md, FOUR-PART "
+        "PARITY). Fix: add the name to the 'covers' list of its feature in "
+        f"{REL}, after giving that feature its library function, its MCP tool and its app surface "
+        "(web/index.html and hea-features.js, through hea_bench.webapp when it needs Python). "
         "If the name has no user-facing behavior (a helper or a type), add it to 'internal' "
         "there with the reason instead."
     )
@@ -153,6 +159,39 @@ def test_every_feature_has_working_app_evidence() -> None:
             ):
                 problems.append(f"{feature_id}: test {node} does not exist. Fix: correct the node id in {REL}.")
     assert not problems, "\n".join(problems)
+
+
+def test_every_feature_is_in_the_library_and_the_mcp_server() -> None:
+    problems = []
+    for feature_id, feature in REGISTRY["features"].items():
+        covers = feature["covers"]
+        # Phase rules are library modules (hea_bench.rules.<rule>.predict).
+        if not any(key.startswith(("hea_bench.", "rule:")) for key in covers):
+            problems.append(
+                f"{feature_id}: no library name. Fix: expose the feature as a public function of "
+                f"the hea_bench package and list it under 'covers' in {REL}."
+            )
+        if not any(key.startswith("mcp:") for key in covers):
+            problems.append(
+                f"{feature_id}: no MCP tool. Fix: add a tool for it to _TOOLS in "
+                "src/hea_bench/mcp_server.py (a thin wrapper over the library or hea_bench.webapp, "
+                f"with a _PARAM_DOCS entry), list it as mcp:<name> under 'covers' in {REL}, and "
+                "call it in tests/package_smoke.py."
+            )
+    assert not problems, "\n".join(problems)
+
+
+def test_every_mcp_tool_runs_from_the_installed_package() -> None:
+    uncalled = sorted(
+        tool.__name__
+        for tool in mcp_server._TOOLS
+        if not re.search(rf'["\']{tool.__name__}["\']', PACKAGE_SMOKE)
+    )
+    assert not uncalled, (
+        f"tests/package_smoke.py never calls the MCP tools {uncalled}. Fix: add a call to each in "
+        "its TOOL_CALLS, with arguments that exercise the feature, then run "
+        "HEA_BENCH_PACKAGE_SMOKE=1 pytest tests/test_installed_package.py."
+    )
 
 
 def test_every_bridge_method_is_reachable_from_the_app() -> None:

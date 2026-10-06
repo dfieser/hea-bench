@@ -17,17 +17,12 @@ from __future__ import annotations
 import csv
 import io
 import json
-import math
 import pathlib
 import tempfile
 from functools import lru_cache
 
-from . import __version__
-
-#: The bundled published baseline results (the engine archive carries
-#: docs/benchmark-baselines.json at the same repo-relative path).
-_REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
-_BASELINES_JSON = _REPO_ROOT / "docs" / "benchmark-baselines.json"
+from . import __version__, _paths
+from ._json import strict_json
 
 #: Largest dataset page the app may request in one call.
 PAGE_CAP = 500
@@ -44,17 +39,6 @@ def set_progress(callback) -> None:
 def _report(message: str, fraction: float) -> None:
     if _progress is not None:
         _progress(message, float(fraction))
-
-
-def _clean(value):
-    """Strict-JSON copy: non-finite floats become None, tuples lists."""
-    if isinstance(value, float):
-        return value if math.isfinite(value) else None
-    if isinstance(value, dict):
-        return {str(key): _clean(item) for key, item in value.items()}
-    if isinstance(value, (list, tuple)):
-        return [_clean(item) for item in value]
-    return value
 
 
 def _composition(value) -> dict[str, float]:
@@ -116,43 +100,25 @@ def dataset_status() -> dict:
 def peivaste_source() -> dict:
     """Where the unlicensed Peivaste CSV comes from, its pinned hash, and
     whether it is in place. The recipe is data/raw/peivaste/fetch.py."""
-    recipe = _peivaste_recipe()
+    recipe = _paths.peivaste_recipe()
     return {
         "url": recipe["UPSTREAM_URL"],
         "sha256": recipe["EXPECTED_SHA256"],
         "bytes": recipe["EXPECTED_BYTES"],
-        "installed": recipe["TARGET"].exists(),
+        "installed": _paths.peivaste_csv().exists(),
     }
-
-
-def _peivaste_recipe() -> dict:
-    import runpy
-
-    return runpy.run_path(str(_REPO_ROOT / "data" / "raw" / "peivaste" / "fetch.py"))
 
 
 def peivaste_install(path: str) -> dict:
     """Verify a downloaded Peivaste file against the pinned SHA-256 and put
     it where the corpus build reads it. Refuses different bytes."""
-    import hashlib
+    from .corpus import install_peivaste
 
-    recipe = _peivaste_recipe()
-    data = pathlib.Path(path).read_bytes()
-    digest = hashlib.sha256(data).hexdigest()
-    if digest != recipe["EXPECTED_SHA256"]:
-        raise ValueError(
-            f"the downloaded Peivaste file has SHA-256 {digest}, not the pinned "
-            f"{recipe['EXPECTED_SHA256']}. The upstream file changed, so the frozen corpus "
-            f"cannot be rebuilt from it; please report this at "
-            f"https://github.com/dfieser/hea-bench/issues"
-        )
-    target = recipe["TARGET"]
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_bytes(data)
-    return {"installed": True, "bytes": len(data)}
+    target = install_peivaste(path, download=False)
+    return {"installed": True, "bytes": target.stat().st_size}
 
 
-def dataset_build(version: str = "0.1.0") -> dict:
+def dataset_build(version: str = "0.2.0") -> dict:
     """Build one corpus version from the raw sources, exactly as the CLI
     does, into the directory the loaders read (which honours
     HEA_BENCH_BENCHMARK_DIR, where the app keeps its persistent copy)."""
@@ -169,6 +135,7 @@ def dataset_build(version: str = "0.1.0") -> dict:
 def _clear_caches() -> None:
     from .uncertainty import applicability, phase
 
+    _WARMED.clear()
     _corpus.cache_clear()
     _benchmark.cache_clear()
     _finite.cache_clear()
@@ -219,7 +186,7 @@ def _row_payload(row) -> dict:
 
 
 def dataset_query(
-    filters: dict | None = None, version: str = "0.1.0", offset: int = 0, limit: int = 100
+    filters: dict | None = None, version: str = "0.2.0", offset: int = 0, limit: int = 100
 ) -> dict:
     """One page of a filtered corpus slice, every row with full provenance."""
     subset = _slice(version, filters)
@@ -233,12 +200,12 @@ def dataset_query(
     }
 
 
-def dataset_describe(filters: dict | None = None, version: str = "0.1.0") -> dict:
+def dataset_describe(filters: dict | None = None, version: str = "0.2.0") -> dict:
     """Counts by phase, element count, source and family for a slice."""
     return _slice(version, filters).describe()
 
 
-def dataset_csv(filters: dict | None = None, version: str = "0.1.0") -> dict:
+def dataset_csv(filters: dict | None = None, version: str = "0.2.0") -> dict:
     """The slice in the consolidated-CSV schema, as text for a download."""
     subset = _slice(version, filters)
     handle = io.StringIO(newline="")
@@ -401,9 +368,12 @@ def _benchmark(task: str, version: str):
 
 @lru_cache(maxsize=4)
 def _finite(task: str, version: str) -> tuple[int, ...]:
+    from ._model_cache import cached
     from .benchmark import finite_descriptor_indices
 
-    return finite_descriptor_indices(_benchmark(task, version))
+    return cached(
+        f"finite-{task}-v{version}", lambda: finite_descriptor_indices(_benchmark(task, version))
+    )
 
 
 def benchmark_summary(task: str = "single_vs_multi", version: str = "0.1.0") -> dict:
@@ -414,8 +384,9 @@ def benchmark_summary(task: str = "single_vs_multi", version: str = "0.1.0") -> 
     _report("loading the benchmark", 0.2)
     bench = _benchmark(task, version)
     published = None
-    if version == "0.1.0" and _BASELINES_JSON.exists():
-        stored = json.loads(_BASELINES_JSON.read_text(encoding="utf-8"))
+    baselines = _paths.baselines_json()
+    if version == "0.1.0" and baselines.exists():
+        stored = json.loads(baselines.read_text(encoding="utf-8"))
         published = {
             "results": stored["results"].get(task),
             "coverage": stored["coverage"].get(task),
@@ -524,6 +495,66 @@ def coverage(task: str = "single_vs_multi", version: str = "0.1.0") -> dict:
     return coverage_study(task, version=version, progress=_report)
 
 
+# -- background preparation -------------------------------------------------------
+#
+# The worker runs one step whenever no request from the page is waiting,
+# so the tabs find their data loaded and their models fitted, and a click
+# never waits behind more than one step. Models land in
+# HEA_BENCH_MODEL_CACHE, so a returning visitor loads them instead.
+
+_WARMED: set[str] = set()
+
+
+def _warm_plan() -> list[str]:
+    from .benchmark.consolidate import SOURCES_BY_VERSION
+
+    built = dataset_status()["built"]
+    buildable = _paths.peivaste_csv().exists()
+    # Builds first: a build clears every cache the later steps fill.
+    plan = [f"build:{v}" for v in SOURCES_BY_VERSION if not built[v] and buildable]
+    plan.append("hardness")
+    if built["0.1.0"] or buildable:
+        plan += ["phase:single_vs_multi", "phase:phase4"]
+    if built["0.2.0"] or buildable:
+        plan.append("dataset:0.2.0")
+    if built["0.1.0"] or buildable:
+        plan.append("benchmark:single_vs_multi")
+    return plan
+
+
+def warm_next() -> str | None:
+    """The next background preparation step, or None when all are done."""
+    return next((step for step in _warm_plan() if step not in _WARMED), None)
+
+
+def warm(step: str) -> dict:
+    """Run one background preparation step named by :func:`warm_next`."""
+    kind, _, arg = step.partition(":")
+    try:
+        if kind == "build":
+            dataset_build(arg)
+        elif kind == "hardness":
+            from .properties.hardness import _fitted
+
+            _fitted(None)
+        elif kind == "phase":
+            from .uncertainty import phase
+
+            phase._fitted(arg, "0.1.0")
+            phase._corpus_domain("0.1.0")
+        elif kind == "benchmark":
+            _finite(arg, "0.1.0")
+        elif kind == "dataset":
+            _corpus(arg)
+        else:
+            raise ValueError(f"unknown preparation step {step!r}")
+    finally:
+        # Done or failed, never retried in the background: a failing step
+        # reports its error when the page asks for that feature.
+        _WARMED.add(step)
+    return {"step": step}
+
+
 #: Method name -> function, the whole surface the app can call.
 METHODS = {
     function.__name__: function
@@ -547,6 +578,8 @@ METHODS = {
         benchmark_folds_csv,
         benchmark_score,
         coverage,
+        warm_next,
+        warm,
     )
 }
 
@@ -563,7 +596,7 @@ def call(method: str, params_json: str = "{}") -> str:
             raise ValueError(f"unknown engine method {method!r}")
         params = json.loads(params_json or "{}")
         result = METHODS[method](**params)
-        return json.dumps({"ok": True, "result": _clean(result)}, allow_nan=False)
+        return json.dumps({"ok": True, "result": strict_json(result)}, allow_nan=False)
     except Exception as error:  # noqa: BLE001 - the envelope IS the error channel
         return json.dumps({"ok": False, "error": str(error), "type": type(error).__name__})
 

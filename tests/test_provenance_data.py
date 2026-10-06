@@ -54,3 +54,18 @@ def test_descriptor_reference_keys_present() -> None:
     }
     missing = needed - set(REFERENCES)
     assert not missing, f"missing reference keys: {sorted(missing)}"
+
+
+def test_app_integrity_hashes_match_the_library() -> None:
+    """The Element data tab's file hashes are the ones the library reports."""
+    import json
+    import re
+    from pathlib import Path
+
+    from hea_bench.descriptors.elements import element_data
+
+    index = (Path(__file__).resolve().parents[1] / "web" / "index.html").read_text(encoding="utf-8")
+    block = re.search(r"const DATA_FILE_SHAS = (\{.*?\});", index, re.S).group(1)
+    assert json.loads(block) == element_data(["Fe"])["data_files"], (
+        "web/index.html DATA_FILE_SHAS is stale. Fix: PYTHONPATH=src python tests/data/_sync_js_provenance.py"
+    )

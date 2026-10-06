@@ -84,10 +84,12 @@ Whether cut by the bot or by hand, a `vX.Y.Z` tag drives
 [`.github/workflows/release.yml`](.github/workflows/release.yml), which runs
 with no further input:
 
-1. **gate** — the full pytest 3.10–3.12 matrix, the JS parity test, the
-   version-consistency check, and the `web-engine` job (the in-app engine
-   bundle assembled and checked against CPython, plus the app-parity
-   registry) on the tagged commit.
+1. **gate** — the full pytest 3.10–3.14 matrix, the JS parity test, the
+   version-consistency check, the `package` job (the built wheel installed
+   fresh, every MCP tool called over stdio, `tests/test_installed_package.py`)
+   and the `web-engine` job (the in-app engine bundle assembled and checked
+   against CPython, the four-part feature registry, and every tab of the
+   built site used in headless Chrome) on the tagged commit.
 2. **pypi** — build the sdist and wheel and publish to PyPI over OIDC Trusted
    Publishing (no token).
 3. **mcp** — wait until PyPI serves the new version, then publish `server.json`
@@ -98,7 +100,8 @@ with no further input:
    DOI under the concept DOI.
 5. **desktop** — assemble the in-app engine (`tools/build_web_engine.py`,
    gitignored `web/engine/`), build the portable `HEA-Bench.exe` around
-   `web/`, and attach it to the release.
+   `web/`, use every tab inside it (`tests/test_desktop_smoke.py`), and
+   attach it to the release.
 
 ## Manual fallback (only if the automation is down)
 
@@ -185,7 +188,9 @@ before the push and did not, or lived only inside an external publisher.
 | 2026-08-16 | v2.5.0 | `mcp` publish, HTTP 422 | `server.json` description was 199 characters; the MCP registry caps it at 100, and nothing anywhere validated registry constraints | `tools/preflight.py --metadata` encodes the registry limits and runs in four places: the pre-push hook, by hand locally, in CI on every push, and in the release bot before it stamps or tags |
 | 2026-08-17 | no red run; found by inspection | the live site never showed a favicon in Google results | the icon was a `data:` URI, which Google cannot crawl, and no gate has ever opened a file under `web/` that is not code | `tools/preflight.py --metadata` checks the icon set, the 1200x630 social card, the manifest and the JSON-LD, and rejects a `data:` URI or a root-absolute icon path |
 | 2026-10-05 | v2.6.0 | `gate / interop`, two HEACalculator backend tests | HEACalculator released 2.1.0 and 2.2.0 with changed reference data; the `[interop]` pin `~=2.0` admitted any 2.x, so CI installed 2.2.0 while every local run still had the verified 2.0.1, and no commit here changed anything | the pin is `~=2.0.1`, and `tests/test_descriptor_backend.py` (run by the preflight and in CI) fails whenever the pin admits a minor series other than the one `docs/backend-agreement.md` was generated with |
-| 2026-10-05 | no red run; found by inspection | most library features (dataset, benchmark, phase sets, domain flag, properties, search, campaigns, ceramics) were unreachable in the app, where about 99% of users are | features were only ever finished in the library, and nothing compared the two surfaces | `tests/test_app_parity.py` maps every public name to working app evidence and fails CI otherwise; the CI `web-engine` job checks the in-app engine against CPython; `verify-live` requires the live engine to report the released version; `tests/test_app_smoke.py` uses every tab of the built site in headless Chrome in the same job |
+| 2026-10-05 | no red run; found by inspection | most library features (dataset, benchmark, phase sets, domain flag, properties, search, campaigns, ceramics) were unreachable in the app, where about 99% of users are | features were only ever finished in the library, and nothing compared the two surfaces | `tests/test_app_parity.py` (since 2.7.0 `tests/test_feature_parity.py`) maps every public name to working app evidence and fails CI otherwise; the CI `web-engine` job checks the in-app engine against CPython; `verify-live` requires the live engine to report the released version; `tests/test_app_smoke.py` uses every tab of the built site in headless Chrome in the same job |
+| 2026-10-06 | no red run; found by inspection | the MCP server lacked eleven of the package's features (dataset build and export, measured properties, phase sets, the benchmark, the coverage study, ceramics, element data), custom elements and the Miedema breakdown; nothing ever ran the published wheel or the built exe | parity was checked only between the library and the web app, always from a repository checkout | owner rule: every feature in all four parts. `tests/test_feature_parity.py` requires a library name, an MCP tool, app evidence and tests for every feature; the CI `package` job installs the built wheel fresh and calls every MCP tool over stdio (`tests/test_installed_package.py`, also run by the preflight); the release `desktop-build` job uses every tab inside the built exe before attaching it (`tests/test_desktop_smoke.py`) |
+| 2026-10-06 | no red run; caught before release | the MCP container image (`Dockerfile`, which directory listings such as Glama build) would have stopped building | the wheel started bundling files from `data/` and `docs/`, which the Dockerfile never copied and `.dockerignore` excluded | `tools/preflight.py`, in every mode (so also CI and the release bot), checks that every file the wheel force-includes reaches the image build stage and that the unlicensed Peivaste file never does |
 
 The defense has four layers, in firing order:
 

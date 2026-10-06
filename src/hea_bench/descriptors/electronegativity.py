@@ -28,13 +28,16 @@ from __future__ import annotations
 import math
 
 from ..composition import Composition
-from .data.elemental import ELEMENTAL_DATA, missing_elements
+from ._tables import element, missing_elements
 
 
 def _normalized(composition: Composition) -> dict[str, float]:
     if not composition:
         raise ValueError("composition must be non-empty")
     missing = missing_elements(set(composition))
+    lacking = sorted(el for el in composition if element(el).electronegativity is None)
+    if lacking:
+        raise ValueError(f"no electronegativity for custom element(s) {lacking}")
     if missing:
         raise ValueError(
             f"composition contains elements not in elemental data table: "
@@ -56,7 +59,7 @@ def mean_electronegativity(composition: Composition) -> float:
     1.766
     """
     norm = _normalized(composition)
-    return sum(c * ELEMENTAL_DATA[el].electronegativity for el, c in norm.items())
+    return sum(c * element(el).electronegativity for el, c in norm.items())
 
 
 def delta_chi(composition: Composition) -> float:
@@ -89,9 +92,9 @@ def delta_chi(composition: Composition) -> float:
     0.1384
     """
     norm = _normalized(composition)
-    chi_bar = sum(c * ELEMENTAL_DATA[el].electronegativity for el, c in norm.items())
+    chi_bar = sum(c * element(el).electronegativity for el, c in norm.items())
     inner = sum(
-        c * (ELEMENTAL_DATA[el].electronegativity - chi_bar) ** 2
+        c * (element(el).electronegativity - chi_bar) ** 2
         for el, c in norm.items()
     )
     return math.sqrt(max(inner, 0.0))

@@ -162,7 +162,7 @@ def test_to_records_and_csv_round_trip(synthetic_dir, tmp_path) -> None:
 
 @needs_corpus
 def test_real_corpus_row_and_label_counts() -> None:
-    corpus = load_corpus()
+    corpus = load_corpus(version="0.1.0")
     assert len(corpus) == 7783
     assert len(corpus.query(labelled=True)) == 7683
     assert len(corpus.query(has_conflict=True)) == 100
@@ -170,7 +170,7 @@ def test_real_corpus_row_and_label_counts() -> None:
 
 @needs_corpus
 def test_real_corpus_describe_and_chaining() -> None:
-    corpus = load_corpus()
+    corpus = load_corpus(version="0.1.0")
     stats = corpus.describe()
     assert stats["n_rows"] == 7783
     assert stats["n_conflicts"] == 100
@@ -188,3 +188,21 @@ def test_real_corpus_v020_loads_with_chizhevskiy_columns() -> None:
     assert len(chiz) > 2000
     sampled = chiz.rows[0]
     assert "chizhevskiy2026" in sampled.labels or "chizhevskiy2026" in sampled.raw_labels
+
+
+def test_corpus_defaults_to_the_largest_version_and_the_benchmark_to_the_reference() -> None:
+    # Owner decision 2026-10-06: browsing opens on v0.2.0, while the
+    # benchmark, the predictions and the domain check stay on v0.1.0,
+    # where every published number is measured.
+    import inspect
+
+    from hea_bench.benchmark import load_benchmark
+    from hea_bench.corpus import DEFAULT_CORPUS_VERSION, build_corpus
+    from hea_bench.webapp import dataset_query
+
+    assert DEFAULT_CORPUS_VERSION == "0.2.0"
+    assert inspect.signature(load_corpus).parameters["version"].default == "0.2.0"
+    assert inspect.signature(dataset_query).parameters["version"].default == "0.2.0"
+    assert inspect.signature(load_benchmark).parameters["version"].default == "0.1.0"
+    with pytest.raises(ValueError, match="9.9.9"):
+        build_corpus("9.9.9")

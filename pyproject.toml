@@ -32,6 +32,8 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering :: Physics",
     "Topic :: Scientific/Engineering :: Chemistry",
 ]
@@ -48,16 +50,18 @@ dev = [
     # release gate on untouched code (it did, 2026-07-24). Bump the pin
     # deliberately, together with any new-rule cleanups.
     "ruff~=0.15.0",
+    # tests/test_installed_package.py builds the sdist and the wheel.
+    "build>=1.2",
 ]
-# The MCP agent surface (hea-bench-mcp) needs the official MCP SDK; the
-# calculator core itself stays dependency-free.
-# Floor 1.9.4: earlier releases carry CVE-2025-53366 (HIGH, unhandled
-# exception on a malformed request). Ceiling <2: mcp 2.0.0 deleted the
-# mcp.server.fastmcp module this server is built on, so an unbounded
-# floor silently resolves to a version where hea-bench-mcp cannot start.
-# Lifting the ceiling means porting build_server() to mcp.server.mcpserver.
+# The MCP server (hea-bench-mcp) has every feature of the package, so its
+# extra brings everything those features need: the official MCP SDK and
+# scikit-learn for the fitted models (phase sets, hardness, the benchmark
+# baselines, campaigns). The calculator core itself stays dependency-free.
+# The server is built on mcp 2 (mcp.server.mcpserver); 1.x lacks it and
+# a future 3.x may move it again, hence both bounds.
 mcp = [
-    "mcp>=1.9.4,<2",
+    "mcp>=2.3,<3",
+    "scikit-learn~=1.7.2",
 ]
 # The benchmark subpackage itself (splits, metrics, load_benchmark,
 # evaluate) is standard-library only, like the core. This extra is for
@@ -89,6 +93,12 @@ interop = [
 properties = [
     "scikit-learn~=1.7.2",
 ]
+# Everything a user can use, in one install: pip install "hea-bench[all]".
+# The HEACalculator interop stays separate (GPLv3, the user's choice).
+all = [
+    "mcp>=2.3,<3",
+    "scikit-learn~=1.7.2",
+]
 
 [project.scripts]
 hea-bench = "hea_bench.cli:main"
@@ -109,7 +119,9 @@ Archive = "https://doi.org/10.5281/zenodo.20346287"
 path = "src/hea_bench/__init__.py"
 
 # Restrict it to the Python package and its data, the tests, and the
-# project metadata. pyproject.toml is always included by hatchling.
+# project metadata. pyproject.toml is always included by hatchling. The
+# data files are the ones the wheel ships (below), because pip builds a
+# wheel from this sdist.
 [tool.hatch.build.targets.sdist]
 include = [
     "src/hea_bench",
@@ -119,6 +131,17 @@ include = [
     "CHANGELOG.md",
     "CITATION.cff",
     "llms.txt",
+    "docs/benchmark-baselines.json",
+    "data/raw/README.md",
+    "data/raw/borg2020/MPEA_dataset.csv",
+    "data/raw/borg2020/README.md",
+    "data/raw/pei2020/pei2020_alloys_phases.csv",
+    "data/raw/pei2020/README.md",
+    "data/raw/chizhevskiy2026/database_of_HEAs.csv",
+    "data/raw/chizhevskiy2026/README.md",
+    "data/raw/chizhevskiy2026/UPSTREAM_README.md",
+    "data/raw/peivaste/README.md",
+    "data/raw/peivaste/fetch.py",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -133,6 +156,25 @@ packages = ["src/hea_bench"]
 "src/hea_bench/descriptors/data/LICENSE.matminer.txt"    = "hea_bench/descriptors/data/LICENSE.matminer.txt"
 "src/hea_bench/oxides/data/oxide_elements.json"          = "hea_bench/oxides/data/oxide_elements.json"
 "src/hea_bench/oxides/data/LICENSE.pymatgen.txt"         = "hea_bench/oxides/data/LICENSE.pymatgen.txt"
+# Every feature must work from a plain pip install (four-surface parity,
+# hea-bench/CLAUDE.md), so the wheel carries the openly licensed source
+# datasets (CC BY 4.0, each with its README naming the authors), the
+# Peivaste download recipe and the published baseline table, under
+# hea_bench/_data, where hea_bench/_paths.py looks first. The Peivaste
+# CSV itself declares no license and is NEVER shipped: these are explicit
+# file lists, and tests/test_installed_package.py fails if it ever
+# appears in a built wheel or sdist.
+"docs/benchmark-baselines.json" = "hea_bench/_data/benchmark-baselines.json"
+"data/raw/README.md" = "hea_bench/_data/raw/README.md"
+"data/raw/borg2020/MPEA_dataset.csv" = "hea_bench/_data/raw/borg2020/MPEA_dataset.csv"
+"data/raw/borg2020/README.md" = "hea_bench/_data/raw/borg2020/README.md"
+"data/raw/pei2020/pei2020_alloys_phases.csv" = "hea_bench/_data/raw/pei2020/pei2020_alloys_phases.csv"
+"data/raw/pei2020/README.md" = "hea_bench/_data/raw/pei2020/README.md"
+"data/raw/chizhevskiy2026/database_of_HEAs.csv" = "hea_bench/_data/raw/chizhevskiy2026/database_of_HEAs.csv"
+"data/raw/chizhevskiy2026/README.md" = "hea_bench/_data/raw/chizhevskiy2026/README.md"
+"data/raw/chizhevskiy2026/UPSTREAM_README.md" = "hea_bench/_data/raw/chizhevskiy2026/UPSTREAM_README.md"
+"data/raw/peivaste/README.md" = "hea_bench/_data/raw/peivaste/README.md"
+"data/raw/peivaste/fetch.py" = "hea_bench/_data/raw/peivaste/fetch.py"
 
 [tool.ruff]
 line-length = 100

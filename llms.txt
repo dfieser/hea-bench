@@ -4,16 +4,20 @@
 > and high-entropy-oxide (HEO) thermodynamic and geometric descriptors
 > plus the canonical empirical phase-prediction rules. Every descriptor is a
 > transparent closed-form expression over a curated element-property
-> table — no fitted model, no black box. One calculation core ships as a
-> Python library, a zero-install browser app, and a native desktop app;
-> the browser core is parity-tested against the Python library.
+> table — no fitted model, no black box. It also carries a
+> provenance-tracked experimental phase corpus, a paired benchmark,
+> hardness and phase predictions with calibrated uncertainty, and
+> composition search. It ships as four parts, each with every feature:
+> a Python library, an MCP server, a zero-install web app and a desktop
+> app.
 
 `hea-bench` is composition-only and dependency-free in its core.
 Use it to (1) compute HEA descriptors as features for downstream
 models, (2) screen candidate alloys with the published empirical
-rules, or (3) compute high-entropy-oxide (HEO) formability
-descriptors via the `hea_bench.oxides` module. Currently shipping
-version 2.6.2 under MIT.
+rules, (3) compute high-entropy-oxide (HEO) and ceramic formability
+descriptors, or (4) browse the corpus, predict properties and phases,
+search compositions and run the benchmark. Currently shipping
+version 2.7.0 under MIT.
 
 ## For AI agents reading this first
 
@@ -90,24 +94,33 @@ Same closed-form philosophy, 94 vendored elements, parity-tested in
 the browser core, exposed as the Oxides mode in the apps. See
 AGENTS.md for examples.
 
-## Browser and desktop apps
+## The four parts
 
-An MCP server ships in the package: `pip install "hea-bench[mcp]"`,
-then `hea-bench-mcp` exposes seven deterministic tools
-(parse_composition, batch alloy_descriptors / alloy_rules,
-omega_sensitivity, oxide_report, element_coverage, about) with units,
-citation keys, and the library version stamped into every response.
-Agents should call these instead of reimplementing formulas.
+Every feature is in all four, so use whichever fits.
 
-A self-contained HTML calculator (`web/index.html`) computes the
-same descriptors and rules in client-side JavaScript with no install,
-and additionally shows the Miedema formation-enthalpy decompositions.
-Hosted at <https://dfieser.github.io/hea-bench/> (the page is the
-calculator; link `index.html#theory`, `#equations`, `#refs` directly);
-also wrapped as a single offline desktop executable via Tauri that loads
-the same page. The JS core is regression-checked against
+The MCP server: `pip install "hea-bench[mcp]"`, then `hea-bench-mcp`
+exposes 24 deterministic tools: parse_composition, batch
+alloy_descriptors (with the Miedema enthalpies) and alloy_rules,
+omega_sensitivity, oxide_report, ceramic_report, element_data,
+element_coverage, corpus_build, corpus_query, corpus_describe,
+corpus_export, measured_properties, predict_properties,
+predict_phase_set, check_applicability, design_search,
+campaign_suggest, benchmark_summary, benchmark_run, benchmark_folds,
+benchmark_score, coverage_study and about. Units, citation keys and the
+library version are stamped into every response. Agents should call
+these instead of reimplementing formulas.
+
+The Python library: `pip install "hea-bench[all]"` (the core alone has
+no dependencies; the extra adds scikit-learn and the MCP SDK).
+
+The web app at <https://dfieser.github.io/hea-bench/> runs entirely in
+the browser: the calculator (alloys, oxides, ceramics, predictions),
+the Dataset, Design and Benchmark tabs, and `#theory`, `#equations`,
+`#refs` deep links. Its JS calculator core is regression-checked against
 the Python library in CI (`tests/test_web_parity.py` and
-`tests/test_web_oxides_parity.py`).
+`tests/test_web_oxides_parity.py`), and the other tabs run this package
+itself in the page. The desktop app is the same app as one portable
+Windows exe.
 
 ## Reference papers
 
@@ -150,7 +163,7 @@ archived software record:
 @software{hea_bench,
   author  = {Fieser, David and Dewanjee, Unmanaa and Hu, Anming},
   title   = {hea-bench: An open calculator of high-entropy-alloy and high-entropy-oxide thermodynamic descriptors and empirical phase-prediction rules},
-  version = {2.6.2},
+  version = {2.7.0},
   license = {MIT},
   doi     = {10.5281/zenodo.20346287},
   url     = {https://github.com/dfieser/hea-bench},

@@ -966,6 +966,12 @@
         overflow-x: auto;
         background: var(--surface);
       }
+      /* Long tables below the fold: the browser lays them out only when
+         they scroll into view, so opening their tab stays one quick frame. */
+      .table-wrap--deferred {
+        content-visibility: auto;
+        contain-intrinsic-size: auto 1200px;
+      }
       table.data {
         width: 100%;
         border-collapse: collapse;
@@ -1803,7 +1809,7 @@
       .rail-resizer:focus-visible { outline: none; }
       body.is-resizing { cursor: col-resize; user-select: none; -webkit-user-select: none; }
     </style>
-    <link rel="stylesheet" href="hea-features.css?v=2.6.2">
+    <link rel="stylesheet" href="hea-features.css?v=2.7.0">
 
     <script>
       window.MathJax = {
@@ -2136,12 +2142,13 @@
         <div class="shell">
           <h2>Where it runs</h2>
           <p>
+            Every feature is in all four places below, so pick whichever suits you.
             The Python library is the reference implementation. The browser and the desktop app
             run a JavaScript port of it for the instant results, and the library itself, unchanged,
             for the dataset, benchmark, design and prediction features. Parity tests pin the port to
             the Python outputs over 1484 element pairs and a fixture set of published oxide values,
             and check that the in-page library returns what a normal Python install returns. The
-            agent server exposes the same calls to AI tools.
+            agent server exposes every feature to AI tools.
           </p>
           <div class="runs">
             <div class="runs__row">
@@ -2153,7 +2160,8 @@
             <div class="runs__row">
               <span class="runs__name"><a href="https://pypi.org/project/hea-bench/">Python library and CLI</a></span>
               <p class="runs__desc">Dependency-free, for scripting and batch screening. Install with
-                 <code>pip install hea-bench</code>. Each descriptor is a plain function.</p>
+                 <code>pip install hea-bench</code>, or <code>pip install "hea-bench[all]"</code> for
+                 the fitted models too. Each descriptor is a plain function.</p>
             </div>
             <div class="runs__row">
               <span class="runs__name"><a id="exe-download" href="https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench.exe">Windows app</a></span>
@@ -2167,8 +2175,9 @@
             </div>
             <div class="runs__row">
               <span class="runs__name"><a href="https://github.com/dfieser/hea-bench/blob/main/AGENTS.md">Agent server</a></span>
-              <p class="runs__desc">The calculator as deterministic tool calls over the Model Context
-                 Protocol. Install with <code>pip install "hea-bench[mcp]"</code>, run
+              <p class="runs__desc">Every feature as 24 deterministic tool calls over the Model Context
+                 Protocol, from the calculator to the benchmark. Install with
+                 <code>pip install "hea-bench[mcp]"</code>, run
                  <code>hea-bench-mcp</code>. Each value returns with its unit, citation key, and
                  library version, and
                  <a href="https://github.com/dfieser/hea-bench/blob/main/llms.txt">llms.txt</a>
@@ -4032,11 +4041,13 @@
 
           <h3 id="dataset-about"><span class="sec-num">01</span>What is in it</h3>
           <p>
-            Corpus v0.1.0 merges Borg et al. (2020), Pei et al. (2020) and Peivaste et al. (2023).
-            When sources disagree about an alloy's phase, the row keeps every label and is marked as
-            a conflict instead of being decided by a vote. Version 0.2.0 adds the Chizhevskiy et al.
-            (2026) database, whose labels were extracted from papers by a language model and agree
-            with the reference labels on about 70 percent of shared alloys, so it is opt-in.
+            The dataset opens on version 0.2.0, the largest. It merges Borg et al. (2020), Pei et
+            al. (2020), Peivaste et al. (2023) and the Chizhevskiy et al. (2026) database, whose
+            labels were extracted from papers by a language model and agree with the reference
+            labels on about 70 percent of shared alloys. Version 0.1.0 is the hand-curated reference
+            without that database, and every published benchmark number is measured on it. When
+            sources disagree about an alloy's phase, the row keeps every label and is marked as a
+            conflict instead of being decided by a vote.
           </p>
           <p class="small-note">
             The Peivaste dataset carries no license that permits redistribution, so this page
@@ -4046,8 +4057,8 @@
           <div class="feature-controls">
             <label for="dataset-version">Corpus version</label>
             <select id="dataset-version">
-              <option value="0.1.0">v0.1.0, reference (default)</option>
-              <option value="0.2.0">v0.2.0, adds Chizhevskiy 2026</option>
+              <option value="0.2.0" selected>v0.2.0, the largest (default)</option>
+              <option value="0.1.0">v0.1.0, the reference the benchmark uses</option>
             </select>
           </div>
           <div id="dataset-summary"></div>
@@ -4126,7 +4137,7 @@
             <button type="button" class="secondary" id="measured-download">Download (CSV)</button>
           </form>
           <div id="measured-summary"></div>
-          <div class="table-wrap">
+          <div class="table-wrap table-wrap--deferred">
             <table class="data feature-table" id="measured-table">
               <thead id="measured-thead"></thead>
               <tbody id="measured-tbody"></tbody>
@@ -4769,9 +4780,9 @@
       </footer>
     </div>
 
-    <script src="hea-calculator-core.js?v=2.6.2"></script>
+    <script src="hea-calculator-core.js?v=2.7.0"></script>
     <script>
-      const VERSION = "2.6.2";
+      const VERSION = "2.7.0";
       const VERSION_DATE = "2026-10-06";
       const VERSION_HISTORY = [
         { version: "2.6.2", date: "2026-10-06", notes: "Test every tab in a real browser; fix stale results; drop dead weight" },
@@ -5815,9 +5826,9 @@
         "elemental.py": "2843ff4d573b43f54d91f234695c3df57c4392f6ceca64deff4f2da95014b61c",
         "pair_enthalpies.tsv": "5b461ab99d7605fb8b306bda9cfe047b266ffa3e67387cb4b0ffeccaf57a5f48",
         "miedema_parameters.csv": "ef6e1dccc347628a52725b13752c9c311c522b463a08e46f87febfbd379202a3",
-        "provenance.py": "f498d7822c2507dd72fd43f2722317d3e35aa4bd46090234a94b7f161c48c063"
+        "provenance.py": "14f918996f9feb49cdbb56dd115f2faea0ecb78effee633c35e01b1cd88220cd"
       };
-      const DATA_TABLES_SHORT_SHA = "a2717cfa";
+      const DATA_TABLES_SHORT_SHA = "41904597";
       // END GENERATED: PROVENANCE_TABLES
 
       // The Miedema SS/amorphous/compound decomposition lives in the
@@ -8849,7 +8860,7 @@
         openFromHash();
       })();
     </script>
-    <script src="hea-engine.js?v=2.6.2"></script>
-    <script src="hea-features.js?v=2.6.2"></script>
+    <script src="hea-engine.js?v=2.7.0"></script>
+    <script src="hea-features.js?v=2.7.0"></script>
 
 </body></html>

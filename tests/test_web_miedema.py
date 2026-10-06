@@ -151,3 +151,46 @@ def test_uncovered_element_degrades_with_warning_not_silence(node_snapshot) -> N
     warning = result["warnings"][0]
     assert "2 element pairs lack Miedema parameters" in warning
     assert "Bi–Co" in warning and "Bi–Ni" in warning
+
+
+#: The snapshot's compositions, for the Python implementation.
+PYTHON_CASES = {
+    "cantor": {"Co": 0.2, "Cr": 0.2, "Fe": 0.2, "Mn": 0.2, "Ni": 0.2},
+    "al_cocrfeni": {"Al": 0.2, "Co": 0.2, "Cr": 0.2, "Fe": 0.2, "Ni": 0.2},
+    "cu_zr": {"Cu": 0.5, "Zr": 0.5},
+    "ti_al": {"Ti": 0.5, "Al": 0.5},
+    "ni_si": {"Ni": 0.75, "Si": 0.25},
+    "refractory": {"Hf": 0.2, "Nb": 0.2, "Ta": 0.2, "Ti": 0.2, "Zr": 0.2},
+}
+_PY_SECTION = {"compound": "compound", "solidSolution": "solid_solution", "amorphous": "amorphous"}
+
+
+def test_python_decomposition_matches_the_same_pinned_values() -> None:
+    """Four-surface parity: the library, and so the MCP server, compute what the app shows."""
+    from hea_bench.descriptors.miedema_decomposition import (
+        MIEDEMA_CLASSES,
+        miedema_decomposition,
+        pair_details,
+    )
+
+    assert len(MIEDEMA_CLASSES) == EXPECTED_TABLE_SIZE
+    for case, sections in EXPECTED.items():
+        actual = miedema_decomposition(PYTHON_CASES[case])
+        assert actual["warnings"] == [], f"{case}: unexpected warnings"
+        for section, fields in sections.items():
+            for field, expected in fields.items():
+                _assert_close(expected, actual[_PY_SECTION[section]][field], f"python {case}.{section}.{field}")
+    details = pair_details("Cu", "Zr")
+    assert details["pairType"] == "TM-TM"
+    for field, expected in EXPECTED_CU_ZR_DETAILS.items():
+        _assert_close(expected, details[field], f"python cu_zr_details.{field}")
+
+
+def test_python_decomposition_degrades_like_the_app() -> None:
+    from hea_bench.descriptors.miedema_decomposition import miedema_decomposition
+
+    result = miedema_decomposition({"Bi": 0.2, "Co": 0.4, "Ni": 0.4})
+    assert result["compound"] is None and result["solid_solution"] is None and result["amorphous"] is None
+    assert len(result["warnings"]) == 1
+    assert "2 element pairs lack Miedema parameters" in result["warnings"][0]
+    assert "Bi–Co" in result["warnings"][0] and "Bi–Ni" in result["warnings"][0]

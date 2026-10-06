@@ -1,8 +1,11 @@
-# Keep the build context small. The wheel needs only src/hea_bench,
-# README.md, LICENSE, and pyproject.toml; everything below is either a
-# build cache or a surface the MCP server does not use. src-tauri alone
-# is ~1.5 GB of Rust artifacts, which would otherwise be uploaded to the
-# daemon on every build.
+# Keep the build context small. The wheel needs src/hea_bench, README.md,
+# LICENSE, pyproject.toml and the data files it bundles (the openly
+# licensed source datasets under data/raw and docs/benchmark-baselines.json,
+# see force-include in pyproject.toml); everything else is a build cache or
+# a part the MCP server does not use. src-tauri alone is ~1.5 GB of Rust
+# artifacts, which would otherwise be uploaded to the daemon on every
+# build. The Peivaste CSV declares no license and must never enter an
+# image. tools/preflight.py checks all of this.
 .git
 .github
 src-tauri
@@ -10,7 +13,10 @@ dist
 web
 manuscript
 docs
+!docs/benchmark-baselines.json
 data
+!data/raw
+data/raw/peivaste/*.csv
 examples
 tools
 *.exe

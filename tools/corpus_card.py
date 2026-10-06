@@ -167,12 +167,14 @@ def main() -> int:
         "## Versions and roles",
         "",
         "- **v0.1.0 is the reference corpus**: three hand-curated sources, and "
-        "the corpus every published baseline number is measured on. It stays "
-        "the default and the recommended evaluation target.",
+        "the corpus every published baseline number is measured on. The "
+        "benchmark (`load_benchmark`), the phase predictions and the domain "
+        "flag always use it, and it is the recommended evaluation target.",
         "- **v0.2.0 is the extended corpus**: the same recipe plus the "
-        "Chizhevskiy LLM-extracted database. Larger and noisier, opt-in via "
-        "`load_corpus(version=\"0.2.0\")` or "
-        "`load_benchmark(version=\"0.2.0\")`.",
+        "Chizhevskiy LLM-extracted database. Larger and noisier. It is what "
+        "`load_corpus()` and the apps' Dataset tab open by default, for "
+        "browsing and download, and `load_benchmark(version=\"0.2.0\")` "
+        "opts the benchmark into it.",
         "- The corpus version counter (v0.x) is independent of the package "
         "version (2.x). A corpus release is frozen forever: its rows, digests, "
         "and statistics never change, and adding data means a new version.",
@@ -184,12 +186,18 @@ def main() -> int:
         "the package ships the recipe rather than the data: loaders, "
         "consolidation rules, pinned SHA-256 hashes of the exact upstream "
         "bytes, and the split algorithm. The build refuses to produce a "
-        "partial corpus when a source is missing. Build commands:",
+        "partial corpus when a source is missing. One call downloads the "
+        "Peivaste file, checks its hash and builds every version, from a pip "
+        "install or a repository checkout:",
         "",
-        "```bash",
-        "python data/raw/peivaste/fetch.py",
-        "python -m hea_bench.benchmark.consolidate",
+        "```python",
+        "from hea_bench.corpus import build_corpus",
+        "build_corpus()",
         "```",
+        "",
+        "The MCP server's `corpus_build` tool and the apps do the same. In a "
+        "repository checkout, `python data/raw/peivaste/fetch.py` then "
+        "`python -m hea_bench.benchmark.consolidate` is equivalent.",
         "",
         "## Sources, licenses, provenance chains",
         "",

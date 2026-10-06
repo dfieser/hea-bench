@@ -13,6 +13,7 @@ import pathlib
 import pytest
 
 from hea_bench import webapp
+from hea_bench._json import strict_json
 
 _DATA_DIR = pathlib.Path(__file__).resolve().parents[1] / "data" / "consolidated"
 needs_corpus = pytest.mark.skipif(
@@ -40,7 +41,7 @@ def test_bad_composition_error_names_the_fix() -> None:
 
 
 def test_non_finite_floats_become_null() -> None:
-    assert webapp._clean({"a": (math.inf, 1.0), "b": math.nan}) == {"a": [None, 1.0], "b": None}
+    assert strict_json({"a": (math.inf, 1.0), "b": math.nan}) == {"a": [None, 1.0], "b": None}
 
 
 def test_one_unavailable_property_does_not_hide_the_others() -> None:
@@ -188,4 +189,50 @@ def test_every_method_is_registered() -> None:
         "dataset_describe", "dataset_csv", "measured_properties", "properties", "applicability",
         "phase_prediction", "search", "campaign_suggest", "benchmark_summary",
         "benchmark_run", "benchmark_folds_csv", "benchmark_score", "coverage",
+        "warm_next", "warm",
     }
+
+
+@needs_corpus
+def test_background_preparation_runs_every_step_once(monkeypatch, tmp_path) -> None:
+    pytest.importorskip("sklearn")
+    from hea_bench.properties import hardness
+
+    monkeypatch.setenv("HEA_BENCH_MODEL_CACHE", str(tmp_path))
+    # Fits earlier tests left in memory would skip the disk cache.
+    webapp._clear_caches()
+    hardness._fitted.cache_clear()
+    steps = []
+    while (step := _call("warm_next")["result"]) is not None:
+        assert _call("warm", step=step)["ok"] is True
+        steps.append(step)
+    assert len(steps) == len(set(steps))
+    assert {"hardness", "phase:single_vs_multi", "phase:phase4"} <= set(steps)
+    # The fitted models are on disk for the next visit.
+    names = {path.name.split("-")[0] for path in tmp_path.glob("*.pickle.gz")}
+    assert {"phase", "hardness", "domain"} <= names
+    unknown = _call("warm", step="nonsense")
+    assert unknown["ok"] is False
+
+
+def test_model_cache_round_trips_and_isolates_custom_data(monkeypatch, tmp_path) -> None:
+    pytest.importorskip("sklearn")
+    import hea_bench as hb
+    from hea_bench import _model_cache, _overrides
+
+    seen = []
+
+    def fit():
+        seen.append(_overrides.PAIRS.get())
+        return {"fitted": len(seen)}
+
+    monkeypatch.setenv("HEA_BENCH_MODEL_CACHE", str(tmp_path))
+    with hb.custom_data(pair_enthalpies={"Co-Cr": -20.0}):
+        assert _model_cache.cached("probe", fit) == {"fitted": 1}
+    assert seen == [None]  # the fit never saw the caller's pair values
+    assert _model_cache.cached("probe", fit) == {"fitted": 1}  # loaded, not refit
+    (stored,) = tmp_path.glob("probe-*.pickle.gz")
+    stored.write_bytes(b"torn")
+    assert _model_cache.cached("probe", fit) == {"fitted": 2}  # a bad file is refit
+    monkeypatch.delenv("HEA_BENCH_MODEL_CACHE")
+    assert _model_cache.cached("probe", fit) == {"fitted": 3}

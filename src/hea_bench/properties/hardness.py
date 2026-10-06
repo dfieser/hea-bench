@@ -56,8 +56,14 @@ def _require_random_forest():
 
 @lru_cache(maxsize=8)
 def _fitted(processing: str | None):
-    """Fit (model, conformal, domain, n) for one processing filter."""
+    """(model, conformal, domain, n), fitted once per processing filter."""
+    from .._model_cache import cached
+
     random_forest_cls = _require_random_forest()
+    return cached(f"hardness-{processing or 'pooled'}", lambda: _fit(processing, random_forest_cls))
+
+
+def _fit(processing: str | None, random_forest_cls):
 
     records = [
         record

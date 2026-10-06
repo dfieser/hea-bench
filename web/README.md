@@ -6,13 +6,17 @@ leave the user's machine. This folder is the site root of
 frontend the desktop `.exe` embeds (`src-tauri/`), so the website and the
 desktop app are the same app.
 
-**Every user-facing library feature must appear and work here** (owner
-rule, see `../CLAUDE.md`). `tests/test_app_parity.py` enforces it: every
-public library name, MCP tool, phase rule and CLI command is mapped in
-`tests/data/app_parity.json` to the app elements, engine calls and tests
-that prove it works, and CI fails on any name without one. Then
-`tests/test_app_smoke.py` opens the built site in headless Chrome or Edge
-and uses every tab the way a person does, before every release.
+**Every user-facing feature must appear and work here, and in the
+library, the MCP server and the desktop exe too** (owner rule, see
+`../CLAUDE.md`), so a person only ever needs one of the four.
+`tests/test_feature_parity.py` enforces it: every public library name,
+MCP tool, phase rule and CLI command is mapped in
+`tests/data/feature_parity.json` to its feature, and CI fails on any
+feature without a library name, an MCP tool, app evidence (elements,
+engine calls) and tests. Then `tests/test_app_smoke.py` opens the built
+site in headless Chrome or Edge and uses every tab the way a person
+does, and `tests/test_desktop_smoke.py` runs the same steps inside the
+built exe before it is attached to a release.
 
 ## How to open it
 
@@ -71,7 +75,7 @@ and uses every tab the way a person does, before every release.
 ## web/engine/ (gitignored, built at deploy time)
 
 `python tools/build_web_engine.py` writes `web/engine/`: the pinned
-Pyodide 0.29.3 runtime with the numpy, scipy and scikit-learn wheels
+Pyodide 0.29.5 runtime with the numpy, scipy and scikit-learn wheels
 (every file SHA-256 pinned in the script), `hea-bench.zip` (the package
 source, the shipped raw data and the published baselines, built
 deterministically from tracked files) and `manifest.json`. It is never
@@ -91,12 +95,13 @@ old scripts. Do not edit those query strings by hand.
 
 1. Library change that users should see: build its surface here, add the
    bridge method to `hea_bench.webapp` if it needs Python, add the call to
-   `tests/data/web_engine_calls.json`, map the public names in
-   `tests/data/app_parity.json`, and, if it uses the engine, add a step to
-   `STEPS` in `tests/app_smoke.cjs` that uses it through its UI.
-   `pytest tests/test_app_parity.py tests/test_app_smoke.py` names
+   `tests/data/web_engine_calls.json`, add its MCP tool (the steps are in
+   `../CLAUDE.md`), map the public names in
+   `tests/data/feature_parity.json`, and, if it uses the engine, add a
+   step to `STEPS` in `tests/app_smoke.cjs` that uses it through its UI.
+   `pytest tests/test_feature_parity.py tests/test_app_smoke.py` names
    anything missing and the exact fix.
 2. Descriptor, rule, oxide, ceramics or tier A change: update
    `hea-calculator-core.js` and run the parity suites listed above.
-3. Page-only UI work: edit `index.html` (keep its CRLF line endings) or
+3. Page-only UI work: edit `index.html` or
    `hea-features.js` / `hea-features.css`.

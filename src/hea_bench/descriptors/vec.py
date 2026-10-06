@@ -23,7 +23,7 @@ Formation of solid-solution phase or amorphous phase.
 from __future__ import annotations
 
 from ..composition import Composition
-from .data.elemental import ELEMENTAL_DATA, missing_elements
+from ._tables import element, missing_elements
 
 
 def vec(composition: Composition) -> float:
@@ -50,7 +50,7 @@ def vec(composition: Composition) -> float:
         raise ValueError("composition values must sum to a positive number")
 
     return sum(
-        (amount / total) * ELEMENTAL_DATA[el].valence
+        (amount / total) * element(el).valence
         for el, amount in composition.items()
         if amount > 0
     )

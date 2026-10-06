@@ -10,6 +10,71 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Added
+
+- **Every feature is now in all four parts**: the Python package, the
+  MCP server, the website and the desktop app. A person only needs to
+  pick one of them. This is a standing project rule from now on, and CI
+  enforces it (see the last item below).
+- **The MCP server has every feature of the package: 24 tools, up from
+  13.** New tools: `ceramic_report`, `element_data`, `corpus_build`,
+  `corpus_export`, `measured_properties`, `predict_phase_set`,
+  `benchmark_summary`, `benchmark_run`, `benchmark_folds`,
+  `benchmark_score` and `coverage_study`. `alloy_descriptors` now
+  returns the Miedema formation enthalpies, and `alloy_descriptors`,
+  `alloy_rules` and `omega_sensitivity` accept custom elements and pair
+  enthalpies. `campaign_suggest` also accepts a campaign inline. The
+  server moves to the official MCP Python SDK 2.x (`mcp>=2.3,<3`), and
+  the `mcp` extra now includes scikit-learn, so hardness, phase sets and
+  campaigns work from a registry install.
+- **The dataset works from a plain pip install.** The wheel ships the
+  openly licensed source datasets, and `hea_bench.corpus.build_corpus()`
+  downloads the one file that declares no license (Peivaste), checks its
+  SHA-256 and builds every corpus version in a per-user folder. The MCP
+  `corpus_build` tool does the same.
+- **Library functions for what only the apps had:**
+  `hea_bench.custom_data()` (your own elements and pair enthalpies, for
+  any descriptor or rule), `hea_bench.omega_sensitivity()`,
+  `hea_bench.descriptors.miedema_decomposition` and
+  `hea_bench.descriptors.elements.element_data()`.
+- `pip install "hea-bench[all]"` installs everything. Python 3.13 and
+  3.14 are now tested and declared.
+- New checks that keep the four parts equal.
+  `tests/test_feature_parity.py` (formerly `test_app_parity.py`) fails CI
+  unless every feature has its library function, its MCP tool, a working
+  app surface and tests. The CI `package` job builds the wheel, installs
+  it fresh and calls every MCP tool over stdio
+  (`tests/test_installed_package.py`, also run by the pre-push
+  preflight). The release `desktop-build` job uses every tab inside the
+  built exe before attaching it (`tests/test_desktop_smoke.py`). The
+  preflight also checks that the MCP container image receives every file
+  the wheel bundles.
+
+### Changed
+
+- **The app is much smoother.** It keeps its fitted models (hardness,
+  phase sets, the dataset check) in the browser between visits, so a
+  returning visitor gets predictions about a second after the engine
+  starts instead of waiting about 18 seconds for refits. The engine
+  prepares models in the background while the page is idle, starts by
+  itself for returning visitors, and long tables no longer stall tab
+  switches.
+- **The dataset opens on corpus v0.2.0, the largest (10,290 alloys)**,
+  in `load_corpus()`, the app's Dataset tab and the MCP corpus tools.
+  The benchmark, the phase predictions and the domain flag stay on the
+  reference corpus v0.1.0, so every published number is unchanged.
+- The in-app engine runs Pyodide 0.29.5 (was 0.29.3), the desktop app
+  uses Tauri 2.12.1 (was 2.11.2) without the unused logging plugin, the
+  MCP container image uses Python 3.13, and every GitHub Action is on
+  its current major version.
+
+### Fixed
+
+- The data-file fingerprints the app shows now match the ones the
+  library reports on every platform. They were computed from a Windows
+  checkout's line endings; they now use the bytes git stores. The data
+  itself is unchanged.
+
 ## [2.6.2] — 2026-10-06
 
 ### Added

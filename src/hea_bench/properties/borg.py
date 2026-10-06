@@ -27,6 +27,7 @@ import statistics
 from dataclasses import dataclass
 from functools import lru_cache
 
+from .. import _paths
 from ..benchmark.loaders.borg2020 import (
     _COL_DOI,
     _COL_FORMULA,
@@ -35,8 +36,7 @@ from ..benchmark.loaders.borg2020 import (
 )
 from ..composition import Composition, parse_formula
 
-_REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
-_DEFAULT_CSV = _REPO_ROOT / "data" / "raw" / "borg2020" / "MPEA_dataset.csv"
+_DEFAULT_CSV = _paths.raw_dir() / "borg2020" / "MPEA_dataset.csv"
 
 # Property-tier columns this module adds to the phase loader's shared
 # Borg header constants imported above (verbatim upstream headers,

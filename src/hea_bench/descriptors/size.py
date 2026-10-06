@@ -22,7 +22,7 @@ from __future__ import annotations
 import math
 
 from ..composition import Composition
-from .data.elemental import ELEMENTAL_DATA, missing_elements
+from ._tables import element, missing_elements
 
 
 def delta(composition: Composition) -> float:
@@ -69,12 +69,12 @@ def delta(composition: Composition) -> float:
         raise ValueError("composition values must sum to a positive number")
     norm = {el: amount / total for el, amount in composition.items() if amount > 0}
 
-    r_bar = sum(c * ELEMENTAL_DATA[el].radius_pm for el, c in norm.items())
+    r_bar = sum(c * element(el).radius_pm for el, c in norm.items())
     if r_bar <= 0:
         raise ValueError("mean atomic radius is zero or negative")
 
     inner = sum(
-        c * (1.0 - ELEMENTAL_DATA[el].radius_pm / r_bar) ** 2
+        c * (1.0 - element(el).radius_pm / r_bar) ** 2
         for el, c in norm.items()
     )
     return 100.0 * math.sqrt(max(inner, 0.0))

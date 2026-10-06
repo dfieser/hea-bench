@@ -126,7 +126,10 @@ def property_sources_js() -> dict:
 def data_file_shas() -> dict:
     out = {}
     for name in _DATA_FILES:
-        digest = hashlib.sha256((DATA_DIR / name).read_bytes()).hexdigest()
+        # Hashed with LF line endings, the bytes git stores and every
+        # published copy carries, so a Windows checkout (CRLF) produces the
+        # same fingerprint as CI, the wheel and GitHub.
+        digest = hashlib.sha256((DATA_DIR / name).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
         out[name] = digest
     return out
 

@@ -26,7 +26,7 @@ from __future__ import annotations
 import math
 
 from ..composition import Composition
-from .data.elemental import ELEMENTAL_DATA, missing_elements
+from ._tables import element, missing_elements
 
 
 def _omega(r_center: float, r_bar: float) -> float:
@@ -54,5 +54,5 @@ def wang_gamma(composition: Composition) -> float:
             f"composition contains elements not in elemental data table: "
             f"{sorted(missing)}"
         )
-    radii = {el: ELEMENTAL_DATA[el].radius_pm for el in composition}
+    radii = {el: element(el).radius_pm for el in composition}
     return _gamma_from_radii(dict(composition), radii)

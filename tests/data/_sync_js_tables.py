@@ -25,57 +25,17 @@ from hea_bench.descriptors.data.elemental import ELEMENTAL_DATA
 from hea_bench.descriptors.data.mechanics import mechanics
 from hea_bench.descriptors.data.pair_enthalpies import missing_pairs, pair_enthalpy
 from hea_bench.properties.data.atomic_masses import ATOMIC_MASS_G_MOL
+from hea_bench.descriptors.miedema_decomposition import MIEDEMA_CLASSES
 from hea_bench.properties.data.element_prices import PRICE_ASOF, PRICES_USD_PER_KG
 
 REPO = pathlib.Path(__file__).resolve().parents[2]
 CORE = REPO / "web" / "hea-calculator-core.js"
 MIEDEMA_CSV = REPO / "src" / "hea_bench" / "descriptors" / "data" / "miedema_parameters.csv"
 
-#: The two qualitative fields the vendored CSV does not carry, per element:
-#: the Miedema class (TM/NTM — picks the P constant and whether the
-#: hybridization R term applies) and the equilibrium crystal structure
-#: (CRC Handbook — picks the reference lattice-stability energy for the
-#: structural term). The keys of this map also define which elements get a
-#: Miedema-decomposition row; everything quantitative comes from the CSV.
-MIEDEMA_CLASSES = {
-    "Ag": ("TM", "fcc"),
-    "Al": ("NTM", "fcc"),
-    "Au": ("TM", "fcc"),
-    "Be": ("NTM", "hcp"),
-    "Ca": ("NTM", "fcc"),
-    "Ce": ("TM", "fcc"),
-    "Co": ("TM", "hcp"),
-    "Cr": ("TM", "bcc"),
-    "Cu": ("TM", "fcc"),
-    "Fe": ("TM", "bcc"),
-    "Gd": ("TM", "hcp"),
-    "Hf": ("TM", "hcp"),
-    "In": ("NTM", "fcc"),
-    "Ir": ("TM", "fcc"),
-    "La": ("TM", "hcp"),
-    "Li": ("NTM", "bcc"),
-    "Mg": ("NTM", "hcp"),
-    "Mn": ("TM", "bcc"),
-    "Mo": ("TM", "bcc"),
-    "Nb": ("TM", "bcc"),
-    "Ni": ("TM", "fcc"),
-    "Os": ("TM", "hcp"),
-    "Pd": ("TM", "fcc"),
-    "Pt": ("TM", "fcc"),
-    "Re": ("TM", "hcp"),
-    "Rh": ("TM", "fcc"),
-    "Ru": ("TM", "hcp"),
-    "Sc": ("TM", "hcp"),
-    "Si": ("NTM", "fcc"),
-    "Sn": ("NTM", "bcc"),
-    "Ta": ("TM", "bcc"),
-    "Ti": ("TM", "hcp"),
-    "V": ("TM", "bcc"),
-    "W": ("TM", "bcc"),
-    "Y": ("TM", "hcp"),
-    "Zn": ("NTM", "hcp"),
-    "Zr": ("TM", "hcp"),
-}
+#: The curated Miedema class and structure per element live in the
+#: library (hea_bench.descriptors.miedema_decomposition), which computes
+#: the same decomposition in Python; this script copies them into the
+#: browser core so the two implementations share one table.
 
 
 def _num(value: float | int) -> str:

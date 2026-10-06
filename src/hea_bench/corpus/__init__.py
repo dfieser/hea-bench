@@ -15,13 +15,19 @@ is a thin wrapper that filters to consensus-labelled rows, projects a
 task, and attaches the frozen splits; its outputs and digests are
 unchanged by this module's existence.
 
-The corpus itself is built locally rather than shipped, because its
-largest source dataset declares no license and a derived corpus
-inherits the restrictions of everything it is built from. Build it
-once from a repository checkout::
+The corpus itself is built on your machine rather than shipped, because
+its largest source dataset declares no license and a derived corpus
+inherits the restrictions of everything it is built from. Every other
+source ships with the package. Build it once::
 
-    python data/raw/peivaste/fetch.py
-    python -m hea_bench.benchmark.consolidate
+    import hea_bench.corpus
+    hea_bench.corpus.build_corpus()
+
+which builds every version, downloads the Peivaste file from its upstream repository (6.4 MB),
+accepts it only if its SHA-256 matches the pinned value every published
+number was computed from, and builds the corpus where :func:`load_corpus`
+reads it. From a repository checkout, ``python data/raw/peivaste/fetch.py``
+then ``python -m hea_bench.benchmark.consolidate`` does the same.
 
 ``HEA_BENCH_BENCHMARK_DIR`` points loads at a corpus directory
 elsewhere, exactly as it does for ``load_benchmark``.
@@ -30,16 +36,23 @@ elsewhere, exactly as it does for ``load_benchmark``.
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import os
 import pathlib
+import tempfile
+import urllib.request
 from collections import Counter
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass, field, replace
 
+from .. import _paths
 from ..composition import Composition, family_of, parse_formula
 
-DEFAULT_CORPUS_VERSION = "0.1.0"
+#: The version :func:`load_corpus` and the dataset browsers open by default:
+#: the largest. The benchmark and the predictions stay on the reference
+#: corpus "0.1.0" (``hea_bench.benchmark.corpus.DEFAULT_CORPUS_VERSION``).
+DEFAULT_CORPUS_VERSION = "0.2.0"
 
 #: Source name -> short CSV column prefix. The consolidated CSV schema
 #: derives its per-source label columns from this table (the build in
@@ -51,7 +64,6 @@ SOURCE_COLUMN_PREFIX = {
     "chizhevskiy2026": "chizhevskiy",
 }
 
-_REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 _ENV_VAR = "HEA_BENCH_BENCHMARK_DIR"
 
 
@@ -60,26 +72,111 @@ def corpus_location(version: str, corpus_dir: pathlib.Path | None = None) -> pat
 
     Explicit ``corpus_dir`` wins, then the ``HEA_BENCH_BENCHMARK_DIR``
     environment variable (with ``v<version>`` appended), then the
-    repository-relative default ``data/consolidated/v<version>``.
+    default: ``data/consolidated/v<version>`` in a repository checkout,
+    and ``consolidated/v<version>`` in the per-user hea-bench folder for
+    an installed package (``%LOCALAPPDATA%\\hea-bench`` on Windows,
+    ``~/.local/share/hea-bench`` on Linux and
+    ``~/Library/Application Support/hea-bench`` on macOS).
     """
     if corpus_dir is not None:
         return pathlib.Path(corpus_dir)
     override = os.environ.get(_ENV_VAR)
     if override:
         return pathlib.Path(override) / f"v{version}"
-    return _REPO_ROOT / "data" / "consolidated" / f"v{version}"
+    return _paths.consolidated_dir() / f"v{version}"
 
 
 def missing_corpus_error(path: pathlib.Path) -> FileNotFoundError:
     """The corpus is not shipped; the error must say how to build it."""
     return FileNotFoundError(
-        f"benchmark corpus not found at {path}.\n"
-        f"The corpus is built locally rather than shipped, because its largest "
-        f"source dataset is not licensed for redistribution. Build it with:\n"
-        f"    python data/raw/peivaste/fetch.py\n"
-        f"    python -m hea_bench.benchmark.consolidate\n"
+        f"the corpus is not built yet (looked for {path}).\n"
+        f"It is built on your machine rather than shipped, because its largest "
+        f"source dataset is not licensed for redistribution. Build it once with:\n"
+        f'    python -c "import hea_bench.corpus; hea_bench.corpus.build_corpus()"\n'
+        f"which downloads that one file (6.4 MB) and checks its SHA-256. "
         f"Set {_ENV_VAR} to point at a corpus directory elsewhere."
     )
+
+
+def install_peivaste(
+    source: str | os.PathLike | None = None, *, download: bool = True
+) -> pathlib.Path:
+    """Put the verified Peivaste file where the corpus build reads it.
+
+    ``source`` is a copy you already have. Without one, a file already in
+    place is checked, and otherwise the file is downloaded from its
+    upstream repository when ``download`` is true. Bytes whose SHA-256
+    differs from the pinned value are refused, so the corpus can only be
+    rebuilt from the exact file every published number was computed from.
+    Returns the path of the installed file.
+    """
+    recipe = _paths.peivaste_recipe()
+    target = _paths.peivaste_csv()
+    if source is not None:
+        data = pathlib.Path(source).read_bytes()
+    elif target.exists():
+        data = target.read_bytes()
+    elif download:
+        try:
+            with urllib.request.urlopen(recipe["UPSTREAM_URL"], timeout=120) as response:
+                data = response.read()
+        except OSError as error:
+            raise OSError(
+                f"could not download the Peivaste file from {recipe['UPSTREAM_URL']} "
+                f"({error}). Download it yourself, then pass its path: "
+                f"build_corpus(peivaste_csv=...)"
+            ) from None
+    else:
+        raise FileNotFoundError(
+            f"the Peivaste file is not at {target}. Pass a copy you have, or allow the download."
+        )
+    digest = hashlib.sha256(data).hexdigest()
+    if digest != recipe["EXPECTED_SHA256"]:
+        raise ValueError(
+            f"the Peivaste file has SHA-256 {digest}, not the pinned "
+            f"{recipe['EXPECTED_SHA256']}. The upstream file changed, so the frozen corpus "
+            f"cannot be rebuilt from it; please report this at "
+            f"https://github.com/dfieser/hea-bench/issues"
+        )
+    if not target.exists() or target.read_bytes() != data:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile(dir=target.parent, delete=False) as handle:
+            handle.write(data)
+        os.replace(handle.name, target)
+    return target
+
+
+def build_corpus(
+    *versions: str,
+    peivaste_csv: str | os.PathLike | None = None,
+    download: bool = True,
+) -> dict:
+    """Build corpus versions where :func:`load_corpus` and the benchmark read them.
+
+    With no arguments every version is built (``"0.1.0"``, the reference
+    the benchmark and the predictions use, and ``"0.2.0"``, the larger
+    default of :func:`load_corpus`). Every source but one ships with the
+    package. The Peivaste dataset declares no license, so it is
+    downloaded from its upstream repository the first time (6.4 MB), or
+    copied from ``peivaste_csv`` when you already have it, and accepted
+    only if its SHA-256 matches the pinned value (see
+    :func:`install_peivaste`). The build is deterministic: a rebuild
+    reproduces the frozen corpus every published number uses. Returns
+    ``{version: build manifest with "location" added}``.
+    """
+    from ..benchmark.consolidate import SOURCES_BY_VERSION, build
+
+    unknown = sorted(set(versions) - set(SOURCES_BY_VERSION))
+    if unknown:
+        raise ValueError(
+            f"unknown corpus version(s) {unknown}; expected some of {sorted(SOURCES_BY_VERSION)}"
+        )
+    install_peivaste(peivaste_csv, download=download)
+    built = {}
+    for version in versions or sorted(SOURCES_BY_VERSION):
+        location = corpus_location(version)
+        built[version] = {**build(version, out_dir=location), "location": str(location)}
+    return built
 
 
 @dataclass(frozen=True)
@@ -360,12 +457,13 @@ def load_corpus(
     Parameters
     ----------
     version
-        Corpus version directory to read. ``"0.1.0"`` (default) is the
-        reference corpus every published number is measured on;
-        ``"0.2.0"`` adds the Chizhevskiy LLM-extracted database and is
-        opt-in because its labels are measurably noisier (about 70
-        percent agreement with the reference consensus on overlaps,
-        every disagreement quarantined as a conflict).
+        Corpus version directory to read. ``"0.2.0"`` (default) is the
+        largest: it adds the Chizhevskiy LLM-extracted database, whose
+        labels are measurably noisier (about 70 percent agreement with
+        the reference consensus on overlaps, every disagreement
+        quarantined as a conflict). ``"0.1.0"`` is the hand-curated
+        reference corpus every published number is measured on, and the
+        one the benchmark and the predictions use.
     corpus_dir
         Directory holding ``consolidated.csv``, overriding both the
         environment variable and the repository-relative default.
@@ -410,7 +508,9 @@ __all__ = [
     "SOURCE_COLUMN_PREFIX",
     "Corpus",
     "CorpusRow",
+    "build_corpus",
     "corpus_location",
+    "install_peivaste",
     "load_corpus",
     "missing_corpus_error",
 ]

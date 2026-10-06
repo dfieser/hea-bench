@@ -16,7 +16,7 @@ Physics* **132**, 233-238.
 from __future__ import annotations
 
 from ..composition import Composition
-from .data.elemental import ELEMENTAL_DATA, missing_elements
+from ._tables import element, missing_elements
 
 
 def melting_temperature(composition: Composition) -> float:
@@ -41,7 +41,7 @@ def melting_temperature(composition: Composition) -> float:
         raise ValueError("composition values must sum to a positive number")
 
     return sum(
-        (amount / total) * ELEMENTAL_DATA[el].melting_K
+        (amount / total) * element(el).melting_K
         for el, amount in composition.items()
         if amount > 0
     )

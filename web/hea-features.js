@@ -182,6 +182,14 @@
     }
   });
 
+  // Someone who has used the engine before gets it started while the page
+  // is idle, so its boot and its model loading are done before the first
+  // click on a feature that needs it.
+  if (autostart() && engine.available()) {
+    if (window.requestIdleCallback) window.requestIdleCallback(engine.start, { timeout: 3000 });
+    else setTimeout(engine.start, 1500);
+  }
+
   // ------------------------------------------------------------ engine gate
   //
   // One status box per feature. It explains what will load, starts the

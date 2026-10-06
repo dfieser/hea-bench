@@ -98,7 +98,7 @@ def test_fit_domain_needs_at_least_two_scorable_rows() -> None:
 
 @needs_corpus
 def test_cantor_is_in_domain_on_the_real_corpus() -> None:
-    corpus = load_corpus()
+    corpus = load_corpus(version="0.1.0")
     domain = fit_domain(corpus)
     cantor = domain.novelty({"Co": 0.2, "Cr": 0.2, "Fe": 0.2, "Mn": 0.2, "Ni": 0.2})
     assert cantor["element_set_seen"] is True
@@ -112,6 +112,6 @@ def test_cantor_is_in_domain_on_the_real_corpus() -> None:
 
 @needs_corpus
 def test_novelty_score_convenience_matches_fit_domain() -> None:
-    corpus = load_corpus().query(n_elements=(2, 3), descriptor_ready=True)
+    corpus = load_corpus(version="0.1.0").query(n_elements=(2, 3), descriptor_ready=True)
     query = {"Co": 0.5, "Fe": 0.5}
     assert novelty_score(query, corpus) == fit_domain(corpus).novelty(query)

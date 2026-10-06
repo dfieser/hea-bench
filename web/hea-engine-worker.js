@@ -7,13 +7,25 @@
  * hea_bench.webapp. Every request {id, method, params} runs
  * webapp.call(method, json) and answers {id, ok, result | error}; long calls
  * post {id, progress} on the way. Requests run one at a time, in order.
+ *
+ * Between requests the worker prepares what the tabs need, one short step
+ * at a time (webapp.warm_next / webapp.warm): it builds the corpus from
+ * the persisted download, loads it, and fits the models, which it keeps
+ * in IndexedDB (HEA_BENCH_MODEL_CACHE) so a returning visitor loads them
+ * instead of refitting. A request from the page always goes before the
+ * next step, so a click never waits behind more than one.
  */
 "use strict";
 
 var pyodide = null;
 var webapp = null;
 var currentId = null;
-var queue = Promise.resolve();
+var requests = [];
+var pumping = false;
+// Give the page's first requests (a gate's corpus build, a prediction) a
+// moment to arrive before the background preparation starts.
+var WARM_DELAY_MS = 400;
+var PEIVASTE_CACHE = "/persist/peivaste.csv";
 
 function post(message) {
   self.postMessage(message);
@@ -70,22 +82,37 @@ async function boot() {
   pyodide.FS.mkdirTree("/persist");
   pyodide.FS.mount(pyodide.FS.filesystems.IDBFS, {}, "/persist");
   await syncfs(true);
-  // The corpus is keyed by package version: a new release rebuilds it from
-  // the persisted raw download, so a stale corpus can never be read.
+  // The corpus and the fitted models are keyed by package version: a new
+  // release rebuilds them from the persisted raw download, so stale ones
+  // can never be read.
   var corpusDir = "/persist/corpus-" + manifest.hea_bench_version;
+  var modelDir = "/persist/models-" + manifest.hea_bench_version;
   pyodide.FS.readdir("/persist").forEach(function (name) {
-    if (name.indexOf("corpus-") === 0 && "/persist/" + name !== corpusDir) removeTree("/persist/" + name);
+    var path = "/persist/" + name;
+    if ((name.indexOf("corpus-") === 0 && path !== corpusDir) || (name.indexOf("models-") === 0 && path !== modelDir)) {
+      removeTree(path);
+    }
   });
   pyodide.runPython(
     "import os, sys\n" +
       "sys.path.insert(0, '/repo/src')\n" +
       "os.environ['HEA_BENCH_BENCHMARK_DIR'] = " + JSON.stringify(corpusDir) + "\n" +
+      "os.environ['HEA_BENCH_MODEL_CACHE'] = " + JSON.stringify(modelDir) + "\n" +
       "import hea_bench.webapp\n"
   );
   webapp = pyodide.pyimport("hea_bench.webapp");
   webapp.set_progress(function (message, fraction) {
     if (currentId !== null) post({ id: currentId, progress: { message: message, fraction: fraction } });
   });
+  // A download persisted on an earlier visit lets the background steps
+  // rebuild the corpus without asking again.
+  if (exists(PEIVASTE_CACHE) && !callPython("peivaste_source").installed) {
+    try {
+      callPython("peivaste_install", { path: PEIVASTE_CACHE });
+    } catch (error) {
+      pyodide.FS.unlink(PEIVASTE_CACHE);
+    }
+  }
   var info = callPython("engine_info");
   info.pyodide_version = manifest.pyodide_version;
   bootProgress("Ready", 1);
@@ -108,7 +135,7 @@ async function ensureCorpus(version) {
   if (callPython("dataset_status").built[version]) return { built: true, version: version };
   var source = callPython("peivaste_source");
   if (!source.installed) {
-    var cached = "/persist/peivaste.csv";
+    var cached = PEIVASTE_CACHE;
     if (!exists(cached)) {
       post({ id: currentId, progress: { message: "Downloading the Peivaste dataset from its authors' repository (6.4 MB)", fraction: 0.05 } });
       var bytes = await fetchBytes(source.url);
@@ -141,28 +168,72 @@ async function handle(message) {
   }
 }
 
+function pause(ms) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function persist() {
+  try {
+    await syncfs(false);
+  } catch (error) {
+    /* storage full or blocked: the next visit fits the models again */
+  }
+}
+
+// One loop serves the page's requests in order and, whenever none is
+// waiting, runs the next background step. Python calls are synchronous,
+// so the pause after each item is what lets new requests arrive.
+async function pump() {
+  if (pumping) return;
+  pumping = true;
+  try {
+    await booted;
+  } catch (error) {
+    var reason = "the engine did not start: " + String(error && error.message ? error.message : error);
+    requests.splice(0).forEach(function (message) {
+      post({ id: message.id, ok: false, error: reason });
+    });
+    pumping = false;
+    return;
+  }
+  for (;;) {
+    if (requests.length) {
+      await handle(requests.shift());
+    } else {
+      var step = null;
+      try {
+        step = callPython("warm_next");
+      } catch (error) {
+        step = null;
+      }
+      if (!step) break;
+      try {
+        callPython("warm", { step: step });
+      } catch (error) {
+        /* reported when the page asks for that feature */
+      }
+    }
+    await persist();
+    await pause(0);
+  }
+  pumping = false;
+}
+
 var booted = boot().then(
   function (info) {
     post({ boot: { message: "Ready", fraction: 1, done: true, info: info } });
+    pause(WARM_DELAY_MS).then(pump);
   },
   function (error) {
     post({ bootError: String(error && error.message ? error.message : error) });
     throw error;
   }
 );
+booted.catch(function () {});
 
 self.onmessage = function (event) {
-  var message = event.data;
-  queue = queue
-    .catch(function () {})
-    .then(function () {
-      return booted.then(
-        function () {
-          return handle(message);
-        },
-        function (error) {
-          post({ id: message.id, ok: false, error: "the engine did not start: " + String(error && error.message ? error.message : error) });
-        }
-      );
-    });
+  requests.push(event.data);
+  pump();
 };

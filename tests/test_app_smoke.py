@@ -157,6 +157,11 @@ def test_every_tab_works_in_a_browser() -> None:
             chrome.wait(timeout=30)
             server.wait(timeout=30)
 
+    check_report(completed, "the browser")
+
+
+def check_report(completed: subprocess.CompletedProcess, where: str) -> None:
+    """Fail on anything app_smoke.cjs saw go wrong; shared with the desktop test."""
     assert completed.returncode == 0, completed.stderr
     result = json.loads(completed.stdout)
     print(json.dumps(result, indent=1, ensure_ascii=False))  # shown by pytest on failure
@@ -164,6 +169,6 @@ def test_every_tab_works_in_a_browser() -> None:
         _skip(result["skip"])
     assert "fatal" not in result, result.get("fatal")
     failed = [f"{s['name']}: {s['detail']}" for s in result["steps"] if not s["ok"]]
-    assert not failed, "steps failed in the browser:\n" + "\n".join(failed)
+    assert not failed, f"steps failed in {where}:\n" + "\n".join(failed)
     assert result["peivaste_served"] >= 1, "the engine never requested the Peivaste file"
     assert not result["problems"], "the page reported errors:\n" + "\n".join(result["problems"])

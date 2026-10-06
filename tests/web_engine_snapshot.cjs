@@ -27,8 +27,12 @@ const calls = JSON.parse(fs.readFileSync(path.join(__dirname, "data", "web_engin
   if (havePeivaste) {
     const installed = call("peivaste_install", { path: "/tmp/peivaste.csv" });
     if (!installed.ok) throw new Error(installed.error);
-    const built = call("dataset_build", { version: "0.1.0" });
-    if (!built.ok) throw new Error(built.error);
+    // Both versions, as the app builds them: the dataset view opens
+    // v0.2.0, while the benchmark and the predictions use v0.1.0.
+    for (const version of ["0.1.0", "0.2.0"]) {
+      const built = call("dataset_build", { version });
+      if (!built.ok) throw new Error(built.error);
+    }
   }
   for (const entry of calls) {
     if (entry.needs_corpus && !havePeivaste) continue;

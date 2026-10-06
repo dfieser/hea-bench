@@ -41,28 +41,28 @@ PYODIDE_DIR = ENGINE / "pyodide"
 ZIP_PATH = ENGINE / "hea-bench.zip"
 MANIFEST_PATH = ENGINE / "manifest.json"
 
-PYODIDE_VERSION = "0.29.3"
+PYODIDE_VERSION = "0.29.5"
 CDN = f"https://cdn.jsdelivr.net/pyodide/v{PYODIDE_VERSION}/full/"
 
 #: Every runtime file the browser loads, pinned. A Pyodide upgrade means
 #: new pins here and a green tests/test_web_engine.py, nothing else.
 PYODIDE_FILES = {
-    "pyodide.js": "718d40f1c015dd25ec724cc8fc4e2325d6a45a92ae225121ff6953f224a16f72",
-    "pyodide.asm.js": "1263f02b5b26099b96112378156f242dd98b39a8201ba7765e5fe3d455c5ce91",
-    "pyodide.asm.wasm": "e2f4ee75b325e35eb31bfb8c613d4dd5098f5502c156a97847686875b5025480",
-    "python_stdlib.zip": "4298b6ee445cb724c3973437da47789752b9e6ff4e26619026b283ec801fc46b",
-    "pyodide-lock.json": "3256ffc76388de0e37f4b34d42ab484268d1afc675179ff97b2a5bb14f84ccac",
-    "numpy-2.2.5-cp313-cp313-pyodide_2025_0_wasm32.whl":
-        "6eaab6a7bb658d71ebe702911a3deab715323642462eb41b65565ca6a7cc23f1",
-    "scipy-1.14.1-cp313-cp313-pyodide_2025_0_wasm32.whl":
-        "96fbc718e81cf54ac7df7d8a2c24e370fa3c45086e917c3d58752207d85d21af",
-    "scikit_learn-1.7.0-cp313-cp313-pyodide_2025_0_wasm32.whl":
-        "267a184f7d3c2cd236a17d729b0f62993c581337b40ee7f99f00e0598dfdb5c2",
+    "pyodide.js": "7f832a350240263d9946a9c3c877f7bcdab6c37d6dc65f72cd3be5905dca62dd",
+    "pyodide.asm.js": "356c42f69e1695397e9d8670bd3c2e678248cde76e18bdae1731e848537b47d7",
+    "pyodide.asm.wasm": "54309a5a2cfd757b1f0fdbc9093c92503f7b341500110329d932487183912718",
+    "python_stdlib.zip": "831fd1e535084b972f87c6a35275de3d236efd5166f5e77ce89497710635e73c",
+    "pyodide-lock.json": "14d2c2dba101277999e17135e653d8f15389ad1437f53eae213bf0c3cdff723d",
+    "numpy-2.2.5-cp313-cp313-pyemscripten_2025_0_wasm32.whl":
+        "800c98edc0c864dfa49f07005680c699b4b42b84eae1f8cb19d35b3634e7f05c",
+    "scipy-1.14.1-cp313-cp313-pyemscripten_2025_0_wasm32.whl":
+        "7a60ad5e52acd8d8059f4acc0932d701c3e07723d82e567523dd1a6e0e85ec3e",
+    "scikit_learn-1.7.0-cp313-cp313-pyemscripten_2025_0_wasm32.whl":
+        "5dd1611a1ee57147a4387e56499bb1def407919ef452efb50beb5229dbe4a3db",
     "joblib-1.4.2-py3-none-any.whl":
-        "f6cd3ff44cc58faa3216f8778048b37792822183fd5ece300bd9a5d7f1be72ba",
+        "f07902625672ca0d92e979870ff501e4138589ff3b2b734680d07863676f9996",
     "threadpoolctl-3.5.0-py3-none-any.whl":
-        "a6c097ecbc46c97610e6fdf44e270d6cdc07fa5291b24db0e3d2427ee15c3478",
-    "libopenblas-0.3.26.zip": "f8f5db65c9367ed7f057d0ee853d94ddb3c007968aa8138253461dad42537fa2",
+        "0d768335eaa50416503e8e5c2c8a51eb96fc9b1c051f02be30bf694707d9a981",
+    "libopenblas-0.3.26.zip": "e958192aa6fe14de37ecfb58740a4ee04a6ff68d971d2a0841280594723037e4",
 }
 
 #: Repository paths shipped inside hea-bench.zip (tracked or new files only,
@@ -89,6 +89,11 @@ def _download(name: str) -> bytes:
 
 def fetch_pyodide() -> None:
     PYODIDE_DIR.mkdir(parents=True, exist_ok=True)
+    # Files an older pin left behind would ship inside the site and the exe.
+    for leftover in PYODIDE_DIR.iterdir():
+        if leftover.name not in PYODIDE_FILES:
+            leftover.unlink()
+            print(f"removed {leftover.name} (not pinned)")
     for name, expected in PYODIDE_FILES.items():
         target = PYODIDE_DIR / name
         if target.exists() and _sha256(target.read_bytes()) == expected:
@@ -149,6 +154,12 @@ def check() -> list[str]:
             problems.append(f"missing web/engine/pyodide/{name}")
         elif _sha256(target.read_bytes()) != expected:
             problems.append(f"web/engine/pyodide/{name} does not match its pin")
+    if PYODIDE_DIR.exists():
+        problems += [
+            f"web/engine/pyodide/{leftover.name} is not pinned (left over from an older runtime)"
+            for leftover in sorted(PYODIDE_DIR.iterdir())
+            if leftover.name not in PYODIDE_FILES
+        ]
     zip_bytes = build_zip()
     if not ZIP_PATH.exists() or ZIP_PATH.read_bytes() != zip_bytes:
         problems.append("web/engine/hea-bench.zip is missing or stale")

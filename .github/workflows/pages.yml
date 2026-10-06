@@ -51,11 +51,11 @@ jobs:
       # the predictions panel work on the live site. Every file is SHA-256
       # pinned in the build script; verify-live in auto-release.yml checks
       # that the live engine reports the released version.
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Restore the pinned Pyodide runtime
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: web/engine/pyodide
           key: pyodide-${{ hashFiles('tools/build_web_engine.py') }}

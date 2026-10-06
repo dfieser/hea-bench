@@ -19,3 +19,18 @@ def json_safe(value):
     if isinstance(value, float) and not math.isfinite(value):
         return None
     return value
+
+
+def strict_json(value):
+    """:func:`json_safe` applied all the way down: a strict-JSON copy.
+
+    Non-finite floats become None, tuples become lists and keys become
+    strings, so any payload serializes with ``allow_nan=False``.
+    """
+    if isinstance(value, float):
+        return json_safe(value)
+    if isinstance(value, dict):
+        return {str(key): strict_json(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [strict_json(item) for item in value]
+    return value

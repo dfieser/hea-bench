@@ -13,11 +13,13 @@ script is the single command that closes that gap::
 Full mode runs, in order: the publish-metadata checks, the version
 consistency check, ruff over src and tests (the exact release-gate lint),
 a rebuild of the in-app engine bundle when its pinned runtime is already
-on disk, and the full pytest suite, then reports which release gates
-could NOT be verified locally (a missing corpus skips the
-benchmark-freeze evidence, a missing Node skips the JS parity evidence,
-a missing engine bundle skips the engine parity evidence) so the risk is
-taken knowingly rather than by accident.
+on disk, and the full pytest suite, including the installed-package gate
+(the built wheel installed fresh, every MCP tool called over stdio, about
+two minutes), then reports which release gates could NOT be verified
+locally (a missing corpus skips the benchmark-freeze evidence, a missing
+Node skips the JS parity evidence, a missing engine bundle skips the
+engine parity evidence, and the desktop exe smoke test needs a built
+exe) so the risk is taken knowingly rather than by accident.
 
 The ratchet rule: whenever a release fails for a new reason, the same
 change that fixes it must teach this script (or the CI gate) to catch
@@ -27,6 +29,7 @@ that reason before the next push. Checks are only added, never removed.
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 import os
 import re
@@ -260,6 +263,65 @@ def check_readme_assets() -> list[str]:
     return problems
 
 
+#: The source file that declares no license: it may never enter a built
+#: artifact, the MCP container image included.
+PEIVASTE_CSV = "data/raw/peivaste/dataset11252_79.csv"
+
+
+def _dockerignored(path: str, patterns: list[str]) -> bool:
+    """Docker's rule: the last pattern matching the path or a parent wins."""
+    parts = path.split("/")
+    candidates = ["/".join(parts[: i + 1]) for i in range(len(parts))]
+    excluded = False
+    for pattern in patterns:
+        negated = pattern.startswith("!")
+        pattern = pattern.lstrip("!").strip("/")
+        if any(fnmatch.fnmatchcase(c, pattern) for c in candidates):
+            excluded = not negated
+    return excluded
+
+
+def check_docker_context() -> list[str]:
+    """The MCP container builds: every file the wheel bundles reaches it.
+
+    Directory listings (Glama) build the Dockerfile to check the server.
+    The wheel force-includes files from outside src/ (pyproject.toml), so
+    each must sit under a path the Dockerfile copies and must survive
+    .dockerignore, or hatchling stops the image build. The unlicensed
+    Peivaste file must stay out of the image.
+    """
+    problems: list[str] = []
+    pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    section = pyproject.split("[tool.hatch.build.targets.wheel.force-include]", 1)[1]
+    section = section.split("\n[", 1)[0]
+    bundled = re.findall(r'^"([^"]+)"\s*=', section, flags=re.MULTILINE)
+    copied = [
+        source
+        for line in (ROOT / "Dockerfile").read_text(encoding="utf-8").splitlines()
+        if line.startswith("COPY ") and "--from=" not in line
+        for source in line.split()[1:-1]
+    ]
+    ignore = [
+        line.strip()
+        for line in (ROOT / ".dockerignore").read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.startswith("#")
+    ]
+
+    def reaches_image(path: str) -> bool:
+        under_copy = any(path == c or path.startswith(c.rstrip("/") + "/") for c in copied)
+        return under_copy and not _dockerignored(path, ignore)
+
+    for path in bundled:
+        if not reaches_image(path):
+            problems.append(
+                f"Dockerfile: the wheel bundles {path} but the image build never sees it; "
+                f"COPY it in the build stage and let it through .dockerignore"
+            )
+    if reaches_image(PEIVASTE_CSV):
+        problems.append(f".dockerignore: {PEIVASTE_CSV} (no license) would enter the image; ignore it")
+    return problems
+
+
 def _run(label: str, command: list[str]) -> tuple[str, int, str]:
     completed = subprocess.run(
         command, cwd=ROOT, capture_output=True, text=True, encoding="utf-8"
@@ -301,6 +363,13 @@ def main(argv: list[str]) -> int:
     for problem in problems:
         print(f"      {problem}")
 
+    problems = check_docker_context()
+    if problems:
+        failures.extend(problems)
+    print(("FAIL" if problems else "ok  ") + "  MCP container build context (Dockerfile)")
+    for problem in problems:
+        print(f"      {problem}")
+
     if not args.metadata:
         checks = [
             ("version consistency", [sys.executable, "tools/version.py", "--check"]),
@@ -320,6 +389,10 @@ def main(argv: list[str]) -> int:
         env_src = os.environ.get("PYTHONPATH", "")
         if "src" not in env_src.split(os.pathsep):
             os.environ["PYTHONPATH"] = os.pathsep.join(p for p in ("src", env_src) if p)
+        # The CI package job's gate (tests/test_installed_package.py) is
+        # opt-in for plain pytest runs because it builds and installs the
+        # wheel; the preflight always runs it.
+        os.environ.setdefault("HEA_BENCH_PACKAGE_SMOKE", "1")
         for label, command in checks:
             _, code, output = _run(label, command)
             print(("ok  " if code == 0 else "FAIL") + f"  {label}")
@@ -328,6 +401,12 @@ def main(argv: list[str]) -> int:
             elif label.startswith("pytest") and " skipped" in output:
                 summary = output.strip().splitlines()[-1]
                 warnings.append(f"pytest skipped tests locally: {summary}")
+                package = [line.strip() for line in output.splitlines() if "test_installed_package.py" in line]
+                if package:
+                    warnings.append(
+                        f"installed-package gate NOT pre-verified ({package[0]}). Fix what it "
+                        "names, or expect the CI package job to be the first real run."
+                    )
                 smoke = [line.strip() for line in output.splitlines() if "test_app_smoke.py" in line]
                 if smoke:
                     warnings.append(
@@ -353,6 +432,15 @@ def main(argv: list[str]) -> int:
             warnings.append(
                 "JS parity gate NOT pre-verified: no Node.js on PATH, the web "
                 "parity suites were skipped."
+            )
+        if not os.environ.get("HEA_BENCH_DESKTOP_EXE"):
+            warnings.append(
+                "desktop smoke gate NOT pre-verified (it needs a built exe). If this "
+                "push touches web/ or src-tauri/, on Windows run python "
+                "tools/build_web_engine.py, cargo tauri build --no-bundle, then "
+                "HEA_BENCH_DESKTOP_EXE=src-tauri/target/release/hea-bench.exe python "
+                "-m pytest tests/test_desktop_smoke.py, or expect the release "
+                "desktop-build job to be the first real run."
             )
         if not engine_runtime.exists():
             warnings.append(

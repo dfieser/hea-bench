@@ -28,6 +28,7 @@ from __future__ import annotations
 
 from itertools import combinations
 
+from .. import _overrides
 from ..composition import Composition
 from .data.pair_enthalpies import covered_elements as _pair_covered
 from .data.pair_enthalpies import pair_enthalpy
@@ -71,7 +72,7 @@ def mixing_enthalpy(composition: Composition) -> float:
         raise ValueError("composition values must sum to a positive number")
     norm = {el: amount / total for el, amount in composition.items() if amount > 0}
 
-    missing = set(norm) - _pair_covered()
+    missing = set(norm) - _pair_covered() - _overrides.custom_labels()
     if missing:
         raise ValueError(
             f"composition contains elements not in Miedema pair table: "
@@ -79,6 +80,15 @@ def mixing_enthalpy(composition: Composition) -> float:
         )
 
     h = 0.0
+    gaps = []
     for a, b in combinations(sorted(norm), 2):
-        h += 4.0 * norm[a] * norm[b] * pair_enthalpy(a, b)
+        try:
+            h += 4.0 * norm[a] * norm[b] * pair_enthalpy(a, b)
+        except KeyError:
+            gaps.append(f"{a}-{b}")
+    if gaps:
+        raise ValueError(
+            f"no pair enthalpy for {', '.join(gaps)}; give one with "
+            f"hea_bench.custom_data(pair_enthalpies={{...}})"
+        )
     return h

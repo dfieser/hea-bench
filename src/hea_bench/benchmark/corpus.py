@@ -23,11 +23,15 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 
 from ..composition import Composition
-from ..corpus import DEFAULT_CORPUS_VERSION
 from ..corpus import load_corpus as _load_corpus
 from . import splits as _splits
 from .splits import SplitScheme
 from .taxonomy import binary_observed
+
+#: The hand-curated reference corpus every published benchmark number is
+#: measured on. ``hea_bench.corpus.load_corpus`` defaults to the larger
+#: "0.2.0"; the benchmark does not follow it.
+DEFAULT_CORPUS_VERSION = "0.1.0"
 
 #: Task name to the function projecting a canonical 4-class label onto it.
 TASKS = {
