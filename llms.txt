@@ -17,7 +17,7 @@ models, (2) screen candidate alloys with the published empirical
 rules, (3) compute high-entropy-oxide (HEO) and ceramic formability
 descriptors, or (4) browse the corpus, predict properties and phases,
 search compositions and run the benchmark. Currently shipping
-version 2.7.0 under MIT.
+version 2.7.1 under MIT.
 
 ## For AI agents reading this first
 
@@ -28,7 +28,8 @@ Cantor-alloy sanity values, and the mistakes to avoid.
 
 ## Mental model
 
-A composition is a plain `dict` mapping element symbol to amount.
+A composition is a plain `dict` mapping element symbol to amount, or a
+formula string such as `"CoCrFeMnNi"` or `"(CoCrFeNi)95Al5"`.
 Amounts do not need to sum to 1; they are normalised internally.
 
 ```python
@@ -72,10 +73,13 @@ hb.phi_ye(cantor)      # 34.822 (Ye 2015 proxy)
 | `rules.ye_phi` | solid_solution / intermetallic | φ > 20.0 |
 | `rules.senkov_kappa` | solid_solution / intermetallic at T | k₁ < k₁ᶜʳ(T), k₂ = 0.6 |
 | `rules.tsai_sigma` | sigma_prone / sigma_unlikely / not_applicable | Cr/V and 6.88 ≤ VEC ≤ 7.84 |
-| `rules.sheikh_ductility` | ductile / brittle / borderline | VEC < 4.5 / ≥ 4.6 (bcc RHEAs) |
+| `rules.sheikh_ductility` | ductile / brittle / borderline / not_applicable | VEC < 4.5 / ≥ 4.6, only alloys of Ti, Zr, Hf, V, Nb, Ta, Cr, Mo, W |
 
 The rules are weak, semi-empirical screens (calibrated on small
 historical datasets); do not treat a single prediction as ground truth.
+`rules.guo_vec.boundary_note` flags a VEC within 0.2 of either cutoff,
+and the κ result names its strongest pair (`im_pair`) with a `note`
+when that pair has an element under 10 at.%.
 Note Ω diverges as ΔH_mix → 0, so it is parametrization-sensitive for
 near-ideal alloys.
 
@@ -163,7 +167,7 @@ archived software record:
 @software{hea_bench,
   author  = {Fieser, David and Dewanjee, Unmanaa and Hu, Anming},
   title   = {hea-bench: An open calculator of high-entropy-alloy and high-entropy-oxide thermodynamic descriptors and empirical phase-prediction rules},
-  version = {2.7.0},
+  version = {2.7.1},
   license = {MIT},
   doi     = {10.5281/zenodo.20346287},
   url     = {https://github.com/dfieser/hea-bench},

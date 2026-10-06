@@ -13,7 +13,7 @@ multiple principal elements: Novel alloy design concepts and outcomes.
 
 from __future__ import annotations
 
-from ..composition import Composition
+from ..composition import Composition, accepts_formula
 from ..constants import R
 from ..descriptors.entropy import smix
 
@@ -23,6 +23,7 @@ HEA_THRESHOLD = 1.5 * R      # ≈ 12.471 J/(mol·K)
 MEA_THRESHOLD = 1.0 * R      # ≈ 8.314  J/(mol·K)
 
 
+@accepts_formula
 def predict(composition: Composition) -> str:
     """Return one of ``"HEA"``, ``"MEA"``, ``"dilute"``.
 

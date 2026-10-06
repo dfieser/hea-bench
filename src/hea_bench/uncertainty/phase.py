@@ -13,7 +13,10 @@ the chosen confidence. One label is a confident answer, several labels
 mean the data cannot separate them, and an empty set means no label
 reaches the calibrated bar. The corpus domain flag rides along, because
 the coverage guarantee assumes the query resembles the calibration
-alloys and an unusual alloy breaks that assumption.
+alloys and an unusual alloy breaks that assumption. So does what the
+coverage study measured: inside the dataset's range is not a promise of
+accuracy, since unseen alloy systems inside it fall slightly short of
+the target (``measured_coverage``).
 
 Needs the built corpus (see :mod:`hea_bench.corpus`) and scikit-learn
 (``pip install "hea-bench[benchmark]"``).
@@ -23,7 +26,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from ..composition import Composition, family_of, normalize
+from ..composition import Composition, accepts_formula, family_of, normalize
 
 _SEED = 0
 _TREES = 300
@@ -68,6 +71,7 @@ def _fit(task: str, version: str):
     return model, conformal, len(proper), len(calibration)
 
 
+@accepts_formula
 def predict_phase_set(
     composition: Composition,
     *,
@@ -96,7 +100,11 @@ def predict_phase_set(
     dict
         ``prediction_set`` (sorted labels), ``probabilities`` per label,
         ``most_likely``, the corpus ``in_domain`` flag and ``novelty``
-        measures, training sizes, and plain-language ``warnings``.
+        measures, training sizes, plain-language ``warnings``, and
+        ``measured_coverage``: how often sets at this confidence held the
+        true label on unseen alloy systems inside and outside the
+        dataset's range in the coverage study (None for a version or a
+        confidence the study did not measure).
 
     Raises
     ------
@@ -141,8 +149,13 @@ def predict_phase_set(
         )
     if not novelty["in_domain"]:
         warnings.append(
-            "this alloy is unlike the dataset, so the coverage guarantee is weakest here"
+            "this alloy is outside the dataset's range, so the coverage guarantee is weakest here"
         )
+    from .coverage import MEASURED_COVERAGE
+
+    measured = (
+        MEASURED_COVERAGE[task].get(round(1.0 - alpha, 4)) if version == "0.1.0" else None
+    )
     return {
         "task": task,
         "task_description": TASK_DESCRIPTIONS[task],
@@ -156,6 +169,11 @@ def predict_phase_set(
         "n_training": n_proper,
         "n_calibration": n_calibration,
         "corpus_version": version,
+        "measured_coverage": None if measured is None else {
+            "in_domain": measured[0],
+            "out_of_domain": measured[1],
+            "source": "docs/uncertainty-coverage.md",
+        },
         "model": (
             f"random forest, {_TREES} trees, seed {_SEED}, family-grouped "
             f"{_CALIBRATION_FRACTION:.0%} calibration hold-out"

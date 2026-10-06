@@ -25,6 +25,7 @@ both the benchmark loaders *and* the descriptor functions consume the
 
 from __future__ import annotations
 
+import functools
 import math
 import re
 
@@ -66,6 +67,18 @@ _VALID_ELEMENTS = frozenset({
 })
 
 
+_AMOUNT = re.compile(r"[0-9]*\.?[0-9]*")
+
+
+def _amount(text: str, formula: str) -> float:
+    if not text:
+        return 1.0
+    try:
+        return float(text)
+    except ValueError:
+        raise ValueError(f"bad amount {text!r} in formula {formula!r}") from None
+
+
 def parse_formula(formula: str) -> Composition:
     """Parse an HEA composition formula into a normalized mole-fraction dict.
 
@@ -73,6 +86,14 @@ def parse_formula(formula: str) -> Composition:
     proportional amounts (Borg), packed proportional amounts (Pei),
     and bare formulas with implicit unit amounts (Peivaste's `FORMULA`
     column).
+
+    Repeated elements add up, so ``CoCrFeNiNi`` is Co1Cr1Fe1Ni2. A
+    parenthesized group is one unit made of the elements inside it, in
+    their own ratio, and the number after it is that unit's amount:
+    ``(CoCrFeNi)95Al5`` is 95 parts equimolar CoCrFeNi plus 5 parts Al.
+    A group with no number counts as 1 part, and groups nest. The
+    browser core (``parseFormula`` in ``web/hea-calculator-core.js``)
+    follows the same rules, which the parity tests check.
 
     Parameters
     ----------
@@ -90,8 +111,8 @@ def parse_formula(formula: str) -> Composition:
     ------
     ValueError
         If no element tokens are found, an element symbol is unrecognised,
-        non-whitespace input is not consumed, or the parsed coefficients
-        sum to zero.
+        non-whitespace input is not consumed, a parenthesis is unmatched,
+        a group is empty, or the parsed coefficients sum to zero.
 
     Examples
     --------
@@ -103,36 +124,76 @@ def parse_formula(formula: str) -> Composition:
 
     >>> parse_formula("Al0.15Cr0.85")
     {'Al': 0.15, 'Cr': 0.85}
-    """
-    raw: dict[str, float] = {}
-    bad: list[str] = []
-    cursor = 0
-    for match in _ELEMENT_TOKEN.finditer(formula):
-        if formula[cursor:match.start()].strip():
-            raise ValueError(f"unconsumed non-whitespace input in formula {formula!r}")
-        cursor = match.end()
-        el, coef = match.groups()
-        if not el:
-            continue
-        if el not in _VALID_ELEMENTS and el not in _overrides.custom_labels():
-            bad.append(el)
-            continue
-        amount = float(coef) if coef else 1.0
-        raw[el] = raw.get(el, 0.0) + amount
 
-    if formula[cursor:].strip():
-        raise ValueError(f"unconsumed non-whitespace input in formula {formula!r}")
+    >>> parse_formula("(CoCrFeNi)95Al5")
+    {'Co': 0.2375, 'Cr': 0.2375, 'Fe': 0.2375, 'Ni': 0.2375, 'Al': 0.05}
+    """
+    # One amounts dict per open group; the outermost is the formula.
+    stack: list[dict[str, float]] = [{}]
+    bad: list[str] = []
+    pos = 0
+    while pos < len(formula):
+        char = formula[pos]
+        if char.isspace():
+            pos += 1
+        elif char == "(":
+            stack.append({})
+            pos += 1
+        elif char == ")":
+            if len(stack) == 1:
+                raise ValueError(f"unmatched ')' in formula {formula!r}")
+            group = stack.pop()
+            text = _AMOUNT.match(formula, pos + 1).group()
+            pos += 1 + len(text)
+            group_total = math.fsum(group.values())
+            if group_total <= 0:
+                raise ValueError(f"empty group in formula {formula!r}")
+            amount = _amount(text, formula)
+            for el, part in group.items():
+                stack[-1][el] = stack[-1].get(el, 0.0) + part / group_total * amount
+        else:
+            match = _ELEMENT_TOKEN.match(formula, pos)
+            if match is None:
+                raise ValueError(f"unconsumed non-whitespace input in formula {formula!r}")
+            pos = match.end()
+            el, coef = match.groups()
+            if el not in _VALID_ELEMENTS and el not in _overrides.custom_labels():
+                bad.append(el)
+                continue
+            stack[-1][el] = stack[-1].get(el, 0.0) + _amount(coef, formula)
+
+    if len(stack) > 1:
+        raise ValueError(f"unmatched '(' in formula {formula!r}")
     if bad:
         raise ValueError(
             f"unrecognised element symbol(s) {sorted(set(bad))!r} "
             f"in formula {formula!r}"
         )
-    if not raw:
+    if not stack[0]:
         raise ValueError(f"no elements parsed from formula {formula!r}")
 
-    return normalize(raw)
+    return normalize(stack[0])
 
 
+def accepts_formula(func):
+    """Let a function that takes a composition mapping take a formula too.
+
+    ``smix("CoCrFeMnNi")`` then means ``smix(parse_formula("CoCrFeMnNi"))``.
+    Every public descriptor wears this, and ``tests/test_composition.py``
+    fails for any public function with a ``composition`` argument that
+    does not.
+    """
+
+    @functools.wraps(func)
+    def wrapper(composition, *args, **kwargs):
+        if isinstance(composition, str):
+            composition = parse_formula(composition)
+        return func(composition, *args, **kwargs)
+
+    return wrapper
+
+
+@accepts_formula
 def family_of(composition: Composition) -> str:
     """Return the alloy-family key for one composition.
 

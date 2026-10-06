@@ -250,8 +250,14 @@ def alloy_rules(
     Each verdict is returned with the descriptor value it was judged on
     and the published threshold, so the margin is auditable. These rules
     are weak empirical screens calibrated on small historical datasets;
-    treat verdicts as hints, never ground truth. ``custom_elements`` and
-    ``pair_enthalpies`` work as in ``alloy_descriptors``.
+    treat verdicts as hints, never ground truth. A rule outside its
+    domain says ``not_applicable`` (Tsai without Cr or V, Sheikh with any
+    element beyond Ti, Zr, Hf, V, Nb, Ta, Cr, Mo, W). ``guo_vec`` and
+    ``senkov_kappa`` carry a ``note`` (null when there is nothing to
+    say) when VEC sits within 0.2 of a Guo cutoff, or when an element of
+    the pair behind Senkov's ΔH_IM (``im_pair``) is under 10 at.%.
+    ``custom_elements`` and ``pair_enthalpies`` work as in
+    ``alloy_descriptors``.
     """
     with hb.custom_data(elements=custom_elements, pair_enthalpies=pair_enthalpies):
         return _alloy_rules(compositions, king_temperature)
@@ -264,11 +270,16 @@ def _alloy_rules(compositions: list[str], king_temperature: float | None) -> dic
             return module.predict(comp, **predict_kw), value_func(comp), {}
         return evaluate
 
+    def guo_evaluate(comp):
+        return guo_vec.predict(comp), hb.vec(comp), {"note": guo_vec.boundary_note(comp)}
+
     def senkov_evaluate(comp):
         kp = senkov_kappa.predict(comp, temperature=king_temperature)
         return kp.verdict, kp.k1, {
             "threshold": json_safe(kp.k1_cr),
             "temperature_K": kp.temperature_K,
+            "im_pair": list(kp.im_pair) if kp.im_pair else None,
+            "note": kp.note,
         }
 
     def tsai_evaluate(comp):
@@ -300,7 +311,7 @@ def _alloy_rules(compositions: list[str], king_temperature: float | None) -> dic
         ("zhang_delta", "Zhang2008", zhang_delta.DEFAULT_THRESHOLD,
          fixed(zhang_delta, hb.delta), None),
         ("guo_vec", "Guo2011", "FCC >= 8.0, BCC < 6.87",
-         fixed(guo_vec, hb.vec), None),
+         guo_evaluate, None),
         ("yang_omega", "Yang2012", yang_omega.DEFAULT_THRESHOLD,
          fixed(yang_omega, hb.omega), _DIVERGENCE_REASONS["omega"]),
         ("king_phi", "King2016", king_phi.DEFAULT_THRESHOLD,
@@ -311,7 +322,7 @@ def _alloy_rules(compositions: list[str], king_temperature: float | None) -> dic
         ("tsai_sigma", "Tsai2013", "Cr/V present and 6.88 <= VEC <= 7.84",
          tsai_evaluate, None),
         ("sheikh_ductility", "Sheikh2016",
-         "VEC < 4.5 ductile, >= 4.6 brittle (bcc RHEAs)",
+         "VEC < 4.5 ductile, >= 4.6 brittle (bcc RHEAs of Ti, Zr, Hf, V, Nb, Ta, Cr, Mo, W only)",
          sheikh_evaluate, None),
     )
 
@@ -819,7 +830,10 @@ def design_search(
     ``[["maximize", "hardness"], ["minimize", "cost_per_kg"]]``.
     Fitted objectives rank by the conservative interval end by default.
     Every candidate carries descriptors, all nine rule verdicts,
-    property predictions with intervals, novelty, and the domain flag.
+    property predictions with intervals, novelty, the domain flag, and
+    ``phase``: its four-class phase prediction set (null without a built
+    corpus). An element cap such as ``{"element": "Al", "max": 0.2}``
+    keeps hardness searches from drifting to aluminides.
     Results are a screening aid, not answers; see
     docs/design-recovery.md.
     """

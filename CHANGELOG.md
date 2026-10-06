@@ -10,6 +10,81 @@ The format is loosely based on
 
 ## [Unreleased]
 
+2.7.1 is the first published 2.7 release. GitHub refused the v2.7.0 tag
+push, so 2.7.0 reached only the web site. 2.7.1 contains everything
+listed under 2.7.0 plus the changes below, which answer an outside
+review of the app and the library.
+
+### Added
+
+- **Every function that takes a composition also takes a formula
+  string.** `hb.smix("CoCrFeMnNi")` raised `AttributeError` before and
+  now equals `hb.smix(hb.parse_formula("CoCrFeMnNi"))`. A test fails for
+  any public composition function that does not accept a formula.
+- **Group notation**, in all four parts. `(CoCrFeNi)95Al5` is 95 parts
+  equimolar CoCrFeNi plus 5 parts Al, the usual HEA convention, and
+  groups nest. Repeated elements add up, so `CoCrFeNiNi` is Ni at
+  40 at.%. The app now uses the library's parser, and a shared case list
+  keeps the Python and browser parsers identical.
+- **Rule notes.** Guo VEC flags a VEC within 0.2 of its 8.0 or 6.87
+  cutoff (`guo_vec.boundary_note`), where the published data scatter.
+  The verdict itself is unchanged, because the benchmark measures it.
+  Senkov κ names the pair it takes ΔH_IM from (`im_pair`) and adds a
+  note when that pair has an element under 10 at.%, because κ does not
+  weight the pair by amount.
+- **Composition search shows each candidate's predicted phase**, the
+  four-class prediction set, in the library, the MCP `design_search`
+  tool and the app. The app's example search now caps Al at 20 at.% and
+  uses 4 or 5 elements, so it no longer opens on alloys of 40 to 70%
+  Al.
+- `predict_phase_set` reports the coverage the coverage study measured
+  for corpus v0.1.0 at the chosen confidence, inside and outside the
+  dataset's range (`measured_coverage`).
+
+### Changed
+
+- **Sheikh ductility returns `not_applicable` for any alloy with an
+  element outside Ti, Zr, Hf, V, Nb, Ta, Cr, Mo and W**, the refractory
+  alloys the screen was built on. It used to give a verdict for alloys
+  such as CoCrFeMnNi.
+- The domain flag reads "Inside the dataset's range?" instead of
+  "Resembles the dataset?". Inside the range it gives the measured
+  coverage of the 90% sets on unseen alloy systems (87.5% for single
+  versus multi-phase, 82.9% for the structure), so a yes is not read as
+  a promise of accuracy.
+- **The desktop app starts its engine by itself.** The engine has always
+  been inside the exe. The app now also fetches the Peivaste source file
+  by itself the first time it is online, checks it and keeps it, so the
+  whole app works offline after that. That file cannot ship inside the
+  exe until its authors license it for redistribution. Until the app
+  has been online once, the hardness prediction still works, because it
+  needs only data inside the app, and the phase and dataset cards say
+  what they are waiting for. The website's Start button behaves the
+  same way.
+- The Benchmark tab leads with each model's two scores and the gap.
+- The app's footer says "Runs on this device" instead of "Offline",
+  which read like a warning.
+
+### Fixed
+
+- A permalink always opens in alloy mode, even when the page was last
+  in Oxides mode.
+- A formula that fails to parse clears the previous results instead of
+  leaving them up beside the error.
+- The app merges repeated elements (`CoCrFeNiNi`) instead of rejecting
+  them as duplicates.
+- Amounts with more than two decimals reach the result, its result ID
+  and the permalink unrounded. The table's 0.01 at.% display rounding
+  used to change them.
+- The calculator shows one melting-temperature card, in K and °C,
+  instead of two.
+- The release bot retries the tag push, which GitHub refused once for
+  v2.7.0.
+
+The experimental corpus is unchanged. The Chizhevskiy loader keeps rows
+written in group notation out, so corpus v0.2.0 stays byte-identical,
+and adding them is left for a future corpus version.
+
 ## [2.7.0] — 2026-10-06
 
 ### Added

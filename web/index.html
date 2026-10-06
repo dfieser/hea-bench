@@ -897,6 +897,14 @@
         font-size: 11px;
         margin-top: 2px;
       }
+      .result-card-compact .rule-note {
+        font-size: 11px;
+        line-height: 1.35;
+        margin-top: 6px;
+        padding-left: 6px;
+        border-left: 2px solid var(--danger);
+        color: var(--text-muted);
+      }
       .result-card h3 {
         margin: 0 0 4px;
         font-size: 11.5px;
@@ -1809,7 +1817,7 @@
       .rail-resizer:focus-visible { outline: none; }
       body.is-resizing { cursor: col-resize; user-select: none; -webkit-user-select: none; }
     </style>
-    <link rel="stylesheet" href="hea-features.css?v=2.7.0">
+    <link rel="stylesheet" href="hea-features.css?v=2.7.1">
 
     <script>
       window.MathJax = {
@@ -2165,9 +2173,11 @@
             </div>
             <div class="runs__row">
               <span class="runs__name"><a id="exe-download" href="https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench.exe">Windows app</a></span>
-              <p class="runs__desc">One portable executable, no installer. Everything runs offline
-                 except building the dataset, which downloads one 6.4&nbsp;MB source file from its
-                 authors' repository the first time.</p>
+              <p class="runs__desc">One portable executable, no installer, with the prediction
+                 engine inside it, so it starts everything by itself and runs offline. The one
+                 exception is the alloy dataset's 6.4&nbsp;MB Peivaste source file, which its authors
+                 have not yet licensed for redistribution: the app fetches it from their repository by
+                 itself the first time it is online, checks it, and keeps it.</p>
               <p class="runs__notice" id="exe-building" hidden>
                  <strong>Update in progress</strong>
                  A new release is building right now, and the Windows executable is not attached
@@ -4179,7 +4189,7 @@
           </p>
           <form id="search-form" class="feature-form" autocomplete="off">
             <label class="feature-form__wide">Elements (up to 10) <input type="text" name="palette" value="Al Co Cr Fe Ni"></label>
-            <label>Elements per alloy, from <input type="number" name="n_elements_min" min="1" max="10" value="3"></label>
+            <label>Elements per alloy, from <input type="number" name="n_elements_min" min="1" max="10" value="4"></label>
             <label>to <input type="number" name="n_elements_max" min="1" max="10" value="5"></label>
             <label>Grid step
               <select name="step">
@@ -4218,7 +4228,7 @@
               </select>
             </label>
             <label class="feature-check"><input type="checkbox" name="conservative" checked> Rank fitted properties by the cautious end of their interval</label>
-            <label class="feature-check"><input type="checkbox" name="include_out_of_domain"> Include alloys unlike the dataset</label>
+            <label class="feature-check"><input type="checkbox" name="include_out_of_domain"> Include alloys outside the dataset's range</label>
             <div class="feature-form__actions">
               <button type="submit" class="primary">Run the search</button>
             </div>
@@ -4261,7 +4271,7 @@
               </select>
             </label>
             <label class="feature-check"><input type="checkbox" name="warm_start" checked> Start from published hardness data (hardness only)</label>
-            <label class="feature-check"><input type="checkbox" name="in_domain" checked> Suggest only alloys that resemble the dataset</label>
+            <label class="feature-check"><input type="checkbox" name="in_domain" checked> Suggest only alloys inside the dataset's range</label>
           </form>
           <h4>Measurements</h4>
           <div class="table-wrap">
@@ -4296,8 +4306,8 @@
           <aside class="docs-nav" aria-label="On this page">
             <div class="docs-nav__title">Contents</div>
             <ol class="docs-nav__list">
-              <li><a href="#benchmark-splits">The two splits</a></li>
               <li><a href="#benchmark-baselines">Baselines</a></li>
+              <li><a href="#benchmark-splits">The two splits</a></li>
               <li><a href="#benchmark-score">Score your model</a></li>
               <li><a href="#benchmark-coverage">Prediction-set coverage</a></li>
             </ol>
@@ -4310,7 +4320,8 @@
             same alloys. The random split mostly tests interpolation, because a test alloy usually
             has close relatives from its own alloy system in training. The family-grouped split holds
             out whole alloy systems, so it tests extrapolation to chemistries the model has not seen.
-            The gap is the random score minus the grouped score.
+            Every model gets both scores. Their difference, random minus grouped, is the gap: how much
+            harder extrapolation is for that model.
           </p>
           <p class="small-note">
             Each section below works on its own: check that the splits match the published ones,
@@ -4330,16 +4341,16 @@
             </select>
           </div>
 
-          <h3 id="benchmark-splits"><span class="sec-num">01</span>The two splits</h3>
-          <div id="benchmark-splits-body"></div>
-
-          <h3 id="benchmark-baselines"><span class="sec-num">02</span>Baselines</h3>
+          <h3 id="benchmark-baselines"><span class="sec-num">01</span>Baselines</h3>
           <p>
             Published results for the reference corpus, each re-runnable here. The rules have no
             fitted parameters, so their two scores agree by construction. Compare rules with fitted
             models on the grouped column.
           </p>
           <div id="benchmark-baselines-body"></div>
+
+          <h3 id="benchmark-splits"><span class="sec-num">02</span>The two splits</h3>
+          <div id="benchmark-splits-body"></div>
 
           <h3 id="benchmark-score"><span class="sec-num">03</span>Score your model</h3>
           <p>
@@ -4361,8 +4372,8 @@
           <p>
             A conformal prediction set lists every phase the model cannot rule out at a chosen
             confidence. This study checks how often the sets contain the true label when whole alloy
-            systems are unseen, overall and for alloys flagged as unlike the dataset. It takes a few
-            minutes in the browser.
+            systems are unseen, overall and for alloys flagged as outside the dataset's range. It
+            takes a few minutes in the browser.
           </p>
           <div class="feature-controls">
             <button type="button" class="primary" id="benchmark-coverage-run">Run the coverage study</button>
@@ -4776,13 +4787,13 @@
         <span class="sb-spacer"></span>
         <span>Miedema model: de Boer et al. (1988)</span>
         <span class="sb-sep">&middot;</span>
-        <span>Offline</span>
+        <span>Runs on this device</span>
       </footer>
     </div>
 
-    <script src="hea-calculator-core.js?v=2.7.0"></script>
+    <script src="hea-calculator-core.js?v=2.7.1"></script>
     <script>
-      const VERSION = "2.7.0";
+      const VERSION = "2.7.1";
       const VERSION_DATE = "2026-10-06";
       const VERSION_HISTORY = [
         { version: "2.7.0", date: "2026-10-06", notes: "Every feature in all four parts: 24 MCP tools, the dataset from pip, a smoother app" },
@@ -6081,7 +6092,7 @@
 
         ratioTableEl.querySelectorAll("input[data-percent-index]").forEach((input, idx) => {
           const value = Number(state.percents?.[idx]);
-          if (Number.isFinite(value)) input.value = String(value);
+          if (Number.isFinite(value)) setPercent(input, value);
         });
 
         if (state.kingTemperature != null && Number.isFinite(state.kingTemperature) && state.kingTemperature > 0) {
@@ -6266,7 +6277,7 @@
         });
         ratioTableEl.querySelectorAll("input[data-percent-index]").forEach((input, idx) => {
           const value = snapshot.percents[idx];
-          if (Number.isFinite(value)) input.value = value;
+          if (Number.isFinite(value)) setPercent(input, value);
         });
       }
 
@@ -6284,7 +6295,7 @@
                 <select data-element-index="${index}">${options}</select>
               </td>
               <td>
-                <input type="number" min="0" step="0.1" data-percent-index="${index}" value="${(100 / count).toFixed(2)}" />
+                <input type="number" min="0" step="0.1" data-percent-index="${index}" value="${(100 / count).toFixed(2)}" data-exact="${100 / count}" />
               </td>
             </tr>
           `;
@@ -6300,6 +6311,20 @@
         `;
       }
 
+      // A percent box shows 0.01 at.%, but a typed formula or a permalink
+      // carries more. The exact amount rides in data-exact until the user
+      // edits the box, so the app computes on what was typed, as the
+      // library does.
+      function setPercent(input, value) {
+        input.value = value.toFixed(2);
+        input.dataset.exact = String(value);
+      }
+
+      function readPercent(input) {
+        const exact = Number(input.dataset.exact);
+        return input.dataset.exact && exact.toFixed(2) === input.value ? exact : Number(input.value);
+      }
+
       function readComposition() {
         const elements = [];
         const percents = [];
@@ -6307,7 +6332,7 @@
           elements.push(select.value);
         });
         ratioTableEl.querySelectorAll("input[data-percent-index]").forEach((input) => {
-          percents.push(Number(input.value));
+          percents.push(readPercent(input));
         });
         return { elements, percents };
       }
@@ -6562,14 +6587,8 @@
           {
             title: "Mean melting temperature",
             symbol: "Tm",
-            units: "K",
+            units: `K (${formatNumber(descriptors.Tm_C)} °C)`,
             value: formatNumber(descriptors.Tm_K),
-          },
-          {
-            title: "Mean melting temperature",
-            symbol: "Tm",
-            units: "°C",
-            value: formatNumber(descriptors.Tm_C),
           },
           {
             title: "Mixing enthalpy",
@@ -6766,6 +6785,7 @@
           symbol: "VEC bounds 6.87, 8.0",
           units: descriptors.VEC != null ? `VEC = ${formatNumber(descriptors.VEC)}` : "—",
           value: formatVerdict(rules.guo_vec.verdict === "mixed" ? "mixed (FCC + BCC)" : rules.guo_vec.verdict),
+          note: rules.guo_vec.note,
         });
         ruleCards.push({
           title: "Yang–Zhang Ω rule",
@@ -6792,6 +6812,7 @@
             symbol: kap.k1 != null ? `k₁ = ${formatNumber(kap.k1)} vs k₁ᶜʳ = ${formatNumber(kap.k1_cr)}` : "ΔG(SS) vs ΔG(IM), ΔS IM = 0.6·ΔS mix",
             units: kap.temperature != null ? `at T = ${formatNumber(kap.temperature, 5)} K` : "—",
             value: formatVerdict(kap.verdict),
+            note: kap.note,
           });
         }
         if (rules.tsai_sigma) {
@@ -6806,8 +6827,8 @@
           ruleCards.push({
             title: "Sheikh ductility screen",
             symbol: "VEC < 4.5 → ductile (bcc refractory)",
-            units: descriptors.VEC != null ? `VEC = ${formatNumber(descriptors.VEC)}` : "—",
-            value: formatVerdict(rules.sheikh_ductility.verdict),
+            units: descriptors.VEC != null ? `VEC = ${formatNumber(descriptors.VEC)}${rules.sheikh_ductility.applies ? "" : ", has non-refractory elements"}` : "—",
+            value: formatVerdict(rules.sheikh_ductility.verdict === "not_applicable" ? "not applicable" : rules.sheikh_ductility.verdict),
           });
         }
 
@@ -6821,6 +6842,7 @@
             <div class="symbol">${card.symbol || ""}</div>
             <p>${card.value}</p>
             <div class="units">${card.units || ""}</div>
+            ${card.note ? `<div class="rule-note">${escapeHtmlText(card.note)}</div>` : ""}
           `;
           rulesEl.appendChild(div);
         });
@@ -6975,8 +6997,7 @@
         showError("");
         const inputs = ratioTableEl.querySelectorAll("input[data-percent-index]");
         if (inputs.length === 0) return;
-        const equal = (100 / inputs.length).toFixed(2);
-        inputs.forEach((input) => { input.value = equal; });
+        inputs.forEach((input) => { setPercent(input, 100 / inputs.length); });
         scheduleSaveFormState();
       }
 
@@ -6986,12 +7007,21 @@
         try {
           const normalized = normalizePercents(percents);
           ratioTableEl.querySelectorAll("input[data-percent-index]").forEach((input, idx) => {
-            input.value = normalized[idx].toFixed(2);
+            setPercent(input, normalized[idx]);
           });
           scheduleSaveFormState();
         } catch (error) {
           showError(error.message);
         }
+      }
+
+      // An error must not leave an earlier composition's results on screen
+      // next to inputs they no longer describe.
+      function showInputError(message) {
+        showError(message);
+        renderResults(null);
+        renderWarnings([]);
+        lastCalculation = null;
       }
 
       function handleCalculate() {
@@ -7002,25 +7032,25 @@
         const selected = elements.filter((el) => el);
 
         if (selected.length < 2) {
-          showError("Select at least two elements.");
+          showInputError("Select at least two elements.");
           return;
         }
         if (selected.length !== elements.length) {
-          showError("Fill all element selections.");
+          showInputError("Fill all element selections.");
           return;
         }
         if (selected.some((el) => el === CUSTOM_OPTION_VALUE)) {
-          showError("Finish creating the custom element first.");
+          showInputError("Finish creating the custom element first.");
           openCustomPanel(null, null);
           return;
         }
         const duplicates = selected.filter((item, index) => selected.indexOf(item) !== index);
         if (duplicates.length) {
-          showError("Element selections must be unique.");
+          showInputError("Each element can appear only once in the table. A formula such as CoCrFeNiNi adds repeats up for you.");
           return;
         }
         if (percents.some((p) => !Number.isFinite(p) || p <= 0)) {
-          showError("All percentages must be positive numbers.");
+          showInputError("All percentages must be positive numbers.");
           return;
         }
 
@@ -7028,12 +7058,12 @@
         try {
           normalized = normalizePercents(percents);
         } catch (error) {
-          showError(error.message);
+          showInputError(error.message);
           return;
         }
 
         ratioTableEl.querySelectorAll("input[data-percent-index]").forEach((input, idx) => {
-          input.value = normalized[idx].toFixed(2);
+          setPercent(input, normalized[idx]);
         });
 
         const fractions = Object.fromEntries(
@@ -7058,41 +7088,21 @@
             rules: { ...rules },
           };
         } catch (error) {
-          showError(error.message);
+          showInputError(error.message);
         }
       }
 
       function parseFormula(str) {
-        str = str.trim();
-        if (!str) throw new Error("Empty formula string.");
-        const tokens = [];
-        const re = /([A-Z][a-z]?)(\d*\.?\d*)/g;
-        let match;
-        // Full-consumption contract (issue #1): any non-whitespace text
-        // between or around element tokens is an error, never silently
-        // dropped. Mirrors the Python parse_formula gap-check so the
-        // library, browser, desktop, and permalinks agree on what parses.
-        let cursor = 0;
-        while ((match = re.exec(str)) !== null) {
-          const gap = str.slice(cursor, match.index);
-          if (gap.trim()) {
-            throw new Error(`Unrecognized text "${gap.trim()}" in formula.`);
-          }
-          cursor = re.lastIndex;
-          const sym = match[1];
-          const num = match[2] ? parseFloat(match[2]) : 1;
-          if (!Number.isFinite(num) || num <= 0) {
-            throw new Error(`Invalid coefficient for ${sym}.`);
-          }
-          tokens.push({ symbol: sym, ratio: num });
-        }
-        if (str.slice(cursor).trim()) {
-          throw new Error(`Unrecognized text "${str.slice(cursor).trim()}" in formula.`);
-        }
-        if (!tokens.length) throw new Error("No elements found in formula.");
-        const total = tokens.reduce((s, t) => s + t.ratio, 0);
-        return tokens.map(t => ({ symbol: t.symbol, percent: (t.ratio / total) * 100 }));
+        // The one formula parser, shared with the library: repeated
+        // elements add up, and (CoCrFeNi)95Al5 is 95 parts equimolar
+        // CoCrFeNi plus 5 parts Al (parseFormula in hea-calculator-core.js).
+        const parsed = calcCore.parseFormula(str);
+        return Object.keys(parsed).map((symbol) => ({ symbol, percent: parsed[symbol] * 100 }));
       }
+
+      // The last formula typed in; a permalink carries it while the table
+      // still holds what it produced (buildShareUrl).
+      let appliedFormula = null;
 
       function applyFormula() {
         showError("");
@@ -7101,13 +7111,17 @@
         try {
           parsed = parseFormula(raw);
         } catch (e) {
-          showError(e.message);
+          showInputError(e.message);
           return false;
         }
         const available = getAvailableElements();
         const unknown = parsed.filter(p => !available.includes(p.symbol));
         if (unknown.length) {
-          showError(`Unknown element(s): ${unknown.map(u => u.symbol).join(", ")}`);
+          showInputError(`Unknown element(s): ${unknown.map(u => u.symbol).join(", ")}`);
+          return false;
+        }
+        if (parsed.length > 10) {
+          showInputError(`The calculator takes up to 10 elements; this formula has ${parsed.length}.`);
           return false;
         }
         const count = Math.min(10, Math.max(2, parsed.length));
@@ -7116,29 +7130,40 @@
         const selects = ratioTableEl.querySelectorAll("select[data-element-index]");
         const inputs = ratioTableEl.querySelectorAll("input[data-percent-index]");
         parsed.forEach((p, i) => {
-          if (i < count) {
-            selects[i].value = p.symbol;
-            inputs[i].value = p.percent.toFixed(2);
-          }
+          selects[i].value = p.symbol;
+          setPercent(inputs[i], p.percent);
         });
+        appliedFormula = raw.trim();
         renderPairEnthalpyEditor();
         scheduleSaveFormState();
         return true;
+      }
+
+      function formulaStillApplies(elements, percents) {
+        if (!appliedFormula) return false;
+        let parsed;
+        try {
+          parsed = parseFormula(appliedFormula);
+        } catch (e) {
+          return false;
+        }
+        const total = percents.reduce((sum, p) => sum + p, 0);
+        return parsed.length === elements.length && parsed.every((p, i) =>
+          p.symbol === elements[i] && Math.abs(p.percent - (percents[i] / total) * 100) <= 1e-9 * p.percent);
       }
 
       function buildShareUrl() {
         const { elements, percents } = readComposition();
         const selected = elements.filter(el => el);
         if (selected.length < 2) return null;
-        const parts = selected.map((el, i) => {
-          const pct = percents[i];
-          const frac = pct / 100;
-          if (Math.abs(frac - 1) < 0.0001) return el;
-          const nice = parseFloat(frac.toPrecision(6));
-          return nice === 1 ? el : `${el}${nice}`;
-        });
+        // The typed formula itself while the table still holds what it
+        // produced, so the link reopens to the same composition the library
+        // reads from that formula. Otherwise the table's exact amounts.
+        const comp = formulaStillApplies(elements, percents)
+          ? appliedFormula
+          : selected.map((el, i) => `${el}${percents[i]}`).join("");
         const url = new URL(window.location.href.split("?")[0]);
-        url.searchParams.set("comp", parts.join(""));
+        url.searchParams.set("comp", comp);
         const kingTemperature = getKingTemperatureOverride();
         if (kingTemperature !== null) {
           url.searchParams.set("kingT", String(kingTemperature));
@@ -7152,6 +7177,8 @@
         const params = new URLSearchParams(window.location.search);
         const comp = params.get("comp");
         if (!comp) return null;
+        // A ?comp= link is an alloy, whatever mode this browser used last.
+        applyMode("alloy");
         const kingTemperature = Number(params.get("kingT"));
         formulaInput.value = comp;
         kingTemperatureInput.value = Number.isFinite(kingTemperature) && kingTemperature > 0 ? String(kingTemperature) : "";
@@ -7789,7 +7816,7 @@
         "Elastic-strain energy": "Andreoli 2019 elastic-strain energy from bulk moduli and atomic volumes. fcc solid solutions cluster below 6.05 kJ/mol, bcc between 6.05 and 22.",
         "Senkov–Miracle kappa": "Compares ΔG of the solid solution against the most stable binary compound at an explicit temperature, with ΔS(IM) = 0.6·ΔSmix (Senkov and Miracle 2016).",
         "Tsai sigma window": "Annealed Cr- or V-containing alloys with 6.88 ≤ VEC ≤ 7.84 tend to precipitate the sigma phase (Tsai 2013).",
-        "Sheikh ductility screen": "For single-phase bcc refractory HEAs: VEC below 4.5 predicts intrinsic ductility (Sheikh 2016).",
+        "Sheikh ductility screen": "For single-phase bcc refractory HEAs made only of Ti, Zr, Hf, V, Nb, Ta, Cr, Mo and W: VEC below 4.5 predicts intrinsic ductility (Sheikh 2016). Not applicable to any other alloy.",
       };
 
       // ---- Provenance drawer -----------------------------------------
@@ -7824,13 +7851,13 @@
         "AM topological contribution": { sym: "ΔH topo", eq: null, inputs: ["melting"], interp: "The 3.5·Σcᵢ T m,i topological term of the amorphous enthalpy.", refs: ["loeff1988"], theory: "sec-am", eqn: "eq-am" },
         "Yeh entropy rule": { sym: "ΔS mix vs R", eq: null, inputs: ["composition"], interp: "≥ 1.5R high entropy, 1R–1.5R medium entropy, below dilute. A definition, not a phase prediction.", refs: ["yeh2004"], theory: "sec-entropy", eqn: "eq-smix" },
         "Zhang size-mismatch rule": { sym: "δ < 6.5 %", eq: null, inputs: ["radius"], interp: "Single phase predicted below 6.5 %; an empirical screen calibrated on the 2008 survey.", refs: ["zhang2008"], theory: "sec-delta", eqn: "eq-delta" },
-        "Guo–Liu VEC rule": { sym: "VEC bands", eq: null, inputs: ["valence"], interp: "FCC at VEC ≥ 8, BCC below 6.87. Says which lattice a solid solution prefers, not whether one forms.", refs: ["guo2011vec"], theory: "sec-vec", eqn: "eq-vec" },
+        "Guo–Liu VEC rule": { sym: "VEC bands", eq: null, inputs: ["valence"], interp: "FCC at VEC ≥ 8, BCC below 6.87. Says which lattice a solid solution prefers, not whether one forms. Within 0.2 of either cutoff the published data scatter, so the card adds a borderline note there.", refs: ["guo2011vec"], theory: "sec-vec", eqn: "eq-vec" },
         "Yang–Zhang Ω rule": { sym: "Ω > 1.1", eq: null, inputs: ["melting", "pairs"], interp: "Solid solution favored above 1.1. Unstable near ΔH mix ≈ 0 (reported, not hidden).", refs: ["yang2012"], theory: "sec-omega", eqn: "eq-omega" },
         "King Phi rule": { sym: "Φ > 1", eq: null, inputs: ["pairs", "temperature"], interp: "Solid solution predicted when Φ exceeds 1 at the chosen temperature.", refs: ["king2016"], theory: "sec-prediction", eqn: null },
         "Ye phi rule": { sym: "φ > 20", eq: null, inputs: ["pairs", "melting", "radius"], interp: "Solid solution predicted above 20.", refs: ["ye2015phi"], theory: "sec-prediction", eqn: null },
-        "Senkov–Miracle kappa": { sym: "k₁ vs k₁ᶜʳ(T)", eq: "k_1^{\\mathrm{cr}}(T) = 1 + \\dfrac{(1-k_2)\\,T\\,\\Delta S_{\\mathrm{mix}}}{|\\Delta H_{\\mathrm{mix}}|},\\quad k_2 = 0.6", inputs: ["pairs", "temperature"], interp: "Solid solution favored while k₁ = ΔH IM/ΔH mix stays below k₁ᶜʳ(T); the verdict here is computed from the direct Gibbs comparison (robust when ΔH mix ≥ 0), with ΔS IM = 0.6·ΔS mix per the paper and ΔH IM = the most-negative-binary proxy.", refs: ["senkov2016"], theory: "sec-kappa", eqn: "eq-kappa" },
+        "Senkov–Miracle kappa": { sym: "k₁ vs k₁ᶜʳ(T)", eq: "k_1^{\\mathrm{cr}}(T) = 1 + \\dfrac{(1-k_2)\\,T\\,\\Delta S_{\\mathrm{mix}}}{|\\Delta H_{\\mathrm{mix}}|},\\quad k_2 = 0.6", inputs: ["pairs", "temperature"], interp: "Solid solution favored while k₁ = ΔH IM/ΔH mix stays below k₁ᶜʳ(T); the verdict here is computed from the direct Gibbs comparison (robust when ΔH mix ≥ 0), with ΔS IM = 0.6·ΔS mix per the paper and ΔH IM = the most-negative-binary proxy. That pair counts in full however little of its elements the alloy holds, so the card notes when one of them is under 10 at.%.", refs: ["senkov2016"], theory: "sec-kappa", eqn: "eq-kappa" },
         "Tsai sigma window": { sym: "6.88 ≤ VEC ≤ 7.84", eq: null, inputs: ["valence"], interp: "Applies to annealed Cr- and/or V-containing alloys; inside the window the sigma phase tends to precipitate. Not applicable without Cr or V.", refs: ["tsai2013"], theory: "sec-prediction", eqn: "eq-vec" },
-        "Sheikh ductility screen": { sym: "VEC < 4.5", eq: null, inputs: ["valence"], interp: "For single-phase bcc refractory HEAs: below 4.5 intrinsically ductile, at or above 4.6 brittle. Present it alongside the Guo bands, not as a universal verdict.", refs: ["sheikh2016"], theory: "sec-prediction", eqn: "eq-vec" },
+        "Sheikh ductility screen": { sym: "VEC < 4.5", eq: null, inputs: ["valence"], interp: "For single-phase bcc refractory HEAs made only of Ti, Zr, Hf, V, Nb, Ta, Cr, Mo and W: below 4.5 intrinsically ductile, at or above 4.6 brittle. Any other element makes it not applicable. Present it alongside the Guo bands, not as a universal verdict.", refs: ["sheikh2016"], theory: "sec-prediction", eqn: "eq-vec" },
         "Configurational entropy": { sym: "ΔS config", eq: "\\Delta S_{\\mathrm{config}} = -R \\sum_s m_s \\sum_i x_{i,s} \\ln x_{i,s}", inputs: ["shannon"], interp: "Sublattice-weighted ideal mixing entropy per mole of formula units; ordered sublattices contribute zero.", refs: ["rost2015"], theory: "sec-heo", eqn: "eq-oxide-s" },
         "Entropy per cation site": { sym: "ΔS/site", eq: null, inputs: ["shannon"], interp: "The value the 1.5R rock-salt threshold applies to.", refs: ["rost2015"], theory: "sec-heo", eqn: "eq-oxide-s" },
         "Entropy classification": { sym: "ΔS vs 1.5R", eq: null, inputs: ["shannon"], interp: "Rost's entropy-stabilization regime marker.", refs: ["rost2015"], theory: "sec-heo", eqn: "eq-oxide-s" },
@@ -8080,6 +8107,19 @@
         return ("0000000" + h.toString(16)).slice(-8);
       }
 
+      // Two arithmetic routes to one composition (a typed formula and its
+      // permalink) can differ in the last bit, which must not change the
+      // result ID, so the ID hashes each mole fraction at 12 significant
+      // digits. The receipt itself keeps the exact values.
+      function idInputs(inputs) {
+        if (!inputs || !inputs.composition) return inputs;
+        const composition = {};
+        Object.keys(inputs.composition).forEach((el) => {
+          composition[el] = Number(Number(inputs.composition[el]).toPrecision(12));
+        });
+        return Object.assign({}, inputs, { composition });
+      }
+
       function resultIdFrom(text) {
         if (window.crypto && window.crypto.subtle && typeof window.crypto.subtle.digest === "function") {
           const bytes = new TextEncoder().encode(text);
@@ -8169,7 +8209,7 @@
           return;
         }
         const permalink = mode === "alloy" ? buildShareUrl() : null;
-        const idPayload = canonicalJson({ v: VERSION, inputs: receipt.inputs });
+        const idPayload = canonicalJson({ v: VERSION, inputs: idInputs(receipt.inputs) });
         document.getElementById("cite-version").textContent = "v" + VERSION + " · data " + DATA_TABLES_SHORT_SHA;
         const permRow = document.getElementById("cite-permalink-row");
         if (permalink) {
@@ -8861,7 +8901,7 @@
         openFromHash();
       })();
     </script>
-    <script src="hea-engine.js?v=2.7.0"></script>
-    <script src="hea-features.js?v=2.7.0"></script>
+    <script src="hea-engine.js?v=2.7.1"></script>
+    <script src="hea-features.js?v=2.7.1"></script>
 
 </body></html>

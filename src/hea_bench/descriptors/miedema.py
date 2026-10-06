@@ -29,11 +29,12 @@ from __future__ import annotations
 from itertools import combinations
 
 from .. import _overrides
-from ..composition import Composition
+from ..composition import Composition, accepts_formula
 from .data.pair_enthalpies import covered_elements as _pair_covered
 from .data.pair_enthalpies import pair_enthalpy
 
 
+@accepts_formula
 def mixing_enthalpy(composition: Composition) -> float:
     """Miedema multi-component mixing enthalpy ΔH_mix (kJ/mol).
 

@@ -62,8 +62,11 @@ def test_parse_allows_whitespace_between_complete_tokens() -> None:
         "???Fe1Co1",
         "Fe1Co1???",
         "Fe1,Co1",
-        "(Fe1Co1)",
         "Fe 1 Co 2",
+        "(Fe1Co1",
+        "Fe1Co1)",
+        "()Fe",
+        "(CoCrFeNi) 95Al5",
     ],
 )
 def test_parse_rejects_unconsumed_non_whitespace(formula: str) -> None:
@@ -115,3 +118,60 @@ def test_from_element_columns_ignores_missing_and_nonnumeric() -> None:
     row = {"Fe": "0.5", "Co": "0.5", "Ni": "", "Cr": "n/a"}
     got = from_element_columns(row, ["Fe", "Co", "Ni", "Cr", "Mn"])
     assert got == {"Fe": 0.5, "Co": 0.5}
+
+
+def test_parse_group_notation_is_one_unit_with_its_own_amount() -> None:
+    """(CoCrFeNi)95Al5 is 95 parts equimolar CoCrFeNi plus 5 parts Al,
+    the HEA convention, not Co95Cr95Fe95Ni95Al5."""
+    assert parse_formula("(CoCrFeNi)95Al5") == pytest.approx(
+        {"Co": 0.2375, "Cr": 0.2375, "Fe": 0.2375, "Ni": 0.2375, "Al": 0.05}, rel=1e-12
+    )
+    # Ratios inside the group are kept, and groups nest.
+    assert parse_formula("(Co2CrFeNi)95Al5")["Co"] == pytest.approx(0.38, rel=1e-12)
+    nested = parse_formula("((CoCrFeNi)90Al10)95Ti5")
+    assert nested["Al"] == pytest.approx(0.095, rel=1e-12)
+    assert nested["Ti"] == pytest.approx(0.05, rel=1e-12)
+    # A group with no number counts as one part.
+    assert parse_formula("(Fe1Co1)") == pytest.approx({"Fe": 0.5, "Co": 0.5}, rel=1e-12)
+
+
+def test_every_public_composition_function_accepts_a_formula() -> None:
+    """hb.smix("CoCrFeMnNi") must work like hb.smix(parse_formula(...)).
+    Every public function whose first argument is ``composition`` wears
+    hea_bench.composition.accepts_formula; this fails for one that does not."""
+    import importlib
+    import inspect
+    import json
+    from pathlib import Path
+
+    from hea_bench import rules
+
+    registry = json.loads(
+        (Path(__file__).resolve().parent / "data" / "feature_parity.json").read_text(encoding="utf-8")
+    )
+    names = [n for f in registry["features"].values() for n in f.get("covers", [])]
+    names += [f"hea_bench.rules.{module}.predict" for module in rules.VERDICT_FUNCTIONS]
+    missing = []
+    for name in sorted(set(names)):
+        if not name.startswith("hea_bench."):
+            continue
+        module, _, attr = name.rpartition(".")
+        try:
+            obj = getattr(importlib.import_module(module), attr)
+        except (ImportError, AttributeError):
+            continue
+        if not callable(obj) or isinstance(obj, type):
+            continue
+        try:
+            params = list(inspect.signature(obj).parameters)
+        except (TypeError, ValueError):
+            continue
+        if params[:1] == ["composition"] and getattr(obj, "__wrapped__", None) is None:
+            missing.append(name)
+    assert not missing, (
+        f"{missing} take a composition but not a formula string. Fix: decorate each with "
+        "@accepts_formula from hea_bench.composition."
+    )
+    import hea_bench as hb
+
+    assert hb.smix("CoCrFeMnNi") == hb.smix(parse_formula("CoCrFeMnNi"))

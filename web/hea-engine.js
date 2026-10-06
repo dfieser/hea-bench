@@ -1,12 +1,14 @@
 /* HEA-Bench engine client: a lazy handle on hea-engine-worker.js.
  *
- * Nothing loads until a feature asks for the engine; the first request
- * starts the worker (about 28 MB once, then browser-cached) and every
- * later one reuses it. API on window.HEAEngine:
+ * Nothing loads until a feature asks for the engine (the desktop app asks
+ * at launch); the first request starts the worker and every later one
+ * reuses it. The engine is about 28 MB: the website fetches it once and
+ * the browser keeps it, the desktop exe carries it. API on window.HEAEngine:
  *
  *   start()                          -> Promise(info)   boot, idempotent
  *   call(method, params, onProgress) -> Promise(result) one bridge call
  *   ensureCorpus(version, onProgress)-> Promise         build once per release
+ *   fetchPeivaste(onProgress)        -> Promise         get and keep the Peivaste file
  *   onStatus(listener)               state changes: {state, message, fraction, info, error}
  *   restart()                        stop a long run and boot afresh
  *   available()                      false on file:// (browsers block workers there)
@@ -133,6 +135,10 @@
     return call("ensure_corpus", { version: version || "0.1.0" }, onProgress);
   }
 
+  function fetchPeivaste(onProgress) {
+    return call("fetch_peivaste", {}, onProgress);
+  }
+
   function restart() {
     clearTimeout(watchdog);
     if (worker) worker.terminate();
@@ -153,6 +159,7 @@
     start: start,
     call: call,
     ensureCorpus: ensureCorpus,
+    fetchPeivaste: fetchPeivaste,
     restart: restart,
     onStatus: onStatus,
     status: function () {

@@ -4,8 +4,8 @@ Answers "what should I make" as a screening aid: enumerate element
 subsets of a palette, walk a fixed-step composition lattice inside
 each, filter by constraints, and return the Pareto front of the
 objectives with a full receipt on every candidate (descriptors, all
-nine rule verdicts, property predictions with intervals, novelty and
-domain flag). Exhaustive enumeration was chosen over a stochastic
+nine rule verdicts, property predictions with intervals, novelty,
+domain flag and the predicted phase). Exhaustive enumeration was chosen over a stochastic
 optimizer deliberately: it is reproducible by construction, debuggable
 row by row, and honest about its budget, refusing loudly when the
 lattice exceeds ``max_evaluations`` instead of sampling silently.
@@ -20,6 +20,7 @@ end of their intervals instead of the point prediction.
 
 from __future__ import annotations
 
+import dataclasses
 import json
 import math
 from dataclasses import dataclass, field
@@ -56,6 +57,25 @@ def _rule_verdict(rule: str, comp: Composition):
         return None
 
 
+def _predicted_phase(comp: Composition, alpha: float) -> dict | None:
+    """The four-class phase prediction set for one returned candidate.
+
+    None without scikit-learn or a built corpus: the search itself does
+    not need either when its objectives are tier A properties.
+    """
+    from ..uncertainty.phase import predict_phase_set
+
+    try:
+        result = predict_phase_set(comp, task="phase4", alpha=alpha)
+    except (ImportError, FileNotFoundError, ValueError):
+        return None
+    return {
+        "task": "phase4",
+        "prediction_set": result["prediction_set"],
+        "most_likely": result["most_likely"],
+    }
+
+
 @dataclass(frozen=True)
 class Candidate:
     """One Pareto-front member with its complete receipt."""
@@ -67,6 +87,7 @@ class Candidate:
     novelty: dict | None
     in_domain: bool | None
     objective_values: dict
+    phase: dict | None = None
 
     def to_dict(self) -> dict:
         properties = {}
@@ -83,6 +104,7 @@ class Candidate:
             "objective_values": {
                 name: json_safe(v) for name, v in self.objective_values.items()
             },
+            "phase": self.phase,
         }
 
 
@@ -447,8 +469,14 @@ def search(
         "n_candidates": n_candidates,
         "hea_bench_version": __version__,
     }
+    # The phase model runs only on what is returned, so it costs a few
+    # predictions, not one per lattice point.
+    shown = tuple(
+        dataclasses.replace(candidate, phase=_predicted_phase(candidate.composition, alpha))
+        for candidate in front[:n_candidates]
+    )
     return ParetoResult(
-        candidates=tuple(front[:n_candidates]),
+        candidates=shown,
         seed=seed,
         settings=settings,
         n_evaluated=n_evaluated,

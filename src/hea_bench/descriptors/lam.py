@@ -23,11 +23,12 @@ from __future__ import annotations
 
 import math
 
-from ..composition import Composition
+from ..composition import Composition, accepts_formula
 from .entropy import smix
 from .size import delta
 
 
+@accepts_formula
 def singh_lambda(composition: Composition) -> float:
     """Λ = ΔS_mix / δ² (J·mol⁻¹·K⁻¹·%⁻²); ``math.inf`` when δ = 0."""
     d = delta(composition)

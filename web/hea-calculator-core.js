@@ -31,6 +31,14 @@
     var TSAI_SIGMA_VEC_MAX = 7.84;
     var SHEIKH_DUCTILE_VEC = 4.5;
     var SHEIKH_BRITTLE_VEC = 4.6;
+    // Sheikh et al. 2016 built the ductility screen on refractory HEAs of
+    // group IV, V and VI elements only (sheikh_ductility.py).
+    var SHEIKH_REFRACTORY_ELEMENTS = { Ti: true, Zr: true, Hf: true, V: true, Nb: true, Ta: true, Cr: true, Mo: true, W: true };
+    // Caution band around each Guo VEC cutoff, and the mole fraction under
+    // which an element of Senkov's ΔH_IM pair earns a note. Both match the
+    // Python rules (guo_vec.NEAR_CUTOFF, senkov_kappa.DILUTE_FRACTION).
+    var GUO_VEC_NEAR_CUTOFF = 0.2;
+    var SENKOV_DILUTE_FRACTION = 0.1;
     var SIGMA_FORMER_ELEMENTS = { Cr: true, V: true };
 
     // 55-element coverage (atomic radius, melting point, valence,
@@ -2065,6 +2073,69 @@
       return elemB + "|" + elemA;
     }
 
+    function addAmount(target, symbol, amount) {
+      target[symbol] = (hasOwn(target, symbol) ? target[symbol] : 0) + amount;
+    }
+
+    function formulaAmount(text) {
+      if (text === "") return 1;
+      if (text === ".") throw new Error('Bad amount "." in formula.');
+      return parseFloat(text);
+    }
+
+    // Formula text -> normalized composition, by the rules of the Python
+    // parse_formula (the parity tests check both): repeated elements add
+    // up, and a parenthesized group is one unit in its own ratio whose
+    // number is its amount, so (CoCrFeNi)95Al5 is 95 parts equimolar
+    // CoCrFeNi plus 5 parts Al. Symbols are not checked against a table
+    // here; each caller decides which elements it supports.
+    function parseFormula(text) {
+      var source = String(text == null ? "" : text);
+      if (!source.trim()) throw new Error("Enter a formula, for example CoCrFeMnNi.");
+      var stack = [{}];
+      var pos = 0;
+      while (pos < source.length) {
+        var ch = source.charAt(pos);
+        var rest = source.slice(pos);
+        if (/\s/.test(ch)) {
+          pos += 1;
+        } else if (ch === "(") {
+          stack.push({});
+          pos += 1;
+        } else if (ch === ")") {
+          if (stack.length === 1) throw new Error('Unmatched ")" in formula.');
+          var group = stack.pop();
+          var amountText = /^[0-9]*\.?[0-9]*/.exec(rest.slice(1))[0];
+          pos += 1 + amountText.length;
+          var groupTotal = 0;
+          var key;
+          for (key in group) if (hasOwn(group, key)) groupTotal += group[key];
+          if (!(groupTotal > 0)) throw new Error('Empty group "()" in formula.');
+          var amount = formulaAmount(amountText);
+          for (key in group) {
+            if (hasOwn(group, key)) addAmount(stack[stack.length - 1], key, group[key] / groupTotal * amount);
+          }
+        } else {
+          var token = /^([A-Z][a-z]?)([0-9]*\.?[0-9]*)/.exec(rest);
+          if (!token) {
+            throw new Error('Unrecognized text "' + /^[^A-Z()\s]*/.exec(rest)[0].slice(0, 20) + '" in formula.');
+          }
+          pos += token[0].length;
+          addAmount(stack[stack.length - 1], token[1], formulaAmount(token[2]));
+        }
+      }
+      if (stack.length > 1) throw new Error('Unmatched "(" in formula.');
+      var top = stack[0];
+      var symbols = Object.keys(top);
+      if (!symbols.length) throw new Error("No elements found in formula.");
+      var total = 0;
+      symbols.forEach(function (symbol) { if (top[symbol] > 0) total += top[symbol]; });
+      if (!(total > 0)) throw new Error("The amounts in the formula add up to zero.");
+      var out = {};
+      symbols.forEach(function (symbol) { if (top[symbol] > 0) out[symbol] = top[symbol] / total; });
+      return out;
+    }
+
     function normalizeComposition(composition) {
       if (!composition || typeof composition !== "object") {
         throw new Error("composition must be a mapping of element to amount");
@@ -2162,6 +2233,7 @@
       var total = 0.0;
       var values = [];
       var rawValues = [];
+      var rawPairs = [];
       var missingPairs = [];
       var i;
       var j;
@@ -2184,6 +2256,7 @@
           total += pairValue;
           values.push(pairValue);
           rawValues.push(enthalpy);
+          rawPairs.push([elemA, elemB]);
         }
       }
 
@@ -2191,6 +2264,7 @@
         total: total,
         values: values,
         rawValues: rawValues,
+        rawPairs: rawPairs,
         missingPairs: missingPairs
       };
     }
@@ -2407,7 +2481,7 @@
       var result = {
         yeh_smix: { threshold: null, verdict: null, value: descriptors.Smix },
         zhang_delta: { threshold: ZHANG_DELTA_THRESHOLD, verdict: null, value: descriptors.delta },
-        guo_vec: { threshold: null, verdict: null, value: descriptors.VEC },
+        guo_vec: { threshold: null, verdict: null, value: descriptors.VEC, note: null },
         yang_omega: { threshold: YANG_OMEGA_THRESHOLD, verdict: null, value: descriptors.Omega },
         king_phi: {
           threshold: options && options.kingThreshold !== undefined ? Number(options.kingThreshold) : KING_PHI_THRESHOLD,
@@ -2428,7 +2502,9 @@
           temperature: descriptors.King_temperature_K,
           verdict: null,
           value: null,
-          threshold: null
+          threshold: null,
+          im_pair: descriptors.DeltaG_max_pair || null,
+          note: null
         },
         tsai_sigma: {
           applies: descriptors.sigma_former_present === true,
@@ -2438,6 +2514,7 @@
           threshold: TSAI_SIGMA_VEC_MIN + " ≤ VEC ≤ " + TSAI_SIGMA_VEC_MAX
         },
         sheikh_ductility: {
+          applies: descriptors.refractory_only === true,
           verdict: null,
           value: descriptors.VEC,
           threshold: SHEIKH_DUCTILE_VEC
@@ -2467,6 +2544,12 @@
         } else {
           result.guo_vec.verdict = "mixed";
         }
+        [[GUO_VEC_FCC_THRESHOLD, "8.0", "FCC"], [GUO_VEC_BCC_THRESHOLD, "6.87", "BCC"]].forEach(function (cut) {
+          if (result.guo_vec.note === null && Math.abs(roundedVec - cut[0]) <= GUO_VEC_NEAR_CUTOFF + 1e-9) {
+            result.guo_vec.note = "VEC is within 0.2 of Guo's " + cut[1] + " " + cut[2] + " cutoff, where the published " +
+              "data scatter, so the call between " + cut[2] + " and mixed is borderline.";
+          }
+        });
       }
 
       if (isNumericValue(descriptors.Omega)) {
@@ -2501,6 +2584,12 @@
           kappa.value = kappa.k1;
           kappa.threshold = kappa.k1_cr;
         }
+        var dilute = descriptors.DeltaG_max_pair_dilute || [];
+        if (kappa.im_pair && descriptors.DeltaG_max < 0.0 && dilute.length) {
+          kappa.note = "κ takes ΔH_IM from the strongest pair, " + kappa.im_pair.join("-") + ", without weighting it " +
+            "by amount, and " + dilute.join(" and ") + (dilute.length === 1 ? " is" : " are") +
+            " under 10 at.% here, so read the verdict with caution.";
+        }
       }
 
       // Tsai 2013 sigma window: only meaningful when Cr and/or V present.
@@ -2514,9 +2603,12 @@
         }
       }
 
-      // Sheikh 2016 refractory ductility bands.
+      // Sheikh 2016 refractory ductility bands, silent outside Ti, Zr, Hf,
+      // V, Nb, Ta, Cr, Mo and W.
       if (isNumericValue(descriptors.VEC)) {
-        if (descriptors.VEC < SHEIKH_DUCTILE_VEC) {
+        if (!result.sheikh_ductility.applies) {
+          result.sheikh_ductility.verdict = "not_applicable";
+        } else if (descriptors.VEC < SHEIKH_DUCTILE_VEC) {
           result.sheikh_ductility.verdict = "ductile";
         } else if (descriptors.VEC >= SHEIKH_BRITTLE_VEC) {
           result.sheikh_ductility.verdict = "brittle";
@@ -2610,14 +2702,23 @@
           }
         }
       })();
+      var refractoryOnly = Object.keys(norm).every(function (key) {
+        return SHEIKH_REFRACTORY_ELEMENTS[key] === true;
+      });
       deltaGss = null;
       deltaGmax = null;
+      var deltaGmaxPair = null;
+      var deltaGmaxPairDilute = null;
       phiKing = null;
       phiYe = null;
 
       if (Hmix !== null) {
         deltaGss = Hmix - (kingTemperature * Smix) / 1000.0;
         deltaGmax = pairTerms.rawValues.length ? Math.min.apply(null, pairTerms.rawValues) : 0.0;
+        if (pairTerms.rawValues.length) {
+          deltaGmaxPair = pairTerms.rawPairs[pairTerms.rawValues.indexOf(deltaGmax)].slice();
+          deltaGmaxPairDilute = deltaGmaxPair.filter(function (el) { return norm[el] < SENKOV_DILUTE_FRACTION - 1e-9; });
+        }
         phiKing = deltaGmax === 0.0 ? Infinity : deltaGss / (-Math.abs(deltaGmax));
         phiYe = Math.abs(sExcess) === 0.0 ? Infinity : (Smix - Math.abs(Hmix) * 1000.0 / Tm) / Math.abs(sExcess);
       }
@@ -2649,7 +2750,10 @@
         Lambda_singh: lambdaSingh,
         gamma_wang: gammaWang,
         H_elastic: hElastic,
-        sigma_former_present: sigmaFormerPresent
+        sigma_former_present: sigmaFormerPresent,
+        refractory_only: refractoryOnly,
+        DeltaG_max_pair: deltaGmaxPair,
+        DeltaG_max_pair_dilute: deltaGmaxPairDilute
       };
 
       return {
@@ -4042,6 +4146,7 @@
       TSAI_SIGMA_VEC_MAX: TSAI_SIGMA_VEC_MAX,
       SHEIKH_DUCTILE_VEC: SHEIKH_DUCTILE_VEC,
       SHEIKH_BRITTLE_VEC: SHEIKH_BRITTLE_VEC,
+      SHEIKH_REFRACTORY_ELEMENTS: SHEIKH_REFRACTORY_ELEMENTS,
       ELEMENT_DATA: DEFAULT_ELEMENT_DATA,
       ELEMENT_MECHANICS: ELEMENT_MECHANICS,
       MIEDEMA_TABLE: MIEDEMA_TABLE,
@@ -4054,6 +4159,7 @@
       computeAmorphousEnthalpy: computeAmorphousEnthalpy,
       calculateMiedemaDescriptors: calculateMiedemaDescriptors,
       normalizeComposition: normalizeComposition,
+      parseFormula: parseFormula,
       calculateDescriptors: calculateDescriptors,
       rulePredictionsFromDescriptors: rulePredictionsFromDescriptors,
       smix: smix,

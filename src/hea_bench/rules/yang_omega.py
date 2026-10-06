@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import math
 
-from ..composition import Composition
+from ..composition import Composition, accepts_formula
 from ..descriptors.omega import omega
 
 DESCRIPTION = "Yang & Zhang 2012: Ω > 1.1 → single-phase solid solution"
@@ -24,6 +24,7 @@ DESCRIPTION = "Yang & Zhang 2012: Ω > 1.1 → single-phase solid solution"
 DEFAULT_THRESHOLD = 1.1
 
 
+@accepts_formula
 def predict(composition: Composition, threshold: float = DEFAULT_THRESHOLD) -> str:
     """Return ``"single-phase"`` if Ω > threshold, else ``"multi-phase"``.
 

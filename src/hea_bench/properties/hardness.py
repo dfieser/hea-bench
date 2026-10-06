@@ -20,7 +20,7 @@ from __future__ import annotations
 import math
 from functools import lru_cache
 
-from ..composition import Composition, family_of, normalize
+from ..composition import Composition, accepts_formula, family_of, normalize
 from ..descriptors.backend import matrix_vector
 from ..uncertainty import ConformalRegressor, fit_domain
 from ..uncertainty.applicability import DomainRow
@@ -101,6 +101,7 @@ def _fit(processing: str | None, random_forest_cls):
     return model, conformal, domain, len(usable)
 
 
+@accepts_formula
 def predict_hardness(
     composition: Composition, *, alpha: float = 0.1, processing: str | None = None
 ):

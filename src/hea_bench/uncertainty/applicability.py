@@ -38,7 +38,7 @@ from collections import Counter
 from dataclasses import dataclass
 from functools import cached_property, lru_cache
 
-from ..composition import Composition, family_of, normalize
+from ..composition import Composition, accepts_formula, family_of, normalize
 from ..descriptors.backend import NativeBackend, matrix_vector, scorable_elements
 
 #: Jaccard distance above which a query family counts as far from every
@@ -244,6 +244,7 @@ def default_domain() -> DomainModel | None:
         return None
 
 
+@accepts_formula
 def novelty_score(composition: Composition, corpus) -> dict:
     """Convenience one-shot: fit a domain model and query it once.
 

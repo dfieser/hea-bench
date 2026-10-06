@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..composition import Composition
+from ..composition import Composition, accepts_formula
 from ..constants import TSAI_SIGMA_VEC_MAX, TSAI_SIGMA_VEC_MIN
 from ..descriptors.vec import vec
 
@@ -34,6 +34,7 @@ class SigmaPrediction:
     verdict: str
 
 
+@accepts_formula
 def predict(composition: Composition) -> SigmaPrediction:
     v = vec(composition)
     applies = any(

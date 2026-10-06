@@ -36,6 +36,16 @@ SEED = 0
 FOREST_TREES = 300
 CALIBRATION_FRACTION = 0.2
 
+#: What this study measured on corpus v0.1.0, as tools/uncertainty_coverage.py
+#: wrote it to docs/uncertainty-coverage.md: task -> nominal coverage ->
+#: (empirical coverage inside the dataset's range, outside it). A test
+#: (tests/test_conformal.py) fails when the two disagree, so regenerating
+#: the doc means copying its new numbers here.
+MEASURED_COVERAGE = {
+    "single_vs_multi": {0.8: (0.776, 0.941), 0.9: (0.875, 0.958), 0.95: (0.938, 0.976)},
+    "phase4": {0.8: (0.767, 0.906), 0.9: (0.829, 0.953), 0.95: (0.902, 0.975)},
+}
+
 #: Result groups, in display order.
 GROUPS = (
     "all",

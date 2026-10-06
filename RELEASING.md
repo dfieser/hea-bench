@@ -169,6 +169,22 @@ gh workflow run pages.yml --ref main       # the site, if it is stale too
 The `verify-release` and `verify-live` jobs already do this once
 automatically when they see a *cancelled* (as opposed to failed) run.
 
+If the run died after it pushed the `Release vX.Y.Z` commit but before
+the tag reached the remote (the v2.7.0 shape: `main` carries the release
+commit, `git ls-remote --tags origin vX.Y.Z` prints nothing), do NOT
+re-run the `Auto release` run: it would promote the changelog and the
+version history a second time. Tag the release commit by name instead.
+The tag push fires `release.yml` by itself; then redeploy the site so it
+carries the version-history entry:
+
+```bash
+git pull --ff-only origin main
+git tag -a vX.Y.Z -m "Release vX.Y.Z" <sha of the Release vX.Y.Z commit>
+git push origin vX.Y.Z
+git ls-remote --tags origin vX.Y.Z
+gh workflow run pages.yml --ref main
+```
+
 ## Why releases have failed, and the preflight that prevents it
 
 Every failed release cycle to date, with its root cause and the guard
@@ -191,6 +207,7 @@ before the push and did not, or lived only inside an external publisher.
 | 2026-10-05 | no red run; found by inspection | most library features (dataset, benchmark, phase sets, domain flag, properties, search, campaigns, ceramics) were unreachable in the app, where about 99% of users are | features were only ever finished in the library, and nothing compared the two surfaces | `tests/test_app_parity.py` (since 2.7.0 `tests/test_feature_parity.py`) maps every public name to working app evidence and fails CI otherwise; the CI `web-engine` job checks the in-app engine against CPython; `verify-live` requires the live engine to report the released version; `tests/test_app_smoke.py` uses every tab of the built site in headless Chrome in the same job |
 | 2026-10-06 | no red run; found by inspection | the MCP server lacked eleven of the package's features (dataset build and export, measured properties, phase sets, the benchmark, the coverage study, ceramics, element data), custom elements and the Miedema breakdown; nothing ever ran the published wheel or the built exe | parity was checked only between the library and the web app, always from a repository checkout | owner rule: every feature in all four parts. `tests/test_feature_parity.py` requires a library name, an MCP tool, app evidence and tests for every feature; the CI `package` job installs the built wheel fresh and calls every MCP tool over stdio (`tests/test_installed_package.py`, also run by the preflight); the release `desktop-build` job uses every tab inside the built exe before attaching it (`tests/test_desktop_smoke.py`) |
 | 2026-10-06 | no red run; caught before release | the MCP container image (`Dockerfile`, which directory listings such as Glama build) would have stopped building | the wheel started bundling files from `data/` and `docs/`, which the Dockerfile never copied and `.dockerignore` excluded | `tools/preflight.py`, in every mode (so also CI and the release bot), checks that every file the wheel force-includes reaches the image build stage and that the unlicensed Peivaste file never does |
+| 2026-10-06 | v2.7.0 | `Auto release` cut job, tag push | GitHub refused the tag push with a bare `remote rejected (failed)` after the release commit was already on `main`, and the tag push had no retry, so the release stopped with no tag | the tag push retries three times with a growing pause, and the recovery section above covers a stranded release commit (tag it by name, never re-run the cut) |
 
 The defense has four layers, in firing order:
 

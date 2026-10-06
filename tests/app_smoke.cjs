@@ -138,8 +138,40 @@ const STEPS = [
       await S.waitFor("the phase-rule verdicts", () => S.$("rule-predictions").textContent.trim().length > 20, 30000, view);
       await S.waitFor("the Omega pair-table check", () => /Ω/.test(S.$("omega-sensitivity").textContent), 30000, view);
       await S.waitFor("density and cost", () => /Density/.test(S.$("predict-tier-a").textContent) && /USD\/kg/.test(S.$("predict-tier-a").textContent), 30000, view);
+      const cards = S.$("results").querySelectorAll(".result-card").length;
+      const meltingCards = Array.from(S.$("results").querySelectorAll("h3")).filter((h) => /Mean melting temperature/.test(h.textContent)).length;
+      if (meltingCards !== 1) throw new Error(meltingCards + " mean-melting-temperature cards, expected one");
+      if (!/not applicable/.test(S.$("rule-predictions").textContent)) throw new Error("the Sheikh screen gave a verdict for a non-refractory alloy");
+      if (!/within 0\.2 of Guo/.test(S.$("rule-predictions").textContent)) throw new Error("no near-cutoff note on the Guo card at VEC 8.0");
+      // A parse error clears the old results instead of leaving them up.
+      S.$("formula-input").value = "CoCrFeMnNi?";
+      S.$("parse-formula").click();
+      if (S.$("error").classList.contains("hidden")) throw new Error("no error shown for a bad formula");
+      if (S.$("rule-predictions").textContent.trim()) throw new Error("old results stayed up after a parse error");
+      // Group notation and repeated elements parse as in the library, and
+      // typed amounts reach the result and the permalink unrounded.
+      S.$("formula-input").value = "(CoCrFeNi)95Al5";
+      S.$("parse-formula").click();
+      S.$("calculate").click();
+      await S.waitFor("the (CoCrFeNi)95Al5 permalink", () => /comp=(%28|\()CoCrFeNi(%29|\))95Al5/.test(S.$("cite-permalink").textContent), 30000, view);
+      S.$("formula-input").value = "Al0.3CoCrFeNi";
+      S.$("parse-formula").click();
+      S.$("calculate").click();
+      await S.waitFor(
+        "the dilute-pair note and the exact permalink",
+        () => /strongest pair, Al-Ni/.test(S.$("rule-predictions").textContent) && /comp=Al0\.3CoCrFeNi/.test(S.$("cite-permalink").textContent),
+        30000,
+        view
+      );
+      S.$("formula-input").value = "CoCrFeNiNi";
+      S.$("parse-formula").click();
+      if (S.$("ratio-table").querySelectorAll("select[data-element-index]").length !== 4) throw new Error("CoCrFeNiNi did not merge to four elements");
+      S.$("formula-input").value = "CoCrFeMnNi";
+      S.$("parse-formula").click();
+      S.$("calculate").click();
+      await S.waitFor("the Cantor descriptors again", () => /13\.38/.test(S.$("results").textContent), 30000, view);
       S.clean(view, "the calculator");
-      return S.$("results").querySelectorAll(".result-card").length + " descriptor cards for CoCrFeMnNi";
+      return cards + " descriptor cards for CoCrFeMnNi; group notation, repeats, exact permalinks and rule notes checked";
     },
   ],
   [
@@ -178,8 +210,33 @@ const STEPS = [
     async (version) => {
       const S = window.__smoke;
       await S.view("calc");
-      const start = await S.waitFor("the Start button", () => S.$("predict-gate").querySelector('[data-gate="start"]'), 10000);
-      start.click();
+      // The website asks once; the desktop app starts the engine by itself.
+      const start = await S.waitFor(
+        "the engine to start or offer Start",
+        () => S.$("predict-gate").querySelector('[data-gate="start"]') || (window.HEAEngine.status().state !== "idle" && "auto"),
+        10000
+      );
+      if (start !== "auto") {
+        // First as if offline before the dataset was ever built, like a
+        // desktop that has never been online: hardness needs only data
+        // inside the app, so it still comes, and the dataset cards say why
+        // they are empty. Then the real build.
+        const ensureCorpus = window.HEAEngine.ensureCorpus;
+        window.HEAEngine.ensureCorpus = () => Promise.reject(new Error("simulated offline"));
+        try {
+          start.click();
+          await S.waitFor(
+            "hardness without the dataset",
+            () => /\d\s*HV/.test(S.$("predict-cards").textContent) && /simulated offline/.test(S.$("predict-cards").textContent),
+            300000
+          );
+        } finally {
+          window.HEAEngine.ensureCorpus = ensureCorpus;
+        }
+        S.$("predict-cards").innerHTML = "";
+        S.$("calculate").click();
+        await S.waitFor("the dataset build to start", () => !S.$("predict-gate").classList.contains("is-error"), 30000);
+      }
       const panel = S.$("predict-panel");
       await S.waitFor(
         "hardness, the phase prediction set and the domain check",
@@ -187,13 +244,13 @@ const STEPS = [
           S.$("predict-gate").classList.contains("is-ready") &&
           /HV/.test(S.$("predict-engine").textContent) &&
           /single-phase|multi-phase/.test(S.$("predict-engine").textContent) &&
-          /Resembles the dataset\?\s*(yes|no)/.test(S.$("predict-engine").textContent),
+          /Inside the dataset's range\?\s*(yes|no)/.test(S.$("predict-engine").textContent),
         600000,
         panel
       );
       S.clean(panel, "the predictions panel");
       if (!S.$("predict-gate").textContent.includes("hea-bench " + version)) throw new Error("engine reports: " + S.$("predict-gate").textContent.trim());
-      return S.$("predict-gate").textContent.trim();
+      return (start === "auto" ? "" : "hardness checked without the dataset; ") + S.$("predict-gate").textContent.trim();
     },
   ],
   [
@@ -217,6 +274,7 @@ const STEPS = [
       await S.waitFor("the frozen split digests", () => (view.textContent.match(/matches the frozen split/g) || []).length >= 2, 300000, view);
       if (/differs from the frozen split/.test(view.textContent)) throw new Error("a split differs from its frozen digest");
       const run = await S.waitFor("a rule baseline", () => S.$("benchmark-baselines-body").querySelector('[data-run^="rule:"]'), 60000, view);
+      if (!/random split \(interpolation\)/.test(S.$("benchmark-baselines-body").textContent)) throw new Error("the baselines do not lead with both scores");
       const model = run.getAttribute("data-run");
       run.click();
       await S.waitFor(model + " rerun", () => /reproduced here/.test(S.$("benchmark-baselines-body").querySelector('[data-run="' + model + '"]').closest("tr").textContent), 300000, view);
@@ -238,8 +296,12 @@ const STEPS = [
     async () => {
       const S = window.__smoke;
       const view = await S.view("design");
+      if (S.$("search-element-limits").querySelector('[data-k="element"]').value !== "Al") throw new Error("the example search lost its Al cap");
       S.$("search-form").requestSubmit();
       await S.waitFor("search results", () => S.$("search-results").querySelectorAll("tbody tr").length > 0, 300000, view);
+      if (!/Predicted phase/.test(S.$("search-results").textContent) || !/BCC|FCC|HCP|multi-phase/.test(S.$("search-results").querySelector("tbody").textContent)) {
+        throw new Error("the search results do not show each candidate's predicted phase");
+      }
       const row = S.$("campaign-obs-tbody").querySelector("tr");
       row.querySelector('[data-k="composition"]').value = "AlCoCrFe";
       row.querySelector('[data-k="value"]').value = "480";

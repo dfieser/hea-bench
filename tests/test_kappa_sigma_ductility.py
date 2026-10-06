@@ -118,3 +118,30 @@ def test_ductility_borderline_band() -> None:
     got = sheikh_ductility.predict({"Ti": 0.5, "V": 0.5})
     assert got.vec == pytest.approx(4.5)
     assert got.verdict == "borderline"
+
+
+def test_ductility_is_not_applicable_outside_refractory_elements() -> None:
+    """Sheikh built the screen on group IV-VI refractory alloys only."""
+    got = sheikh_ductility.predict({"Co": 0.2, "Cr": 0.2, "Fe": 0.2, "Mn": 0.2, "Ni": 0.2})
+    assert got.applies is False
+    assert got.verdict == "not_applicable"
+    assert sheikh_ductility.predict("HfNbTaTiZrAl0.1").verdict == "not_applicable"
+    assert sheikh_ductility.predict("HfNbTaTiZr").applies is True
+
+
+def test_kappa_names_its_pair_and_notes_a_dilute_one() -> None:
+    dilute = senkov_kappa.predict("Al0.3CoCrFeNi")
+    assert dilute.im_pair == ("Al", "Ni")
+    assert dilute.note and "Al is under 10 at.%" in dilute.note
+    # Al at 20 at.% is not dilute: the verdict stands without a note.
+    assert senkov_kappa.predict("AlCoCrFeNi").note is None
+
+
+def test_guo_flags_vec_near_either_cutoff_without_changing_the_verdict() -> None:
+    from hea_bench.rules import guo_vec
+
+    assert guo_vec.predict("Al0.3CoCrFeNi") == "mixed"
+    assert "8.0 FCC cutoff" in guo_vec.boundary_note("Al0.3CoCrFeNi")
+    assert guo_vec.boundary_note("CoCrFeNi") is None  # VEC 8.25
+    # VEC 6.8, just under the BCC cutoff.
+    assert "6.87 BCC cutoff" in guo_vec.boundary_note({"Cr": 0.6, "Fe": 0.4})

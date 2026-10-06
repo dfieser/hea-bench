@@ -131,22 +131,39 @@ function removeTree(path) {
 }
 
 // Worker-side steps that need the network or IndexedDB, then the library.
+//
+// The Peivaste file is the one input neither the website nor the desktop
+// exe may ship (its authors have not licensed redistribution yet), so it
+// comes from their repository once, is checked against the pinned hash,
+// and is kept in IndexedDB. Everything after that works offline.
+async function fetchPeivaste() {
+  if (callPython("peivaste_source").installed) return { installed: true };
+  if (!exists(PEIVASTE_CACHE)) {
+    var source = callPython("peivaste_source");
+    post({ id: currentId, progress: { message: "Downloading the Peivaste dataset from its authors' repository (6.4 MB, once)", fraction: 0.05 } });
+    var bytes;
+    try {
+      bytes = await fetchBytes(source.url);
+    } catch (error) {
+      throw new Error(
+        "The dataset needs the Peivaste file from its authors' repository once (6.4 MB), and the " +
+        "download failed, most likely because this device is offline. Connect to the internet once " +
+        "and try again: the app keeps the file, so it works offline after that. (" + error.message + ")"
+      );
+    }
+    pyodide.FS.writeFile("/tmp/peivaste.csv", bytes);
+    callPython("peivaste_install", { path: "/tmp/peivaste.csv" });
+    pyodide.FS.writeFile(PEIVASTE_CACHE, bytes);
+    await syncfs(false);
+  } else {
+    callPython("peivaste_install", { path: PEIVASTE_CACHE });
+  }
+  return { installed: true };
+}
+
 async function ensureCorpus(version) {
   if (callPython("dataset_status").built[version]) return { built: true, version: version };
-  var source = callPython("peivaste_source");
-  if (!source.installed) {
-    var cached = PEIVASTE_CACHE;
-    if (!exists(cached)) {
-      post({ id: currentId, progress: { message: "Downloading the Peivaste dataset from its authors' repository (6.4 MB)", fraction: 0.05 } });
-      var bytes = await fetchBytes(source.url);
-      pyodide.FS.writeFile("/tmp/peivaste.csv", bytes);
-      callPython("peivaste_install", { path: "/tmp/peivaste.csv" });
-      pyodide.FS.writeFile(cached, bytes);
-      await syncfs(false);
-    } else {
-      callPython("peivaste_install", { path: cached });
-    }
-  }
+  await fetchPeivaste();
   post({ id: currentId, progress: { message: "Building corpus v" + version + " (about a minute, once per release)", fraction: 0.3 } });
   callPython("dataset_build", { version: version });
   await syncfs(false);
@@ -159,6 +176,8 @@ async function handle(message) {
     var result =
       message.method === "ensure_corpus"
         ? await ensureCorpus((message.params && message.params.version) || "0.1.0")
+        : message.method === "fetch_peivaste"
+        ? await fetchPeivaste()
         : callPython(message.method, message.params);
     post({ id: message.id, ok: true, result: result });
   } catch (error) {

@@ -73,6 +73,12 @@ def load(csv_path: pathlib.Path) -> Iterator[AlloyRecord]:
             if canonical is None:
                 continue
 
+            # Corpus v0.2.0 was frozen while parse_formula still refused
+            # group notation such as (CoCrFeNi)95Nb5, so those rows stay
+            # out of it. Letting them in means a new corpus version.
+            if "(" in formula or ")" in formula:
+                continue
+
             try:
                 composition = parse_formula(formula)
             except ValueError:

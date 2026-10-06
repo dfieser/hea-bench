@@ -86,7 +86,14 @@ jobs:
             git pull --rebase origin main
           done
           git tag -a "v${v}" -m "Release v${v}"   # after the push settles, so the tag is the pushed commit
-          git push origin "v${v}"
+          # GitHub once refused this push with a bare "remote rejected
+          # (failed)" (v2.7.0), stranding a pushed release commit with no
+          # tag, so it retries like the commit push above.
+          for i in 1 2 3; do
+            if git push origin "v${v}"; then break; fi
+            if [ "$i" = 3 ]; then echo "::error::could not push tag v${v}; the release commit is on main, so push the tag by hand (RELEASING.md, Recovering an interrupted release)"; exit 1; fi
+            sleep $((20 * i))
+          done
           git ls-remote --exit-code --tags origin "v${v}" >/dev/null
           echo "tagged and pushed v${v}"
       - name: Fire the release pipeline and the site redeploy

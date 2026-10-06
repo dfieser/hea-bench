@@ -4,8 +4,10 @@ const path = require("path");
 const repoRoot = path.resolve(__dirname, "..");
 const corePath = path.join(repoRoot, "web", "hea-calculator-core.js");
 const casesPath = path.join(__dirname, "data", "web_parity_cases.json");
+const formulasPath = path.join(__dirname, "data", "formula_parity_cases.json");
 const calculatorCore = require(corePath);
 const parityCases = JSON.parse(fs.readFileSync(casesPath, "utf8"));
+const formulaCases = JSON.parse(fs.readFileSync(formulasPath, "utf8"));
 
 const snapshot = {};
 
@@ -27,8 +29,19 @@ for (const parityCase of parityCases) {
   };
 }
 
+// Formula text -> [[symbol, fraction], ...] in parse order, or null when
+// the parser refuses it.
+const formulas = {};
+for (const text of formulaCases.parses.concat(formulaCases.rejects)) {
+  try {
+    formulas[text] = Object.entries(calculatorCore.parseFormula(text));
+  } catch (error) {
+    formulas[text] = null;
+  }
+}
+
 process.stdout.write(
-  JSON.stringify(snapshot, (key, value) => {
+  JSON.stringify({ cases: snapshot, formulas }, (key, value) => {
     if (typeof value === "number" && !Number.isFinite(value)) {
       return value > 0 ? "__Infinity__" : "__-Infinity__";
     }

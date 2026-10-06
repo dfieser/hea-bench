@@ -162,3 +162,24 @@ def test_hardness_objective_uses_conservative_bound() -> None:
     candidate = result.candidates[0]
     low, high = candidate.properties["hardness"].interval
     assert candidate.objective_values["hardness"] == pytest.approx(low)
+
+
+@needs_corpus
+def test_returned_candidates_carry_their_predicted_phase() -> None:
+    """Each returned alloy shows its four-class phase prediction set, so a
+    hardness search cannot hide that it found aluminides."""
+    result = search(
+        ["Al", "Co", "Cr", "Fe", "Ni"],
+        (4, 5),
+        (CompositionConstraint("Al", max=0.2),),
+        (Maximize("hardness"), Minimize("density")),
+        n_candidates=3,
+        step=0.1,
+        optimize_bound="lower",
+    )
+    assert result.candidates
+    for candidate in result.candidates:
+        assert candidate.composition["Al"] <= 0.2 + 1e-9
+        phase = candidate.to_dict()["phase"]
+        assert phase["task"] == "phase4"
+        assert set(phase["prediction_set"]) <= {"BCC", "FCC", "HCP", "multi-phase"}

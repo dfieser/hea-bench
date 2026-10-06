@@ -8,7 +8,7 @@ existing ``yang_omega.predict`` pattern.
 
 from __future__ import annotations
 
-from ..composition import Composition
+from ..composition import Composition, accepts_formula
 from ..constants import KING_PHI_THRESHOLD
 from ..descriptors.phi import phi_king
 
@@ -17,6 +17,7 @@ DESCRIPTION = "King 2016: Φ > 1.0 → solid_solution"
 DEFAULT_THRESHOLD = KING_PHI_THRESHOLD
 
 
+@accepts_formula
 def predict(
     composition: Composition,
     threshold: float = DEFAULT_THRESHOLD,

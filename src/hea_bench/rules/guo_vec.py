@@ -19,7 +19,7 @@ Guo, S. & Liu, C. T. (2011). Phase stability in high entropy alloys.
 
 from __future__ import annotations
 
-from ..composition import Composition
+from ..composition import Composition, accepts_formula
 from ..descriptors.vec import vec
 
 DESCRIPTION = "Guo & Liu 2011: VEC≥8.0 → FCC, VEC<6.87 → BCC, else mixed"
@@ -28,6 +28,7 @@ FCC_THRESHOLD = 8.0
 BCC_THRESHOLD = 6.87
 
 
+@accepts_formula
 def predict(composition: Composition) -> str:
     """Return one of ``"FCC"``, ``"BCC"``, ``"mixed"``.
 
@@ -46,3 +47,33 @@ def predict(composition: Composition) -> str:
     if v < BCC_THRESHOLD:
         return "BCC"
     return "mixed"
+
+
+#: The caution band around each cutoff, in VEC units. hea-bench adds it;
+#: it is not part of Guo's rule and never changes the verdict.
+NEAR_CUTOFF = 0.2
+
+_NOTE = (
+    "VEC is within 0.2 of Guo's {cutoff} {phase} cutoff, where the published "
+    "data scatter, so the call between {phase} and mixed is borderline."
+)
+
+
+@accepts_formula
+def boundary_note(composition: Composition) -> str | None:
+    """Return a caution when VEC sits within ``NEAR_CUTOFF`` of a cutoff.
+
+    Returns None otherwise. ``rulePredictionsFromDescriptors`` in
+    ``web/hea-calculator-core.js`` writes the same text, which the
+    parity tests check.
+
+    >>> boundary_note({"Co": 1, "Cr": 1, "Fe": 1, "Ni": 1}) is None
+    True
+    >>> boundary_note({"Al": 0.3, "Co": 1, "Cr": 1, "Fe": 1, "Ni": 1})[:40]
+    "VEC is within 0.2 of Guo's 8.0 FCC cuto"
+    """
+    v = round(vec(composition), 6)
+    for cutoff, label, phase in ((FCC_THRESHOLD, "8.0", "FCC"), (BCC_THRESHOLD, "6.87", "BCC")):
+        if abs(v - cutoff) <= NEAR_CUTOFF + 1e-9:
+            return _NOTE.format(cutoff=label, phase=phase)
+    return None

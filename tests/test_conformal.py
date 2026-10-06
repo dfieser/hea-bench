@@ -124,3 +124,29 @@ def test_sklearn_random_forest_reaches_nominal_coverage() -> None:
     sets = conformal.predict_set([x for x, _ in test], alpha=0.1)
     covered = sum(1 for s, (_, label) in zip(sets, test) if label in s)
     assert covered / len(test) >= 0.85
+
+
+def test_measured_coverage_matches_the_coverage_card() -> None:
+    """The figures the phase-set result quotes (and the app shows next to
+    the domain flag) are the ones docs/uncertainty-coverage.md publishes."""
+    import re
+    from pathlib import Path
+
+    from hea_bench.uncertainty.coverage import MEASURED_COVERAGE
+
+    card = (Path(__file__).resolve().parents[1] / "docs" / "uncertainty-coverage.md").read_text(
+        encoding="utf-8"
+    )
+    published: dict[str, dict[float, tuple[float, float]]] = {}
+    for section in re.split(r"^## Task: ", card, flags=re.M)[1:]:
+        task = section.split("\n", 1)[0].strip()
+        for row in re.finditer(r"^\| (\d+)% \| \d+ \| [\d.]+ \| ([\d.]+) \| ([\d.]+) \|", section, re.M):
+            published.setdefault(task, {})[int(row.group(1)) / 100] = (
+                float(row.group(2)),
+                float(row.group(3)),
+            )
+    assert published == MEASURED_COVERAGE, (
+        "docs/uncertainty-coverage.md and MEASURED_COVERAGE in "
+        "src/hea_bench/uncertainty/coverage.py disagree; copy the card's in-domain and "
+        "out-of-domain columns into MEASURED_COVERAGE"
+    )

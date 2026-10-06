@@ -17,7 +17,7 @@ from __future__ import annotations
 import math
 from itertools import combinations
 
-from ..composition import Composition
+from ..composition import Composition, accepts_formula
 from ..constants import (
     KING_PHI_THRESHOLD,
     PACKING_FRACTION_BCC,
@@ -48,17 +48,20 @@ def _normalize(composition: Composition) -> Composition:
     return {el: amount / total for el, amount in composition.items() if amount > 0}
 
 
+@accepts_formula
 def delta_h_ss(composition: Composition) -> float:
     """Enthalpy of forming the disordered solid solution (kJ/mol)."""
     return mixing_enthalpy(composition)
 
 
+@accepts_formula
 def delta_g_ss(composition: Composition, temperature: float | None = None) -> float:
     """Gibbs free energy proxy for the disordered solid solution (kJ/mol)."""
     tm = melting_temperature(composition) if temperature is None else temperature
     return delta_h_ss(composition) - tm * smix(composition) / 1000.0
 
 
+@accepts_formula
 def delta_g_max(composition: Composition) -> float:
     """Most stable binary-subsystem intermetallic Gibbs energy (kJ/mol).
 
@@ -120,6 +123,7 @@ def _mansoori_excess_entropy(composition: Composition, packing_fraction: float) 
     return R * expression
 
 
+@accepts_formula
 def s_excess(
     composition: Composition,
     packing_fraction: float | None = None,
@@ -135,6 +139,7 @@ def s_excess(
     return sum(values) / len(values)
 
 
+@accepts_formula
 def phi_king(composition: Composition, temperature: float | None = None) -> float:
     """King capital Phi (dimensionless)."""
     g_ss = delta_g_ss(composition, temperature=temperature)
@@ -144,6 +149,7 @@ def phi_king(composition: Composition, temperature: float | None = None) -> floa
     return g_ss / (-abs(g_max))
 
 
+@accepts_formula
 def phi_ye(composition: Composition) -> float:
     """Ye lowercase phi (dimensionless)."""
     tm = melting_temperature(composition)

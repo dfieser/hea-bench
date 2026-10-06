@@ -25,7 +25,7 @@ criterion of phase formation for complex concentrated alloys.
 
 from __future__ import annotations
 
-from ..composition import Composition
+from ..composition import Composition, accepts_formula
 from .data.mechanics import mechanics
 
 
@@ -45,6 +45,7 @@ def _h_elastic_from_tables(
     )
 
 
+@accepts_formula
 def h_elastic(composition: Composition) -> float | None:
     """ΔH_el in kJ/mol, or None when any element lacks usable B or V."""
     if not composition:

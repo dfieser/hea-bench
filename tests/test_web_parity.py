@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import json
 import math
+import re
 from pathlib import Path
+
+import pytest
 
 import hea_bench as hb
 from hea_bench.rules import (
@@ -19,6 +22,7 @@ from hea_bench.rules import (
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES_PATH = ROOT / "tests" / "data" / "web_parity_cases.json"
+FORMULAS_PATH = ROOT / "tests" / "data" / "formula_parity_cases.json"
 NODE_SNAPSHOT_SCRIPT = ROOT / "tests" / "web_parity_snapshot.cjs"
 
 DESCRIPTOR_KEYS = (
@@ -72,6 +76,7 @@ def _python_snapshot() -> dict[str, dict]:
         )
         hmix = hb.mixing_enthalpy(composition)
         omega_value = hb.omega(composition)
+        kappa = senkov_kappa.predict(composition, temperature=king_temperature)
 
         descriptors = {
             "Smix": hb.smix(composition),
@@ -97,7 +102,10 @@ def _python_snapshot() -> dict[str, dict]:
         rules = {
             "yeh_smix": {"verdict": yeh_smix.predict(composition)},
             "zhang_delta": {"verdict": zhang_delta.predict(composition)},
-            "guo_vec": {"verdict": guo_vec.predict(composition)},
+            "guo_vec": {
+                "verdict": guo_vec.predict(composition),
+                "note": guo_vec.boundary_note(composition),
+            },
             "yang_omega": {
                 "verdict": (
                     "single-phase"
@@ -110,9 +118,9 @@ def _python_snapshot() -> dict[str, dict]:
             },
             "ye_phi": {"verdict": ye_phi.predict(composition)},
             "senkov_kappa": {
-                "verdict": senkov_kappa.predict(
-                    composition, temperature=king_temperature
-                ).verdict
+                "verdict": kappa.verdict,
+                "note": kappa.note,
+                "im_pair": list(kappa.im_pair) if kappa.im_pair else None,
             },
             "tsai_sigma": {"verdict": tsai_sigma.predict(composition).verdict},
             "sheikh_ductility": {
@@ -152,7 +160,7 @@ def _assert_close(left: float, right: float, label: str) -> None:
 
 def test_browser_core_matches_python_descriptors_and_rules(node_snapshot) -> None:
     python_snapshot = _python_snapshot()
-    js_snapshot = _decode_special_numbers(node_snapshot(NODE_SNAPSHOT_SCRIPT))
+    js_snapshot = _decode_special_numbers(node_snapshot(NODE_SNAPSHOT_SCRIPT)["cases"])
 
     assert set(js_snapshot) == set(python_snapshot)
 
@@ -167,4 +175,43 @@ def test_browser_core_matches_python_descriptors_and_rules(node_snapshot) -> Non
             _assert_close(left, right, f"{case_name}.{key}")
 
         for key in RULE_KEYS:
-            assert actual["rules"][key]["verdict"] == expected["rules"][key]["verdict"]
+            assert actual["rules"][key]["verdict"] == expected["rules"][key]["verdict"], (
+                f"{case_name}.{key}"
+            )
+        # The cautions on Guo VEC and Senkov kappa read the same everywhere.
+        for key, field in (("guo_vec", "note"), ("senkov_kappa", "note"), ("senkov_kappa", "im_pair")):
+            assert actual["rules"][key][field] == expected["rules"][key][field], (
+                f"{case_name}.{key}.{field}"
+            )
+
+
+def test_browser_parser_matches_parse_formula(node_snapshot) -> None:
+    """parseFormula in the browser core reads every formula the way
+    parse_formula does: same elements, same order, same fractions, and
+    the same refusals (group notation, repeated elements, bad text)."""
+    cases = json.loads(FORMULAS_PATH.read_text(encoding="utf-8"))
+    js = node_snapshot(NODE_SNAPSHOT_SCRIPT)["formulas"]
+    for text in cases["parses"]:
+        expected = list(hb.parse_formula(text).items())
+        actual = js[text]
+        assert actual is not None, f"browser refused {text!r}"
+        assert [el for el, _ in actual] == [el for el, _ in expected], text
+        for (el, got), (_, want) in zip(actual, expected):
+            assert math.isclose(got, want, rel_tol=1e-12), f"{text!r} {el}"
+    for text in cases["rejects"]:
+        with pytest.raises(ValueError):
+            hb.parse_formula(text)
+        assert js[text] is None, f"browser accepted {text!r}"
+
+
+def test_app_scripts_use_the_core_formula_parser() -> None:
+    """The calculator, the oxide sites and the feature tabs all parse
+    through HeaCalculatorCore.parseFormula; a second hand-rolled element
+    tokenizer in a page script is how the app drifted from Python before."""
+    tokenizer = re.compile(r"\[A-Z\]\[a-z\]\?")
+    for name in ("index.html", "hea-features.js"):
+        text = (ROOT / "web" / name).read_text(encoding="utf-8")
+        assert not tokenizer.search(text), (
+            f"web/{name} tokenizes element symbols itself; call "
+            "HeaCalculatorCore.parseFormula (web/hea-calculator-core.js) instead"
+        )

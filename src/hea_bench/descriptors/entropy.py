@@ -13,9 +13,11 @@ from __future__ import annotations
 
 import math
 
+from ..composition import accepts_formula
 from ..constants import R
 
 
+@accepts_formula
 def smix(composition: dict[str, float]) -> float:
     """Configurational mixing entropy in J / (mol · K).
 

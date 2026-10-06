@@ -21,7 +21,9 @@ reported only when ΔH_ss < 0 so the ratio form is meaningful.
 ΔH_IM is approximated by the most negative binary pair enthalpy over
 the alloy's constituents (``descriptors.phi.delta_g_max``), the same
 documented approximation the King Φ implementation uses; see that
-function's docstring for the scale caveat.
+function's docstring for the scale caveat. That pair counts in full
+however little of its elements the alloy holds, so when one of them is
+under 10 at.% the prediction carries a ``note`` saying so.
 
 References
 ----------
@@ -34,15 +36,20 @@ doi:10.1016/j.jallcom.2015.10.279
 from __future__ import annotations
 
 from dataclasses import dataclass
+from itertools import combinations
 
-from ..composition import Composition
+from ..composition import Composition, accepts_formula, normalize
 from ..constants import SENKOV_K2
 from ..descriptors.entropy import smix
 from ..descriptors.melting import melting_temperature
 from ..descriptors.miedema import mixing_enthalpy
+from ..descriptors.data.pair_enthalpies import pair_enthalpy
 from ..descriptors.phi import delta_g_max
 
 DESCRIPTION = "Senkov-Miracle 2016: k1 < k1_cr(T) -> solid_solution"
+
+#: An element of the ΔH_IM pair below this mole fraction earns a note.
+DILUTE_FRACTION = 0.10
 
 
 @dataclass(frozen=True)
@@ -55,12 +62,15 @@ class KappaPrediction:
     g_im_kj: float
     ss_favored: bool
     temperature_K: float
+    im_pair: tuple[str, str] | None = None
+    note: str | None = None
 
     @property
     def verdict(self) -> str:
         return "solid_solution" if self.ss_favored else "intermetallic"
 
 
+@accepts_formula
 def predict(
     composition: Composition,
     temperature: float | None = None,
@@ -84,6 +94,7 @@ def predict(
         k1 = h_im / h_ss
         k1_cr = 1.0 + (1.0 - SENKOV_K2) * ts_kj / abs(h_ss)
 
+    im_pair, note = _im_pair_note(composition, h_im)
     return KappaPrediction(
         k1=k1,
         k1_cr=k1_cr,
@@ -91,4 +102,29 @@ def predict(
         g_im_kj=g_im,
         ss_favored=g_ss < g_im,
         temperature_K=t,
+        im_pair=im_pair,
+        note=note,
+    )
+
+
+def _im_pair_note(
+    composition: Composition, h_im: float
+) -> tuple[tuple[str, str] | None, str | None]:
+    """The pair behind ΔH_IM, and a caution when it is dilute.
+
+    ``rulePredictionsFromDescriptors`` in ``web/hea-calculator-core.js``
+    writes the same text, which the parity tests check.
+    """
+    norm = normalize(composition)
+    pairs = list(combinations(sorted(norm), 2))
+    if not pairs:
+        return None, None
+    a, b = min(pairs, key=lambda pair: pair_enthalpy(*pair))
+    dilute = [el for el in (a, b) if norm[el] < DILUTE_FRACTION - 1e-9]
+    if h_im >= 0.0 or not dilute:
+        return (a, b), None
+    who = " and ".join(dilute) + (" is" if len(dilute) == 1 else " are")
+    return (a, b), (
+        f"κ takes ΔH_IM from the strongest pair, {a}-{b}, without weighting it "
+        f"by amount, and {who} under 10 at.% here, so read the verdict with caution."
     )

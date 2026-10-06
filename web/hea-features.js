@@ -76,22 +76,9 @@
       .join("");
   }
 
+  // The library's formula rules, through the one browser parser.
   function parseFormula(text) {
-    var source = String(text || "").replace(/\s+/g, "");
-    if (!source) throw new Error("Enter a composition, for example HfNbTaTiZr.");
-    var re = /([A-Z][a-z]?)(\d*\.?\d*)/g;
-    var out = {};
-    var consumed = "";
-    var match;
-    while ((match = re.exec(source)) !== null) {
-      if (!match[0]) break;
-      consumed += match[0];
-      var amount = match[2] === "" ? 1 : parseFloat(match[2]);
-      if (!isFinite(amount) || amount <= 0) throw new Error("Amounts must be positive numbers (" + match[0] + ").");
-      out[match[1]] = (out[match[1]] || 0) + amount;
-    }
-    if (consumed !== source) throw new Error("Could not read \"" + text + "\". Use element symbols with optional amounts, for example Ti0.5Zr0.5.");
-    return out;
+    return core.parseFormula(text);
   }
 
   function elementsList(text) {
@@ -145,7 +132,12 @@
     var alloyMode = document.querySelector('.mode-btn[data-mode="alloy"]');
     if (alloyMode) alloyMode.click();
     showView("calc");
-    $("formula-input").value = compText(comp);
+    // Full precision, so the calculator computes on exactly this alloy.
+    $("formula-input").value = Object.keys(comp)
+      .map(function (el) {
+        return el + 100 * comp[el];
+      })
+      .join("");
     $("parse-formula").click();
     $("calculate").click();
   }
@@ -164,7 +156,13 @@
     fire();
   }
 
+  // The desktop app (Tauri serves web/ from tauri.localhost) carries the
+  // engine inside the exe, so it starts everything by itself, with no
+  // Start buttons and no download.
+  var DESKTOP = location.hostname === "tauri.localhost" || location.protocol === "tauri:";
+
   function autostart() {
+    if (DESKTOP) return true;
     try {
       return localStorage.getItem(AUTOSTART_KEY) === "1";
     } catch (e) {
@@ -172,6 +170,7 @@
     }
   }
 
+  var peivasteRequested = false;
   engine.onStatus(function (status) {
     if (status.state === "ready") {
       try {
@@ -179,12 +178,24 @@
       } catch (e) {
         /* storage unavailable */
       }
+      // The Peivaste file is the one input the exe may not carry (its
+      // authors have not licensed redistribution yet). The desktop app
+      // fetches it the first time it is online and keeps it, and the
+      // engine's background steps then build every dataset, so the app
+      // works offline from then on. Offline, this fails quietly and the
+      // dataset views say what they need.
+      if (DESKTOP && !peivasteRequested) {
+        peivasteRequested = true;
+        engine.fetchPeivaste().catch(function () {
+          peivasteRequested = false;
+        });
+      }
     }
   });
 
-  // Someone who has used the engine before gets it started while the page
-  // is idle, so its boot and its model loading are done before the first
-  // click on a feature that needs it.
+  // Someone who has used the engine before, and every desktop launch, gets
+  // it started while the page is idle, so its boot and its model loading
+  // are done before the first click on a feature that needs it.
   if (autostart() && engine.available()) {
     if (window.requestIdleCallback) window.requestIdleCallback(engine.start, { timeout: 3000 });
     else setTimeout(engine.start, 1500);
@@ -204,6 +215,9 @@
     };
     this.what = options.what;
     this.onReady = options.onReady;
+    // A feature that calls ensure() itself and copes with a missing
+    // dataset (the predictions panel) starts at once on Start or Try again.
+    this.ensuresItself = !!options.ensuresItself;
     this.task = null; // {message, fraction} while a feature step runs
     this.error = null;
     var self = this;
@@ -230,6 +244,8 @@
       el.classList.add("is-error");
       text = esc(status.error);
       button = '<button type="button" class="secondary" data-gate="retry">Try again</button>';
+    } else if (status.state === "idle" && DESKTOP) {
+      text = "<b>" + esc(this.what) + "</b> Starting the engine, which ships inside the app…";
     } else if (status.state === "idle") {
       text =
         "<b>" + esc(this.what) + "</b> This runs the hea-bench Python library inside the page. " +
@@ -270,11 +286,11 @@
     var self = this;
     this.el.addEventListener("click", function (event) {
       var action = event.target && event.target.getAttribute && event.target.getAttribute("data-gate");
-      if (action === "start") self.ensure().then(self.onReady, function () {});
+      if (action === "start") self.start();
       if (action === "retry") {
         self.error = null;
         engine.restart();
-        self.ensure().then(self.onReady, function () {});
+        self.start();
       }
       if (action === "stop") {
         self.task = null;
@@ -283,6 +299,11 @@
     });
     this.render();
     return this;
+  };
+
+  Gate.prototype.start = function () {
+    if (this.ensuresItself) this.onReady();
+    else this.ensure().then(this.onReady, function () {});
   };
 
   // Engine up (and the dataset built, if needed). Resolves when usable.
@@ -346,6 +367,7 @@
   var predictGate = new Gate($("predict-gate"), {
     what: "Hardness, phase prediction sets and the dataset check.",
     needsCorpus: true,
+    ensuresItself: true,
     onReady: function () {
       predict.started = true;
       runPredictions();
@@ -484,16 +506,32 @@
     );
   }
 
-  function domainCard(result) {
-    if (result.error) return '<div class="predict-card"><h3>Resembles the dataset?</h3>' + errorHtml(result.error) + "</div>";
+  // What the coverage study measured for one phase result's task at its
+  // confidence, inside the dataset's range (library: measured_coverage).
+  function measuredInRange(phase, label) {
+    var m = phase && !phase.error ? phase.measured_coverage : null;
+    return m ? label + " " + pct(m.in_domain, 1) : null;
+  }
+
+  function domainCard(result, binary, phase4) {
+    if (result.error) return '<div class="predict-card"><h3>Inside the dataset\'s range?</h3>' + errorHtml(result.error) + "</div>";
+    var measured = [measuredInRange(binary, "single-phase sets"), measuredInRange(phase4, "structure sets")].filter(Boolean);
+    var target = binary && !binary.error ? pct(binary.target_coverage, 0) : "the target";
+    var reading = result.in_domain
+      ? "Inside the range is not a promise of accuracy." +
+        (measured.length
+          ? " On unseen alloy systems inside it, the " + target + " " + measured.join(" and ") +
+            " of the time held the true label in the coverage study (docs/uncertainty-coverage.md)."
+          : "")
+      : "Outside the range the coverage guarantee is weakest, so read every prediction here with extra care.";
     return (
-      '<div class="predict-card"><h3>Resembles the dataset?</h3>' +
+      '<div class="predict-card"><h3>Inside the dataset\'s range?</h3>' +
       '<div class="predict-card__value" style="font-size:17px">' + (result.in_domain ? "yes" : "no") + "</div><ul>" +
       "<li>" + (result.element_coverage ? "every element is covered by the data tables" : "an element is outside the data tables") + "</li>" +
       "<li>" + (result.element_set_seen ? "this alloy system appears " + int(result.family_count) + " times in the dataset" : "this alloy system is not in the dataset") + "</li>" +
       "<li>nearest studied system differs by " + num(result.nearest_family_distance, 2) + " in element-set (Jaccard) distance, limit " + num(result.family_distance_threshold, 2) + "</li>" +
       "<li>descriptor distance " + num(result.descriptor_distance, 2) + ", limit " + num(result.descriptor_distance_threshold, 2) + "</li>" +
-      '</ul><p class="feature-note">Predictions are least reliable for alloys unlike the data they were fitted on.</p></div>'
+      '</ul><p class="feature-note">' + esc(reading) + "</p></div>"
     );
   }
 
@@ -526,8 +564,17 @@
       finish();
       return;
     }
+    var noDataset = null;
     predictGate
       .ensure()
+      .then(null, function (error) {
+        // The engine runs but the dataset could not be built, as on a
+        // desktop that has never been online. Hardness needs only data
+        // inside the app, so it still runs, and the dataset cards say why
+        // they are empty.
+        if (engine.status().state !== "ready") throw error;
+        noDataset = { error: error.message };
+      })
       .then(function () {
         if (!predict.processing.length) {
           var info = engine.status().info || {};
@@ -557,19 +604,20 @@
             }
           );
         };
+        // Without the dataset, its three cards carry the reason instead.
         return predictGate.run("Predicting", function (progress) {
           return settle(engine.call("properties", { composition: comp, alpha: alpha, processing: processing, names: ["hardness"] }, progress))
             .then(function (r) {
               results.hardness = r.error ? r : r.properties.hardness;
-              return settle(engine.call("phase_prediction", { composition: comp, task: "single_vs_multi", alpha: alpha }, progress));
+              return noDataset || settle(engine.call("phase_prediction", { composition: comp, task: "single_vs_multi", alpha: alpha }, progress));
             })
             .then(function (r) {
               results.binary = r;
-              return settle(engine.call("phase_prediction", { composition: comp, task: "phase4", alpha: alpha }, progress));
+              return noDataset || settle(engine.call("phase_prediction", { composition: comp, task: "phase4", alpha: alpha }, progress));
             })
             .then(function (r) {
               results.phase4 = r;
-              return settle(engine.call("applicability", { composition: comp }, progress));
+              return noDataset || settle(engine.call("applicability", { composition: comp }, progress));
             })
             .then(function (r) {
               results.domain = r;
@@ -583,7 +631,7 @@
             phaseCard("Single-phase solid solution?", results.binary) +
             phaseCard("Structure", results.phase4) +
             hardnessCard(results.hardness) +
-            domainCard(results.domain);
+            domainCard(results.domain, results.binary, results.phase4);
         },
         function () {
           /* the gate shows the error */
@@ -1271,7 +1319,16 @@
       published[r.model] = r;
     });
     bench.live = bench.live || {};
+    // Lead with both scores of the reference model, then their gap.
+    var lead = bench.live["random-forest"] || published["random-forest"];
     $("benchmark-baselines-body").innerHTML =
+      (lead
+        ? stats([
+            [num(lead.random.balanced_accuracy_mean, 3), "random forest, random split (interpolation)"],
+            [num(lead.grouped.balanced_accuracy_mean, 3), "random forest, family-grouped split (extrapolation)"],
+            [signed(lead.gap.balanced_accuracy), "gap, random minus grouped"],
+          ])
+        : "") +
       '<div class="table-wrap"><table class="data feature-table"><thead><tr><th>Model</th><th class="num">Grouped balanced accuracy</th><th class="num">Random balanced accuracy</th>' +
       '<th class="num">Gap</th><th class="num">Grouped macro F1</th><th class="num">Random macro F1</th><th></th></tr></thead><tbody>' +
       s.baselines.map(function (name) {
@@ -1422,8 +1479,8 @@
       .then(function (study) {
         var groupNames = {
           all: "all alloys",
-          in_domain: "flagged like the dataset",
-          out_of_domain: "flagged unlike the dataset",
+          in_domain: "inside the dataset's range",
+          out_of_domain: "outside the dataset's range",
           fewer_than_four: "fewer than four elements",
           four_or_more: "four or more elements",
           four_or_more_one_element_from_training: "four or more, one element from a training system",
@@ -1442,7 +1499,7 @@
         });
         $("benchmark-coverage-body").innerHTML =
           '<div class="table-wrap"><table class="data feature-table"><caption>' + int(study.n_rows) + " alloys, " + int(study.n_out_of_domain) +
-          " flagged unlike the dataset at test time across the five grouped folds. Coverage is the share of alloys whose set contains the true label.</caption>" +
+          " flagged outside the dataset's range at test time across the five grouped folds. Coverage is the share of alloys whose set contains the true label.</caption>" +
           '<thead><tr><th>Target</th><th>Alloys</th><th class="num">n</th><th class="num">Coverage</th><th class="num">Mean set size</th></tr></thead><tbody>' +
           rows.join("") + "</tbody></table></div>" +
           '<p class="feature-note">A set can always reach its target by listing every label, so read coverage next to set size.</p>';
@@ -1472,7 +1529,7 @@
     ["senkov_kappa", "Senkov κ", ["solid_solution", "intermetallic"]],
     ["yeh_smix", "Yeh ΔS", ["HEA", "MEA", "dilute"]],
     ["tsai_sigma", "Tsai σ", ["sigma_unlikely", "sigma_prone", "not_applicable"]],
-    ["sheikh_ductility", "Sheikh ductility", ["ductile", "borderline", "brittle"]],
+    ["sheikh_ductility", "Sheikh ductility", ["ductile", "borderline", "brittle", "not_applicable"]],
   ];
   var designGate = new Gate($("design-gate"), {
     what: "Composition search and experiment planning.",
@@ -1511,7 +1568,7 @@
     $("search-property-limits").appendChild(row);
   }
 
-  function addElementLimit() {
+  function addElementLimit(element, max) {
     var row = document.createElement("div");
     row.className = "feature-repeat__row";
     row.innerHTML =
@@ -1519,6 +1576,8 @@
       '<input type="number" step="any" min="0" max="1" data-k="min" placeholder="min fraction">' +
       '<input type="number" step="any" min="0" max="1" data-k="max" placeholder="max fraction">' +
       '<button type="button" class="ghost" data-remove>Remove</button>';
+    if (element) row.querySelector('[data-k="element"]').value = element;
+    if (max !== undefined) row.querySelector('[data-k="max"]').value = String(max);
     $("search-element-limits").appendChild(row);
   }
 
@@ -1531,13 +1590,19 @@
   }).join("");
   addObjective("maximize", "hardness");
   addObjective("minimize", "density");
+  // Hardness per density rewards aluminium without limit, and an uncapped
+  // search returns 40 to 70 at.% Al aluminides. The example caps Al at
+  // 20 at.% so it lands on AlCoCrFeNi-family alloys.
+  addElementLimit("Al", 0.2);
   $("search-add-objective").addEventListener("click", function () {
     addObjective("minimize", "cost_per_kg");
   });
   $("search-add-limit").addEventListener("click", function () {
     addLimit("density");
   });
-  $("search-add-element-limit").addEventListener("click", addElementLimit);
+  $("search-add-element-limit").addEventListener("click", function () {
+    addElementLimit();
+  });
   $("search-form").addEventListener("click", function (event) {
     var remove = event.target.closest("[data-remove]");
     if (remove) remove.parentElement.remove();
@@ -1652,7 +1717,7 @@
     var head =
       "<tr><th>Composition</th>" +
       objectives.map(function (o) { return '<th class="num">' + esc(o[1].replace(/_/g, " ")) + "</th>"; }).join("") +
-      "<th>Like the dataset</th><th>Rules</th><th></th></tr>";
+      "<th>Predicted phase</th><th>In range</th><th>Rules</th><th></th></tr>";
     var body = result.candidates
       .map(function (c, i) {
         var cells = objectives
@@ -1666,8 +1731,9 @@
         var verdicts = Object.keys(c.rules)
           .map(function (k) { return k + ": " + c.rules[k]; })
           .join("\n");
+        var phase = c.phase ? (c.phase.prediction_set.length ? c.phase.prediction_set.join(" or ") : "no label") : "n/a";
         return (
-          '<tr><td class="comp">' + compHtml(c.composition) + "</td>" + cells + "<td>" + (c.in_domain === null ? "n/a" : c.in_domain ? "yes" : "no") +
+          '<tr><td class="comp">' + compHtml(c.composition) + "</td>" + cells + "<td>" + esc(phase) + "</td><td>" + (c.in_domain === null ? "n/a" : c.in_domain ? "yes" : "no") +
           '</td><td><span class="feature-badge" title="' + esc(verdicts) + '">' + Object.keys(c.rules).length + " verdicts</span>" +
           '</td><td><button type="button" class="ghost" data-open="' + i + '">Calculator</button></td></tr>'
         );
@@ -1684,9 +1750,10 @@
       (result.candidates.length
         ? '<div class="table-wrap"><table class="data feature-table"><caption>Pareto-front alloys. Fitted properties show their interval; ranking ' +
           (result.settings.optimize_bound === "lower" ? "uses the cautious interval end" : "uses the point estimate") + ".</caption><thead>" + head + "</thead><tbody>" + body + "</tbody></table></div>"
-        : '<p class="feature-note">No composition meets every requirement. Loosen a limit, widen the palette, or allow alloys unlike the dataset.</p>') +
+        : '<p class="feature-note">No composition meets every requirement. Loosen a limit, widen the palette, or include alloys outside the dataset\'s range.</p>') +
       '<div class="feature-controls"><button type="button" class="ghost" id="search-download">Download the full result (JSON)</button></div>' +
-      '<p class="feature-note">Hover a rule badge for all nine verdicts. Each candidate in the JSON carries its descriptors, rule verdicts, property predictions with intervals and its novelty measures.</p>';
+      '<p class="feature-note">The predicted phase is the four-class prediction set (BCC, FCC, HCP or multi-phase) at the interval confidence: every label the model cannot rule out. ' +
+      "Hover a rule badge for all nine verdicts. Each candidate in the JSON carries its descriptors, rule verdicts, property predictions with intervals and its novelty measures.</p>";
   }
 
   $("search-form").addEventListener("submit", function (event) {

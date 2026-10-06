@@ -34,7 +34,7 @@ import math
 from functools import lru_cache
 from typing import Protocol, runtime_checkable
 
-from ..composition import Composition, normalize
+from ..composition import Composition, accepts_formula, normalize
 from .elastic import h_elastic
 from .electronegativity import delta_chi, mean_electronegativity
 from .entropy import smix
@@ -186,6 +186,7 @@ def scorable_elements() -> frozenset[str]:
     return frozenset(_elemental() & _pairs())
 
 
+@accepts_formula
 def matrix_vector(
     composition: Composition, backend: "DescriptorBackend | None" = None
 ) -> list[float] | None:

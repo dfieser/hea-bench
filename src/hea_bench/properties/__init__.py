@@ -27,7 +27,7 @@ import importlib.util
 from dataclasses import dataclass
 
 from .._json import json_safe
-from ..composition import Composition, normalize
+from ..composition import Composition, accepts_formula, normalize
 from .data.element_prices import PRICE_ASOF
 from .hardness import PropertyUnavailableError
 from .tier_a import cost_breakdown, cost_per_kg, density
@@ -143,6 +143,7 @@ def available_properties() -> dict[str, dict]:
     }
 
 
+@accepts_formula
 def predict_property(
     composition: Composition,
     prop: str,

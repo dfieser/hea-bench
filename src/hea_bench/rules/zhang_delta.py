@@ -15,7 +15,7 @@ Materials* **10**, 534-538.
 
 from __future__ import annotations
 
-from ..composition import Composition
+from ..composition import Composition, accepts_formula
 from ..descriptors.size import delta
 
 DESCRIPTION = "Zhang 2008: δ < 6.5% → single-phase solid solution"
@@ -23,6 +23,7 @@ DESCRIPTION = "Zhang 2008: δ < 6.5% → single-phase solid solution"
 DEFAULT_THRESHOLD = 6.5  # percent
 
 
+@accepts_formula
 def predict(composition: Composition, threshold: float = DEFAULT_THRESHOLD) -> str:
     """Return ``"single-phase"`` if δ < threshold, else ``"multi-phase"``.
 

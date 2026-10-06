@@ -52,7 +52,14 @@ def test_every_tab_works_in_the_desktop_exe(tmp_path) -> None:
     port = _free_port()
     env = dict(
         os.environ,
-        WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=f"--remote-debugging-port={port}",
+        # The app fetches the Peivaste file at launch, before the driver can
+        # hook the page. Failing that host's DNS makes the launch fetch fail
+        # as it would offline; the driver then reloads the hooked page and
+        # answers the second fetch from the local file.
+        WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=(
+            f"--remote-debugging-port={port} "
+            '--host-resolver-rules="MAP raw.githubusercontent.com ~NOTFOUND"'
+        ),
         WEBVIEW2_USER_DATA_FOLDER=str(tmp_path / "profile"),
     )
     app = subprocess.Popen([EXE], env=env)

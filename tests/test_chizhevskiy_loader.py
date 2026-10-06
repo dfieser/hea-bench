@@ -80,11 +80,12 @@ def test_yields_expected_unique_alloy_count() -> None:
     ("Not provided"), and 378 group-notation formulas like
     ``(CrCoNi)97W1Mo2`` that the old parser corrupted into wrong
     stoichiometry (Ni97 instead of the group times 97). The lower
-    count is the honest one. Group-notation support is future work in
-    the parser, tracked in the corpus README, and would raise this
-    number legitimately."""
+    count is the honest one. parse_formula reads group notation since
+    2.7.1, but the loader keeps those rows out, because corpus v0.2.0
+    is frozen; letting them in is a new corpus version."""
     rows = list(chizhevskiy2026.load(CSV_PATH))
     assert len(rows) == 2974
+    assert not any("(" in row.formula_raw for row in rows)
 
 
 @requires_csv

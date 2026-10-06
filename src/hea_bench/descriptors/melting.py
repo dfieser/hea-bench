@@ -15,10 +15,11 @@ Physics* **132**, 233-238.
 
 from __future__ import annotations
 
-from ..composition import Composition
+from ..composition import Composition, accepts_formula
 from ._tables import element, missing_elements
 
 
+@accepts_formula
 def melting_temperature(composition: Composition) -> float:
     """Rule-of-mixtures average melting temperature (K).
 

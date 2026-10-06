@@ -21,10 +21,11 @@ from __future__ import annotations
 
 import math
 
-from ..composition import Composition
+from ..composition import Composition, accepts_formula
 from ._tables import element, missing_elements
 
 
+@accepts_formula
 def delta(composition: Composition) -> float:
     """Atomic-size mismatch δ (percent).
 

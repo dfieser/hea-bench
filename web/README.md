@@ -23,8 +23,11 @@ built exe before it is attached to a release.
 - **Online:** <https://dfieser.github.io/hea-bench/>. The landing page
   lists what each tab does. Everything works there.
 - **Desktop:** the portable `HEA-Bench.exe` on the GitHub release page.
-  Everything works offline except building the dataset, which downloads
-  the 6.4 MB Peivaste file from its authors' repository once.
+  The engine is inside the exe and starts by itself, so everything works
+  offline. The one exception is the dataset's 6.4 MB Peivaste source
+  file, which its authors have not licensed for redistribution: the app
+  fetches it from their repository by itself the first time it is
+  online, checks its SHA-256 and keeps it in IndexedDB.
 - **From a clone:** run `python tools/build_web_engine.py` once (it
   assembles `web/engine/`, see below), then `python -m http.server -d web`
   and open <http://localhost:8000>. Double-clicking `index.html` also

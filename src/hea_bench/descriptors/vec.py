@@ -22,10 +22,11 @@ Formation of solid-solution phase or amorphous phase.
 
 from __future__ import annotations
 
-from ..composition import Composition
+from ..composition import Composition, accepts_formula
 from ._tables import element, missing_elements
 
 
+@accepts_formula
 def vec(composition: Composition) -> float:
     """Valence Electron Concentration (dimensionless).
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from ..composition import Composition
+from ..composition import Composition, accepts_formula
 from ..constants import YE_PHI_THRESHOLD
 from ..descriptors.phi import phi_ye
 
@@ -11,6 +11,7 @@ DESCRIPTION = "Ye 2015: φ > 20.0 → solid_solution"
 DEFAULT_THRESHOLD = YE_PHI_THRESHOLD
 
 
+@accepts_formula
 def predict(composition: Composition, threshold: float = DEFAULT_THRESHOLD) -> str:
     """Return ``solid_solution`` if φ exceeds the threshold.
 

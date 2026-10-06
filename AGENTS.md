@@ -149,14 +149,21 @@ The CLI mirror is `hea-bench describe FORMULA --backend native|heacalculator`.
 
 ## Parsing formula strings
 
-If you have a string rather than a dict, parse it first. The parser
-accepts compact formulas (`"CoCrFeMnNi"`), subscripted formulas
-(`"CuCoMn1.75NiFe0.25"`), and space-separated amounts.
+Every function that takes a composition also takes a formula string,
+so `hb.smix("CoCrFeMnNi")` works. The parser accepts compact formulas
+(`"CoCrFeMnNi"`), subscripted formulas (`"CuCoMn1.75NiFe0.25"`),
+space-separated amounts, repeated elements, which add up
+(`"CoCrFeNiNi"` is Ni at 40 at.%), and group notation, where a
+bracketed group keeps its own ratio and takes the amount after it
+(`"(CoCrFeNi)95Al5"` is 23.75 at.% each of Co, Cr, Fe and Ni plus 5
+at.% Al). Groups nest. The browser core parses identically, which a
+CI parity test enforces.
 
 ```python
 comp = hb.parse_formula("CoCrFeMnNi")   # dict-like Composition
 hb.normalize(comp)                      # explicit mole-fraction dict
 hb.smix(comp)                           # descriptors accept it directly
+hb.smix("CoCrFeMnNi")                   # or the formula string
 ```
 
 ## Custom elements and pair values
@@ -200,16 +207,18 @@ values are strings:
 | Yeh ΔS_mix | `yeh_smix.predict(comp)` | `"HEA"` / `"MEA"` / `"dilute"` | fixed (descriptive) |
 | Zhang δ | `zhang_delta.predict(comp, threshold=6.5)` | `"single-phase"` / `"multi-phase"` | percent, default 6.5 |
 | Yang Ω | `yang_omega.predict(comp, threshold=1.1)` | `"single-phase"` / `"multi-phase"` | default 1.1 |
-| Guo-Liu VEC | `guo_vec.predict(comp)` | `"FCC"` / `"BCC"` / `"mixed"` | fixed bounds 8.0 / 6.87 |
+| Guo-Liu VEC | `guo_vec.predict(comp)`; `guo_vec.boundary_note(comp)` | `"FCC"` / `"BCC"` / `"mixed"`; note is a string when VEC is within 0.2 of a cutoff, else `None` | fixed bounds 8.0 / 6.87 |
 | King `Phi` | `king_phi.predict(comp, temperature_policy=None, threshold=1.0)` | `"solid_solution"` / `"intermetallic"` | defaults to `T = Tm` |
 | Ye `phi` | `ye_phi.predict(comp, threshold=20.0)` | `"solid_solution"` / `"intermetallic"` | default 20.0 |
-| Senkov-Miracle κ | `senkov_kappa.predict(comp, temperature=None)` | dataclass: `.verdict`, `.k1`, `.k1_cr`, `.g_ss_kj`, `.g_im_kj` | defaults to `T = Tm`; k₂ = 0.6 |
+| Senkov-Miracle κ | `senkov_kappa.predict(comp, temperature=None)` | dataclass: `.verdict`, `.k1`, `.k1_cr`, `.g_ss_kj`, `.g_im_kj`, `.im_pair`, `.note` (set when that pair has an element under 10 at.%) | defaults to `T = Tm`; k₂ = 0.6 |
 | Tsai σ window | `tsai_sigma.predict(comp)` | dataclass: `.verdict` in `sigma_prone` / `sigma_unlikely` / `not_applicable` | fixed 6.88-7.84, needs Cr/V |
-| Sheikh ductility | `sheikh_ductility.predict(comp)` | dataclass: `.verdict` in `ductile` / `brittle` / `borderline` | fixed 4.5 / 4.6 |
+| Sheikh ductility | `sheikh_ductility.predict(comp)` | dataclass: `.verdict` in `ductile` / `brittle` / `borderline` / `not_applicable`, `.applies` | fixed 4.5 / 4.6; only alloys of Ti, Zr, Hf, V, Nb, Ta, Cr, Mo, W |
 
 The three v2.1 rules return small frozen dataclasses (not bare
 strings) because their verdicts carry context (temperature, window
-membership); use `.verdict` for the string.
+membership); use `.verdict` for the string. Sheikh returns
+`not_applicable` for any alloy with an element outside the nine
+refractory metals its screen was built on.
 
 ```python
 zhang_delta.predict(cantor)   # 'single-phase'

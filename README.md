@@ -95,7 +95,7 @@ flowchart LR
 | Part | Where | Best for |
 |---|---|---|
 | **Web app** | <https://dfieser.github.io/hea-bench/> | anyone, no install |
-| **Desktop app** | one portable `.exe`, [download (no install)](https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench.exe), the same app in its own window | Windows users who want it local |
+| **Desktop app** | one portable `.exe`, [download (no install)](https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench.exe), the same app in its own window, engine inside, works offline | Windows users who want it local |
 | **Python library + CLI** | `pip install "hea-bench[all]"` | scripts and notebooks |
 | **MCP server for AI agents** | `pip install "hea-bench[mcp]"`, then `hea-bench-mcp` | Claude, Cursor and other MCP clients, as 24 tools |
 

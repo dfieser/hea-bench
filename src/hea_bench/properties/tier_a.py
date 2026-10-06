@@ -17,12 +17,13 @@ against the experimental densities in the Borg dataset lives in
 
 from __future__ import annotations
 
-from ..composition import Composition, normalize
+from ..composition import Composition, accepts_formula, normalize
 from ..descriptors.data.mechanics import mechanics
 from .data.atomic_masses import ATOMIC_MASS_G_MOL
 from .data.element_prices import PRICES_USD_PER_KG
 
 
+@accepts_formula
 def cost_per_kg(composition: Composition) -> float | None:
     """Indicative alloy raw-material cost in USD per kg, or None.
 
@@ -46,6 +47,7 @@ def cost_per_kg(composition: Composition) -> float | None:
     return total
 
 
+@accepts_formula
 def cost_breakdown(composition: Composition) -> dict[str, dict]:
     """Per-element cost contributions with each row's basis and source.
 
@@ -85,6 +87,7 @@ def _mass_fractions(comp: Composition) -> dict[str, float] | None:
     return {element: value / total for element, value in masses.items()}
 
 
+@accepts_formula
 def density(composition: Composition) -> float | None:
     """Rule-of-mixtures density in g/cm3, or None where a table has no row.
 

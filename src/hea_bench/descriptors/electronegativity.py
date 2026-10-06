@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import math
 
-from ..composition import Composition
+from ..composition import Composition, accepts_formula
 from ._tables import element, missing_elements
 
 
@@ -49,6 +49,7 @@ def _normalized(composition: Composition) -> dict[str, float]:
     return {el: amount / total for el, amount in composition.items() if amount > 0}
 
 
+@accepts_formula
 def mean_electronegativity(composition: Composition) -> float:
     """Composition-weighted mean Pauling electronegativity χ̄.
 
@@ -62,6 +63,7 @@ def mean_electronegativity(composition: Composition) -> float:
     return sum(c * element(el).electronegativity for el, c in norm.items())
 
 
+@accepts_formula
 def delta_chi(composition: Composition) -> float:
     """Electronegativity mismatch Δχ (composition-weighted std, dimensionless).
 

@@ -35,7 +35,7 @@ from functools import lru_cache
 from itertools import combinations
 from pathlib import Path
 
-from ..composition import Composition, normalize
+from ..composition import Composition, accepts_formula, normalize
 from ._tables import element
 
 _CSV_PATH = Path(__file__).resolve().parent / "data" / "miedema_parameters.csv"
@@ -236,6 +236,7 @@ def _ss_structural(a: str, b: str, ca: float, cb: float) -> float:
     return e_avg - (ca * _lattice_stability(za)[pa.struct] + cb * _lattice_stability(zb)[pb.struct])
 
 
+@accepts_formula
 def miedema_decomposition(composition: Composition) -> dict:
     """Compound, solid-solution and amorphous formation enthalpies (kJ/mol).
 

@@ -31,12 +31,13 @@ from __future__ import annotations
 import math
 from itertools import combinations
 
-from ..composition import Composition, normalize
+from ..composition import Composition, accepts_formula, normalize
 from .entropy import smix
 from .melting import melting_temperature
 from .miedema import mixing_enthalpy, pair_enthalpy
 
 
+@accepts_formula
 def omega(composition: Composition) -> float:
     """Yang–Zhang Ω parameter (dimensionless).
 
@@ -78,6 +79,7 @@ def omega(composition: Composition) -> float:
     return (tm * s) / (abs(h) * 1000.0)
 
 
+@accepts_formula
 def omega_sensitivity(composition: Composition, perturbation_kj_mol: float = 2.0) -> dict:
     """How robust Omega is to the choice of Miedema pair table.
 

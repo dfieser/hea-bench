@@ -1,0 +1,40 @@
+{
+  "_read_me": "Formulas that tests/test_web_parity.py feeds to both parse_formula (Python) and parseFormula (web/hea-calculator-core.js). parses: the two must return the same fractions in the same element order. rejects: both must refuse. Symbols are all real elements, because only Python checks them against the periodic table.",
+  "parses": [
+    "CoCrFeMnNi",
+    "Al0.25 Co1 Fe1 Ni1",
+    "Al0.15Cr0.85",
+    "AlCoCrCu0.5Fe",
+    "Al0.3CoCrFeNi",
+    "Fe1Co1Fe1",
+    "CoCrFeNiNi",
+    "(CoCrFeNi)95Al5",
+    "(FeCoNi)86Al7Ti7",
+    "((CoCrFeNi)90Al10)95Ti5",
+    "(Co2CrFeNi)95Al5",
+    "(CoCr)Fe",
+    "(Fe1Co1)",
+    "Al0CoCrFeNi",
+    "Ti.5Zr.5",
+    "Mo5.Nb",
+    "  Al0.25\tCo1\nFe1 Ni1  ",
+    " ( CoCrFeNi )95 Al5"
+  ],
+  "rejects": [
+    "",
+    "   ",
+    "12345",
+    "Fe0.5???Co0.5",
+    "Fe-1Co2",
+    "Fe1e3Co1",
+    "Fe1,Co1",
+    "Fe 1 Co 2",
+    "(Fe1Co1",
+    "Fe1Co1)",
+    "()Fe",
+    "Fe.Co",
+    "Al0Co0",
+    "(CoCr)0",
+    " ( CoCrFeNi ) 95 Al5"
+  ]
+}

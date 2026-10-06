@@ -25,7 +25,7 @@ from __future__ import annotations
 
 import math
 
-from ..composition import Composition
+from ..composition import Composition, accepts_formula
 from ._tables import element, missing_elements
 
 
@@ -44,6 +44,7 @@ def _gamma_from_radii(fractions: dict[str, float], radii: dict[str, float]) -> f
     return _omega(r_min, r_bar) / _omega(r_max, r_bar)
 
 
+@accepts_formula
 def wang_gamma(composition: Composition) -> float:
     """γ = ω_S/ω_L (dimensionless, ≥ 1)."""
     if not composition:
