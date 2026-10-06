@@ -1,0 +1,97 @@
+name: Desktop smoke
+
+# Builds the portable exe from any branch and uses every tab inside it,
+# the same steps as the desktop-build job in release.yml, without
+# releasing anything. Run it to check an exe fix before the next push to
+# main cuts a release:
+#
+#   gh workflow run desktop-smoke.yml --ref main
+#   gh run watch "$(gh run list --workflow desktop-smoke.yml --limit 1 --json databaseId --jq '.[0].databaseId')"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  desktop-smoke:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "src-tauri -> target"
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Restore the pinned Pyodide runtime
+        uses: actions/cache@v6
+        with:
+          path: web/engine/pyodide
+          key: pyodide-${{ hashFiles('tools/build_web_engine.py') }}
+      - name: Assemble the in-app engine bundle
+        run: python tools/build_web_engine.py
+      - name: Install the Tauri CLI
+        run: cargo install tauri-cli --version "^2.0" --locked
+      - name: Build the portable executable (no installer)
+        run: cargo tauri build --no-bundle
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - name: Restore the pinned Peivaste snapshot
+        uses: actions/cache@v6
+        with:
+          path: data/raw/peivaste/dataset11252_79.csv
+          key: peivaste-655a43e521003f5c8973050b5f7c0a5d4b9ab902ca4ecc9c8a7d9813b2b0ba10
+      - name: Fetch the Peivaste snapshot (verifies the pinned SHA-256 either way)
+        run: python data/raw/peivaste/fetch.py
+      - name: Make sure the WebView2 runtime is installed (the exe renders in it)
+        shell: pwsh
+        run: |
+          $key = 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}'
+          $pv = (Get-ItemProperty -Path $key -ErrorAction SilentlyContinue).pv
+          if ($pv -and $pv -ne '0.0.0.0') { "WebView2 runtime $pv is installed"; exit 0 }
+          Invoke-WebRequest 'https://go.microsoft.com/fwlink/p/?LinkId=2124703' -OutFile "$env:RUNNER_TEMP\webview2-setup.exe"
+          Start-Process "$env:RUNNER_TEMP\webview2-setup.exe" -ArgumentList '/silent', '/install' -Wait
+          $pv = (Get-ItemProperty -Path $key -ErrorAction SilentlyContinue).pv
+          if (-not $pv -or $pv -eq '0.0.0.0') { throw 'the WebView2 runtime did not install' }
+          "WebView2 runtime $pv installed"
+      # Diagnostic only: launches the exe twice, with the DevTools port
+      # alone and with the host-resolver rule the smoke test adds, and says
+      # whether the port opened and whether the exe stayed up.
+      - name: Probe the exe's DevTools port
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $exe = "$PWD\src-tauri\target\release\hea-bench.exe"
+          foreach ($case in @('port-only', 'port-and-resolver')) {
+            $port = if ($case -eq 'port-only') { 9311 } else { 9312 }
+            $extra = "--remote-debugging-port=$port"
+            if ($case -ne 'port-only') { $extra += ' --host-resolver-rules="MAP raw.githubusercontent.com ~NOTFOUND"' }
+            $env:WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS = $extra
+            $env:WEBVIEW2_USER_DATA_FOLDER = "$env:RUNNER_TEMP\probe-$case"
+            $app = Start-Process -FilePath $exe -PassThru
+            $open = $false
+            for ($i = 1; $i -le 90; $i++) {
+              Start-Sleep -Seconds 1
+              try { Invoke-RestMethod "http://127.0.0.1:$port/json/version" -TimeoutSec 2 | Out-Null; $open = $true; break } catch {}
+              if ($app.HasExited) { break }
+            }
+            "${case}: port open $open after $i s, exe exited $($app.HasExited) (code $($app.ExitCode))"
+            Get-CimInstance Win32_Process -Filter "Name='msedgewebview2.exe'" | Select-Object -First 2 |
+              ForEach-Object { '  ' + $_.CommandLine.Substring(0, [Math]::Min(400, $_.CommandLine.Length)) }
+            Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+            Get-Process msedgewebview2 -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+            Start-Sleep -Seconds 2
+          }
+          Remove-Item Env:WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS, Env:WEBVIEW2_USER_DATA_FOLDER -ErrorAction SilentlyContinue
+      - name: Use every tab inside the built exe
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          $env:HEA_BENCH_DESKTOP_EXE = "$PWD\src-tauri\target\release\hea-bench.exe"
+          $env:HEA_BENCH_REQUIRE_ENGINE = "1"   # a skip is a failure here
+          python -m pytest tests/test_desktop_smoke.py -q -rs -p no:cacheprovider

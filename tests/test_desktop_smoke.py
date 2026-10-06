@@ -19,6 +19,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+import time
 import urllib.request
 from pathlib import Path
 
@@ -27,7 +28,7 @@ import pytest
 import hea_bench
 from hea_bench import webapp
 
-from .test_app_smoke import DRIVER, PEIVASTE, _free_port, _wait, check_report
+from .test_app_smoke import DRIVER, PEIVASTE, _free_port, check_report
 
 EXE = os.environ.get("HEA_BENCH_DESKTOP_EXE")
 
@@ -42,6 +43,24 @@ def _devtools_ready(port: int) -> bool:
             return True
     except OSError:
         return False
+
+
+def _webview_processes() -> str:
+    """The running WebView2 processes' command lines, for a failure message:
+    they show whether the browser started and which arguments reached it."""
+    query = (
+        "Get-CimInstance Win32_Process -Filter \"Name='msedgewebview2.exe'\" | "
+        "ForEach-Object { $_.CommandLine }"
+    )
+    try:
+        out = subprocess.run(
+            ["powershell", "-NoProfile", "-Command", query],
+            capture_output=True, text=True, timeout=60,
+        ).stdout
+    except (OSError, subprocess.SubprocessError) as error:
+        return f"(could not list them: {error})"
+    lines = [line.strip()[:400] for line in out.splitlines() if line.strip()]
+    return "\n".join(lines[:4]) or "(none running)"
 
 
 def test_every_tab_works_in_the_desktop_exe(tmp_path) -> None:
@@ -64,7 +83,16 @@ def test_every_tab_works_in_the_desktop_exe(tmp_path) -> None:
     )
     app = subprocess.Popen([EXE], env=env)
     try:
-        _wait("the exe's DevTools port", lambda: _devtools_ready(port), 60)
+        until = time.monotonic() + 120
+        while not _devtools_ready(port):
+            if app.poll() is not None:
+                pytest.fail(f"the exe exited with code {app.returncode} before opening its DevTools port")
+            if time.monotonic() > until:
+                pytest.fail(
+                    "timed out after 120 s waiting for the exe's DevTools port. "
+                    f"WebView2 processes:\n{_webview_processes()}"
+                )
+            time.sleep(0.2)
         completed = subprocess.run(
             [node, str(DRIVER), str(port), "attach", str(PEIVASTE), webapp.peivaste_source()["url"],
              hea_bench.__version__],
