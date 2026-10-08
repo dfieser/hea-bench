@@ -111,10 +111,11 @@ def cross_val_scores(
     ``predict_proba``) get :func:`classifier_scores`, regressors
     :func:`regressor_scores`.
     """
+    from .._model_cache import serial
+
     scores: list[float | None] = [None] * len(y)
     for train, test in folds:
-        model = make_model()
-        model.fit([X[i] for i in train], [y[i] for i in train])
+        model = serial(make_model().fit([X[i] for i in train], [y[i] for i in train]))
         score = (
             classifier_scores
             if callable(getattr(model, "predict_proba", None))

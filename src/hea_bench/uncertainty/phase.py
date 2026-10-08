@@ -75,7 +75,7 @@ def _fitted(task: str, version: str):
 def _fit(task: str, version: str):
     from sklearn.ensemble import RandomForestClassifier
 
-    from .._model_cache import FOREST_JOBS
+    from .._model_cache import FOREST_JOBS, serial
     from ..benchmark import load_benchmark
     from ..benchmark.corpus import descriptor_matrix, finite_descriptor_indices
     from .conformal import ConformalClassifier, cross_val_scores
@@ -90,7 +90,7 @@ def _fit(task: str, version: str):
         return RandomForestClassifier(n_estimators=_TREES, random_state=_SEED, n_jobs=FOREST_JOBS)
 
     scores = cross_val_scores(make_forest, features, labels, system_fold_positions(bench, finite))
-    model = make_forest().fit(features, labels)
+    model = serial(make_forest().fit(features, labels))
     conformal = ConformalClassifier(model).calibrate_scores(scores, groups)
     return model, conformal, len(finite), len(scores)
 

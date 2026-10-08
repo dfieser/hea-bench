@@ -93,7 +93,7 @@ def coverage_study(
     """
     from sklearn.ensemble import RandomForestClassifier
 
-    from .._model_cache import FOREST_JOBS
+    from .._model_cache import FOREST_JOBS, serial
     from ..benchmark import load_benchmark
     from ..benchmark.corpus import descriptor_matrix, finite_descriptor_indices
     from . import ConformalClassifier, fit_domain
@@ -127,7 +127,7 @@ def coverage_study(
         )
         model.fit([matrix[i] for i in rows], [labels[i] for i in rows])
         fits += 1
-        return model
+        return serial(model)
 
     def scores_of(model, rows: list[int]) -> list[float]:
         return classifier_scores(model, [matrix[i] for i in rows], [labels[i] for i in rows])

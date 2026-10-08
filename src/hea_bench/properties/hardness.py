@@ -90,7 +90,7 @@ def _fit(processing: str | None, random_forest_cls):
             f"the fit is close to guessing, so it refuses rather than pretends."
         )
 
-    from .._model_cache import FOREST_JOBS
+    from .._model_cache import FOREST_JOBS, serial
     from ..benchmark.splits import grouped_split
 
     families = [family_of(record.composition) for record in usable]
@@ -110,7 +110,7 @@ def _fit(processing: str | None, random_forest_cls):
         return random_forest_cls(n_estimators=_TREES, random_state=_SEED, n_jobs=FOREST_JOBS)
 
     scores = cross_val_scores(make_forest, features, values, folds)
-    model = make_forest().fit(features, values)
+    model = serial(make_forest().fit(features, values))
     conformal = ConformalRegressor(model).calibrate_scores(scores)
     domain = fit_domain(
         [DomainRow(record.composition, family) for record, family in zip(usable, families)]

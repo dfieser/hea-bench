@@ -52,6 +52,7 @@ def _hardness_study() -> dict:
     """
     from sklearn.ensemble import RandomForestRegressor
 
+    from hea_bench._model_cache import serial
     from hea_bench.properties.hardness import _fitted
     from hea_bench.uncertainty.conformal import cross_val_scores
 
@@ -80,7 +81,7 @@ def _hardness_study() -> dict:
         scores = cross_val_scores(
             make_forest, X_train, y_train, [(list(f.train), list(f.test)) for f in inner.folds]
         )
-        model = make_forest().fit(X_train, y_train)
+        model = serial(make_forest().fit(X_train, y_train))
         threshold = ConformalRegressor(model).calibrate_scores(scores)._threshold(ALPHA)
         half = math.inf if threshold is None else threshold
         predictions = [float(p) for p in model.predict([features[i] for i in fold.test])]

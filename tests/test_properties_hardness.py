@@ -112,3 +112,11 @@ def test_batch_matches_single_predictions_row_for_row() -> None:
     assert isinstance(batch[1], PropertyUnavailableError)
     density_batch = predict_property_batch([CANTOR, AL_CANTOR], "density")
     assert density_batch == [predict_property(CANTOR, "density"), predict_property(AL_CANTOR, "density")]
+
+
+def test_the_fitted_forest_predicts_on_one_thread() -> None:
+    """Prediction threads add the trees in whatever order they finish, so a
+    prediction's last digit would change between calls (_model_cache.serial)."""
+    from hea_bench.properties.hardness import _fitted
+
+    assert _fitted(None)[0].n_jobs is None

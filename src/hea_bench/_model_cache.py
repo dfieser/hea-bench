@@ -23,10 +23,22 @@ import sys
 
 from . import __version__
 
-#: ``n_jobs`` for the fitted forests: every core in Python, one in the
-#: browser engine, which has no worker processes. A forest's numbers do
-#: not depend on it.
+#: ``n_jobs`` for fitting the forests: every core in Python, one in the
+#: browser engine, which has no worker processes. The trees come out the
+#: same either way. Predictions stay on one thread, see :func:`serial`.
 FOREST_JOBS = None if sys.platform == "emscripten" else -1
+
+
+def serial(model):
+    """``model``, set to predict on one thread.
+
+    A forest predicting on several threads adds its trees' answers in the
+    order the threads finish, so the same alloy could change in its last
+    digit from one call to the next.
+    """
+    if getattr(model, "n_jobs", None) is not None:
+        model.n_jobs = None
+    return model
 
 
 def cached(name: str, fit):
