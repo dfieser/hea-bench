@@ -82,3 +82,20 @@ def test_check_flags_author_parity_drift(tmp_path):
     text = zj.read_text(encoding="utf-8").replace("0009-0006-6400-9356", "0000-0000-0000-0000")
     zj.write_text(text, encoding="utf-8")
     assert any("ORCID" in p for p in mod.check(root))
+
+
+def test_preflight_ignores_a_bump_in_the_desktop_inputs(tmp_path):
+    """A bump rewrites the Cargo files, and the preflight must not call that a new exe input."""
+    mod = _load()
+    root = _mirror(mod, tmp_path)
+    mod.set_version("9.9.9", root)
+    spec = importlib.util.spec_from_file_location("hb_preflight_tool", ROOT / "tools" / "preflight.py")
+    preflight = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(preflight)
+    strip = preflight.without_version_stamps
+    for rel in ("src-tauri/Cargo.toml", "src-tauri/Cargo.lock"):
+        old = (mod.ROOT / rel).read_text(encoding="utf-8")
+        new = (root / rel).read_text(encoding="utf-8")
+        assert old != new
+        assert strip(rel, new) == strip(rel, old)
+        assert strip(rel, new + "\n# a real change\n") != strip(rel, old)

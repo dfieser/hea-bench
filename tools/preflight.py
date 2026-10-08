@@ -40,6 +40,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "tools"))
+from version import VERSION_TARGETS  # noqa: E402  (the version stamp table)
 
 #: The MCP registry rejects a server.json whose description exceeds this
 #: (HTTP 422, learned from the v2.5.0 release failure on 2026-08-16).
@@ -334,6 +336,34 @@ def _git(*args: str) -> subprocess.CompletedProcess:
     return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
 
 
+def without_version_stamps(rel: str, text: str) -> str:
+    """``text`` with every version that tools/version.py stamps into ``rel`` blanked."""
+
+    def blank(m: re.Match) -> str:
+        start, end = m.start(1) - m.start(), m.end(1) - m.start()
+        return m.group(0)[:start] + "X" + m.group(0)[end:]
+
+    for pattern, _ in VERSION_TARGETS.get(rel, []):
+        text = pattern.sub(blank, text)
+    return text
+
+
+def _desktop_inputs_changed(base: str) -> list[str]:
+    """Desktop inputs that differ between ``base`` and HEAD beyond the version stamps.
+
+    Every bump rewrites the version in src-tauri/Cargo.toml and Cargo.lock,
+    the release bot's patch bumps included, so a bump alone is no new input.
+    """
+    diff = _git("diff", "--name-only", base, "HEAD", "--", *DESKTOP_SMOKE_INPUTS)
+    if diff.returncode:
+        return list(DESKTOP_SMOKE_INPUTS)  # base is not in this clone: assume everything changed
+    return [
+        rel for rel in diff.stdout.split()
+        if without_version_stamps(rel, _git("show", f"{base}:{rel}").stdout)
+        != without_version_stamps(rel, _git("show", f"HEAD:{rel}").stdout)
+    ]
+
+
 def check_desktop_smoke() -> list[str]:
     if "[no-release]" in _git("log", "-1", "--format=%B").stdout:
         return []
@@ -341,7 +371,7 @@ def check_desktop_smoke() -> list[str]:
     tag = _git("describe", "--tags", "--abbrev=0", "--match", "v*").stdout.strip()
     if not tag:
         return ["no release tag in this clone to compare against: run git fetch --tags, then preflight again"]
-    changed = _git("diff", "--name-only", tag, "HEAD", "--", *DESKTOP_SMOKE_INPUTS).stdout.split()
+    changed = _desktop_inputs_changed(tag)
     if not changed:
         return []
     try:
@@ -353,7 +383,7 @@ def check_desktop_smoke() -> list[str]:
     except OSError:
         return ["the GitHub CLI (gh) is needed to find a green Desktop smoke run: install it, gh auth login"]
     shas = [run["headSha"] for run in json.loads(listed.stdout or "[]")] if listed.returncode == 0 else []
-    if any(_git("diff", "--quiet", sha, "HEAD", "--", *DESKTOP_SMOKE_INPUTS).returncode == 0 for sha in shas):
+    if any(not _desktop_inputs_changed(sha) for sha in shas):
         return []
     return [
         f"the desktop exe's inputs changed since {tag} ({', '.join(changed)}) and no green "
@@ -446,7 +476,10 @@ def main(argv: list[str]) -> int:
             _, code, output = _run(label, command)
             print(("ok  " if code == 0 else "FAIL") + f"  {label}")
             if code != 0:
+                # Print the tail, or an agent cannot see what failed.
                 failures.append(f"{label} failed:\n{output[-2000:]}")
+                for line in output[-2000:].splitlines():
+                    print(f"      {line}")
             elif label.startswith("pytest") and " skipped" in output:
                 summary = output.strip().splitlines()[-1]
                 warnings.append(f"pytest skipped tests locally: {summary}")
