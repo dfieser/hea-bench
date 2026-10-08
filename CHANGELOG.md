@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.8.0] — 2026-10-08
+
 ### Changed
 
 - Phase prediction sets calibrate by five-fold cross-validation over
