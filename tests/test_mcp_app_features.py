@@ -30,7 +30,6 @@ from hea_bench.mcp_server import (
 
 _REPO = pathlib.Path(__file__).resolve().parents[1]
 _DATA_DIR = _REPO / "data" / "consolidated"
-_PEIVASTE = _REPO / "data" / "raw" / "peivaste" / "dataset11252_79.csv"
 
 needs_corpus = pytest.mark.skipif(
     not (_DATA_DIR / "v0.1.0" / "consolidated.csv").exists(),
@@ -139,10 +138,9 @@ def test_corpus_export_writes_the_slice_and_never_overwrites(tmp_path) -> None:
         corpus_export(str(target))
 
 
-@pytest.mark.skipif(not _PEIVASTE.exists(), reason="Peivaste CSV not fetched")
 def test_corpus_build_builds_where_the_tools_read(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("HEA_BENCH_BENCHMARK_DIR", str(tmp_path))
-    out = corpus_build(versions=["0.1.0"], peivaste_csv=str(_PEIVASTE))
+    out = corpus_build(versions=["0.1.0"])
     assert out["built"]["0.1.0"]["totals"]["unique_compositions"] == 7783
     assert (tmp_path / "v0.1.0" / "consolidated.csv").exists()
     assert about()["corpus_versions_built"]["0.1.0"] is True

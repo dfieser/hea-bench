@@ -321,7 +321,6 @@
         "mcp:corpus_query",
         "mcp:corpus_describe",
         "hea_bench.corpus.build_corpus",
-        "hea_bench.corpus.install_peivaste",
         "mcp:corpus_build",
         "mcp:corpus_export"
       ],
@@ -341,7 +340,6 @@
       },
       "tests": [
         "tests/test_webapp.py::test_dataset_pages_are_capped_and_carry_provenance",
-        "tests/test_webapp.py::test_peivaste_install_refuses_different_bytes",
         "tests/test_web_engine.py::test_engine_matches_cpython"
       ]
     },

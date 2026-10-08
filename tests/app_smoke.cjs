@@ -5,17 +5,14 @@
 // WebView2's DevTools port open and passes "attach" as the app URL: the
 // steps then drive the page the exe already shows.
 //
-// Usage: node app_smoke.cjs <devtools-port> <app-url | attach> <peivaste-csv> <peivaste-url> <version>
+// Usage: node app_smoke.cjs <devtools-port> <app-url | attach> <version>
 //
-// The engine's Peivaste download is answered from the local file, so the
-// run never depends on the network. Uncaught errors, console errors and
-// failed loads anywhere in the page or its worker are reported as problems.
+// Uncaught errors, console errors and failed loads anywhere in the page or
+// its worker are reported as problems.
 
 "use strict";
 
-const fs = require("fs");
-
-const [port, appUrl, peivastePath, peivasteUrl, version] = process.argv.slice(2);
+const [port, appUrl, version] = process.argv.slice(2);
 
 function report(value) {
   console.log(JSON.stringify(value));
@@ -332,16 +329,13 @@ const STEPS = [
   const meta = await (await fetch("http://127.0.0.1:" + port + "/json/version")).json();
   const cdp = await connect(meta.webSocketDebuggerUrl);
   const problems = [];
-  const body = fs.readFileSync(peivastePath).toString("base64");
-  let served = 0;
 
-  // Every page and worker session: report errors, answer the Peivaste
-  // download locally, and attach to the workers it starts.
+  // Every page and worker session: report errors, and attach to the
+  // workers it starts.
   function instrument(sessionId) {
     return Promise.all([
       cdp.send("Runtime.enable", {}, sessionId),
       cdp.send("Log.enable", {}, sessionId).catch(() => {}),
-      cdp.send("Fetch.enable", { patterns: [{ urlPattern: "*" + peivasteUrl.split("/").pop() }] }, sessionId).catch(() => {}),
       cdp.send("Target.setAutoAttach", { autoAttach: true, waitForDebuggerOnStart: true, flatten: true }, sessionId).catch(() => {}),
     ]);
   }
@@ -350,27 +344,6 @@ const STEPS = [
     const p = msg.params || {};
     if (msg.method === "Target.attachedToTarget") {
       instrument(p.sessionId).finally(() => cdp.send("Runtime.runIfWaitingForDebugger", {}, p.sessionId).catch(() => {}));
-    } else if (msg.method === "Fetch.requestPaused") {
-      if (p.request.url === peivasteUrl) {
-        served += 1;
-        cdp
-          .send(
-            "Fetch.fulfillRequest",
-            {
-              requestId: p.requestId,
-              responseCode: 200,
-              responseHeaders: [
-                { name: "Content-Type", value: "text/csv" },
-                { name: "Access-Control-Allow-Origin", value: "*" },
-              ],
-              body,
-            },
-            msg.sessionId
-          )
-          .catch((e) => problems.push("could not answer the Peivaste download: " + e.message));
-      } else {
-        cdp.send("Fetch.continueRequest", { requestId: p.requestId }, msg.sessionId).catch(() => {});
-      }
     } else if (msg.method === "Runtime.exceptionThrown") {
       const d = p.exceptionDetails || {};
       problems.push("uncaught: " + ((d.exception && d.exception.description) || d.text));
@@ -400,8 +373,8 @@ const STEPS = [
   await instrument(sessionId);
   await cdp.send("Page.enable", {}, sessionId);
   const loaded = new Promise((resolve) => cdp.on((msg) => msg.sessionId === sessionId && msg.method === "Page.loadEventFired" && resolve()));
-  // A reload in attach mode, so the error listeners and the Peivaste
-  // answer are in place before the page's first script runs.
+  // A reload in attach mode, so the error listeners are in place before
+  // the page's first script runs.
   if (appUrl === "attach") await cdp.send("Page.reload", { ignoreCache: true }, sessionId);
   else await cdp.send("Page.navigate", { url: appUrl }, sessionId);
   await loaded;
@@ -430,5 +403,5 @@ const STEPS = [
     steps.push({ name, ok, detail, seconds: Math.round((Date.now() - started) / 100) / 10 });
   }
   cdp.close();
-  report({ steps, problems, peivaste_served: served });
+  report({ steps, problems });
 })().catch((e) => report({ fatal: String((e && e.stack) || e) }));

@@ -3,14 +3,14 @@
  * Boot: load the vendored Pyodide runtime (engine/pyodide/, assembled at
  * deploy time by tools/build_web_engine.py), numpy and scikit-learn, unpack
  * engine/hea-bench.zip to /repo, mount IndexedDB at /persist so the built
- * corpus and the Peivaste download survive reloads, then import
+ * corpus and the fitted models survive reloads, then import
  * hea_bench.webapp. Every request {id, method, params} runs
  * webapp.call(method, json) and answers {id, ok, result | error}; long calls
  * post {id, progress} on the way. Requests run one at a time, in order.
  *
  * Between requests the worker prepares what the tabs need, one short step
  * at a time (webapp.warm_next / webapp.warm): it builds the corpus from
- * the persisted download, loads it, and fits the models, which it keeps
+ * the datasets inside the zip, loads it, and fits the models, which it keeps
  * in IndexedDB (HEA_BENCH_MODEL_CACHE) so a returning visitor loads them
  * instead of refitting. A request from the page always goes before the
  * next step, so a click never waits behind more than one.
@@ -25,7 +25,6 @@ var pumping = false;
 // Give the page's first requests (a gate's corpus build, a prediction) a
 // moment to arrive before the background preparation starts.
 var WARM_DELAY_MS = 400;
-var PEIVASTE_CACHE = "/persist/peivaste.csv";
 
 function post(message) {
   self.postMessage(message);
@@ -104,15 +103,8 @@ async function boot() {
   webapp.set_progress(function (message, fraction) {
     if (currentId !== null) post({ id: currentId, progress: { message: message, fraction: fraction } });
   });
-  // A download persisted on an earlier visit lets the background steps
-  // rebuild the corpus without asking again.
-  if (exists(PEIVASTE_CACHE) && !callPython("peivaste_source").installed) {
-    try {
-      callPython("peivaste_install", { path: PEIVASTE_CACHE });
-    } catch (error) {
-      pyodide.FS.unlink(PEIVASTE_CACHE);
-    }
-  }
+  // Releases before 2.9 kept a downloaded copy of the Peivaste file here.
+  if (exists("/persist/peivaste.csv")) pyodide.FS.unlink("/persist/peivaste.csv");
   var info = callPython("engine_info");
   info.pyodide_version = manifest.pyodide_version;
   bootProgress("Ready", 1);
@@ -130,40 +122,10 @@ function removeTree(path) {
   FS.rmdir(path);
 }
 
-// Worker-side steps that need the network or IndexedDB, then the library.
-//
-// The Peivaste file is the one input neither the website nor the desktop
-// exe may ship (its authors have not licensed redistribution yet), so it
-// comes from their repository once, is checked against the pinned hash,
-// and is kept in IndexedDB. Everything after that works offline.
-async function fetchPeivaste() {
-  if (callPython("peivaste_source").installed) return { installed: true };
-  if (!exists(PEIVASTE_CACHE)) {
-    var source = callPython("peivaste_source");
-    post({ id: currentId, progress: { message: "Downloading the Peivaste dataset from its authors' repository (6.4 MB, once)", fraction: 0.05 } });
-    var bytes;
-    try {
-      bytes = await fetchBytes(source.url);
-    } catch (error) {
-      throw new Error(
-        "The dataset needs the Peivaste file from its authors' repository once (6.4 MB), and the " +
-        "download failed, most likely because this device is offline. Connect to the internet once " +
-        "and try again: the app keeps the file, so it works offline after that. (" + error.message + ")"
-      );
-    }
-    pyodide.FS.writeFile("/tmp/peivaste.csv", bytes);
-    callPython("peivaste_install", { path: "/tmp/peivaste.csv" });
-    pyodide.FS.writeFile(PEIVASTE_CACHE, bytes);
-    await syncfs(false);
-  } else {
-    callPython("peivaste_install", { path: PEIVASTE_CACHE });
-  }
-  return { installed: true };
-}
-
+// A worker-side step that needs IndexedDB, then the library. Every source
+// dataset is inside engine/hea-bench.zip, so it needs no network.
 async function ensureCorpus(version) {
   if (callPython("dataset_status").built[version]) return { built: true, version: version };
-  await fetchPeivaste();
   post({ id: currentId, progress: { message: "Building corpus v" + version + " (about a minute, once per release)", fraction: 0.3 } });
   callPython("dataset_build", { version: version });
   await syncfs(false);
@@ -176,8 +138,6 @@ async function handle(message) {
     var result =
       message.method === "ensure_corpus"
         ? await ensureCorpus((message.params && message.params.version) || "0.1.0")
-        : message.method === "fetch_peivaste"
-        ? await fetchPeivaste()
         : callPython(message.method, message.params);
     post({ id: message.id, ok: true, result: result });
   } catch (error) {

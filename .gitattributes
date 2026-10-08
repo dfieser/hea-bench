@@ -1,0 +1,4 @@
+# Mirrored source datasets stay byte-identical to upstream. The Peivaste
+# file has CRLF line endings and a pinned SHA-256, so git must never
+# convert it (hea_bench/benchmark/loaders/peivaste.py checks the hash).
+data/raw/peivaste/*.csv -text

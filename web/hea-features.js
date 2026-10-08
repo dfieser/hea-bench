@@ -170,25 +170,12 @@
     }
   }
 
-  var peivasteRequested = false;
   engine.onStatus(function (status) {
     if (status.state === "ready") {
       try {
         localStorage.setItem(AUTOSTART_KEY, "1");
       } catch (e) {
         /* storage unavailable */
-      }
-      // The Peivaste file is the one input the exe may not carry (its
-      // authors have not licensed redistribution yet). The desktop app
-      // fetches it the first time it is online and keeps it, and the
-      // engine's background steps then build every dataset, so the app
-      // works offline from then on. Offline, this fails quietly and the
-      // dataset views say what they need.
-      if (DESKTOP && !peivasteRequested) {
-        peivasteRequested = true;
-        engine.fetchPeivaste().catch(function () {
-          peivasteRequested = false;
-        });
       }
     }
   });
@@ -251,7 +238,7 @@
         "<b>" + esc(this.what) + "</b> This runs the hea-bench Python library inside the page. " +
         "The first start downloads about 30 MB, which the browser then keeps" +
         (this.needsCorpus
-          ? ", and builds the alloy dataset once per release (it fetches the Peivaste file from its authors' repository and checks its hash)."
+          ? ", and builds the alloy dataset once per release from the source files it carries."
           : ".");
       button = '<button type="button" class="primary" data-gate="start">Start</button>';
     } else if (status.state === "loading") {

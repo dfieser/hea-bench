@@ -656,21 +656,18 @@ def corpus_export(
     return _stamp({"path": str(target.resolve()), "n_rows": n_rows, "corpus_version": subset.version})
 
 
-def corpus_build(versions: list[str] | None = None, peivaste_csv: str | None = None) -> dict:
+def corpus_build(versions: list[str] | None = None) -> dict:
     """Build the corpus on this machine, once. Every corpus tool needs it.
 
-    Every source dataset ships with the package except one, which
-    declares no license, so it is downloaded from its upstream
-    repository (6.4 MB) and accepted only if its SHA-256 matches the
-    pinned value; ``peivaste_csv`` uses a copy you already have instead.
-    Builds every version by default. Rebuilding reproduces the same
-    corpus, so calling it again is harmless.
+    Every source dataset ships with the package, so the build needs no
+    network. Builds every version by default. Rebuilding reproduces the
+    same corpus, so calling it again is harmless.
     """
     from .corpus import build_corpus
     from .webapp import _clear_caches
 
     try:
-        built = build_corpus(*(versions or ()), peivaste_csv=peivaste_csv)
+        built = build_corpus(*(versions or ()))
     except OSError as exc:
         raise ValueError(str(exc)) from None
     _clear_caches()
@@ -1120,9 +1117,8 @@ def about() -> dict:
             "corpus": (
                 "the dataset tools, check_applicability, predict_phase_set and the "
                 "benchmark tools need the corpus, which is built on this machine "
-                "rather than shipped because one source is not licensed for "
-                "redistribution. Call corpus_build once (it downloads one 6.4 MB "
-                "file and checks its SHA-256)."
+                "from the source datasets that ship with the package. Call "
+                "corpus_build once (no download)."
             ),
             "properties_tier_b": 'pip install "hea-bench[mcp]" (includes scikit-learn)',
             "phase_prediction": 'pip install "hea-bench[mcp]" (includes scikit-learn)',
@@ -1358,11 +1354,6 @@ _PARAM_DOCS: dict[str, dict[str, str]] = {
         "versions": (
             "Corpus versions to build, e.g. ['0.2.0']. Omit to build every version, "
             "which is what the other tools expect."
-        ),
-        "peivaste_csv": (
-            "Path to a copy of the Peivaste CSV you already have, used instead of "
-            "downloading it. It is accepted only if its SHA-256 matches the pinned "
-            "value."
         ),
     },
     "corpus_query": {

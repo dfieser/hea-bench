@@ -7,7 +7,7 @@ tests/data/web_engine_calls.json with CPython. Pyodide ships
 scikit-learn 1.7.0 where the library pins 1.7.2, so this is also the
 proof that the two give the same forests.
 
-Skips without Node, the engine build, or the Peivaste file, unless
+Skips without Node or the engine build, unless
 HEA_BENCH_REQUIRE_ENGINE=1 (set by the CI web-engine job), where a skip
 would hide a broken app and fails instead.
 """
@@ -57,13 +57,7 @@ def _same(expected, actual, label: str) -> None:
 def test_engine_matches_cpython(node_snapshot) -> None:
     if not (ROOT / "web" / "engine" / "manifest.json").exists():
         _skip("engine not built; run python tools/build_web_engine.py")
-    if REQUIRED and not (ROOT / "data" / "raw" / "peivaste" / "dataset11252_79.csv").exists():
-        _skip("Peivaste file missing; run python data/raw/peivaste/fetch.py")
     js = node_snapshot(SNAPSHOT)
-    if not js["have_peivaste"]:
-        _skip("Peivaste file missing, so only the corpus-free calls ran")
     for entry in CALLS:
-        if entry["needs_corpus"] and not js["have_peivaste"]:
-            continue
         expected = json.loads(webapp.call(entry["method"], json.dumps(entry["params"])))
         _same(expected, js["results"][entry["name"]], entry["name"])

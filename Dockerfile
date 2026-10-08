@@ -9,21 +9,19 @@
 #   docker run --rm -i hea-bench-mcp
 #
 # The corpus is built inside the container, once, by the corpus_build
-# tool: it downloads the 6.4 MB Peivaste file, which declares no license
-# and is never shipped in an image (see the corpus card). Mount a volume
-# to keep the built corpus between runs:
+# tool, from the source datasets the package ships. Mount a volume to
+# keep the built corpus between runs:
 #
 #   docker run --rm -i -v hea-bench-data:/home/app/.local/share/hea-bench hea-bench-mcp
 #
-# or point HEA_BENCH_BENCHMARK_DIR at a corpus built elsewhere. Every
-# other tool is self-contained: the package vendors its own data tables
-# and reaches no network.
+# or point HEA_BENCH_BENCHMARK_DIR at a corpus built elsewhere. The
+# package vendors all of its data and reaches no network.
 
 FROM python:3.13-slim AS build
 WORKDIR /src
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
-# The wheel bundles the openly licensed source datasets and the published
+# The wheel bundles the source datasets and the published
 # baseline table (force-include in pyproject.toml); tools/preflight.py
 # checks that every bundled file reaches this stage.
 COPY data/raw ./data/raw

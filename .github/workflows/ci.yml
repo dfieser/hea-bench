@@ -21,16 +21,16 @@ jobs:
   benchmark-freeze:
     # The frozen split digests live in src/hea_bench/benchmark/frozen.py
     # (hash-pinned by tests/test_benchmark_corpus.py), checked by those tests,
-    # but those tests skip wherever the corpus is absent, and the corpus
-    # cannot be committed: its largest source declares no license, so only
-    # the recipe ships (see data/raw/README.md). This job runs the recipe —
-    # fetch the pinned upstream snapshot, rebuild the corpus, check the
-    # digests — so the freeze is enforced by machinery rather than by
-    # whoever happens to have the data locally.
+    # but those tests skip wherever the corpus is absent, and the corpus is
+    # derived, so it is built rather than committed. This job rebuilds it
+    # from the committed source datasets and checks the digests, so the
+    # freeze is enforced by machinery rather than by whoever happens to
+    # have a built corpus locally.
     #
     # Two distinct failure modes, both of which SHOULD go red:
-    #   - fetch.py exits 2: upstream bytes changed, the recipe no longer
-    #     reproduces the frozen corpus;
+    #   - the Peivaste loader refuses the file: its bytes no longer match
+    #     the pinned SHA-256 (git converted its line endings, or someone
+    #     edited it), so the frozen corpus cannot be reproduced;
     #   - the digest tests fail: the corpus or the split algorithm drifted.
     # Via the workflow_call gate in release.yml, either also blocks a
     # release, which is deliberate: the reproducibility claim would be
@@ -41,15 +41,6 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - name: Restore the pinned Peivaste snapshot
-        uses: actions/cache@v6
-        with:
-          path: data/raw/peivaste/dataset11252_79.csv
-          # Keyed by the pinned SHA-256 in fetch.py, so a deliberate re-pin
-          # naturally invalidates the cache.
-          key: peivaste-655a43e521003f5c8973050b5f7c0a5d4b9ab902ca4ecc9c8a7d9813b2b0ba10
-      - name: Fetch the Peivaste snapshot (verifies the pinned SHA-256 either way)
-        run: python data/raw/peivaste/fetch.py
       - name: Install package with dev extras
         run: |
           python -m pip install --upgrade pip
@@ -81,13 +72,6 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: "24"   # the version the engine harness was verified on
-      - name: Restore the pinned Peivaste snapshot
-        uses: actions/cache@v6
-        with:
-          path: data/raw/peivaste/dataset11252_79.csv
-          key: peivaste-655a43e521003f5c8973050b5f7c0a5d4b9ab902ca4ecc9c8a7d9813b2b0ba10
-      - name: Fetch the Peivaste snapshot (verifies the pinned SHA-256 either way)
-        run: python data/raw/peivaste/fetch.py
       - name: Restore the pinned Pyodide runtime
         uses: actions/cache@v6
         with:
@@ -110,8 +94,8 @@ jobs:
   package:
     # Every other job imports the package from this checkout, where the
     # data files sit in data/ and docs/. PyPI users get the wheel. This
-    # builds the sdist and the wheel, checks what they ship (the data,
-    # never the unlicensed Peivaste file), installs the wheel with its mcp
+    # builds the sdist and the wheel, checks what they ship (every source
+    # dataset, the Peivaste file at its pinned bytes), installs the wheel with its mcp
     # extra in a fresh virtual environment, and from an empty per-user
     # data folder calls every MCP tool over real stdio through the
     # installed hea-bench-mcp command, then uses the library
@@ -123,13 +107,6 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - name: Restore the pinned Peivaste snapshot
-        uses: actions/cache@v6
-        with:
-          path: data/raw/peivaste/dataset11252_79.csv
-          key: peivaste-655a43e521003f5c8973050b5f7c0a5d4b9ab902ca4ecc9c8a7d9813b2b0ba10
-      - name: Fetch the Peivaste snapshot (verifies the pinned SHA-256 either way)
-        run: python data/raw/peivaste/fetch.py
       - name: Install the build and test tools
         run: |
           python -m pip install --upgrade pip

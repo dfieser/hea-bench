@@ -155,16 +155,6 @@ def test_coverage_study_reproduces_the_published_table() -> None:
     assert len(overall["fold_coverage"]) == 5
 
 
-def test_peivaste_install_refuses_different_bytes(tmp_path) -> None:
-    wrong = tmp_path / "peivaste.csv"
-    wrong.write_bytes(b"not the pinned file")
-    envelope = _call("peivaste_install", path=str(wrong))
-    assert envelope["ok"] is False
-    assert "pinned" in envelope["error"]
-    source = _call("peivaste_source")["result"]
-    assert source["sha256"] == "655a43e521003f5c8973050b5f7c0a5d4b9ab902ca4ecc9c8a7d9813b2b0ba10"
-
-
 def test_measured_properties_are_the_training_records() -> None:
     from hea_bench.properties.borg import experimental_density_records, hardness_records
 
@@ -184,8 +174,7 @@ def test_measured_properties_are_the_training_records() -> None:
 
 def test_every_method_is_registered() -> None:
     assert set(webapp.METHODS) == {
-        "engine_info", "dataset_status", "peivaste_source", "peivaste_install",
-        "dataset_build", "dataset_query",
+        "engine_info", "dataset_status", "dataset_build", "dataset_query",
         "dataset_describe", "dataset_csv", "measured_properties", "properties", "applicability",
         "phase_prediction", "search", "campaign_suggest", "benchmark_summary",
         "benchmark_run", "benchmark_folds_csv", "benchmark_score", "coverage",

@@ -28,9 +28,8 @@ from pathlib import Path
 import pytest
 
 import hea_bench
-from hea_bench import webapp
 
-from .test_app_smoke import DRIVER, PEIVASTE, _free_port, check_report
+from .test_app_smoke import DRIVER, _free_port, check_report
 
 EXE = os.environ.get("HEA_BENCH_DESKTOP_EXE")
 
@@ -94,12 +93,9 @@ def test_every_tab_works_in_the_desktop_exe(tmp_path) -> None:
     node = shutil.which("node")
     assert node, "Node.js 22 or newer is needed to drive the exe"
     assert Path(EXE).is_file(), f"no exe at {EXE}"
-    assert PEIVASTE.exists(), "run python data/raw/peivaste/fetch.py first"
     port = _free_port()
-    # The app fetches the Peivaste file at launch, before the driver can
-    # hook the page. Failing that host's DNS makes the launch fetch fail as
-    # it would offline; the driver then reloads the hooked page and answers
-    # the second fetch from the local file.
+    # The exe carries every dataset and must work offline. Failing the DNS
+    # of the host the datasets once came from proves it never reaches it.
     browser_args = (
         f"--remote-debugging-port={port} "
         '--host-resolver-rules="MAP raw.githubusercontent.com ~NOTFOUND"'
@@ -123,8 +119,7 @@ def test_every_tab_works_in_the_desktop_exe(tmp_path) -> None:
                     )
                 time.sleep(0.2)
             completed = subprocess.run(
-                [node, str(DRIVER), str(port), "attach", str(PEIVASTE), webapp.peivaste_source()["url"],
-                 hea_bench.__version__],
+                [node, str(DRIVER), str(port), "attach", hea_bench.__version__],
                 capture_output=True,
                 text=True,
                 encoding="utf-8",

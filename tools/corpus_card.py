@@ -47,13 +47,12 @@ SOURCE_SECTIONS = {
     ),
     "peivaste": (
         "**Peivaste et al.** (GitHub Iman-Peivaste/ML_HEAs_Phase_Dataset, companion "
-        "article Sci. Rep. 13, 22556 (2023)). **No license**: the data repository "
-        "declares none (re-confirmed 2026-08-10), and the article's CC-BY does not "
-        "cover the separately hosted dataset. The repo therefore carries only a "
-        "fetch script and a pinned SHA-256 (`data/raw/peivaste/fetch.py`); the CSV "
-        "is downloaded by the user and verified byte-identical. This source is the "
-        "largest contributor, which is why the consolidated corpus as a whole is "
-        "built locally rather than redistributed."
+        "article Sci. Rep. 13, 22556 (2023), doi:10.1038/s41598-023-50044-0). "
+        "License **CC-BY-4.0**, added by the authors on 2026-10-08 (merged pull "
+        "request #2). Mirrored in `data/raw/peivaste/` since that day, byte-identical "
+        "to the snapshot acquired 2026-05-20, which the license merge left unchanged; "
+        "the loader refuses any other bytes (pinned SHA-256). The largest contributor "
+        "to the corpus."
     ),
     "chizhevskiy2026": (
         "**Chizhevskiy et al. 2026** (Sci. Data 13, 612, "
@@ -191,16 +190,15 @@ def main() -> int:
         "version (2.x). A corpus release is frozen forever: its rows, digests, "
         "and statistics never change, and adding data means a new version.",
         "",
-        "## Why the corpus is not shipped",
+        "## How the corpus is built",
         "",
-        "The largest source (Peivaste) declares no license, and a derived "
-        "corpus inherits the restrictions of everything it is built from, so "
-        "the package ships the recipe rather than the data: loaders, "
-        "consolidation rules, pinned SHA-256 hashes of the exact upstream "
-        "bytes, and the split algorithm. The build refuses to produce a "
-        "partial corpus when a source is missing. One call downloads the "
-        "Peivaste file, checks its hash and builds every version, from a pip "
-        "install or a repository checkout:",
+        "Every source dataset ships with the package, so the corpus is built "
+        "on the user's machine, once, with no download: loaders, consolidation "
+        "rules, a pinned SHA-256 of the largest source, and the split "
+        "algorithm turn the shipped files into a corpus byte-identical to the "
+        "one every reported number was computed against. The build refuses to "
+        "produce a partial corpus when a source is missing. One call builds "
+        "every version, from a pip install or a repository checkout:",
         "",
         "```python",
         "from hea_bench.corpus import build_corpus",
@@ -208,8 +206,8 @@ def main() -> int:
         "```",
         "",
         "The MCP server's `corpus_build` tool and the apps do the same. In a "
-        "repository checkout, `python data/raw/peivaste/fetch.py` then "
-        "`python -m hea_bench.benchmark.consolidate` is equivalent.",
+        "repository checkout, `python -m hea_bench.benchmark.consolidate` is "
+        "equivalent.",
         "",
         "## Sources, licenses, provenance chains",
         "",

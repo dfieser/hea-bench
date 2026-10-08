@@ -1,30 +1,24 @@
 # peivaste/ — Iman Peivaste's MPEA phase dataset
 
 > **Per-source documentation** for the Peivaste *et al.* HEA phase dataset.
-> Data **not** redistributed in this repo: license status requires
-> fetch-on-demand. Run `fetch.py` after cloning to materialize the CSV.
+> `dataset11252_79.csv` is mirrored here byte for byte under CC BY 4.0.
 
 ## Source
 
 - **Repository:** [Iman-Peivaste/ML_HEAs_Phase_Dataset](https://github.com/Iman-Peivaste/ML_HEAs_Phase_Dataset)
-- **Default branch:** `main`
-- **Companion paper:** Peivaste, I. *et al.* — "Machine learning-based prediction of phases in high-entropy alloys: A data article." See the upstream repo README for the published article DOI.
-- **Acquired by `hea-bench` on:** 2026-05-20 (rev: top of `main` at time of acquisition).
-- **Snapshot of primary CSV:** `dataset11252_79.csv` is 6,424,704 bytes, SHA-256 `655a43e521003f5c8973050b5f7c0a5d4b9ab902ca4ecc9c8a7d9813b2b0ba10`. Upstream is unversioned (snapshot of `main` at a given moment), so this hash is a snapshot identifier, not a guarantee that subsequent fetches will match.
+- **Companion paper:** I. Peivaste *et al.*, "Data-driven analysis and prediction of stable phases for high-entropy alloy design", *Scientific Reports* 13, 22556 (2023), doi:[10.1038/s41598-023-50044-0](https://doi.org/10.1038/s41598-023-50044-0). Cite it whenever this dataset is used.
+- **Acquired by `hea-bench` on:** 2026-05-20 (top of `main` at the time).
+- **Snapshot:** `dataset11252_79.csv` is 6,424,704 bytes, SHA-256 `655a43e521003f5c8973050b5f7c0a5d4b9ab902ca4ecc9c8a7d9813b2b0ba10`, with CRLF line endings. `.gitattributes` keeps git from converting them, and `hea_bench/benchmark/loaders/peivaste.py` refuses any other bytes, because every published number was computed from these.
 
-## License status
+## License
 
-**No LICENSE file declared in the upstream repository.** Re-verified
-2026-08-10 by reading the repository directly. GitHub shows no license
-and the upstream README says nothing about reuse or redistribution. Per the
-`hea-bench` redistribution policy (see `data/raw/README.md`), this means
-we **do not redistribute** the CSV inside this repo. Users must download
-it directly from upstream via `fetch.py`. The repository owner retains
-all rights; users are responsible for confirming their own permitted use.
-
-If upstream adds a permissive license in the future (CC-BY, MIT, Apache,
-GPL, etc.), this restriction can be lifted and the CSV mirrored in
-`hea-bench/data/raw/peivaste/` alongside this README.
+**CC BY 4.0.** The authors added a LICENSE file on 2026-10-08 by merging
+[ML_HEAs_Phase_Dataset#2](https://github.com/Iman-Peivaste/ML_HEAs_Phase_Dataset/pull/2)
+(merge commit `e823c17`). The file at that commit is byte-identical to
+the 2026-05-20 snapshot (same git blob, `97040283`), so the mirrored
+bytes are the licensed bytes. Before that date the repository declared
+no license, and `hea-bench` fetched the file from upstream at build time
+instead of mirroring it.
 
 ## Files (upstream, in `Dataset/` folder)
 
@@ -37,8 +31,8 @@ GPL, etc.), this restriction can be lifted and the CSV mirrored in
 | `elemental_propertieses.csv` | 52 KB | Auxiliary: per-element parameter table |
 | `Dataset_preparation.ipynb` | 33 KB | Cleaning pipeline (produces final 5,677-row dataset, which is *not* committed upstream — must be regenerated) |
 
-`fetch.py` here pulls `dataset11252_79.csv` only (the primary dataset).
-Other files can be obtained from the upstream repo directly.
+Only `dataset11252_79.csv`, the primary dataset, is mirrored here. The
+other files are in the upstream repository.
 
 ## Schema of `dataset11252_79.csv`
 
@@ -112,16 +106,7 @@ Notes:
   give different phase labels for the same composition, record both;
   don't silently pick.
 
-## Fetching
-
-```bash
-cd hea-bench/data/raw/peivaste
-python fetch.py              # downloads dataset11252_79.csv to this dir
-```
-
-The download URL and expected SHA-256 are pinned inside `fetch.py`.
-
-## Why this dataset is worth pulling
+## Why this dataset is in the corpus
 
 - **Scale.** 11,252 records — by far the largest open MPEA phase
   database we've identified. Borg 2020 has 740 (formula, processing)

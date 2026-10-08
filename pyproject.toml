@@ -141,7 +141,7 @@ include = [
     "data/raw/chizhevskiy2026/README.md",
     "data/raw/chizhevskiy2026/UPSTREAM_README.md",
     "data/raw/peivaste/README.md",
-    "data/raw/peivaste/fetch.py",
+    "data/raw/peivaste/dataset11252_79.csv",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -157,13 +157,10 @@ packages = ["src/hea_bench"]
 "src/hea_bench/oxides/data/oxide_elements.json"          = "hea_bench/oxides/data/oxide_elements.json"
 "src/hea_bench/oxides/data/LICENSE.pymatgen.txt"         = "hea_bench/oxides/data/LICENSE.pymatgen.txt"
 # Every feature must work from a plain pip install (four-surface parity,
-# hea-bench/CLAUDE.md), so the wheel carries the openly licensed source
-# datasets (CC BY 4.0, each with its README naming the authors), the
-# Peivaste download recipe and the published baseline table, under
-# hea_bench/_data, where hea_bench/_paths.py looks first. The Peivaste
-# CSV itself declares no license and is NEVER shipped: these are explicit
-# file lists, and tests/test_installed_package.py fails if it ever
-# appears in a built wheel or sdist.
+# hea-bench/CLAUDE.md), so the wheel carries every source dataset (all
+# CC BY 4.0, each with its README naming the authors) and the published
+# baseline table, under hea_bench/_data, where hea_bench/_paths.py looks
+# first. tests/test_installed_package.py checks both distributions.
 "docs/benchmark-baselines.json" = "hea_bench/_data/benchmark-baselines.json"
 "data/raw/README.md" = "hea_bench/_data/raw/README.md"
 "data/raw/borg2020/MPEA_dataset.csv" = "hea_bench/_data/raw/borg2020/MPEA_dataset.csv"
@@ -174,7 +171,7 @@ packages = ["src/hea_bench"]
 "data/raw/chizhevskiy2026/README.md" = "hea_bench/_data/raw/chizhevskiy2026/README.md"
 "data/raw/chizhevskiy2026/UPSTREAM_README.md" = "hea_bench/_data/raw/chizhevskiy2026/UPSTREAM_README.md"
 "data/raw/peivaste/README.md" = "hea_bench/_data/raw/peivaste/README.md"
-"data/raw/peivaste/fetch.py" = "hea_bench/_data/raw/peivaste/fetch.py"
+"data/raw/peivaste/dataset11252_79.csv" = "hea_bench/_data/raw/peivaste/dataset11252_79.csv"
 
 [tool.ruff]
 line-length = 100

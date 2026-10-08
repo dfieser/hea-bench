@@ -4,8 +4,8 @@ There are two layouts. In a repository checkout, and in the web app's
 in-page engine, which mirrors one, the mirrored source datasets live in
 ``data/raw`` and built corpora in ``data/consolidated``. An installed
 wheel carries the mirrored datasets inside the package (``_data``, put
-there by the wheel build in pyproject.toml) and keeps what it downloads
-and builds in a per-user folder, because site-packages may not be
+there by the wheel build in pyproject.toml) and keeps what it builds in
+a per-user folder, because site-packages may not be
 writable. Every data path in the package comes from this module, so the
 two layouts cannot drift apart.
 """
@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import os
 import pathlib
-import runpy
 import sys
 
 _PACKAGE = pathlib.Path(__file__).resolve().parent
@@ -28,7 +27,7 @@ def installed() -> bool:
 
 
 def user_dir() -> pathlib.Path:
-    """The per-user folder a wheel install downloads and builds into."""
+    """The per-user folder a wheel install builds into."""
     if sys.platform == "win32":
         base = os.environ.get("LOCALAPPDATA") or pathlib.Path.home() / "AppData" / "Local"
     elif sys.platform == "darwin":
@@ -41,17 +40,6 @@ def user_dir() -> pathlib.Path:
 def raw_dir() -> pathlib.Path:
     """The mirrored source datasets, read-only."""
     return _BUNDLED / "raw" if installed() else REPO_ROOT / "data" / "raw"
-
-
-def peivaste_csv() -> pathlib.Path:
-    """Where the Peivaste file is kept once downloaded. It is never shipped."""
-    folder = user_dir() / "raw" / "peivaste" if installed() else raw_dir() / "peivaste"
-    return folder / "dataset11252_79.csv"
-
-
-def peivaste_recipe() -> dict:
-    """The Peivaste download recipe: its URL and pinned size and SHA-256."""
-    return runpy.run_path(str(raw_dir() / "peivaste" / "fetch.py"))
 
 
 def consolidated_dir() -> pathlib.Path:

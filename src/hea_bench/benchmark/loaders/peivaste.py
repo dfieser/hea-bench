@@ -1,9 +1,8 @@
 """Loader for the Peivaste MPEA phase dataset.
 
-Source: ``data/raw/peivaste/dataset11252_79.csv``. Pointer-only because
-the upstream GitHub repo declares no license — see
-``data/raw/peivaste/README.md`` for the full provenance and the
-mandatory fetch step.
+Source: ``data/raw/peivaste/dataset11252_79.csv``, mirrored byte for
+byte under the CC BY 4.0 license its authors added on 2026-10-08. See
+``data/raw/peivaste/README.md`` for the full provenance.
 
 Two upstream quirks the loader handles transparently:
 
@@ -23,6 +22,7 @@ Two upstream quirks the loader handles transparently:
 from __future__ import annotations
 
 import csv
+import hashlib
 import pathlib
 from collections.abc import Iterator
 
@@ -32,6 +32,10 @@ from . import AlloyRecord
 
 SOURCE_NAME = "peivaste"
 DEFAULT_CSV_NAME = "dataset11252_79.csv"
+#: SHA-256 of the shipped file, the bytes every published number was
+#: computed from: upstream ``main`` as acquired on 2026-05-20, unchanged
+#: when its authors licensed it on 2026-10-08 (merge e823c17).
+SHA256 = "655a43e521003f5c8973050b5f7c0a5d4b9ab902ca4ecc9c8a7d9813b2b0ba10"
 
 # Element columns in upstream order, used as the alphabet for
 # ``from_element_columns``. The order doesn't affect parsing
@@ -57,17 +61,21 @@ def load(csv_path: pathlib.Path) -> Iterator[AlloyRecord]:
     Raises
     ------
     FileNotFoundError
-        If ``csv_path`` doesn't exist. Peivaste is pointer-only; the
-        user must fetch the upstream CSV before loading. Error message
-        includes the exact command to run.
+        If ``csv_path`` doesn't exist, which means a broken install.
+    ValueError
+        If the file is not the pinned one, since the frozen corpus can only
+        be rebuilt from those exact bytes.
     """
     if not csv_path.exists():
-        fetch_script = csv_path.parent / "fetch.py"
         raise FileNotFoundError(
-            f"Peivaste CSV not found at {csv_path}.\n"
-            f"Peivaste is pointer-only because the upstream repo declares "
-            f"no license. Fetch it with:\n"
-            f"    python {fetch_script}"
+            f"the Peivaste file is missing from {csv_path}. It ships with hea-bench, so "
+            f"reinstall the package, or restore data/raw/peivaste from the repository."
+        )
+    digest = hashlib.sha256(csv_path.read_bytes()).hexdigest()
+    if digest != SHA256:
+        raise ValueError(
+            f"{csv_path} has SHA-256 {digest}, not the pinned {SHA256}, so the frozen "
+            f"corpus cannot be rebuilt from it. Restore the file that ships with hea-bench."
         )
 
     seen: set[str] = set()

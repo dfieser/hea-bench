@@ -21,8 +21,8 @@ Run as a module to (re)build every version from a checkout:
 
     python -m hea_bench.benchmark.consolidate
 
-From an installed wheel, ``hea_bench.corpus.build_corpus()`` also
-fetches the one source that is not shipped.
+From an installed wheel, ``hea_bench.corpus.build_corpus()`` does the
+same. Every source ships with the package, so no build downloads anything.
 """
 
 from __future__ import annotations
@@ -232,7 +232,9 @@ def build_manifest(
     src_meta_table = {
         "borg2020":  {"license": "CC-BY-4.0",     "doi": "10.1038/s41597-020-00768-9"},
         "pei2020":   {"license": "CC-BY-4.0",     "doi": "10.1038/s41524-020-0308-7"},
-        "peivaste":  {"license": "none-declared", "url": "https://github.com/Iman-Peivaste/ML_HEAs_Phase_Dataset"},
+        # LICENSE added upstream 2026-10-08 via merged PR
+        # github.com/Iman-Peivaste/ML_HEAs_Phase_Dataset/pull/2.
+        "peivaste":  {"license": "CC-BY-4.0",     "url": "https://github.com/Iman-Peivaste/ML_HEAs_Phase_Dataset"},
         # LICENSE added upstream 2026-08-10 via merged PR
         # github.com/Vladimirchizh/hea_database/pull/2.
         "chizhevskiy2026": {"license": "CC-BY-4.0", "doi": "10.1038/s41597-026-06930-z"},
@@ -282,11 +284,11 @@ def build_manifest(
 
 
 # Source files, from hea_bench._paths: data/raw in a checkout, inside the
-# package in a wheel, except Peivaste, which is downloaded, never shipped.
+# package in a wheel.
 _SOURCE_PATHS = {
     "borg2020": _paths.raw_dir() / "borg2020" / "MPEA_dataset.csv",
     "pei2020": _paths.raw_dir() / "pei2020" / "pei2020_alloys_phases.csv",
-    "peivaste": _paths.peivaste_csv(),
+    "peivaste": _paths.raw_dir() / "peivaste" / "dataset11252_79.csv",
     "chizhevskiy2026": _paths.raw_dir() / "chizhevskiy2026" / "database_of_HEAs.csv",
 }
 
@@ -311,16 +313,11 @@ def build(version: str = DEFAULT_VERSION, out_dir: pathlib.Path | None = None) -
     source_paths = {name: _SOURCE_PATHS[name] for name in source_names}
     missing = [name for name in source_names if not source_paths[name].exists()]
     if missing:
-        instructions = []
-        for name in missing:
-            fix = (
-                "hea_bench.corpus.build_corpus() downloads it and checks its SHA-256 "
-                "(in a checkout, python data/raw/peivaste/fetch.py does the same)"
-                if name == "peivaste"
-                else f"reinstall hea-bench, or restore the file from the repository "
-                f"(see data/raw/{name}/README.md)"
-            )
-            instructions.append(f"  {name}: expected {source_paths[name]}\n    fix: {fix}")
+        instructions = [
+            f"  {name}: expected {source_paths[name]}\n    fix: reinstall hea-bench, or "
+            f"restore the file from the repository (see data/raw/{name}/README.md)"
+            for name in missing
+        ]
         raise FileNotFoundError(
             f"cannot build corpus v{version}: source data missing.\n"
             + "\n".join(instructions)

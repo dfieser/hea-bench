@@ -35,11 +35,9 @@ from pathlib import Path
 import pytest
 
 import hea_bench
-from hea_bench import webapp
 
 ROOT = Path(__file__).resolve().parents[1]
 DRIVER = ROOT / "tests" / "app_smoke.cjs"
-PEIVASTE = ROOT / "data" / "raw" / "peivaste" / "dataset11252_79.csv"
 REQUIRED = os.environ.get("HEA_BENCH_REQUIRE_ENGINE") == "1"
 BROWSERS = (
     "google-chrome",
@@ -105,8 +103,6 @@ def test_every_tab_works_in_a_browser() -> None:
         _skip("no Chrome, Chromium or Edge found; set HEA_BENCH_BROWSER")
     if not (ROOT / "web" / "engine" / "manifest.json").exists():
         _skip("engine not built; run python tools/build_web_engine.py")
-    if not PEIVASTE.exists():
-        _skip("Peivaste file missing; run python data/raw/peivaste/fetch.py")
 
     http_port = _free_port()
     app_url = f"http://127.0.0.1:{http_port}/"
@@ -144,7 +140,7 @@ def test_every_tab_works_in_a_browser() -> None:
                 60,
             )
             completed = subprocess.run(
-                [node, str(DRIVER), devtools, app_url, str(PEIVASTE), webapp.peivaste_source()["url"], hea_bench.__version__],
+                [node, str(DRIVER), devtools, app_url, hea_bench.__version__],
                 cwd=ROOT,
                 capture_output=True,
                 text=True,
@@ -170,5 +166,4 @@ def check_report(completed: subprocess.CompletedProcess, where: str) -> None:
     assert "fatal" not in result, result.get("fatal")
     failed = [f"{s['name']}: {s['detail']}" for s in result["steps"] if not s["ok"]]
     assert not failed, f"steps failed in {where}:\n" + "\n".join(failed)
-    assert result["peivaste_served"] >= 1, "the engine never requested the Peivaste file"
     assert not result["problems"], "the page reported errors:\n" + "\n".join(result["problems"])

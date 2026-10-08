@@ -8,11 +8,10 @@ This script puts two things in place:
    library needs (numpy, scipy, scikit-learn and their dependencies),
    downloaded from the official Pyodide CDN and refused unless every
    SHA-256 matches the pin below.
-2. ``web/engine/hea-bench.zip``: the package source, the redistributable
-   raw datasets (everything tracked under data/raw, which never includes
-   the unlicensed Peivaste CSV that the app fetches from its authors at
-   run time) and the published baseline table, zipped deterministically,
-   plus ``web/engine/manifest.json`` naming its hash.
+2. ``web/engine/hea-bench.zip``: the package source, every source
+   dataset (everything tracked under data/raw) and the published baseline
+   table, zipped deterministically, plus ``web/engine/manifest.json``
+   naming its hash. The app needs no network after loading it.
 
 Run from the repository root:
 
@@ -66,7 +65,7 @@ PYODIDE_FILES = {
 }
 
 #: Repository paths shipped inside hea-bench.zip (tracked or new files only,
-#: so local scratch, caches and the gitignored Peivaste CSV never ship).
+#: so local scratch and caches never ship).
 ZIP_ROOTS = ("src/hea_bench", "data/raw", "docs/benchmark-baselines.json")
 
 

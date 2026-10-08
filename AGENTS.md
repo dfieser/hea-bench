@@ -381,16 +381,15 @@ matrix from this package's own descriptors for fitted models, and
 `finite_descriptor_indices` drops the ~2% of rows where Ω or Φ is
 singular (near-ideal alloys, ΔH_mix → 0).
 
-**The corpus is built on your machine, once.** The largest source
-dataset (Peivaste) declares no license, so neither the package nor the
-repo ships it or anything derived from it. They ship a loader, a pinned
-SHA-256 and a download step instead, plus every other source. One call
-downloads the Peivaste file (6.4 MB), accepts it only if the hash
-matches, and builds every corpus version:
+**The corpus is built on your machine, once.** Every source dataset
+ships with the package (all CC BY 4.0, see `data/raw/README.md`), and
+the build reaches no network. The Peivaste loader accepts the largest
+source only at its pinned SHA-256, so the build reproduces the frozen
+corpus exactly. One call builds every corpus version:
 
 ```python
 from hea_bench.corpus import build_corpus
-build_corpus()                              # or build_corpus(peivaste_csv="peivaste.csv") offline
+build_corpus()                              # or build_corpus("0.1.0") for one version
 ```
 
 From an installed package the corpus lands in the per-user hea-bench

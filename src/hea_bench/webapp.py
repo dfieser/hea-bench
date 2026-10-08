@@ -97,27 +97,6 @@ def dataset_status() -> dict:
     }
 
 
-def peivaste_source() -> dict:
-    """Where the unlicensed Peivaste CSV comes from, its pinned hash, and
-    whether it is in place. The recipe is data/raw/peivaste/fetch.py."""
-    recipe = _paths.peivaste_recipe()
-    return {
-        "url": recipe["UPSTREAM_URL"],
-        "sha256": recipe["EXPECTED_SHA256"],
-        "bytes": recipe["EXPECTED_BYTES"],
-        "installed": _paths.peivaste_csv().exists(),
-    }
-
-
-def peivaste_install(path: str) -> dict:
-    """Verify a downloaded Peivaste file against the pinned SHA-256 and put
-    it where the corpus build reads it. Refuses different bytes."""
-    from .corpus import install_peivaste
-
-    target = install_peivaste(path, download=False)
-    return {"installed": True, "bytes": target.stat().st_size}
-
-
 def dataset_build(version: str = "0.2.0") -> dict:
     """Build one corpus version from the raw sources, exactly as the CLI
     does, into the directory the loaders read (which honours
@@ -509,17 +488,11 @@ def _warm_plan() -> list[str]:
     from .benchmark.consolidate import SOURCES_BY_VERSION
 
     built = dataset_status()["built"]
-    buildable = _paths.peivaste_csv().exists()
     # Builds first: a build clears every cache the later steps fill.
-    plan = [f"build:{v}" for v in SOURCES_BY_VERSION if not built[v] and buildable]
-    plan.append("hardness")
-    if built["0.1.0"] or buildable:
-        plan += ["phase:single_vs_multi", "phase:phase4"]
-    if built["0.2.0"] or buildable:
-        plan.append("dataset:0.2.0")
-    if built["0.1.0"] or buildable:
-        plan.append("benchmark:single_vs_multi")
-    return plan
+    plan = [f"build:{v}" for v in SOURCES_BY_VERSION if not built[v]]
+    return plan + [
+        "hardness", "phase:single_vs_multi", "phase:phase4", "dataset:0.2.0", "benchmark:single_vs_multi",
+    ]
 
 
 def warm_next() -> str | None:
@@ -561,8 +534,6 @@ METHODS = {
     for function in (
         engine_info,
         dataset_status,
-        peivaste_source,
-        peivaste_install,
         dataset_build,
         dataset_query,
         dataset_describe,

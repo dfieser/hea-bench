@@ -12,6 +12,7 @@ dependencies (a few minutes): HEA_BENCH_PACKAGE_SMOKE=1. The release
 preflight and the CI ``package`` job set it.
 """
 
+import hashlib
 import os
 import pathlib
 import shutil
@@ -24,7 +25,6 @@ import zipfile
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-PEIVASTE = ROOT / "data" / "raw" / "peivaste" / "dataset11252_79.csv"
 
 pytestmark = pytest.mark.skipif(
     os.environ.get("HEA_BENCH_PACKAGE_SMOKE") != "1",
@@ -39,22 +39,30 @@ def dist(tmp_path_factory) -> pathlib.Path:
     return out
 
 
-def test_distributions_ship_the_data_but_never_the_unlicensed_file(dist) -> None:
+def test_distributions_ship_every_source_dataset(dist) -> None:
+    from hea_bench.benchmark.loaders import peivaste
+
     (wheel,) = dist.glob("*.whl")
     (sdist,) = dist.glob("*.tar.gz")
-    shipped = set(zipfile.ZipFile(wheel).namelist())
-    for needed in (
-        "hea_bench/_data/benchmark-baselines.json",
-        "hea_bench/_data/raw/borg2020/MPEA_dataset.csv",
-        "hea_bench/_data/raw/pei2020/pei2020_alloys_phases.csv",
-        "hea_bench/_data/raw/chizhevskiy2026/database_of_HEAs.csv",
-        "hea_bench/_data/raw/peivaste/fetch.py",
-        "hea_bench/descriptors/data/miedema_parameters.csv",
-    ):
-        assert needed in shipped, f"the wheel lacks {needed}; see [tool.hatch.build] in pyproject.toml"
-    assert not any("dataset11252_79" in name for name in shipped)
+    with zipfile.ZipFile(wheel) as archive:
+        shipped = set(archive.namelist())
+        for needed in (
+            "hea_bench/_data/benchmark-baselines.json",
+            "hea_bench/_data/raw/borg2020/MPEA_dataset.csv",
+            "hea_bench/_data/raw/pei2020/pei2020_alloys_phases.csv",
+            "hea_bench/_data/raw/chizhevskiy2026/database_of_HEAs.csv",
+            "hea_bench/_data/raw/peivaste/dataset11252_79.csv",
+            "hea_bench/descriptors/data/miedema_parameters.csv",
+        ):
+            assert needed in shipped, f"the wheel lacks {needed}; see [tool.hatch.build] in pyproject.toml"
+        wheel_bytes = archive.read("hea_bench/_data/raw/peivaste/dataset11252_79.csv")
+    assert hashlib.sha256(wheel_bytes).hexdigest() == peivaste.SHA256, (
+        "the wheel's Peivaste file is not the pinned bytes; check .gitattributes keeps it -text"
+    )
     with tarfile.open(sdist) as archive:
-        assert not any("dataset11252_79" in name for name in archive.getnames())
+        (member,) = [name for name in archive.getnames() if name.endswith("peivaste/dataset11252_79.csv")]
+        sdist_bytes = archive.extractfile(member).read()
+    assert hashlib.sha256(sdist_bytes).hexdigest() == peivaste.SHA256
 
 
 def test_the_installed_wheel_runs_every_feature(dist, tmp_path) -> None:
@@ -78,8 +86,6 @@ def test_the_installed_wheel_runs_every_feature(dist, tmp_path) -> None:
     env.update(LOCALAPPDATA=str(home), XDG_DATA_HOME=str(home), HOME=str(home), PYTHONIOENCODING="utf-8")
     script = shutil.copy(ROOT / "tests" / "package_smoke.py", tmp_path / "package_smoke.py")
     arguments = [str(python), str(script), str(tmp_path / "work")]
-    if PEIVASTE.exists():
-        arguments.append(str(PEIVASTE))
     done = subprocess.run(
         arguments, cwd=tmp_path, env=env, capture_output=True, text=True, encoding="utf-8", timeout=1800
     )

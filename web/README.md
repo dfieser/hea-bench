@@ -23,11 +23,9 @@ built exe before it is attached to a release.
 - **Online:** <https://dfieser.github.io/hea-bench/>. The landing page
   lists what each tab does. Everything works there.
 - **Desktop:** the portable `HEA-Bench.exe` on the GitHub release page.
-  The engine is inside the exe and starts by itself, so everything works
-  offline. The one exception is the dataset's 6.4 MB Peivaste source
-  file, which its authors have not licensed for redistribution: the app
-  fetches it from their repository by itself the first time it is
-  online, checks its SHA-256 and keeps it in IndexedDB.
+  The engine and every source dataset are inside the exe, and the
+  engine starts by itself, so everything works offline from the first
+  launch.
 - **From a clone:** run `python tools/build_web_engine.py` once (it
   assembles `web/engine/`, see below), then `python -m http.server -d web`
   and open <http://localhost:8000>. Double-clicking `index.html` also
@@ -70,7 +68,7 @@ built exe before it is attached to a release.
   the corpus or scikit-learn. `hea-engine.js` is the page's handle on it
   (lazy start, progress, restart, a watchdog for stalled starts), and
   `hea_bench.webapp` is the JSON bridge it calls. The built corpus and
-  the Peivaste download persist in IndexedDB, keyed by version. Parity:
+  the fitted models persist in IndexedDB, keyed by version. Parity:
   `tests/test_web_engine.py` runs the shipped bundle under Node and
   compares every call in `tests/data/web_engine_calls.json` with CPython.
 - `hea-features.js` and `hea-features.css` hold the Dataset, Design and

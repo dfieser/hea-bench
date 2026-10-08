@@ -2174,10 +2174,8 @@
             <div class="runs__row">
               <span class="runs__name"><a id="exe-download" href="https://github.com/dfieser/hea-bench/releases/latest/download/HEA-Bench.exe">Windows app</a></span>
               <p class="runs__desc">One portable executable, no installer, with the prediction
-                 engine inside it, so it starts everything by itself and runs offline. The one
-                 exception is the alloy dataset's 6.4&nbsp;MB Peivaste source file, which its authors
-                 have not yet licensed for redistribution: the app fetches it from their repository by
-                 itself the first time it is online, checks it, and keeps it.</p>
+                 engine and every source dataset inside it, so it starts everything by itself and
+                 runs fully offline.</p>
               <p class="runs__notice" id="exe-building" hidden>
                  <strong>Update in progress</strong>
                  A new release is building right now, and the Windows executable is not attached
@@ -4060,9 +4058,8 @@
             conflict instead of being decided by a vote.
           </p>
           <p class="small-note">
-            The Peivaste dataset carries no license that permits redistribution, so this page
-            downloads it from the authors' repository and refuses it unless its SHA-256 matches the
-            pinned file. The other sources are CC BY 4.0 and ship with the app.
+            All four sources are licensed CC BY 4.0 and ship with the app, so the dataset builds
+            without a network connection.
           </p>
           <div class="feature-controls">
             <label for="dataset-version">Corpus version</label>

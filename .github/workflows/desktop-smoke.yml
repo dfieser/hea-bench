@@ -40,13 +40,6 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
-      - name: Restore the pinned Peivaste snapshot
-        uses: actions/cache@v6
-        with:
-          path: data/raw/peivaste/dataset11252_79.csv
-          key: peivaste-655a43e521003f5c8973050b5f7c0a5d4b9ab902ca4ecc9c8a7d9813b2b0ba10
-      - name: Fetch the Peivaste snapshot (verifies the pinned SHA-256 either way)
-        run: python data/raw/peivaste/fetch.py
       - name: Make sure the WebView2 runtime is installed (the exe renders in it)
         shell: pwsh
         run: |

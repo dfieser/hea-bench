@@ -12,8 +12,8 @@ PyPI user gets, and it proves that
    from an unbuilt corpus (``corpus_build`` comes first),
 3. the library's features work from the wheel's own data.
 
-Usage: python package_smoke.py <work-dir> [<peivaste-csv>]
-Without the Peivaste CSV the corpus build downloads it (6.4 MB).
+Usage: python package_smoke.py <work-dir>
+The corpus build uses only the datasets inside the wheel.
 """
 
 from __future__ import annotations
@@ -28,7 +28,6 @@ import subprocess
 import sys
 
 WORK = pathlib.Path(sys.argv[1]).resolve()
-PEIVASTE = sys.argv[2] if len(sys.argv) > 2 else None
 BIN = pathlib.Path(sys.executable).parent
 
 XX = {"Xx": {"radius_pm": 140.0, "melting_K": 1800.0, "valence": 6, "electronegativity": 1.7}}
@@ -51,7 +50,7 @@ CAMPAIGN = {
 #: missing here.
 TOOL_CALLS = [
     ("about", {}, lambda r: r["capabilities"]["corpus"] is False),
-    ("corpus_build", {"peivaste_csv": PEIVASTE} if PEIVASTE else {},
+    ("corpus_build", {},
      lambda r: r["built"]["0.1.0"]["totals"]["unique_compositions"] == 7783
      and "0.2.0" in r["built"]),
     ("parse_composition", {"formula": "Al0.3CoCrFeNi"}, lambda r: abs(sum(r["composition"].values()) - 1) < 1e-9),
@@ -145,7 +144,7 @@ def use_the_library() -> None:
     assert len(element_data()["elements"]) == 55
     assert round(miedema_decomposition({"Cu": 0.5, "Zr": 0.5})["compound"]["H_form"], 2) == -30.78
     assert predict_property(cantor, "hardness").value > 0
-    built = build_corpus(peivaste_csv=PEIVASTE)
+    built = build_corpus()
     assert set(built) == {"0.1.0", "0.2.0"}
     assert load_corpus().version == "0.2.0"
     assert len(load_corpus(version="0.1.0")) == 7783

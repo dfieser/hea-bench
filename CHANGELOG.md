@@ -10,6 +10,25 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Changed
+
+- The Peivaste phase dataset, the corpus's largest source, ships with
+  every part of hea-bench: the package, the MCP server, the web site and
+  the desktop exe. Its authors licensed it CC BY 4.0 on 2026-10-08
+  (Iman-Peivaste/ML_HEAs_Phase_Dataset#2), so the corpus now builds with
+  no download and the desktop exe runs fully offline from the first
+  start. The shipped bytes are the ones every published number was
+  computed from, and the loader refuses any others (pinned SHA-256).
+
+### Removed
+
+- The Peivaste download path: `hea_bench.corpus.install_peivaste`, the
+  `peivaste_csv` and `download` arguments of
+  `hea_bench.corpus.build_corpus`, the `peivaste_csv` argument of the MCP
+  tool `corpus_build`, the app engine's `fetchPeivaste` call and its
+  `peivaste_source` and `peivaste_install` bridge methods, and
+  `data/raw/peivaste/fetch.py`.
+
 ## [2.8.0] — 2026-10-08
 
 ### Changed

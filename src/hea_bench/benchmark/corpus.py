@@ -1,19 +1,11 @@
 """Loading the consolidated corpus and attaching its frozen splits.
 
-The corpus is not shipped inside the wheel. Its largest source dataset
-(Peivaste, the majority of contributed rows) carries no license, and a
-derived corpus inherits the restrictions of everything it is built
-from, so what this package ships is the recipe rather than the data:
-loaders,
-consolidation rules, pinned SHA-256 hashes of the exact upstream bytes,
-and the split algorithm. Running the build turns those into a corpus
-that is byte-identical to the one every reported number was computed
-against. ``data/raw/README.md`` records the per-source status and
-``benchmark_build`` in ``tools/`` drives the build.
-
-That is a deliberate trade. Shipping the CSV would be more convenient
-and would also redistribute data the upstream authors have not licensed
-for it.
+The corpus is built on the user's machine. The package ships the source
+datasets, their loaders, the consolidation rules, the pinned SHA-256 of
+the largest source and the split algorithm, and the build turns them
+into a corpus byte-identical to the one every reported number was
+computed against. ``data/raw/README.md`` records the
+per-source licenses.
 """
 
 from __future__ import annotations

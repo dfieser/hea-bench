@@ -16,8 +16,7 @@ _DATA_DIR = pathlib.Path(__file__).resolve().parents[1] / "data" / "consolidated
 needs_corpus = pytest.mark.skipif(
     not (_DATA_DIR / "v0.1.0" / "consolidated.csv").exists(),
     reason=(
-        "benchmark corpus not built; run data/raw/peivaste/fetch.py then "
-        "python -m hea_bench.benchmark.consolidate"
+        "benchmark corpus not built; run python -m hea_bench.benchmark.consolidate"
     ),
 )
 

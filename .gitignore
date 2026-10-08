@@ -47,18 +47,11 @@ desktop.ini
 _scratch/
 data/raw/_scratch/
 
-# Per-source gitignores (only block sources whose upstream license forbids
-# redistribution — see data/raw/README.md). Sources released under CC-BY,
-# MIT, Apache, etc. are mirrored directly; not listed here.
-#
-# Peivaste (Iman-Peivaste/ML_HEAs_Phase_Dataset) — no upstream license declared
-data/raw/peivaste/*.csv
-data/raw/peivaste/*.xlsx
-data/raw/peivaste/*.ipynb
+# Every source under data/raw is openly licensed and mirrored directly
+# (see data/raw/README.md).
 
-# The consolidated benchmark corpus is DERIVED from the sources above,
-# including the unlicensed ones, so it inherits their restrictions and
-# must not be committed. It is rebuilt locally and deterministically by
+# The consolidated benchmark corpus is DERIVED from the sources above and
+# is not committed. It is rebuilt locally and deterministically by
 # `python -m hea_bench.benchmark.consolidate`; the split digests pinned
 # in tests/test_benchmark_corpus.py are what guarantee a rebuild
 # reproduces the exact corpus every published number was computed on.

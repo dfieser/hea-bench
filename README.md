@@ -335,13 +335,12 @@ Li et al., *Commun. Mater.* **6**:9 (2025),
 Baselines, split digests, and full provenance:
 [`docs/benchmark-baselines.md`](./docs/benchmark-baselines.md).
 
-The corpus is built on your machine, once, because its largest source
-dataset declares no license and is never redistributed (see
-[`data/raw/README.md`](./data/raw/README.md)).
-`hea_bench.corpus.build_corpus()` downloads that file from its authors'
-repository, accepts it only if its pinned SHA-256 matches, and builds
-every corpus version. The apps and the MCP server's `corpus_build` tool
-do the same.
+Every source dataset ships with the package under CC BY 4.0 (see
+[`data/raw/README.md`](./data/raw/README.md)), and the corpus is built
+from them on your machine, once, with no download.
+`hea_bench.corpus.build_corpus()` checks the largest source against its
+pinned SHA-256 and builds every corpus version. The apps and the MCP
+server's `corpus_build` tool do the same.
 
 ## The corpus as a standalone product
 

@@ -8,7 +8,6 @@
  *   start()                          -> Promise(info)   boot, idempotent
  *   call(method, params, onProgress) -> Promise(result) one bridge call
  *   ensureCorpus(version, onProgress)-> Promise         build once per release
- *   fetchPeivaste(onProgress)        -> Promise         get and keep the Peivaste file
  *   onStatus(listener)               state changes: {state, message, fraction, info, error}
  *   restart()                        stop a long run and boot afresh
  *   available()                      false on file:// (browsers block workers there)
@@ -135,10 +134,6 @@
     return call("ensure_corpus", { version: version || "0.1.0" }, onProgress);
   }
 
-  function fetchPeivaste(onProgress) {
-    return call("fetch_peivaste", {}, onProgress);
-  }
-
   function restart() {
     clearTimeout(watchdog);
     if (worker) worker.terminate();
@@ -159,7 +154,6 @@
     start: start,
     call: call,
     ensureCorpus: ensureCorpus,
-    fetchPeivaste: fetchPeivaste,
     restart: restart,
     onStatus: onStatus,
     status: function () {

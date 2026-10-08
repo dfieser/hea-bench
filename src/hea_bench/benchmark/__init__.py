@@ -31,10 +31,9 @@ doi:10.1039/D1DD00050K; and Witman and Schindler, Digital Discovery
 (2025), doi:10.1039/D4DD00250D (MatFold). What this package adds is the
 frozen, digest-pinned, paired protocol for this corpus.
 
-The corpus is built locally rather than shipped, because most of its
-upstream data is not licensed for redistribution. See
-:mod:`hea_bench.benchmark.corpus` for the build commands and
-``data/raw/README.md`` for the per-source licensing status.
+The corpus is built locally from the source datasets that ship with
+the package. See :mod:`hea_bench.benchmark.corpus` for the build and
+``data/raw/README.md`` for the per-source licenses.
 """
 
 from __future__ import annotations

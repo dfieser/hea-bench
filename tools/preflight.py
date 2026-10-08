@@ -265,11 +265,6 @@ def check_readme_assets() -> list[str]:
     return problems
 
 
-#: The source file that declares no license: it may never enter a built
-#: artifact, the MCP container image included.
-PEIVASTE_CSV = "data/raw/peivaste/dataset11252_79.csv"
-
-
 def _dockerignored(path: str, patterns: list[str]) -> bool:
     """Docker's rule: the last pattern matching the path or a parent wins."""
     parts = path.split("/")
@@ -289,8 +284,7 @@ def check_docker_context() -> list[str]:
     Directory listings (Glama) build the Dockerfile to check the server.
     The wheel force-includes files from outside src/ (pyproject.toml), so
     each must sit under a path the Dockerfile copies and must survive
-    .dockerignore, or hatchling stops the image build. The unlicensed
-    Peivaste file must stay out of the image.
+    .dockerignore, or hatchling stops the image build.
     """
     problems: list[str] = []
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
@@ -319,8 +313,6 @@ def check_docker_context() -> list[str]:
                 f"Dockerfile: the wheel bundles {path} but the image build never sees it; "
                 f"COPY it in the build stage and let it through .dockerignore"
             )
-    if reaches_image(PEIVASTE_CSV):
-        problems.append(f".dockerignore: {PEIVASTE_CSV} (no license) would enter the image; ignore it")
     return problems
 
 
@@ -506,7 +498,7 @@ def main(argv: list[str]) -> int:
             warnings.append(
                 "benchmark-freeze gate NOT pre-verified: no local corpus. If this "
                 "push touches benchmark, corpus, split, or loader code, build the "
-                "corpus first (python data/raw/peivaste/fetch.py && python -m "
+                "corpus first (python -m "
                 "hea_bench.benchmark.consolidate) or expect the release gate to "
                 "be the first real run of those digests."
             )
