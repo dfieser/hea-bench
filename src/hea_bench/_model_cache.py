@@ -19,8 +19,14 @@ import gzip
 import os
 import pathlib
 import pickle
+import sys
 
 from . import __version__
+
+#: ``n_jobs`` for the fitted forests: every core in Python, one in the
+#: browser engine, which has no worker processes. A forest's numbers do
+#: not depend on it.
+FOREST_JOBS = None if sys.platform == "emscripten" else -1
 
 
 def cached(name: str, fit):

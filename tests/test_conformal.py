@@ -1,4 +1,4 @@
-"""Tests for the stdlib split-conformal wrappers.
+"""Tests for the stdlib conformal wrappers.
 
 The fake models make the arithmetic checkable by hand: the classifier
 fake treats each input row as its own probability vector, the regressor
@@ -150,3 +150,40 @@ def test_measured_coverage_matches_the_coverage_card() -> None:
         "src/hea_bench/uncertainty/coverage.py disagree; copy the card's in-domain and "
         "out-of-domain columns into MEASURED_COVERAGE"
     )
+
+
+class _MeanRegressor:
+    """Predicts the mean of its training targets."""
+
+    def fit(self, X, y):
+        self.mean = sum(y) / len(y)
+        return self
+
+    def predict(self, X):
+        return [self.mean for _ in X]
+
+
+def test_cross_val_scores_come_from_a_model_without_the_row() -> None:
+    from hea_bench.uncertainty.conformal import cross_val_scores
+
+    y = [1.0, 3.0, 10.0, 14.0]
+    folds = [([2, 3], [0, 1]), ([0, 1], [2, 3])]
+    # The first model sees 10 and 14 (mean 12), the second 1 and 3 (mean 2).
+    assert cross_val_scores(_MeanRegressor, [[0]] * 4, y, folds) == [11.0, 9.0, 8.0, 12.0]
+    with pytest.raises(ValueError, match="exactly one"):
+        cross_val_scores(_MeanRegressor, [[0]] * 4, y, folds[:1])
+
+
+def test_group_calibration_gives_each_group_its_own_threshold() -> None:
+    conformal = ConformalClassifier(_ProbabilityEcho()).calibrate_scores(
+        [0.1, 0.5, 0.2, 0.6, 0.3, 0.7, 0.4, 0.8], ["few", "many"] * 4
+    )
+    assert conformal.groups == ("few", "many")
+    assert conformal.n_calibration("few") == 4
+    assert conformal.n_calibration() == 8
+    # alpha 0.2, n 4 per group: k = 4, so qhat is 0.4 for "few" and 0.8 for "many".
+    row = [0.5, 0.25, 0.25]
+    sets = conformal.predict_set([row, row], alpha=0.2, groups=["few", "many"])
+    assert sets == [set(), {"A", "B", "C"}]
+    with pytest.raises(ValueError, match="group"):
+        conformal.predict_set([row], alpha=0.2)

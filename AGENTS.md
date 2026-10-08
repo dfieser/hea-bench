@@ -441,7 +441,12 @@ themselves): `ConformalClassifier(model).fit_calibrate(X_cal,
 y_cal).predict_set(X, alpha=0.1)` returns one label set per row;
 `ConformalRegressor(...).predict_interval(X, alpha=0.1)` returns
 `(low, high)` tuples. Calibration rows must be disjoint from training
-rows. Sets can be empty (no label credible at that level) and both
+rows. `calibrate_scores(scores, groups=None)` takes scores made
+elsewhere, such as `hea_bench.uncertainty.conformal.cross_val_scores`
+(every row scored by a model fitted without its fold); with `groups`,
+each group gets its own threshold and `predict_set`/`predict_interval`
+then need `groups=` too. The shipped phase sets and hardness interval
+calibrate by cross-validation over whole alloy systems. Sets can be empty (no label credible at that level) and both
 wrappers go maximal when `degenerate(alpha)` is True (calibration too
 small for the requested level). `fit_domain(corpus)` returns a
 JSON-serializable `DomainModel`; `domain.novelty(comp)` returns the
@@ -497,8 +502,9 @@ uncertainty=None)`; `suggest(n=5, strategy="ei"|"ucb")` returns
 (schema 1). Warm start pools Borg hardness rows matching the palette
 when objective is "hardness"; any other objective starts cold. Below 10
 informative rows `suggest` raises `ColdStartError`. Suggestion
-intervals are ensemble spread (tree disagreement), not
-coverage-calibrated; the module docstring states this. Replay study:
+intervals are 90 percent conformal intervals set from the forest's
+out-of-bag errors on the informative rows. Their coverage, and the
+loop against random selection, are measured in
 `docs/campaign-replay.md`.
 
 ## Coverage limit

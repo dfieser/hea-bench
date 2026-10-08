@@ -1,22 +1,27 @@
 """Phase prediction with a conformal prediction set, for one composition.
 
 The model is the baseline random forest (300 trees, seed 0) on this
-package's fourteen descriptors, fitted on the descriptor-finite rows of
-the benchmark corpus with a family-grouped 20 percent calibration
-hold-out, wrapped in a :class:`~hea_bench.uncertainty.ConformalClassifier`.
-That is the configuration whose coverage on unseen alloy systems is
-measured by :func:`hea_bench.uncertainty.coverage.coverage_study`, so the
-measured numbers describe how far these sets can be trusted.
+package's fourteen descriptors, fitted on every descriptor-finite row of
+the benchmark corpus and wrapped in a
+:class:`~hea_bench.uncertainty.ConformalClassifier`. Its calibration
+scores come from five-fold cross-validation over the frozen system
+split: every alloy is scored by a forest that never saw its alloy
+system, so the sets are calibrated for systems the model has not seen.
+Alloys with fewer than four elements are calibrated apart from the
+multi-principal alloys (:func:`calibration_group`), because the two
+populations err differently and one pooled threshold over-covers the
+first and under-covers the second. That is the procedure whose coverage
+on unseen alloy systems :func:`hea_bench.uncertainty.coverage.coverage_study`
+measures, so the measured numbers describe how far these sets can be
+trusted.
 
 A prediction set lists every phase label the model cannot rule out at
 the chosen confidence. One label is a confident answer, several labels
 mean the data cannot separate them, and an empty set means no label
 reaches the calibrated bar. The corpus domain flag rides along, because
 the coverage guarantee assumes the query resembles the calibration
-alloys and an unusual alloy breaks that assumption. So does what the
-coverage study measured: inside the dataset's range is not a promise of
-accuracy, since unseen alloy systems inside it fall slightly short of
-the target (``measured_coverage``).
+alloys and an unusual alloy breaks that assumption, and so does what
+the coverage study measured (``measured_coverage``).
 
 Needs the built corpus (see :mod:`hea_bench.corpus`) and scikit-learn
 (``pip install "hea-bench[benchmark]"``).
@@ -30,7 +35,6 @@ from ..composition import Composition, accepts_formula, family_of, normalize
 
 _SEED = 0
 _TREES = 300
-_CALIBRATION_FRACTION = 0.2
 
 #: What each task's labels mean, in plain words, for display surfaces.
 TASK_DESCRIPTIONS = {
@@ -39,9 +43,30 @@ TASK_DESCRIPTIONS = {
 }
 
 
+def calibration_group(composition) -> str:
+    """The calibration group of a composition, by its number of elements."""
+    return "fewer_than_four" if len(composition) < 4 else "four_or_more"
+
+
+def system_fold_positions(bench, rows) -> list[tuple[list[int], list[int]]]:
+    """The frozen system-split folds as positions into ``rows``.
+
+    ``rows`` is a list of benchmark row indices (the descriptor-finite
+    ones); rows outside it are dropped from every fold.
+    """
+    position = {row: p for p, row in enumerate(rows)}
+    return [
+        (
+            [position[i] for i in fold.train if i in position],
+            [position[i] for i in fold.test if i in position],
+        )
+        for fold in bench.grouped.folds
+    ]
+
+
 @lru_cache(maxsize=4)
 def _fitted(task: str, version: str):
-    """(model, conformal, n_proper, n_calibration), fitted once per task and version."""
+    """(model, conformal, n_training, n_calibration), fitted once per task and version."""
     from .._model_cache import cached
 
     return cached(f"phase-{task}-v{version}", lambda: _fit(task, version))
@@ -50,25 +75,24 @@ def _fitted(task: str, version: str):
 def _fit(task: str, version: str):
     from sklearn.ensemble import RandomForestClassifier
 
+    from .._model_cache import FOREST_JOBS
     from ..benchmark import load_benchmark
     from ..benchmark.corpus import descriptor_matrix, finite_descriptor_indices
-    from .conformal import ConformalClassifier
-    from .splitting import grouped_calibration_split
+    from .conformal import ConformalClassifier, cross_val_scores
 
     bench = load_benchmark(task=task, version=version)
     finite = list(finite_descriptor_indices(bench))
     features = descriptor_matrix([bench.rows[i].composition for i in finite])
     labels = [bench.rows[i].label for i in finite]
-    families = [bench.rows[i].family for i in finite]
-    proper, calibration = grouped_calibration_split(
-        families, fraction=_CALIBRATION_FRACTION, seed=_SEED
-    )
-    model = RandomForestClassifier(n_estimators=_TREES, random_state=_SEED)
-    model.fit([features[i] for i in proper], [labels[i] for i in proper])
-    conformal = ConformalClassifier(model).fit_calibrate(
-        [features[i] for i in calibration], [labels[i] for i in calibration]
-    )
-    return model, conformal, len(proper), len(calibration)
+    groups = [calibration_group(bench.rows[i].composition) for i in finite]
+
+    def make_forest():
+        return RandomForestClassifier(n_estimators=_TREES, random_state=_SEED, n_jobs=FOREST_JOBS)
+
+    scores = cross_val_scores(make_forest, features, labels, system_fold_positions(bench, finite))
+    model = make_forest().fit(features, labels)
+    conformal = ConformalClassifier(model).calibrate_scores(scores, groups)
+    return model, conformal, len(finite), len(scores)
 
 
 @accepts_formula
@@ -127,11 +151,12 @@ def predict_phase_set(
             f"computable for {family_of(comp)} (an element outside the descriptor tables, "
             f"or a singular descriptor such as Omega at zero mixing enthalpy)"
         )
-    model, conformal, n_proper, n_calibration = _fitted(task, version)
+    model, conformal, n_training, n_calibration = _fitted(task, version)
     probabilities = {
         str(label): float(p) for label, p in zip(model.classes_, model.predict_proba([vector])[0])
     }
-    prediction_set = sorted(conformal.predict_set([vector], alpha=alpha)[0])
+    group = calibration_group(comp)
+    prediction_set = sorted(conformal.predict_set([vector], alpha=alpha, groups=[group])[0])
     most_likely = max(sorted(probabilities), key=lambda label: probabilities[label])
 
     domain = _corpus_domain(version)
@@ -166,8 +191,8 @@ def predict_phase_set(
         "most_likely": most_likely,
         "in_domain": novelty["in_domain"],
         "novelty": novelty,
-        "n_training": n_proper,
-        "n_calibration": n_calibration,
+        "n_training": n_training,
+        "n_calibration": conformal.n_calibration(group),
         "corpus_version": version,
         "measured_coverage": None if measured is None else {
             "in_domain": measured[0],
@@ -175,8 +200,10 @@ def predict_phase_set(
             "source": "docs/uncertainty-coverage.md",
         },
         "model": (
-            f"random forest, {_TREES} trees, seed {_SEED}, family-grouped "
-            f"{_CALIBRATION_FRACTION:.0%} calibration hold-out"
+            f"random forest, {_TREES} trees, seed {_SEED}, trained on every alloy and "
+            f"calibrated by five-fold cross-validation over whole alloy systems, "
+            f"alloys with {'fewer than four' if group == 'fewer_than_four' else 'four or more'} "
+            f"elements on their own ({n_calibration} cross-validation scores in all)"
         ),
         "warnings": warnings,
     }

@@ -286,7 +286,7 @@ const STEPS = [
       input.dispatchEvent(new Event("change", { bubbles: true }));
       await S.waitFor("the score with its gap", () => /Gap/.test(S.$("benchmark-score-body").textContent) && S.$("benchmark-score-body").querySelectorAll("tbody tr").length === 4, 300000, view);
       S.$("benchmark-coverage-run").click();
-      await S.waitFor("the coverage study", () => S.$("benchmark-coverage-body").querySelectorAll("tbody tr").length > 0, 600000, view);
+      await S.waitFor("the coverage study", () => S.$("benchmark-coverage-body").querySelectorAll("tbody tr").length > 0, 900000, view);
       S.clean(view, "the benchmark tab");
       return model + " reproduced, example file scored, " + S.$("benchmark-coverage-body").querySelectorAll("tbody tr").length + " coverage rows";
     },

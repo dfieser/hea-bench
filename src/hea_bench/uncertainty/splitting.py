@@ -1,4 +1,9 @@
-"""Grouped calibration splitting, shared by the fitted property layers.
+"""Grouped calibration splitting for split conformal prediction.
+
+The shipped models calibrate by cross-validation over whole alloy
+systems instead (:func:`hea_bench.uncertainty.conformal.cross_val_scores`),
+so every alloy both trains and calibrates. This helper remains for
+anyone calibrating on a held-out split of their own.
 
 Split conformal calibration must be disjoint from training; when the
 data is organized in families of near-duplicate compositions, an

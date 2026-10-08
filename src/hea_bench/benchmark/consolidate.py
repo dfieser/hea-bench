@@ -112,10 +112,11 @@ def consolidate(records: Iterable[AlloyRecord], precision: int = 4) -> list[Cons
         per_source_raw: dict[str, str] = {}
         row_ids: dict[str, str] = {}
         for r in rs:
-            # Within one source, a single (formula, processing) pair has
-            # already been deduped by the per-source loader. Multiple rs
-            # entries for the same source would only happen if two Borg
-            # processings of the same composition exist; keep the first.
+            # The loaders drop exact repeats, but one source can still
+            # list a composition more than once: several Borg processing
+            # routes, or differently written Peivaste formulas. The first
+            # record in file order sets that source's label. Frozen corpus
+            # versions depend on this rule (docs/corpus-card.md).
             per_source_canonical.setdefault(r.source, r.canonical_phase)
             per_source_raw.setdefault(r.source, r.source_label)
             row_ids.setdefault(r.source, r.source_row_id)

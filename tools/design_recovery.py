@@ -6,10 +6,14 @@ surfaced the alloys experimentalists actually made and measured, and
 where do those alloys sit relative to the returned front? Two palettes
 are studied, both fully inside the Borg hardness data: the Al-Co-Cr-Fe-Ni
 family (the classic hardness-versus-density trade space) and the
-Mo-Nb-Ta-V-W refractory family. The honest outcome is reported either
-way, including front members no one has synthesized (which are
-suggestions, not validated predictions) and measured alloys the front
-rejects (dominated, or filtered by a constraint).
+Mo-Nb-Ta-V-W refractory family. Each palette runs twice: with the
+released hardness model, which trained on the palette's measured alloys,
+and with a model retrained without any four- or five-element alloy of
+the palette, so the second front predicts those alloys out of sample.
+The outcome is reported either way, including front members no one has
+synthesized (which are suggestions, not validated predictions) and
+measured alloys the front rejects (dominated, or filtered by a
+constraint).
 
 Needs the properties extra and a built corpus:
 
@@ -18,12 +22,15 @@ Needs the properties extra and a built corpus:
 
 from __future__ import annotations
 
+import contextlib
 import datetime
+import os
 import pathlib
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "src"))
 
+import hea_bench.properties.hardness as _hardness  # noqa: E402
 from hea_bench import __version__ as _hea_bench_version  # noqa: E402
 from hea_bench.design import Maximize, Minimize, search  # noqa: E402
 from hea_bench.properties import predict_property  # noqa: E402
@@ -62,7 +69,30 @@ def _spearman(a: list[float], b: list[float]) -> float:
     return cov / var if var else 0.0
 
 
-def _study(name: str, palette: list[str]) -> list[str]:
+def _in_palette(record, palette_set: set) -> bool:
+    return set(record.composition) <= palette_set and len(record.composition) >= 4
+
+
+@contextlib.contextmanager
+def _palette_held_out(palette_set: set):
+    """The hardness model refit without the palette's 4- and 5-element alloys."""
+    original = _hardness.hardness_records
+    cache = os.environ.pop("HEA_BENCH_MODEL_CACHE", None)
+    _hardness.hardness_records = lambda: [
+        record for record in original() if not _in_palette(record, palette_set)
+    ]
+    _hardness._fitted.cache_clear()
+    try:
+        yield
+    finally:
+        _hardness.hardness_records = original
+        _hardness._fitted.cache_clear()
+        if cache is not None:
+            os.environ["HEA_BENCH_MODEL_CACHE"] = cache
+
+
+def _front_check(palette: list[str], measured: list) -> dict:
+    """Search the palette, then place the measured alloys against the front."""
     result = search(
         elements=palette,
         n_elements=(4, 5),
@@ -71,52 +101,64 @@ def _study(name: str, palette: list[str]) -> list[str]:
         n_candidates=250,
         optimize_bound="lower",
     )
-
-    palette_set = set(palette)
-    measured = [
-        record
-        for record in hardness_records()
-        if set(record.composition) <= palette_set and len(record.composition) >= 4
-    ]
-    measured.sort(key=lambda record: -record.value)
-
     predicted = [
         predict_property(record.composition, "hardness").value for record in measured
     ]
-    correlation = _spearman(predicted, [record.value for record in measured])
-
-    hits = []
-    for record in measured[:TOP_N]:
-        distance = min(
+    distances = [
+        min(
             (_l1(record.composition, candidate.composition) for candidate in result.candidates),
             default=float("inf"),
         )
-        hits.append((record, distance))
-    recovered = sum(1 for _record, distance in hits if distance <= 2 * STEP + 1e-9)
+        for record in measured[:TOP_N]
+    ]
+    return {
+        "result": result,
+        "rho": _spearman(predicted, [record.value for record in measured]),
+        "distances": distances,
+        "recovered": sum(1 for distance in distances if distance <= 2 * STEP + 1e-9),
+    }
 
+
+def _study(name: str, palette: list[str]) -> list[str]:
+    palette_set = set(palette)
+    measured = [record for record in hardness_records() if _in_palette(record, palette_set)]
+    measured.sort(key=lambda record: -record.value)
+
+    trained = _front_check(palette, measured)
+    with _palette_held_out(palette_set):
+        held_out = _front_check(palette, measured)
+
+    top = min(TOP_N, len(measured))
     lines = [
         f"## Palette {name}",
         "",
         f"Search: n_elements 4 to 5, step {STEP}, objectives maximize hardness "
         f"(conservative lower interval end) and minimize density, domain "
-        f"constraint on. {result.n_evaluated} lattice points evaluated, "
-        f"{result.n_feasible} feasible, front size {result.n_front}.",
+        f"constraint on. {trained['result'].n_evaluated} lattice points "
+        f"evaluated, {trained['result'].n_feasible} feasible. Front size "
+        f"{trained['result'].n_front} with the released model and "
+        f"{held_out['result'].n_front} with the palette held out.",
         "",
         f"{len(measured)} measured alloys from the Borg hardness records live "
         f"inside this palette (4 or 5 elements). Rank correlation between the "
-        f"surrogate's point predictions and the measured hardness over those "
-        f"alloys: Spearman rho = {correlation:.2f}. Of the {min(TOP_N, len(measured))} "
-        f"hardest measured alloys, {recovered} sit within two lattice steps "
-        f"(L1) of a front member.",
+        f"model's point predictions and the measured hardness over those "
+        f"alloys: Spearman rho {trained['rho']:.2f} with the released model, "
+        f"{held_out['rho']:.2f} with the palette held out. Of the {top} hardest "
+        f"measured alloys, {trained['recovered']} and {held_out['recovered']} "
+        f"respectively sit within two lattice steps (L1) of a front member.",
         "",
-        "| measured alloy | HV | processing | L1 distance to nearest front member |",
-        "|---|---:|---|---:|",
+        "| measured alloy | HV | processing | L1 to the front, released model | "
+        "L1 to the front, palette held out |",
+        "|---|---:|---|---:|---:|",
     ]
-    for record, distance in hits:
-        shown = f"{distance:.2f}" if distance != float("inf") else "n/a"
+
+    def shown(distance: float) -> str:
+        return f"{distance:.2f}" if distance != float("inf") else "n/a"
+
+    for record, near, far in zip(measured, trained["distances"], held_out["distances"]):
         lines.append(
             f"| {record.formula_raw} | {record.value:.0f} | "
-            f"{record.processing or '-'} | {shown} |"
+            f"{record.processing or '-'} | {shown(near)} | {shown(far)} |"
         )
     lines.append("")
     return lines
@@ -153,16 +195,16 @@ def main() -> int:
         lines += _study(name, palette)
 
     lines += [
-        "## Reading this honestly",
+        "## Reading the two columns",
         "",
-        "Recovery here is a weak, necessary check, not a validation of the "
-        "search as a discovery engine: the surrogate was trained on data "
-        "that includes these families, so finding their known good alloys "
-        "again is expected rather than impressive. The informative failure "
-        "mode is the opposite one, a hard measured alloy the front misses, "
-        "and the tables above report exactly that distance for the top ten "
-        "in each palette. The search remains a screening aid whose value is "
-        "receipts and constraint handling, not oracle ranking.",
+        "With the released model, recovery is a necessary check rather than "
+        "a test, because the model trained on these alloys. The held-out "
+        "column is the test. There the model has seen no four- or "
+        "five-element alloy of the palette, the situation of a palette no "
+        "one has explored, and the front and the rank correlation say how "
+        "far the search would have pointed toward the alloys later measured. "
+        "The search is a screening aid whose value is receipts and "
+        "constraint handling, not oracle ranking.",
     ]
     OUT_MD.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"wrote {OUT_MD}")

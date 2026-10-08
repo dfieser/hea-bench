@@ -1,29 +1,17 @@
 """Measure empirical conformal coverage on the corpus and write the doc.
 
-Design, stated up front because the numbers only mean something under
-it: for each grouped fold of corpus v0.1.0 (both tasks), the training
-rows are split family-grouped into proper-train (about 80 percent) and
-calibration (about 20 percent), a random forest (300 trees, seed 0, the
-baseline configuration) is fitted on the proper-train descriptor
-matrix, a ConformalClassifier is calibrated on the calibration rows,
-and prediction sets at nominal 80, 90, and 95 percent are scored on the
-held-out fold. A DomainModel fitted on the proper-train rows only
-classifies every test row as in or out of domain, and coverage is
-reported overall and per flag, together with mean set sizes.
+The study itself is :func:`hea_bench.uncertainty.coverage.coverage_study`,
+whose docstring states the design: a nested cross-validation over the
+frozen system split that tests exactly the procedure the released
+predictor uses. This script runs it for both tasks and writes
+``docs/uncertainty-coverage.md``: a summary table per task (the shape
+``tests/test_conformal.py`` reads, whose in-domain and out-of-domain
+columns ``MEASURED_COVERAGE`` must match) and the full table of every
+result group with its alloy-system count, fold-to-fold standard error
+and mean set size. Nothing here characterizes any published model or
+any other tool.
 
-The grouped split makes test families unseen by construction, so this
-study measures the assumption under strain on purpose. The measured
-pattern, verified on the first grouped fold before being written down:
-the flagged out-of-domain population is almost entirely far-from-HEA
-binary compositions that the model predicts confidently and mostly
-correctly (above-nominal coverage, slightly smaller sets), while the
-coverage shortfall concentrates in in-domain-flagged rows where an
-unseen family lies close to the training cloud and is predicted
-confidently and wrongly. Nothing here characterizes any published
-model or any other tool.
-
-Runs a few minutes (descriptor recomputation dominates). Needs the
-benchmark extra:
+Takes about two minutes. Needs the benchmark extra:
 
     PYTHONPATH=src python tools/uncertainty_coverage.py
 """
@@ -37,60 +25,70 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "src"))
 
 from hea_bench import __version__ as _hea_bench_version  # noqa: E402
-from hea_bench.uncertainty.coverage import (  # noqa: E402,F401  (re-exported for figure scripts)
+from hea_bench.uncertainty.coverage import (  # noqa: E402
     ALPHAS,
-    CALIBRATION_FRACTION,
     FOREST_TREES,
+    GROUPS,
     SEED,
     coverage_study,
-)
-from hea_bench.uncertainty.coverage import (  # noqa: E402,F401
-    family_grouped_calibration_split as _family_grouped_calibration_split,
 )
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 OUT_MD = REPO_ROOT / "docs" / "uncertainty-coverage.md"
 
-
-def _run_task(task: str) -> dict:
-    """The study through the library, in the table shape this script writes."""
-    study = coverage_study(task)
-    table = {}
-    for level in study["levels"]:
-        groups = level["groups"]
-        table[level["alpha"]] = {
-            bucket: [groups[group]["covered"], groups[group]["n"], groups[group]["set_size_sum"]]
-            for bucket, group in (("overall", "all"), ("in", "in_domain"), ("out", "out_of_domain"))
-        }
-    return {"task": task, "n_rows": study["n_rows"], "n_out": study["n_out_of_domain"], "table": table}
+LABELS = {
+    "all": "every alloy",
+    "in_domain": "inside the dataset's range",
+    "out_of_domain": "outside the dataset's range",
+    "fewer_than_four": "fewer than four elements",
+    "four_or_more": "four or more elements",
+    "four_or_more_one_element_from_training": "four or more, one element from a training system",
+    "four_or_more_farther": "four or more, farther from every training system",
+}
 
 
-def _format_task(result: dict) -> list[str]:
+def _rate(value) -> str:
+    return "n/a" if value is None else f"{value:.3f}"
+
+
+def _format_task(study: dict) -> list[str]:
+    by_alpha = {level["alpha"]: level["groups"] for level in study["levels"]}
     lines = [
-        f"## Task: {result['task']}",
+        f"## Task: {study['task']}",
         "",
-        f"{result['n_rows']} descriptor-finite rows; {result['n_out']} test-time "
-        f"rows were flagged out of domain by the proper-train DomainModel "
-        f"across the five grouped folds.",
+        f"{study['n_rows']} descriptor-finite alloys. Across the five held-out "
+        f"folds the domain model flagged {study['n_out_of_domain']} as outside "
+        f"the dataset's range, {study['n_out_of_domain_binaries']} of them binary.",
         "",
         "| nominal coverage | rows | empirical (overall) | empirical (in domain) | "
         "empirical (out of domain) | set size (in) | set size (out) |",
         "|---|---:|---:|---:|---:|---:|---:|",
     ]
     for alpha in ALPHAS:
-        table = result["table"][alpha]
-        overall, inside, outside = table["overall"], table["in"], table["out"]
-
-        def rate(cell):
-            return f"{cell[0] / cell[1]:.3f}" if cell[1] else "n/a"
-
-        def size(cell):
-            return f"{cell[2] / cell[1]:.2f}" if cell[1] else "n/a"
-
+        groups = by_alpha[alpha]
+        overall, inside, outside = groups["all"], groups["in_domain"], groups["out_of_domain"]
         lines.append(
-            f"| {1 - alpha:.0%} | {overall[1]} | {rate(overall)} | {rate(inside)} | "
-            f"{rate(outside)} | {size(inside)} | {size(outside)} |"
+            f"| {1 - alpha:.0%} | {overall['n']} | {_rate(overall['coverage'])} | "
+            f"{_rate(inside['coverage'])} | {_rate(outside['coverage'])} | "
+            f"{inside['mean_set_size']:.2f} | {outside['mean_set_size']:.2f} |"
         )
+    lines += [
+        "",
+        "Every group, with its alloy-system count and the standard error of "
+        "coverage across the five folds:",
+        "",
+        "| nominal | group | alloys | systems | coverage | fold SE | mean set size |",
+        "|---|---|---:|---:|---:|---:|---:|",
+    ]
+    for alpha in ALPHAS:
+        for group in GROUPS:
+            cell = by_alpha[alpha][group]
+            se = "n/a" if cell["fold_se"] is None else f"{cell['fold_se']:.3f}"
+            size = "n/a" if cell["mean_set_size"] is None else f"{cell['mean_set_size']:.2f}"
+            lines.append(
+                f"| {1 - alpha:.0%} | {LABELS[group]} | {cell['n']} | {cell['n_systems']} | "
+                f"{_rate(cell['coverage'])} | {se} | {size} |"
+            )
     lines.append("")
     return lines
 
@@ -106,50 +104,42 @@ def main() -> int:
         )
         return 2
 
-    results = [_run_task(task) for task in ("single_vs_multi", "phase4")]
+    studies = [coverage_study(task) for task in ("single_vs_multi", "phase4")]
 
     lines = [
         "# Empirical conformal coverage on corpus v0.1.0",
         "",
         f"Generated by `tools/uncertainty_coverage.py` with hea-bench "
         f"{_hea_bench_version} on {datetime.date.today().isoformat()}; random "
-        f"forest with {FOREST_TREES} trees, seed {SEED}, family-grouped "
-        f"calibration split of {CALIBRATION_FRACTION:.0%}, scored on the frozen "
-        f"grouped folds.",
+        f"forest with {FOREST_TREES} trees, seed {SEED}, scored on the frozen "
+        f"system folds.",
         "",
-        "Split conformal prediction guarantees marginal coverage when "
-        "calibration and test rows are exchangeable. The grouped split makes "
-        "test families unseen by construction, so this study measures the "
-        "guarantee under deliberate strain, and the table reports what that "
-        "strain does. Overall coverage lands a few points under nominal, and "
-        "the shortfall sits in the rows flagged in domain: unseen families "
-        "close to the training cloud in descriptor space, predicted "
-        "confidently and sometimes wrongly. The rows flagged out of domain "
-        "behave differently in this corpus. They are almost entirely binary "
-        "compositions whose element pairs sit far from the multi-principal "
-        "families the corpus is built around (on the first grouped fold, 110 "
-        "of 121 flagged rows are binaries), the model's predictions there "
-        "are confident and mostly right, and their empirical coverage sits "
-        "above nominal with slightly smaller sets. The flag therefore "
-        "separates a structurally different population rather than marking "
-        "where the classifier fails, and the residual near-domain "
-        "extrapolation risk it cannot remove is exactly what the paired "
-        "interpolative versus extrapolative protocol quantifies. Read the "
-        "flag, the set size, and the gap together. These numbers describe "
-        "this package's models on this corpus and nothing else.",
+        "The study tests the procedure the released predictor uses. Each "
+        "fold of the frozen system split is held out in turn, and the other "
+        "four folds stand in for the whole corpus. Their calibration scores "
+        "come from cross-validation among those four folds, so every score "
+        "comes from a forest that never saw the alloy's system. A forest "
+        "refit on all four folds predicts the held-out fold, and the sets "
+        "are calibrated separately for alloys with fewer than four elements "
+        "and with four or more. A domain model fitted on the same four folds "
+        "flags each held-out alloy as inside or outside the dataset's range. "
+        "Every held-out system is unseen, so the study measures coverage on "
+        "new alloy systems, the case a user meets when exploring.",
         "",
     ]
-    for result in results:
-        lines += _format_task(result)
+    for study in studies:
+        lines += _format_task(study)
     lines += [
-        "## Reading the table",
+        "## Reading the tables",
         "",
         "Mean set size is the average number of labels in the returned "
         "prediction set. A method can always reach nominal coverage by "
         "returning every label, so coverage is only meaningful next to set "
-        "size; a full-class set is the calibrated way of saying the model "
-        "does not know. Out-of-domain rows are typically fewer, so their "
-        "empirical rates carry wider sampling noise.",
+        "size. A set holding every label is the calibrated way of saying the "
+        "model cannot rule any out. The fold standard error is the spread of "
+        "coverage across the five held-out folds, which differ in size "
+        "because each holds whole systems. These numbers describe this "
+        "package's models on this corpus and nothing else.",
     ]
     OUT_MD.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"wrote {OUT_MD}")

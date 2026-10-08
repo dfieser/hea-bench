@@ -1492,7 +1492,7 @@
             var c = level.groups[g];
             if (!c || !c.n) return;
             rows.push(
-              "<tr><td>" + pct(level.target, 0) + "</td><td>" + esc(groupNames[g]) + '</td><td class="num">' + int(c.n) + '</td><td class="num">' + num(c.coverage, 3) +
+              "<tr><td>" + pct(level.target, 0) + "</td><td>" + esc(groupNames[g]) + '</td><td class="num">' + int(c.n) + '</td><td class="num">' + int(c.n_systems) + '</td><td class="num">' + num(c.coverage, 3) +
               (c.fold_se === null ? "" : ' <span class="feature-note">± ' + num(c.fold_se, 3) + "</span>") + '</td><td class="num">' + num(c.mean_set_size, 2) + "</td></tr>"
             );
           });
@@ -1500,7 +1500,7 @@
         $("benchmark-coverage-body").innerHTML =
           '<div class="table-wrap"><table class="data feature-table"><caption>' + int(study.n_rows) + " alloys, " + int(study.n_out_of_domain) +
           " flagged outside the dataset's range at test time across the five grouped folds. Coverage is the share of alloys whose set contains the true label.</caption>" +
-          '<thead><tr><th>Target</th><th>Alloys</th><th class="num">n</th><th class="num">Coverage</th><th class="num">Mean set size</th></tr></thead><tbody>' +
+          '<thead><tr><th>Target</th><th>Alloys</th><th class="num">n</th><th class="num">Systems</th><th class="num">Coverage</th><th class="num">Mean set size</th></tr></thead><tbody>' +
           rows.join("") + "</tbody></table></div>" +
           '<p class="feature-note">A set can always reach its target by listing every label, so read coverage next to set size.</p>';
       })
@@ -1916,9 +1916,9 @@
           '<div class="table-wrap"><table class="data feature-table"><caption>Next ' + r.suggestions.length + " alloys to make for " + esc(r.direction) + " " + esc(r.objective) +
           ", from " + int(r.n_informative) + " informative rows (" + int(r.n_observations) + " of them yours), ranked by " +
           (r.strategy === "ei" ? "expected improvement" : "upper confidence bound") + ".</caption>" +
-          '<thead><tr><th>Composition</th><th class="num">Predicted</th><th class="num">Model spread</th><th>Like your data</th><th class="num">Score</th><th></th></tr></thead><tbody>' +
+          '<thead><tr><th>Composition</th><th class="num">Predicted</th><th class="num">90% interval</th><th>Like your data</th><th class="num">Score</th><th></th></tr></thead><tbody>' +
           rows + "</tbody></table></div>" +
-          '<p class="feature-note">The spread is the 2.5 to 97.5 percentile of the forest\'s trees, a measure of model disagreement rather than a calibrated interval. Make an alloy, then use Record result to add your measurement and ask again.</p>';
+          '<p class="feature-note">Each interval is a 90 percent conformal interval, set by the forest\'s errors on the rows each tree did not train on. Its coverage in replayed campaigns is in docs/campaign-replay.md. Make an alloy, then use Record result to add your measurement and ask again.</p>';
       })
       .catch(function (error) {
         $("campaign-results").innerHTML = errorHtml(error);

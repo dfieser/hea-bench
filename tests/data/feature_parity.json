@@ -422,12 +422,10 @@
       "what": "Benchmark tab, coverage table: whether the 90 percent phase sets really cover 90 percent, overall and by group.",
       "covers": [
         "hea_bench.uncertainty.coverage.ALPHAS",
-        "hea_bench.uncertainty.coverage.CALIBRATION_FRACTION",
         "hea_bench.uncertainty.coverage.FOREST_TREES",
         "hea_bench.uncertainty.coverage.GROUPS",
         "hea_bench.uncertainty.coverage.SEED",
         "hea_bench.uncertainty.coverage.coverage_study",
-        "hea_bench.uncertainty.coverage.family_grouped_calibration_split",
         "mcp:coverage_study"
       ],
       "app": {

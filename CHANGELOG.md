@@ -10,6 +10,46 @@ The format is loosely based on
 
 ## [Unreleased]
 
+### Changed
+
+- Phase prediction sets calibrate by five-fold cross-validation over
+  whole alloy systems, so every alloy both trains the model and
+  calibrates it, and alloys with fewer than four elements calibrate
+  apart from those with four or more. On unseen alloy systems the 90
+  percent sets now cover 0.900 of alloys on the single-phase task and
+  0.884 on the phase-structure task, against 0.882 and 0.839 before,
+  and alloys with four or more elements reach 0.898 and 0.881, against
+  0.871 and 0.822. `docs/uncertainty-coverage.md` reports every group
+  with its alloy-system count, fold-to-fold standard error and set
+  size, and the app's coverage table shows the system counts.
+- The hardness model trains on all 384 alloys, and its 90 percent
+  interval comes from the same cross-validation over whole systems.
+  Nested cross-validation of that procedure measures coverage 0.956,
+  and 0.932 for alloys of 750 HV or harder, with a mean absolute error
+  of 97 HV. The model card states that processing states pool.
+- Campaign suggestions carry a 90 percent conformal interval set from
+  the forest's out-of-bag errors, in place of the spread of the trees.
+  `docs/campaign-replay.md` adds a replay against random selection on
+  the 384 Borg hardness alloys. After 50 measurements the loop's
+  hardest alloy averages 1,030 HV against 942 HV for random picks, it
+  reaches one of the ten hardest alloys in 25 of 25 runs against 16,
+  and its intervals hold 0.903 of the revealed values.
+- `docs/design-recovery.md` adds a front searched with a hardness model
+  that never saw the palette's four- and five-element alloys.
+
+### Added
+
+- `calibrate_scores(scores, groups=None)` on `ConformalClassifier` and
+  `ConformalRegressor`, a `groups` argument on `fit_calibrate`,
+  `predict_set` and `predict_interval` for per-group thresholds, and
+  `hea_bench.uncertainty.conformal.cross_val_scores`.
+
+### Removed
+
+- `hea_bench.uncertainty.coverage.CALIBRATION_FRACTION` and
+  `family_grouped_calibration_split`, which belonged to the old
+  split-calibration coverage study.
+
 ## [2.7.3] — 2026-10-06
 
 ### Fixed

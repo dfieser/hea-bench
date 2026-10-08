@@ -931,9 +931,9 @@ def campaign_suggest(
     as ``campaign_path`` or its contents as ``campaign``. This tool
     never writes the file; inline calls get the canonical campaign back
     to save. Batch size is capped at 10. Suggestions carry the ensemble
-    mean, the ensemble-spread interval (model disagreement, not a
-    coverage guarantee; the module docstring explains), and the domain
-    flag. Below the 10-observation floor the loop refuses rather than
+    mean, a 90 percent conformal interval set from the forest's
+    out-of-bag errors (coverage measured in docs/campaign-replay.md),
+    and the domain flag. Below the 10-observation floor the loop refuses rather than
     guessing.
     """
     from .design.campaign import Campaign, ColdStartError

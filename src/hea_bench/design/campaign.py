@@ -10,14 +10,16 @@ telemetry, and the loop runs on the user's data, which is the point.
 
 Design choices, stated rather than implied:
 
-- **Surrogate**: random forest with uncertainty from per-tree
-  disagreement. A Gaussian process over variable-length composition
-  vectors was considered and rejected as fragile; the ensemble is less
-  elegant and much harder to break. Suggestion intervals are the
-  ensemble spread (2.5 to 97.5 percentile of tree predictions), which
-  is a model-disagreement band, not a coverage-calibrated conformal
-  interval; calibrating one would spend scarce user observations, and
-  the docstring says so instead of implying a guarantee.
+- **Surrogate**: random forest, ranking by per-tree disagreement. A
+  Gaussian process over variable-length composition vectors was
+  considered and rejected as fragile; the ensemble is less elegant and
+  much harder to break.
+- **Intervals**: each suggestion's interval is conformal at 90 percent,
+  the prediction plus or minus the 90th percentile of the forest's
+  out-of-bag errors on the observations. Every tree leaves out about a
+  third of the rows, so every observation is scored by trees that never
+  saw it, and calibration costs none of the user's measurements. Their
+  coverage on real data is measured in ``docs/campaign-replay.md``.
 - **Warm start**: when the objective is ``"hardness"`` (the shipped
   tier B property) and ``warm_start=True``, the Borg room-temperature
   records whose chemistry fits the palette are pooled with the user's
@@ -62,6 +64,10 @@ from .search import (
 
 #: Below this many informative rows suggest() refuses.
 COLD_START_FLOOR = 10
+
+#: Miscoverage of the suggestion intervals (90 percent intervals).
+_INTERVAL_ALPHA = 0.1
+_TREES = 300
 
 _CONSTRAINT_TYPES = {
     "RuleConstraint": RuleConstraint,
@@ -332,7 +338,7 @@ class Campaign:
                 f"observations (or use a palette covered by the warm start)."
             )
         try:
-            from sklearn.ensemble import RandomForestRegressor
+            import sklearn.ensemble  # noqa: F401  (availability check; rank_candidates fits)
         except ImportError as exc:
             from ..properties import PropertyUnavailableError
 
@@ -353,7 +359,6 @@ class Campaign:
                 pool_vectors.append(vector)
                 pool_comps.append(comp)
 
-        sign = 1.0 if self.direction == "maximize" else -1.0
         try:
             campaign_domain = fit_domain(
                 [DomainRow(comp, family_of(comp)) for comp in _comps]
@@ -361,70 +366,107 @@ class Campaign:
         except ValueError:
             campaign_domain = None
 
-        # One ndarray for the whole pool: handing the same list-of-lists
-        # to all 300 trees would re-validate and re-convert it per tree,
-        # per pick. Values are unchanged (numpy ships with sklearn).
-        import numpy
-
-        pool_matrix = numpy.asarray(pool_vectors)
-
-        X_now = [list(row) for row in X]
-        y_now = list(y)
-        chosen: list[Suggestion] = []
-        taken: set[int] = set()
-        for _pick in range(min(n, len(pool_comps))):
-            model = RandomForestRegressor(n_estimators=300, random_state=self.seed)
-            model.fit(X_now, y_now)
-            per_tree = [tree.predict(pool_matrix) for tree in model.estimators_]
-            best = max(sign * value for value in y_now)
-
-            scored: list[tuple[float, int, float, tuple[float, float]]] = []
-            for index in range(len(pool_comps)):
-                if index in taken:
-                    continue
-                predictions = sorted(sign * tree[index] for tree in per_tree)
-                mean = statistics.fmean(predictions)
-                sigma = statistics.pstdev(predictions)
-                low_q = predictions[max(0, math.floor(0.025 * len(predictions)))]
-                high_q = predictions[min(len(predictions) - 1, math.ceil(0.975 * len(predictions)) - 1)]
-                if strategy == "ucb":
-                    score = mean + 2.0 * sigma
-                else:
-                    score = _expected_improvement(mean, sigma, best)
-                scored.append((score, index, mean, (low_q, high_q)))
-
-            score, index, mean, (low_q, high_q) = max(
-                scored, key=lambda item: (item[0], -item[1])
+        picks = rank_candidates(
+            X,
+            y,
+            pool_vectors,
+            n=n,
+            strategy=strategy,
+            seed=self.seed,
+            maximize=self.direction == "maximize",
+        )
+        return [
+            Suggestion(
+                composition=pool_comps[index],
+                mean=mean,
+                interval=interval,
+                in_domain=(
+                    campaign_domain.novelty(pool_comps[index])["in_domain"]
+                    if campaign_domain is not None
+                    else None
+                ),
+                acquisition=score,
+                strategy=strategy,
             )
-            taken.add(index)
-            comp = pool_comps[index]
-            in_domain = (
-                campaign_domain.novelty(comp)["in_domain"]
-                if campaign_domain is not None
-                else None
-            )
-            chosen.append(
-                Suggestion(
-                    composition=comp,
-                    mean=sign * mean,
-                    interval=(
-                        (sign * low_q, sign * high_q)
-                        if sign > 0
-                        else (sign * high_q, sign * low_q)
-                    ),
-                    in_domain=in_domain,
-                    acquisition=score,
-                    strategy=strategy,
-                )
-            )
-            # Believer step: pretend the pick came back at its predicted
-            # mean so the next pick spreads out instead of clustering.
-            # mean is in signed space; sign * mean recovers the raw value
-            # for either direction because sign is +-1.
-            X_now.append(list(pool_vectors[index]))
-            y_now.append(sign * mean)
+            for index, mean, interval, score in picks
+        ]
 
-        return chosen
+
+def rank_candidates(
+    X, y, candidates, *, n: int, strategy: str = "ei", seed: int = 0, maximize: bool = True
+) -> list[tuple[int, float, tuple[float, float], float]]:
+    """The loop's core: pick the next ``n`` candidates from feature vectors.
+
+    Returns ``(candidate position, predicted value, 90 percent interval,
+    acquisition)`` per pick, in pick order. :meth:`Campaign.suggest`
+    runs it on the palette lattice and ``tools/campaign_replay.py`` on
+    measured alloys, so the replay tests this exact code. The interval's
+    half-width comes from the first forest's out-of-bag errors on the
+    real observations (see the module docstring).
+    """
+    import numpy
+    from sklearn.ensemble import RandomForestRegressor
+
+    from .._model_cache import FOREST_JOBS
+    from ..uncertainty import ConformalRegressor
+
+    sign = 1.0 if maximize else -1.0
+    # One ndarray for the whole pool: handing the same list-of-lists to
+    # all 300 trees would re-validate and re-convert it per tree, per
+    # pick. Values are unchanged (numpy ships with sklearn).
+    pool_matrix = numpy.asarray(candidates)
+    X_now = [list(row) for row in X]
+    y_now = [float(value) for value in y]
+    half_width = None
+    chosen: list[tuple[int, float, tuple[float, float], float]] = []
+    taken: set[int] = set()
+    for _pick in range(min(n, len(candidates))):
+        # Only the first fit calibrates, so only it pays for out-of-bag
+        # predictions; the trees are the same either way.
+        model = RandomForestRegressor(
+            n_estimators=_TREES, random_state=seed, oob_score=half_width is None,
+            n_jobs=FOREST_JOBS,
+        )
+        model.fit(X_now, y_now)
+        if half_width is None:
+            # Calibrated once, on the real observations only: the
+            # believer rows added below are not measurements.
+            residuals = [
+                abs(observed - float(predicted))
+                for observed, predicted in zip(y_now, model.oob_prediction_)
+                if math.isfinite(float(predicted))
+            ]
+            threshold = ConformalRegressor(model).calibrate_scores(residuals)._threshold(
+                _INTERVAL_ALPHA
+            )
+            half_width = math.inf if threshold is None else threshold
+        per_tree = [tree.predict(pool_matrix) for tree in model.estimators_]
+        best = max(sign * value for value in y_now)
+
+        scored: list[tuple[float, int, float]] = []
+        for index in range(len(candidates)):
+            if index in taken:
+                continue
+            predictions = sorted(sign * tree[index] for tree in per_tree)
+            mean = statistics.fmean(predictions)
+            sigma = statistics.pstdev(predictions)
+            if strategy == "ucb":
+                score = mean + 2.0 * sigma
+            else:
+                score = _expected_improvement(mean, sigma, best)
+            scored.append((score, index, mean))
+
+        score, index, mean = max(scored, key=lambda item: (item[0], -item[1]))
+        taken.add(index)
+        # mean is in signed space; sign * mean recovers the raw value for
+        # either direction because sign is +-1.
+        value = sign * mean
+        chosen.append((index, value, (value - half_width, value + half_width), score))
+        # Believer step: pretend the pick came back at its predicted
+        # value so the next pick spreads out instead of clustering.
+        X_now.append(list(candidates[index]))
+        y_now.append(value)
+    return chosen
 
 
 def _expected_improvement(mean: float, sigma: float, best: float) -> float:

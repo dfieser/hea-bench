@@ -372,7 +372,7 @@ always use, so every published number stays put.
 ## Uncertainty and domain of applicability
 
 `hea_bench.uncertainty` is the trust layer for anything fitted on the
-corpus. Split conformal prediction wraps any sklearn-style model with
+corpus. Conformal prediction wraps any sklearn-style model with
 sets or intervals carrying a distribution-free finite-sample coverage
 guarantee, and a domain-of-applicability model says whether that
 guarantee's exchangeability assumption plausibly holds for your query:
@@ -390,13 +390,14 @@ domain.novelty({"Hf": 0.2, "Nb": 0.2, "Ta": 0.2, "Ti": 0.2, "Zr": 0.2})
 The novelty output is several deliberately orthogonal signals plus one
 conservative `in_domain` flag, because the signals fail differently and
 a single scalar invites misreading. Empirical coverage of the conformal
-sets on the frozen grouped folds, in and out of domain, is measured in
+sets on unseen alloy systems, in and out of domain and by element
+count, is measured in
 [docs/uncertainty-coverage.md](docs/uncertainty-coverage.md). The
-measured pattern is worth internalizing: in this corpus the flagged
-out-of-domain queries are almost entirely far-from-HEA binaries the
-model handles confidently, while the residual risk concentrates in
-unseen families that look descriptor-close to the training data, so
-read the flag together with the set size rather than either alone.
+released phase sets calibrate by cross-validation over whole alloy
+systems, separately for alloys with fewer than four and with four or
+more elements, and their 90 percent sets cover 0.900 of unseen-system
+alloys on the single-phase task and 0.884 on the phase-structure task.
+Read the flag together with the set size rather than either alone.
 These tools describe this package's confidence about your composition
 on this corpus, nothing else.
 
@@ -476,14 +477,16 @@ campaign.suggest(n=5)     # each Suggestion prints its interval and domain flag
 campaign.save("my-campaign.json")
 ```
 
-The surrogate is a seeded random-forest ensemble whose uncertainty is
-tree disagreement (a model-disagreement band, deliberately not sold as
-a coverage guarantee), acquisition is expected improvement or UCB with
+The surrogate is a seeded random forest. Each suggestion carries a 90
+percent conformal interval set from the forest's out-of-bag errors, so
+calibration costs none of your measurements. Acquisition is expected
+improvement or UCB with
 batched picks via the believer heuristic, and hardness campaigns warm
 start from the Borg records inside your palette so the loop is useful
 before your tenth sample. Below 10 informative rows it refuses rather
-than pretending. A year-ordered replay of the loop on the
-Al-Co-Cr-Fe-Ni hardness record is reported honestly in
+than pretending. Two replays on the Borg hardness record, the loop
+against random selection with the intervals' coverage, and a
+year-ordered replay on Al-Co-Cr-Fe-Ni, are in
 [docs/campaign-replay.md](docs/campaign-replay.md).
 
 ## A note on Ω near ΔH<sub>mix</sub> ≈ 0

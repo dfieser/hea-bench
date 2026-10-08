@@ -150,8 +150,8 @@ def test_coverage_study_reproduces_the_published_table() -> None:
     study = coverage_study("single_vs_multi", alphas=(0.1,))
     overall = study["levels"][0]["groups"]["all"]
     assert study["n_rows"] == 7217
-    assert study["n_out_of_domain"] == 615
-    assert round(overall["coverage"], 3) == 0.882
+    assert study["n_out_of_domain"] == 581
+    assert round(overall["coverage"], 3) == 0.900
     assert len(overall["fold_coverage"]) == 5
 
 

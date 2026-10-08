@@ -32,16 +32,28 @@ from hea_bench.properties.borg import (  # noqa: E402
 )
 from hea_bench.properties.tier_a import density  # noqa: E402
 from hea_bench.uncertainty import ConformalRegressor  # noqa: E402
-from hea_bench.uncertainty.splitting import grouped_calibration_split  # noqa: E402
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 ALPHA = 0.1
 SEED = 0
 TREES = 300
+#: Measured hardness at or above this counts as hard in the coverage check.
+HARD_HV = 750
 
 
 def _hardness_study() -> dict:
+    """Nested cross-validation of the released procedure.
+
+    Outer folds hold out whole alloy systems. Inside each outer training
+    set, the interval is set exactly as ``hea_bench.properties.hardness``
+    sets it on all data: five-fold cross-validation over whole systems
+    gives the scores, and a forest refit on the whole training set makes
+    the predictions.
+    """
     from sklearn.ensemble import RandomForestRegressor
+
+    from hea_bench.properties.hardness import _fitted
+    from hea_bench.uncertainty.conformal import cross_val_scores
 
     records = hardness_records()
     usable, features = [], []
@@ -53,65 +65,65 @@ def _hardness_study() -> dict:
     families = [family_of(record.composition) for record in usable]
     values = [record.value for record in usable]
 
+    def make_forest():
+        return RandomForestRegressor(n_estimators=TREES, random_state=SEED, n_jobs=-1)
+
     scheme = grouped_split(families, ["x"] * len(usable), k=5)
     fold_mae, fold_cover, fold_width = [], [], []
     errors_all: list[float] = []
+    hard = [0, 0]
     for fold in scheme.folds:
-        proper, calibration = grouped_calibration_split(
-            [families[i] for i in fold.train], fraction=0.2, seed=SEED
+        train = list(fold.train)
+        inner = grouped_split([families[i] for i in train], ["x"] * len(train), k=5)
+        X_train = [features[i] for i in train]
+        y_train = [values[i] for i in train]
+        scores = cross_val_scores(
+            make_forest, X_train, y_train, [(list(f.train), list(f.test)) for f in inner.folds]
         )
-        train_ids = list(fold.train)
-        proper_ids = [train_ids[i] for i in proper]
-        calibration_ids = [train_ids[i] for i in calibration]
-        model = RandomForestRegressor(n_estimators=TREES, random_state=SEED)
-        model.fit([features[i] for i in proper_ids], [values[i] for i in proper_ids])
-        conformal = ConformalRegressor(model).fit_calibrate(
-            [features[i] for i in calibration_ids], [values[i] for i in calibration_ids]
-        )
-        predictions = model.predict([features[i] for i in fold.test])
-        # The interval is the calibrated threshold around each prediction
-        # already in hand; predict_interval would run the forest again on
-        # the same rows for the same numbers.
-        threshold = conformal._threshold(ALPHA)
-        intervals = [
-            (-math.inf, math.inf)
-            if threshold is None
-            else (float(p) - threshold, float(p) + threshold)
-            for p in predictions
-        ]
-        errors = [abs(float(p) - values[i]) for p, i in zip(predictions, fold.test)]
+        model = make_forest().fit(X_train, y_train)
+        threshold = ConformalRegressor(model).calibrate_scores(scores)._threshold(ALPHA)
+        half = math.inf if threshold is None else threshold
+        predictions = [float(p) for p in model.predict([features[i] for i in fold.test])]
+        hits = [abs(p - values[i]) <= half for p, i in zip(predictions, fold.test)]
+        errors = [abs(p - values[i]) for p, i in zip(predictions, fold.test)]
         errors_all.extend(errors)
         fold_mae.append(sum(errors) / len(errors))
-        fold_cover.append(
-            sum(
-                1
-                for (low, high), i in zip(intervals, fold.test)
-                if low <= values[i] <= high
-            )
-            / len(fold.test)
-        )
-        fold_width.append(
-            sum(high - low for low, high in intervals if math.isfinite(high - low))
-            / len(intervals)
-        )
+        fold_cover.append(sum(hits) / len(hits))
+        fold_width.append(2 * half)
+        for hit, i in zip(hits, fold.test):
+            if values[i] >= HARD_HV:
+                hard[0] += hit
+                hard[1] += 1
 
     processing_mix: dict[str, int] = {}
     for record in usable:
         key = record.processing or "(unrecorded)"
         processing_mix[key] = processing_mix.get(key, 0) + 1
 
+    _model, released, _domain, _n = _fitted(None)
     return {
         "n_records": len(records),
         "n_usable": len(usable),
         "n_families": len(set(families)),
+        "n_compositions": len(
+            {
+                tuple(sorted((element, round(x, 4)) for element, x in record.composition.items()))
+                for record in usable
+            }
+        ),
         "hv_min": min(values),
         "hv_max": max(values),
         "processing_mix": dict(sorted(processing_mix.items(), key=lambda kv: -kv[1])),
         "mae_mean": statistics.mean(fold_mae),
         "mae_se": standard_error(fold_mae),
         "median_abs_error": statistics.median(errors_all),
-        "coverage_mean": statistics.mean(fold_cover),
+        "coverage": sum(cover * len(fold.test) for cover, fold in zip(fold_cover, scheme.folds))
+        / len(usable),
+        "coverage_se": standard_error(fold_cover),
+        "hard_covered": hard[0],
+        "hard_n": hard[1],
         "width_mean": statistics.mean(fold_width),
+        "released_half_width": released._threshold(ALPHA),
     }
 
 
@@ -160,11 +172,15 @@ def main() -> int:
         f"deposit mirrored in `data/raw/borg2020/`). {hardness['n_records']} "
         f"unique (formula, processing) alloys carry a near-room-temperature "
         f"Vickers hardness after the loader rules (median over repeat "
-        f"measurements, test temperature at most 35 C); "
+        f"measurements, test temperature at most 35 C). "
         f"{hardness['n_usable']} of them are fully descriptor-scorable and "
-        f"form the training population, spanning {hardness['n_families']} "
-        f"alloy families and HV {hardness['hv_min']:.0f} to "
-        f"{hardness['hv_max']:.0f}.",
+        f"form the training population: {hardness['n_compositions']} distinct "
+        f"compositions in {hardness['n_families']} alloy systems, HV "
+        f"{hardness['hv_min']:.0f} to {hardness['hv_max']:.0f}. A composition "
+        f"measured after two processing routes is two rows, and the model "
+        f"pools them, so processing is part of the scatter the interval "
+        f"absorbs. Both rows always share a cross-validation fold, because "
+        f"folds hold whole systems.",
         "",
         "Processing mix of the training population (pooled by default, "
         "conditionable via `processing=`):",
@@ -179,31 +195,39 @@ def main() -> int:
         "## Model and held-out error",
         "",
         f"Random forest ({TREES} trees, seed {SEED}) on the package's 14 "
-        f"matrix descriptors, evaluated by family-grouped five-fold cross "
-        f"validation (whole alloy families held out, the extrapolative "
-        f"protocol), with a family-grouped 20 percent calibration split "
-        f"inside each training fold for the conformal interval.",
+        f"matrix descriptors. The released model trains on every alloy, and "
+        f"its 90 percent interval is the prediction plus or minus "
+        f"{hardness['released_half_width']:.0f} HV, the conformal threshold "
+        f"of its own five-fold cross-validation errors over whole alloy "
+        f"systems. The table tests that procedure by nested cross-validation. "
+        f"Each of five outer folds holds out whole systems, and the interval "
+        f"is set inside the remaining four exactly as the released model sets "
+        f"it on all data.",
         "",
         "| quantity | value |",
         "|---|---:|",
-        f"| grouped CV mean absolute error | {hardness['mae_mean']:.0f} HV "
+        f"| held-out mean absolute error | {hardness['mae_mean']:.0f} HV "
         f"(fold-to-fold standard error {hardness['mae_se']:.0f}) |",
-        f"| grouped CV median absolute error | {hardness['median_abs_error']:.0f} HV |",
-        f"| conformal interval empirical coverage (nominal 90%) | "
-        f"{hardness['coverage_mean']:.3f} |",
-        f"| mean interval width at alpha 0.1 | {hardness['width_mean']:.0f} HV |",
+        f"| held-out median absolute error | {hardness['median_abs_error']:.0f} HV |",
+        f"| interval coverage, every alloy (nominal 90%) | "
+        f"{hardness['coverage']:.3f} (fold-to-fold standard error "
+        f"{hardness['coverage_se']:.3f}) |",
+        f"| interval coverage, alloys of {HARD_HV} HV or harder | "
+        f"{hardness['hard_covered'] / hardness['hard_n']:.3f} "
+        f"({hardness['hard_covered']} of {hardness['hard_n']}) |",
+        f"| mean interval width in the nested study | {hardness['width_mean']:.0f} HV |",
+        f"| released interval width | {2 * hardness['released_half_width']:.0f} HV |",
         "",
         "## What this error does and does not support",
         "",
-        f"A mean absolute error near {hardness['mae_mean']:.0f} HV against a "
-        f"range of roughly 1100 HV supports coarse screening: separating "
-        f"soft solid-solution regimes from hard ones, triaging a palette "
-        f"before synthesis. It does not support ranking candidates whose "
-        f"predicted hardness differs by less than roughly the interval "
-        f"width above, and the API's intervals are wide exactly so that "
-        f"such pairs visibly overlap. The training data pools processing "
-        f"routes; conditioning on one route is available and shrinks the "
-        f"population (the floor refuses below {50} alloys).",
+        f"The interval is a screening tool. Two alloys whose predictions "
+        f"differ by more than the released width, "
+        f"{2 * hardness['released_half_width']:.0f} HV, have intervals that do "
+        f"not overlap, which is enough to triage a palette before synthesis. "
+        f"Candidates closer than that are not ranked by this model, and the "
+        f"API's intervals overlap visibly for such pairs. Conditioning on one "
+        f"processing route is available and shrinks the population (the "
+        f"floor refuses below {50} alloys).",
         "",
         "## Deliberately not shipped",
         "",

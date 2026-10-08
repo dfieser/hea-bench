@@ -1,6 +1,7 @@
 """Tests for the active-learning campaign loop."""
 
 import json
+import math
 
 import pytest
 
@@ -78,6 +79,13 @@ def test_warm_start_reaches_the_floor_without_user_data() -> None:
         key = tuple(sorted(suggestion.composition.items()))
         assert key not in seen
         seen.add(key)
+
+
+def test_suggestions_share_one_calibrated_interval_width() -> None:
+    pytest.importorskip("sklearn")
+    widths = {round(s.interval[1] - s.interval[0], 9) for s in _campaign().suggest(n=3)}
+    assert len(widths) == 1
+    assert math.isfinite(widths.pop())
 
 
 def test_suggestion_repr_carries_interval_and_domain() -> None:

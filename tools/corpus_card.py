@@ -83,9 +83,13 @@ HARMONIZATION = """\
   label. Nothing votes. Conflict rows stay in the CSV for anyone who
   wants to study the disagreement itself and are excluded from the
   benchmark projection.
-- **Per-source dedup**: each loader deduplicates internally (Borg on
-  (formula, processing) with phase agreement checked) before
-  consolidation.
+- **Per-source dedup**: each loader drops exact repeats before
+  consolidation and keeps the first row (Borg on formula and processing
+  together, Pei and Peivaste on the formula string). A source can still
+  list one composition more than once, under several Borg processing
+  routes or under differently written Peivaste formulas. Its first
+  record in file order then sets that source's label, and the label
+  policy above compares sources on that label.
 - **Raw labels**: every source's reported phase string is preserved
   verbatim in `<source>_raw_label`, so any harmonized label can be
   audited against what the upstream actually said without leaving the
@@ -97,9 +101,15 @@ LIMITATIONS = """\
 
 - **Composition does not fix phase.** The join key deliberately ignores
   processing, so an as-cast and an annealed report of one composition
-  merge; when they disagree on phase the row is quarantined as a
-  conflict. Users studying processing effects should start from the raw
-  Borg data, which keeps the states separate.
+  merge, and the first of them in Borg's file sets Borg's label. Users
+  studying processing effects should start from the raw Borg data,
+  which keeps the states separate.
+- **A source's repeated records are not checked against each other.**
+  When repeated records of one composition in one source disagree, the
+  first record decides, where a disagreement between sources would
+  quarantine the row. This decides the label of 59 consensus-labelled
+  rows in v0.1.0 and 49 in v0.2.0. Both versions are frozen, so they
+  keep the rule and their digests.
 - **The conflict quarantine removes contested chemistry.** Excluded
   conflict rows are not random: heavily studied systems are more likely
   to accumulate disagreeing reports.

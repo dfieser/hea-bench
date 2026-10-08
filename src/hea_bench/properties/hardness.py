@@ -1,14 +1,17 @@
 """Tier B hardness surrogate over the Borg room-temperature HV records.
 
 The model is deliberately unexciting: the baseline random forest
-(300 trees, seed 0) on this package's own 14 descriptors, wrapped in a
-split conformal regressor calibrated on a family-grouped hold-out so
-the interval is not narrowed by stoichiometric near-duplicates, plus a
-domain model fitted on the same training compositions. Its job is a
-screening estimate with an honest interval, not a hardness theory; the
-held-out error and the processing-state mix are in the model card,
-``docs/property-hardness.md``, and whether the interval supports
-ranking close candidates is stated there rather than implied.
+(300 trees, seed 0) on this package's own 14 descriptors, trained on
+every usable alloy, plus a domain model fitted on the same
+compositions. The conformal interval's half-width comes from the errors
+of five-fold cross-validation that holds out whole alloy systems, so
+every alloy calibrates, the interval is not narrowed by stoichiometric
+near-duplicates, and it describes the error on systems the model has
+not seen. Its job is a screening estimate with an honest interval, not
+a hardness theory; the held-out error and the processing-state mix are
+in the model card, ``docs/property-hardness.md``, and whether the
+interval supports ranking close candidates is stated there rather than
+implied.
 
 Everything is fitted on demand per process (seeded, cached), because
 shipping a pickled model would freeze a scikit-learn version into the
@@ -24,7 +27,7 @@ from ..composition import Composition, accepts_formula, family_of, normalize
 from ..descriptors.backend import matrix_vector
 from ..uncertainty import ConformalRegressor, fit_domain
 from ..uncertainty.applicability import DomainRow
-from ..uncertainty.splitting import grouped_calibration_split
+from ..uncertainty.conformal import cross_val_scores
 from .borg import hardness_records
 
 #: Below this many usable training alloys the model refuses to exist.
@@ -32,7 +35,8 @@ N_MIN = 50
 
 _SEED = 0
 _TREES = 300
-_CALIBRATION_FRACTION = 0.2
+#: Cross-validation folds that set the interval, whole systems per fold.
+_FOLDS = 5
 
 
 class PropertyUnavailableError(RuntimeError):
@@ -86,15 +90,28 @@ def _fit(processing: str | None, random_forest_cls):
             f"the fit is close to guessing, so it refuses rather than pretends."
         )
 
+    from .._model_cache import FOREST_JOBS
+    from ..benchmark.splits import grouped_split
+
     families = [family_of(record.composition) for record in usable]
-    proper, calibration = grouped_calibration_split(
-        families, fraction=_CALIBRATION_FRACTION, seed=_SEED
-    )
-    model = random_forest_cls(n_estimators=_TREES, random_state=_SEED)
-    model.fit([features[i] for i in proper], [usable[i].value for i in proper])
-    conformal = ConformalRegressor(model).fit_calibrate(
-        [features[i] for i in calibration], [usable[i].value for i in calibration]
-    )
+    values = [record.value for record in usable]
+    if len(set(families)) < _FOLDS:
+        subset = f"processing={processing!r}" if processing else "the pooled set"
+        raise PropertyUnavailableError(
+            f"the hardness interval is calibrated by {_FOLDS}-fold cross-validation over "
+            f"whole alloy systems, and {subset} spans only {len(set(families))} systems"
+        )
+    folds = [
+        (list(fold.train), list(fold.test))
+        for fold in grouped_split(families, ["x"] * len(usable), k=_FOLDS).folds
+    ]
+
+    def make_forest():
+        return random_forest_cls(n_estimators=_TREES, random_state=_SEED, n_jobs=FOREST_JOBS)
+
+    scores = cross_val_scores(make_forest, features, values, folds)
+    model = make_forest().fit(features, values)
+    conformal = ConformalRegressor(model).calibrate_scores(scores)
     domain = fit_domain(
         [DomainRow(record.composition, family) for record, family in zip(usable, families)]
     )

@@ -160,6 +160,9 @@ def test_predict_phase_set_batches_and_reports_per_entry_errors() -> None:
     assert set(good["prediction_set"]) <= {"single-phase", "multi-phase"}
     assert good["prediction_set"]
     assert isinstance(good["in_domain"], bool)
+    # Five elements: calibrated on the four-or-more group's scores only.
+    assert 0 < good["n_calibration"] < good["n_training"]
+    assert "cross-validation" in good["model"]
     assert "descriptor" in bad["error"]
     with pytest.raises(ValueError, match="phase4"):
         predict_phase_set(["CoCrFeMnNi"], task="phase9")

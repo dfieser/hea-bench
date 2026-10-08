@@ -3,8 +3,9 @@
 Two ingredients, designed to be read together:
 
 - :mod:`~hea_bench.uncertainty.conformal` wraps any fitted model with
-  split conformal prediction sets or intervals carrying a
-  distribution-free finite-sample coverage guarantee.
+  conformal prediction sets or intervals carrying a distribution-free
+  finite-sample coverage guarantee, calibrated on a held-out split or
+  by cross-validation, pooled or per group.
 - :mod:`~hea_bench.uncertainty.applicability` reports whether a query
   composition sits inside the region the corpus actually covers, as
   several orthogonal novelty signals plus one conservative ``in_domain``
