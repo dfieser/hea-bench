@@ -10,6 +10,8 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.9.0] — 2026-10-08
+
 ### Changed
 
 - The Peivaste phase dataset, the corpus's largest source, ships with

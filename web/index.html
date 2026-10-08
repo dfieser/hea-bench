@@ -4793,6 +4793,7 @@
       const VERSION = "2.9.0";
       const VERSION_DATE = "2026-10-08";
       const VERSION_HISTORY = [
+        { version: "2.9.0", date: "2026-10-08", notes: "Bump to 2.9.0: every source dataset ships, so the corpus builds offline; Ship the Peivaste dataset in every part, with no download" },
         { version: "2.8.0", date: "2026-10-08", notes: "Predict on one thread so a prediction never changes between calls; Let the preflight pass a version bump and print why a check failed; Calibrate every interval on errors from unseen alloy systems" },
         { version: "2.7.3", date: "2026-10-06", notes: "Ship the exe again, and fix the Sangiovanni 2021 volume; Pass the exe's browser arguments by machine policy when elevated; Probe the exe's DevTools port three ways on GitHub runners; Diagnose the exe smoke on GitHub runners" },
         { version: "2.7.2", date: "2026-10-06", notes: "Fix the landing page's dataset count and docs left stale by 2.7.0" },
