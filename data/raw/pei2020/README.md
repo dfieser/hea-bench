@@ -60,8 +60,9 @@ Two columns, 1,252 data rows + 1 header.
 - **Coarse label set.** Pei collapses everything non-single-phase into
   `multi-phase`, with no distinction between dual-phase solid solutions
   (FCC+BCC), intermetallics, or amorphous phases. This label set is
-  *coarser* than Borg 2020's labels (which expose IM, AM, etc. via the
-  full Microstructure column) and *much* coarser than Peivaste's
+  *coarser* than Borg 2020's labels (whose full Microstructure column
+  names the phases, such as `BCC+Laves`, `BCC+B2` and `FCC+L12`) and
+  *much* coarser than Peivaste's
   12-category set. When consolidating, Pei's `multi-phase` maps cleanly
   to `other` in Borg's simplified column or to the union of
   {IM, AM, BCC+FCC, …} in Peivaste.
@@ -77,10 +78,13 @@ Two columns, 1,252 data rows + 1 header.
 ## Why this dataset is worth pulling
 
 - **Pedigree.** Pei *et al.* is one of the most-cited HEA ML papers
-  (~600 citations as of 2026). Reviewers will look for it in any
-  consolidated benchmark.
-- **Author curation.** 1,252 alloys hand-curated by the ORNL group from
-  primary literature, so quality is high.
+  (228 citations in OpenAlex as of November 2026). Reviewers will look
+  for it in any consolidated benchmark.
+- **Literature compilation.** The paper attributes its 1,252 alloys to
+  the survey in Gao *et al.* (2017), *Curr. Opin. Solid State Mater.
+  Sci.* **21**, 238, and to its own supplementary data. Four of the five
+  authors are at the National Energy Technology Laboratory, and one is
+  at Oak Ridge National Laboratory.
 - **Cross-verification.** Where Borg, Peivaste, and Pei agree on the
   phase of a composition, confidence is high. Where they disagree, that
   composition is flagged for review during consolidation.

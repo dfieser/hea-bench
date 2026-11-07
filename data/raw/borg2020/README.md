@@ -90,8 +90,9 @@ analyses that need finer granularity than 3-class.
     {dual-phase SS, intermetallic, mixed} using the full
     `PROPERTY: Microstructure` column to become comparable with
     Peivaste's finer labels.
-  - Borg has no `AM` (amorphous) class, while Peivaste/Pei do. Borg's
-    amorphous-forming alloys are buried in `other`.
+  - Borg has no `AM` (amorphous) class, and neither does Pei. Only
+    Peivaste labels amorphous alloys (`AM`, `FCC+AM`, `BCC+AM` and
+    `BCC+FCC+AM`).
 
 ## Why this dataset is worth being the backbone
 
