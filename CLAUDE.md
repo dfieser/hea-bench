@@ -84,6 +84,18 @@
   legal way to change it is `python tools/version.py --set X.Y.Z`.
 - NEVER touch the GitHub↔Zenodo integration. It can irreversibly fork
   the concept DOI. See `RELEASING.md` for everything about releases.
+- **No em dash and no semicolon in public text, ever (owner rule,
+  2026-11-07).** This covers documents, the CHANGELOG, commit messages,
+  GitHub release notes, the app's text, MCP tool descriptions,
+  docstrings, warnings and errors. Run the ai-writing-cleanup skill on
+  any new public text. ENFORCED: `tests/test_public_text_style.py`
+  fails CI on either mark, the `commit-msg` hook refuses a commit
+  message with one, and the preflight checks the unpushed commit
+  messages and the CHANGELOG `[Unreleased]` section.
+  `tools/autorelease.py` writes the release notes and the app's
+  What's-new entries as plain sentences. Fix a hit by rewriting the
+  sentence with a period, comma or colon. The test's `VERBATIM` list is
+  only for quotations, such as a paper title.
 - **No AI attribution, anywhere, ever.** Never add a `Co-Authored-By`
   trailer naming an AI or agent, and never list one as an author,
   contributor, creator, or reviewer in commit messages, `CITATION.cff`,

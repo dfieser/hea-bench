@@ -6,11 +6,11 @@ never uses an em dash or a semicolon. Version logs in particular never
 carry either mark. This test makes the rule mechanical. It reads:
 
 - the Markdown and text documents, with code blocks, inline code, URLs and
-  HTML entities skipped, since they are not prose;
+  HTML entities skipped, since they are not prose.
 - the prose fields of the publishing metadata (PyPI, the MCP registry,
-  Zenodo, Glama);
+  Zenodo, Glama).
 - web/index.html: page text, user-facing attributes and the What's-new
-  history, with math inside \\( \\) and \\[ \\] skipped (LaTeX uses \\;);
+  history, with LaTeX math skipped, since LaTeX spacing uses the mark.
 - every string literal in src/hea_bench, docstrings included, and in the
   web app's scripts.
 
