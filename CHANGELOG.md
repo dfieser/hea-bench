@@ -10,6 +10,12 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.9.1] — 2026-11-07
+
+### Changed
+
+- Cut duplicated bridge code and archive shipped plan docs
+
 ## [2.9.0] — 2026-10-08
 
 ### Changed
