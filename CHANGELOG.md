@@ -10,6 +10,8 @@ The format loosely follows
 
 ## [Unreleased]
 
+## [2.9.3] - 2026-11-07
+
 ### Changed
 
 - Public text in every part of hea-bench is now free of em dashes and

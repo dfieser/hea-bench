@@ -1817,7 +1817,7 @@
       .rail-resizer:focus-visible { outline: none; }
       body.is-resizing { cursor: col-resize; user-select: none; -webkit-user-select: none; }
     </style>
-    <link rel="stylesheet" href="hea-features.css?v=2.9.2">
+    <link rel="stylesheet" href="hea-features.css?v=2.9.3">
 
     <script>
       window.MathJax = {
@@ -4788,11 +4788,12 @@
       </footer>
     </div>
 
-    <script src="hea-calculator-core.js?v=2.9.2"></script>
+    <script src="hea-calculator-core.js?v=2.9.3"></script>
     <script>
-      const VERSION = "2.9.2";
+      const VERSION = "2.9.3";
       const VERSION_DATE = "2026-11-07";
       const VERSION_HISTORY = [
+        { version: "2.9.3", date: "2026-11-07", notes: "Rewrite all public text without em dashes or semicolons, and enforce it." },
         { version: "2.9.2", date: "2026-11-07", notes: "Drop five unused verdict thresholds from the browser core." },
         { version: "2.9.1", date: "2026-11-07", notes: "Cut duplicated bridge code and archive shipped plan docs." },
         { version: "2.9.0", date: "2026-10-08", notes: "Bump to 2.9.0: every source dataset ships, so the corpus builds offline. Ship the Peivaste dataset in every part, with no download." },
@@ -8905,7 +8906,7 @@
         openFromHash();
       })();
     </script>
-    <script src="hea-engine.js?v=2.9.2"></script>
-    <script src="hea-features.js?v=2.9.2"></script>
+    <script src="hea-engine.js?v=2.9.3"></script>
+    <script src="hea-features.js?v=2.9.3"></script>
 
 </body></html>
