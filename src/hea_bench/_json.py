@@ -13,8 +13,8 @@ def json_safe(value):
     output that strict parsers and MCP clients reject. Divergent
     descriptor values (singh_lambda at delta = 0, the King Phi proxy
     when no binary intermetallic competes) are therefore nulled at the
-    serialization boundary; the caller decides whether to attach a
-    warning explaining the divergence.
+    serialization boundary. The caller decides whether to attach a
+    warning that explains the divergence.
     """
     if isinstance(value, float) and not math.isfinite(value):
         return None

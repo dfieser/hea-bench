@@ -15,9 +15,9 @@ states and records a warning.
 
 When several assignments balance, the tie is broken deterministically:
 prefer charge-uniform sublattices (the moles-weighted variance of the
-states within each ``groups`` label is minimized first — aliovalent
-mixing on one site is the exception in oxide chemistry, not the
-default), then more-common states, then assignments that put lower
+states within each ``groups`` label is minimized first, because
+aliovalent mixing on one site is the exception in oxide chemistry, not
+the default), then more-common states, then assignments that put lower
 charges on more electronegative elements, then lexicographic order.
 Pass ``allowed`` to pin any element's state explicitly and skip the
 heuristics.
@@ -61,9 +61,9 @@ def assign_oxidation_states(
     Parameters
     ----------
     moles
-        Element -> moles per formula unit (cation amounts; need not be
-        normalized, but the charge balance is computed on these values
-        as given).
+        Element -> moles per formula unit of each cation. The amounts
+        need not be normalized, but the charge balance is computed on
+        these values as given.
     target_charge
         Total positive charge required per formula unit (e.g. ``+6``
         for ABO3, ``2 * oxygen`` for an MO_x oxide).
@@ -112,8 +112,8 @@ def assign_oxidation_states(
             n_combos *= len(c)
         if n_combos > _MAX_COMBINATIONS:
             raise ValueError(
-                f"oxidation-state search space too large ({n_combos} combinations); "
-                f"pin states for some elements via `allowed`"
+                f"oxidation-state search space too large ({n_combos} combinations). "
+                f"Pin states for some elements via `allowed`"
             )
         return [
             combo
@@ -128,8 +128,8 @@ def assign_oxidation_states(
         solutions = solve(widened_lists)
         if solutions:
             warnings.append(
-                "no charge-neutral assignment using only common oxidation states; "
-                "a less common state was used"
+                "no charge-neutral assignment uses only common oxidation states, "
+                "so a less common state was used"
             )
     if not solutions:
         best = min(
@@ -138,7 +138,7 @@ def assign_oxidation_states(
         )
         raise ValueError(
             f"no oxidation-state assignment reaches total charge {target_charge:+g} "
-            f"(closest achievable: {best:+g}); check the composition, the oxygen "
+            f"(closest achievable: {best:+g}). Check the composition, the oxygen "
             f"content, or pass explicit states via `allowed`"
         )
 
@@ -166,7 +166,7 @@ def assign_oxidation_states(
     chosen = min(solutions, key=score)
     if len(solutions) > 1:
         warnings.append(
-            f"{len(solutions)} charge-neutral assignments exist; chose the most "
-            f"charge-uniform, most common one (pass `allowed` to override)"
+            f"{len(solutions)} charge-neutral assignments exist. The most "
+            f"charge-uniform, most common one was chosen (pass `allowed` to override)"
         )
     return dict(zip(elements, chosen)), warnings

@@ -10,8 +10,8 @@ VEC bounds to predicted crystal structure:
 - VEC < 6.87  → single-phase BCC likely
 - otherwise    → mixed FCC+BCC region
 
-This module computes only the value; the rule is implemented in
-``hea_bench.rules.guo_vec`` (Phase 2 sub-step 2d).
+This module computes only the value. ``hea_bench.rules.guo_vec``
+implements the rule (Phase 2 sub-step 2d).
 
 References
 ----------

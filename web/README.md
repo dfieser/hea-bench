@@ -60,7 +60,7 @@ built exe before it is attached to a release.
   rule, oxide, ceramics, tier A property and Ω-sensitivity code. It is
   instant and works even from `file://`. Its data tables are GENERATED
   from the Python library by `tests/data/_sync_js_tables.py` and
-  `tests/data/_sync_js_oxide_tables.py`; never hand-edit those blocks.
+  `tests/data/_sync_js_oxide_tables.py`. Never hand-edit those blocks.
   Parity: `tests/test_web_parity.py`, `tests/test_web_oxides_parity.py`,
   `tests/test_web_properties_parity.py`, `tests/test_web_miedema.py`.
 - `hea-engine-worker.js` runs the **real `hea_bench` Python package**,

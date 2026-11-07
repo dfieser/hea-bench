@@ -1278,7 +1278,7 @@
       .statusbar .sb-sep { color: var(--text-muted-2); }
 
       /* ============================================================
-         DOCUMENTATION VIEWS — Theory (docs) + Equations (reference).
+         DOCUMENTATION VIEWS: Theory (docs) + Equations (reference).
          Styled to read like an app's built-in docs viewer, not an
          academic article: sans body, sticky section nav, admonition
          callouts, code-like equation blocks, a filterable card grid.
@@ -1577,7 +1577,7 @@
       }
 
       /* ============================================================
-         CALM PASS — fewer nested boxes, quieter secondary actions,
+         CALM PASS: fewer nested boxes, quieter secondary actions,
          a real empty state, and a draggable rail divider.
          ============================================================ */
 
@@ -2309,9 +2309,9 @@
             <span class="doi"><a href="https://doi.org/10.5281/zenodo.20346287">doi:10.5281/zenodo.20346287</a></span>
           </p>
           <p>
-            The primary sources behind every parametrization are listed in the
-            <a href="#refs">References</a> view and in
-            <a href="https://github.com/dfieser/hea-bench/blob/main/CITATION.cff">CITATION.cff</a>.
+            The <a href="#refs">References</a> view and
+            <a href="https://github.com/dfieser/hea-bench/blob/main/CITATION.cff">CITATION.cff</a>
+            list the primary sources behind every parametrization.
             Please also cite the ones you rely on.
           </p>
         </div>
@@ -2715,8 +2715,8 @@
           <div class="callout note">
             <span class="callout-title">Caveat</span>
             <p>
-              \(\Delta S_{\mathrm{mix}}\) here is purely <em>configurational</em>. Vibrational,
-              electronic, and magnetic entropy are ignored. Their combined size can exceed the
+              \(\Delta S_{\mathrm{mix}}\) here is purely <em>configurational</em> and leaves out
+              vibrational, electronic, and magnetic entropy. Their combined size can exceed the
               configurational term above the Debye temperature (Ma, Eisenbach &amp; Yan, 2015). The
               1.5&thinsp;\(R\) cut-off is a convention, not a thermodynamic boundary.
             </p>
@@ -2734,13 +2734,13 @@
               \delta \;=\; 100\,\sqrt{\,\sum_i c_i\!\left(1 - \frac{r_i}{\bar r}\right)^{\!2}\,}\;\;(\%)\]
           </div>
           <p>
-            \(\delta\) has no thermodynamic units. It is a geometric quantity. It tracks the elastic
+            \(\delta\) is a geometric quantity with no thermodynamic units. It tracks the elastic
             strain stored in a substitutional lattice when atoms of different sizes share the same
             site. Eshelby's (1957) inclusion model gives the underlying physics. A misfitting sphere
             of radius \(r_i\) in a matrix of radius \(\bar r\) carries a strain energy
-            \(\propto (1 - r_i/\bar r)^2\). Across the HEA database, single-phase solid solutions
-            are observed almost exclusively at \(\delta \lesssim 6.5\,\%\), as documented by Zhang
-            <em>et al.</em> (2008) and Guo &amp; Liu (2011).
+            \(\propto (1 - r_i/\bar r)^2\). Across the HEA database, Zhang
+            <em>et al.</em> (2008) and Guo &amp; Liu (2011) found single-phase solid solutions
+            almost exclusively at \(\delta \lesssim 6.5\,\%\).
           </p>
 
           <h3 id="sec-vec"><span class="sec-num">04</span>Valence electron concentration</h3>
@@ -2883,8 +2883,8 @@
             \(\Delta H_{ij} \equiv \Delta H_{AB}^{\mathrm{mix}}(c_A = c_B = \tfrac{1}{2})\) is the
             <em>equiatomic</em> binary mixing enthalpy. The factor of 4 absorbs the relation
             \(\Omega_{AB} = 4\,\Delta H_{AB}^{\mathrm{mix}}\), which follows from
-            \(\Delta H^{\mathrm{reg}}(\tfrac{1}{2},\tfrac{1}{2}) = \tfrac{1}{4}\Omega_{AB}\). Each
-            pair is counted once (\(i < j\)). Ternary and higher-order interactions are ignored.
+            \(\Delta H^{\mathrm{reg}}(\tfrac{1}{2},\tfrac{1}{2}) = \tfrac{1}{4}\Omega_{AB}\). The
+            sum counts each pair once (\(i < j\)) and ignores ternary and higher-order interactions.
           </p>
           <p>
             Within Miedema, the equiatomic chemical mixing enthalpy comes from inserting
@@ -2896,9 +2896,9 @@
           </div>
           <p>
             The \(\Delta H_{ij}\) values used for \(\Delta H_{\mathrm{mix}}\) come from a fixed,
-            vendored Miedema pair table (Matminer-derived; 1484 of the 1485 binary pairs of the 55 supported
-            elements, the lone Th&ndash;U gap reported rather than zeroed). It is the same table the Python library uses, kept in lock-step by a parity
-            test. A manual-override field lets you substitute validated literature values per pair,
+            vendored Miedema pair table derived from matminer. The table covers 1484 of the 1485 binary pairs of the 55 supported
+            elements and reports the lone Th&ndash;U gap rather than zeroing it. The Python library uses the same table, and a parity
+            test keeps the two in lock-step. A manual-override field lets you substitute validated literature values per pair,
             for example the integer table of Takeuchi &amp; Inoue (2005).
           </p>
           <div class="callout note">
@@ -2908,12 +2908,12 @@
               \(\Delta H_{ij}\) is the equiatomic binary value, so an equiatomic binary reduces to
               \(\Delta H_{\mathrm{mix}} = \Delta H_{ij}\) with no double counting. Absolute
               \(\Delta H_{\mathrm{mix}}\) values nevertheless depend on <em>which</em> Miedema
-              parametrization supplies the pair table; published compilations disagree most on
+              parametrization supplies the pair table. Published compilations disagree most on
               <strong>Mn</strong>, whose Miedema parameters are assigned inconsistently across
               sources. Because \(\Omega = \bar T_m\,\Delta S_{\mathrm{mix}} / |\Delta H_{\mathrm{mix}}|\)
               diverges as \(\Delta H_{\mathrm{mix}} \to 0\), \(\Omega\) is extremely sensitive for
-              near-ideal alloys (\(|\Delta H_{\mathrm{mix}}| \lesssim 1\text{--}2\;\mathrm{kJ\,mol^{-1}}\)):
-              a few-kJ shift in one pair value can move \(\Omega\) by an order of magnitude, so read
+              near-ideal alloys (\(|\Delta H_{\mathrm{mix}}| \lesssim 1\text{--}2\;\mathrm{kJ\,mol^{-1}}\)).
+              A few-kJ shift in one pair value can move \(\Omega\) by an order of magnitude, so read
               it qualitatively in that regime.
             </p>
           </div>
@@ -3056,8 +3056,8 @@
           <p>
             with \(\beta \approx 3.5\;\mathrm{J\,mol^{-1}\,K^{-1}}\) (Bakker, 1998). The topological
             term reflects an empirical observation. The enthalpy difference between an amorphous
-            and a crystalline metal scales linearly with melting temperature, because both are
-            controlled by the cohesive energy. \(\Delta H_{\mathrm{topo}}\) is always positive.
+            and a crystalline metal scales linearly with melting temperature, because the
+            cohesive energy controls both. \(\Delta H_{\mathrm{topo}}\) is always positive.
             Amorphisation is energetically unfavourable without a chemical driving force.
           </p>
           <p>
@@ -3086,13 +3086,13 @@
               phase is favoured.</li>
             <li><em>Tsai <em>et&nbsp;al.</em> (2013).</em> In annealed alloys containing Cr and/or
               V, the topologically close-packed &sigma; phase precipitates when
-              \(6.88 \leq \mathrm{VEC} \leq 7.84\); outside the window it generally does not. The
+              \(6.88 \leq \mathrm{VEC} \leq 7.84\). Outside the window it generally does not. The
               rule says nothing about alloys without Cr or V, and the calculator reports it as
               not applicable there.</li>
             <li><em>Sheikh <em>et&nbsp;al.</em> (2016).</em> Among single-phase bcc refractory
               HEAs, \(\mathrm{VEC} < 4.5\) marks the intrinsically ductile alloys and
-              \(\mathrm{VEC} \geq 4.6\) the brittle ones. Read it together with the Guo bands; it
-              is a screen for bcc refractory chemistry, not a universal ductility predictor.</li>
+              \(\mathrm{VEC} \geq 4.6\) the brittle ones. Read it together with the Guo bands. The
+              rule is a screen for bcc refractory chemistry, not a universal ductility predictor.</li>
           </ul>
           <p>
             No single parameter is reliable on its own: the canonical practice is to read
@@ -3100,7 +3100,7 @@
             only after a solid-solution verdict (Pickering &amp; Jones, 2016). The calculator's
             phase-selection maps draw exactly these joint windows with the current alloy plotted,
             and every verdict card reports its margin so borderline calls are visible. Empirical
-            screens are the start of an assessment; CALPHAD or DFT remain the confirmation step.
+            screens start an assessment. CALPHAD or DFT remain the confirmation step.
           </p>
 
           <h3 id="sec-geometry"><span class="sec-num">13</span>Geometric packing parameters &Lambda; and &gamma;</h3>
@@ -3114,8 +3114,8 @@
             with \(\delta\) in percent. Surveying known alloys they found \(\Lambda > 0.96\) for
             single disordered solid solutions, \(0.24 \leq \Lambda \leq 0.96\) for mixtures of
             solutions and compounds, and \(\Lambda < 0.24\) when compounds dominate. Two elements
-            with identical tabulated radii give \(\delta = 0\) and an unbounded \(\Lambda\); the
-            calculator reports it as such rather than truncating.
+            with identical tabulated radii give \(\delta = 0\) and an unbounded \(\Lambda\). The
+            calculator reports the unbounded value rather than truncating it.
           </p>
           <p>
             Wang <em>et&nbsp;al.</em> (2015) instead asked how much solid angle a neighbour of
@@ -3127,7 +3127,7 @@
             = 1 - \sqrt{\frac{(r_c + \bar r)^2 - \bar r^{\,2}}{(r_c + \bar r)^2}}.\]</div>
           <p>
             The ratio \(\gamma = \omega_{\mathrm{S}}/\omega_{\mathrm{L}}\) equals 1 for equal
-            radii and grows with mismatch; their alloy survey places the crystalline
+            radii and grows with mismatch. Their alloy survey places the crystalline
             solid-solution ceiling at \(\gamma < 1.175\), a modern restatement of the
             Hume&ndash;Rothery 15&nbsp;% rule for multicomponent packing.
           </p>
@@ -3147,14 +3147,14 @@
             < k_1^{\mathrm{cr}}(T) = 1 +
             \frac{(1 - k_2)\,T\,\Delta S_{\mathrm{mix}}}{\left|\Delta H_{\mathrm{mix}}\right|},\]</div>
           <p>
-            where the \((1-k_2)\) factor multiplies the temperature term; deriving the inequality
+            where the \((1-k_2)\) factor multiplies the temperature term. Deriving the inequality
             from the Gibbs comparison fixes the typography ambiguity found in some restatements.
             The calculator evaluates the verdict from the direct Gibbs comparison, which stays
             well defined when \(\Delta H_{\mathrm{mix}} \geq 0\), and reports \(k_1\) and
             \(k_1^{\mathrm{cr}}\) whenever the ratio form is meaningful.
             \(\Delta H_{\mathrm{IM}}\) uses the same most-negative-binary proxy documented for
-            King&rsquo;s \(\Phi\), and the temperature input is shared with that rule. This is
-            the calculator&rsquo;s only temperature-explicit phase criterion: raising the anneal
+            King&rsquo;s \(\Phi\), and the temperature input is shared with that rule. This criterion
+            is the calculator&rsquo;s only temperature-explicit phase rule: raising the anneal
             temperature visibly widens the solid-solution window.
           </p>
 
@@ -3174,8 +3174,8 @@
             below \(6.05\;\mathrm{kJ\,mol^{-1}}\) (96.4&nbsp;% of fcc SS), bcc solutions between
             6.05 and 22, and everything above 22 is glass- or intermetallic-forming territory.
             HEA-Bench takes \(B_i\) and \(V_i\) from the vendored matminer Miedema table, which
-            differs from the paper&rsquo;s elastic sources; window placements are robust to this,
-            third decimals are not, and the provenance panel says so.
+            differs from the paper&rsquo;s elastic sources. The window placements hold up under that
+            difference and the third decimals do not, as the provenance panel notes.
           </p>
 
           <h3 id="sec-heo"><span class="sec-num">16</span>High-entropy oxides and sublattice entropy</h3>
@@ -3183,7 +3183,7 @@
             Rost, Sachet, Borman <em>et al.</em> (2015) showed that the five-cation rock salt
             (Mg,Co,Ni,Cu,Zn)O is single-phase and entropy-stabilized: it transforms reversibly
             between multiphase and single-phase states with temperature, which is direct evidence
-            that the configurational entropy term drives the stabilization. That result opened the
+            that the configurational entropy term drives the stabilization. Their result opened the
             high-entropy concept to ionic compounds. The structural difference from alloys is that
             an oxide crystal has distinct sublattices. Cations mix on one or more cation
             sublattices while oxygen occupies its own, essentially ordered, anion sublattice, so
@@ -3198,11 +3198,11 @@
             one B site for ABO<sub>3</sub>, two of each for A<sub>2</sub>B<sub>2</sub>O<sub>7</sub>)
             and \(x_{ik}\) is the site fraction of species \(i\) on sublattice \(k\). A sublattice
             carrying a single species contributes zero, so the ordered oxygen sublattice drops out.
-            Anion disorder and oxygen vacancies are not modelled. The calculator reports the value
+            The calculator does not model anion disorder or oxygen vacancies. It reports the value
             per mole of formula units and per cation site, and it classifies the composition on the
-            most-disordered sublattice, which is the HEO literature convention: a perovskite with
-            five equimolar B cations is a high-entropy oxide at \(1.61\,R\) on the B sublattice
-            even though the value per total cation site is half that. The thresholds are the usual
+            most-disordered sublattice, following the HEO literature convention. A perovskite with
+            five equimolar B cations is therefore a high-entropy oxide at \(1.61\,R\) on the B
+            sublattice, even though the value per total cation site is half that. The thresholds are the usual
             ones, high entropy at or above \(1.5\,R\) and medium entropy from \(1.36\,R\) to
             \(1.5\,R\).
           </p>
@@ -3230,12 +3230,12 @@
             assignments, for example all trivalent cations on a pyrochlore A site rather than a
             mixed-valence pair. Coordination numbers follow the structure family: six-fold in rock
             salt, twelve-fold A and six-fold B in perovskite, eight-fold in fluorite, and
-            eight-fold A with six-fold B in pyrochlore. Where Shannon distinguishes spin states the
-            high-spin radius is the default, and when a radius is missing at the family's
-            coordination number the nearest tabulated coordination is used, again with a warning.
-            From these radii the cation size-disorder parameter of each sublattice is the ionic
-            analog of the alloy \(\delta\) (Manch&oacute;n-Gord&oacute;n <em>et al.</em>, 2025),
-            and the two-sublattice combination is
+            eight-fold A with six-fold B in pyrochlore. Where Shannon distinguishes spin states, the
+            high-spin radius is the default. When a radius is missing at the family's coordination
+            number, the calculator uses the nearest tabulated coordination, again with a warning.
+            From these radii it computes the cation size-disorder parameter of each sublattice, the
+            ionic analog of the alloy \(\delta\) (Manch&oacute;n-Gord&oacute;n <em>et al.</em>, 2025).
+            The two-sublattice combination is
             \(\delta r^{*} = \sqrt{\delta_A^2 + \delta_B^2}\).
           </p>
 
@@ -3251,8 +3251,8 @@
           <p>
             with cubic perovskites near \(t = 1\). The calculator applies the window
             \(0.92 \leq t \leq 1.04\) compiled for high-entropy perovskites by
-            Manch&oacute;n-Gord&oacute;n <em>et al.</em> (2025); the classic textbook window is
-            0.9&ndash;1.0 and the bound is configurable. A second geometric condition is the
+            Manch&oacute;n-Gord&oacute;n <em>et al.</em> (2025). The classic textbook window is
+            0.9&ndash;1.0, and the bound is configurable. A second geometric condition is the
             octahedral factor \(\mu = r_B / r_{\mathrm O}\), which must lie between 0.414 and 0.732
             for a stable BO<sub>6</sub> octahedron. Bartel <em>et al.</em> (2019) constructed an
             improved one-dimensional factor,
@@ -3263,11 +3263,11 @@
           <p>
             with \(n_A\) the oxidation state of the A cation, predicting a perovskite when
             \(\tau &lt; 4.18\) with about 91&nbsp;% reported accuracy over 576 experimentally
-            characterized ABX<sub>3</sub> compounds. It is defined for \(r_A &gt; r_B\). For
+            characterized ABX<sub>3</sub> compounds. \(\tau\) is defined for \(r_A &gt; r_B\). For
             high-entropy perovskites the radii and \(n_A\) are composition-weighted sublattice
             means. Jiang <em>et al.</em> (2018) found that the tolerance factor, not the size
             mismatch, is what separates their single-phase high-entropy perovskites from the
-            multiphase ones, which is why these factors are the primary perovskite screen here.
+            multiphase ones. That finding makes these factors the primary perovskite screen here.
           </p>
 
           <h3 id="sec-fluorite"><span class="sec-num">19</span>Fluorite and pyrochlore criteria</h3>
@@ -3294,19 +3294,19 @@
             Rao, 1983): a pyrochlore is expected for \(1.46 &lt; r_A/r_B &lt; 1.78\), a disordered
             defect fluorite below the window, and no single cubic phase above it. As with the alloy
             rules, all of these oxide criteria are weak empirical screens calibrated on small
-            historical datasets, and the calculator reports the value, the window, and the verdict
-            together so the margin is always visible.
+            historical datasets. The calculator reports the value, the window, and the verdict
+            together, so the margin is always visible.
           </p>
 
           <h3 id="sec-limits"><span class="sec-num">20</span>Limitations and scope</h3>
           <p>
-            All descriptors implemented here share four structural limitations worth keeping in
-            mind when reading the outputs.
+            All descriptors here share four structural limitations. Keep them in mind when
+            reading the outputs.
           </p>
           <ol class="body-list">
             <li><em>Pairwise additivity.</em> The mixing-enthalpy and Miedema solid-solution
-              formulae are sums over binary pairs. Ternary and higher-order interactions are
-              ignored. That is exact for ideal regular solutions and a controlled approximation
+              formulae are sums over binary pairs and ignore ternary and higher-order
+              interactions. Pairwise additivity is exact for ideal regular solutions and a controlled approximation
               for sub-regular systems. It can fail when three- or four-body chemical interactions
               are large. Alloys that combine Al with several transition metals are a common
               example.</li>
@@ -3325,7 +3325,7 @@
               high-entropy-perovskite \(t\) window to a compilation of a few hundred reported
               compositions, and the pyrochlore radius-ratio window to the classic
               pyrochlore literature. They assume full cation mixing, the stated oxygen
-              stoichiometry, and equilibrium synthesis, and verdicts far from those domains
+              stoichiometry, and equilibrium synthesis. Verdicts far from those domains
               are extrapolations.</li>
           </ol>
           <p>
@@ -3429,7 +3429,7 @@
                 \[\Lambda = \frac{\Delta S_{\mathrm{mix}}}{\delta^{2}}\]
               </div>
               <p class="eq-vars">
-                <span>\(\delta\) in percent;</span>
+                <span>\(\delta\) in percent,</span>
                 <span>\(\Lambda &gt; 0.96\) single solid solution, \(0.24 \le \Lambda \le 0.96\) mixed, below: compounds (Singh 2014)</span>
               </p>
             </div>
@@ -3443,7 +3443,7 @@
               </div>
               <p class="eq-vars">
                 <span>\(r_{\mathrm{S}}, r_{\mathrm{L}}\) = smallest/largest atomic radius,</span>
-                <span>\(\bar r\) = mean radius; tangent-cone solid angles (Wang 2015)</span>
+                <span>\(\bar r\) = mean radius, with tangent-cone solid angles (Wang 2015)</span>
               </p>
             </div>
 
@@ -3456,8 +3456,8 @@
                 \quad k_2 = \frac{\Delta S_{\mathrm{IM}}}{\Delta S_{\mathrm{mix}}} = 0.6\]
               </div>
               <p class="eq-vars">
-                <span>solid solution while \(k_1 &lt; k_1^{\mathrm{cr}}(T)\);</span>
-                <span>\(\Delta H_{\mathrm{IM}}\) = most negative binary pair enthalpy (documented proxy); Senkov &amp; Miracle 2016</span>
+                <span>solid solution while \(k_1 &lt; k_1^{\mathrm{cr}}(T)\),</span>
+                <span>\(\Delta H_{\mathrm{IM}}\) = most negative binary pair enthalpy, a documented proxy (Senkov &amp; Miracle 2016)</span>
               </p>
             </div>
 
@@ -3469,7 +3469,7 @@
                 \Delta H_{\mathrm{el}} = \sum_i \frac{c_i\,B_i\,(V_i - \bar V)^2}{2\,V_i}\]
               </div>
               <p class="eq-vars">
-                <span>\(B_i\) = bulk modulus (GPa), \(V_i\) = molar volume (cm³/mol) &rArr; kJ/mol;</span>
+                <span>\(B_i\) = bulk modulus (GPa), \(V_i\) = molar volume (cm³/mol) &rArr; kJ/mol,</span>
                 <span>fcc SS \(\le 6.05\), bcc SS \(6.05\)&ndash;\(22\), glasses/IM above (Andreoli 2019, Eqs. 9&ndash;10)</span>
               </p>
             </div>
@@ -3526,7 +3526,7 @@
                 \[\Delta H_{AB} = \frac{2\;V_A^{2/3*}\;V_B^{2/3*}}{V_A^{2/3*}+V_B^{2/3*}} \;\cdot\; \Gamma_{AB}\]
               </div>
               <p class="eq-vars">
-                Uses volume-corrected \(V^{2/3*}\) from above. This feeds into \(\Delta H_{\mathrm{mix}}\) through the sub-regular solution model.
+                Uses volume-corrected \(V^{2/3*}\) from above. The pair enthalpy feeds into \(\Delta H_{\mathrm{mix}}\) through the sub-regular solution model.
               </p>
             </div>
 
@@ -3596,7 +3596,7 @@
               <p class="eq-vars">
                 <span>\(a_k\) = sites of sublattice \(k\) per formula unit,</span>
                 <span>\(x_{ik}\) = site fraction on sublattice \(k\)</span><br>
-                Reported per formula unit and per cation site; the verdict uses the most-disordered sublattice
+                Reported per formula unit and per cation site, with the verdict taken on the most-disordered sublattice
               </p>
             </div>
 
@@ -3674,7 +3674,7 @@
                 \[\frac{r_A}{r_B}\,,\qquad 1.46 &lt; \frac{r_A}{r_B} &lt; 1.78\]
               </div>
               <p class="eq-vars">
-                <span>\(r_A\) at CN VIII, \(r_B\) at CN VI;</span>
+                <span>\(r_A\) at CN VIII, \(r_B\) at CN VI,</span>
                 <span>defect fluorite below the window, no single cubic phase above it (Subramanian et al., 1983)</span>
               </p>
             </div>
@@ -3824,7 +3824,7 @@
           </select>
           <button id="oxide-calculate" class="primary">Calculate</button>
         </div>
-        <p class="small-note">Subscripts are per-site fractions on any scale (the site is normalized internally). Oxidation states are assigned automatically by charge balance against the oxygen sublattice; the chosen states and the Shannon radii used are shown with the results.</p>
+        <p class="small-note">Subscripts are per-site fractions on any scale (the site is normalized internally). The calculator assigns oxidation states automatically by charge balance against the oxygen sublattice and shows the chosen states and the Shannon radii with the results.</p>
       </section>
 
       <section class="panel mode-ceramic" id="ceramic-panel">
@@ -3912,7 +3912,7 @@
         <h2>Phase-selection maps</h2>
         <p class="small-note" style="margin: -4px 0 12px;">
           The literature's canonical screening maps with this alloy plotted on them. Regions are
-          the published empirical windows, not phase boundaries; read them jointly
+          the published empirical windows, not phase boundaries. Read them jointly
           (δ with ΔH<sub>mix</sub> and Ω together, VEC only after a solid-solution verdict).
         </p>
         <div class="maps-grid" id="maps-grid"></div>
@@ -3995,7 +3995,7 @@
 
       <section class="panel mode-oxide hidden" id="oxide-verdicts-panel">
         <h2>Formability screens</h2>
-        <p class="small-note" style="margin: -4px 0 12px;">Weak empirical screens from the HEO literature, applied to the values above. They are calibrated on small datasets; treat them as hints, not predictions.</p>
+        <p class="small-note" style="margin: -4px 0 12px;">Weak empirical screens from the HEO literature, applied to the values above. They are calibrated on small datasets, so treat them as hints, not predictions.</p>
         <div id="oxide-verdicts" class="results results-compact"></div>
       </section>
 
@@ -4042,8 +4042,8 @@
           <h2 class="theory-title" id="dataset-title">The consolidated alloy dataset</h2>
           <p class="theory-lede">
             Every experimentally reported phase label behind the benchmark, merged from published
-            datasets with each source's own label kept beside the consensus. The dataset is built
-            inside this page from the original files, so nothing is computed on a server.
+            datasets with each source's own label kept beside the consensus. This page builds the
+            dataset from the original files, so nothing is computed on a server.
           </p>
           <div class="engine-gate" id="dataset-gate"></div>
 
@@ -4397,8 +4397,8 @@
           <p class="theory-lede">
             Every per-element value the calculator consumes, with its source, its convention, and
             the places where good compilations disagree. Nothing on this page feeds the
-            computation at display time. It is the same vendored, SHA-pinned data behind the
-            calculation core, shown so any result can be audited back to its inputs.
+            computation at display time. The page shows the same vendored, SHA-pinned data behind
+            the calculation core, so any result can be audited back to its inputs.
           </p>
 
           <h3 id="data-elements"><span class="sec-num">01</span>Element table (55 elements)</h3>
@@ -4427,7 +4427,7 @@
           <p>
             Miedema-model binary liquid mixing enthalpies, vendored from matminer's digitization
             of de Boer et al. (1988), the same primary source behind Takeuchi &amp; Inoue (2005).
-            1484 of the 1485 pairs over the 55-element table are present; the single gap (Th–U)
+            The table holds 1484 of the 1485 pairs over the 55 elements. The single gap (Th–U)
             is reported as unavailable rather than silently zeroed.
           </p>
           <div class="data-pairlookup">
@@ -4445,8 +4445,8 @@
             Core descriptors (ΔS, δ, VEC, Tm, Δχ, ΔH mix, Ω, Λ, γ, Φ, φ, κ) cover all 55
             elements. The Andreoli elastic-strain energy needs the bulk modulus and molar volume
             (all 55 covered). The auxiliary Miedema decomposition panel (compound / solid-solution
-            / amorphous enthalpies) still runs on its original 37-element parameter set; alloys
-            outside it simply show no decomposition rather than a guessed one.
+            / amorphous enthalpies) still runs on its original 37-element parameter set. Alloys
+            outside it show no decomposition rather than a guessed one.
           </p>
           <div class="table-wrap">
             <table class="data" id="data-coverage-table">
@@ -4672,7 +4672,7 @@
           <h3 id="refs-data"><span class="sec-num">05</span>Element data sources</h3>
           <ul class="ref-list">
               <li id="ref-la4003">
-                Teatum, E. T., Gschneidner, K. A., Jr., &amp; Waber, J. T. (1968). <em>Compilation of calculated data useful in predicting metallurgical behavior of the elements in binary alloy systems</em> (Report LA-4003; supersedes LA-2345). Los Alamos Scientific Laboratory.
+                Teatum, E. T., Gschneidner, K. A., Jr., &amp; Waber, J. T. (1968). <em>Compilation of calculated data useful in predicting metallurgical behavior of the elements in binary alloy systems</em> (Report LA-4003, which supersedes LA-2345). Los Alamos Scientific Laboratory.
                 <a href="https://www.osti.gov/biblio/4789465" target="_blank" rel="noopener noreferrer">https://www.osti.gov/biblio/4789465</a>
               </li>
               <li id="ref-gschneidner1966">
@@ -4762,13 +4762,13 @@
             <div class="legal-details">
               <p>
                 <strong class="legal-label">Privacy Policy:</strong>
-                last updated June 1, 2026. This calculator runs entirely in your browser. It does not ask for, collect, or store any personal information (name, email address, IP address, or credentials), and there is no registration or login. Every calculation is performed locally; the compositions you enter are never transmitted to any server.
+                last updated June 1, 2026. This calculator runs entirely in your browser. It does not ask for, collect, or store any personal information (name, email address, IP address, or credentials), and there is no registration or login. Every calculation runs locally, and the compositions you enter are never transmitted to any server.
               </p>
               <p>
                 To preserve your work between sessions, the page keeps your last entered composition, any results you explicitly saved, and any custom element data in your browser&rsquo;s <code>localStorage</code>. That data stays on your device and is never transmitted anywhere. You can remove it at any time by clearing your browser&rsquo;s site data for this page.
               </p>
               <p>
-                This site serves all resources itself (MathJax, fonts, styles) and uses no external CDNs, analytics, advertising, or social-media trackers. No cookies are set, so no consent banner is shown. If these practices change materially, this section will be updated with a revised date. Questions can be directed to the maintainer at <a href="mailto:davjfies@gmail.com">davjfies@gmail.com</a>.
+                This site serves all resources itself (MathJax, fonts, styles) and uses no external CDNs, analytics, advertising, or social-media trackers. The page sets no cookies, so it shows no consent banner. If these practices change materially, this section will be updated with a revised date. Send questions to the maintainer at <a href="mailto:davjfies@gmail.com">davjfies@gmail.com</a>.
               </p>
             </div>
           </details>
@@ -4793,56 +4793,56 @@
       const VERSION = "2.9.2";
       const VERSION_DATE = "2026-11-07";
       const VERSION_HISTORY = [
-        { version: "2.9.2", date: "2026-11-07", notes: "Drop five unused verdict thresholds from the browser core" },
-        { version: "2.9.1", date: "2026-11-07", notes: "Cut duplicated bridge code and archive shipped plan docs" },
-        { version: "2.9.0", date: "2026-10-08", notes: "Bump to 2.9.0: every source dataset ships, so the corpus builds offline; Ship the Peivaste dataset in every part, with no download" },
-        { version: "2.8.0", date: "2026-10-08", notes: "Predict on one thread so a prediction never changes between calls; Let the preflight pass a version bump and print why a check failed; Calibrate every interval on errors from unseen alloy systems" },
-        { version: "2.7.3", date: "2026-10-06", notes: "Ship the exe again, and fix the Sangiovanni 2021 volume; Pass the exe's browser arguments by machine policy when elevated; Probe the exe's DevTools port three ways on GitHub runners; Diagnose the exe smoke on GitHub runners" },
-        { version: "2.7.2", date: "2026-10-06", notes: "Fix the landing page's dataset count and docs left stale by 2.7.0" },
-        { version: "2.7.1", date: "2026-10-06", notes: "Formula strings everywhere, group notation, rule caveats, offline desktop; Every feature in all four parts: 24 MCP tools, the dataset from pip, a smoother app" },
-        { version: "2.7.0", date: "2026-10-06", notes: "Every feature in all four parts: 24 MCP tools, the dataset from pip, a smoother app" },
-        { version: "2.6.2", date: "2026-10-06", notes: "Test every tab in a real browser; fix stale results; drop dead weight" },
-        { version: "2.6.1", date: "2026-10-06", notes: "Pin the HEACalculator interop extra to its verified 2.0 series" },
-        { version: "2.6.0", date: "2026-10-06", notes: "App parity: every library feature now works in the web and desktop app" },
-        { version: "2.5.6", date: "2026-08-25", notes: "Lead the hero with the claim, not the abstract" },
-        { version: "2.5.5", date: "2026-08-24", notes: "Document every MCP tool parameter, and add the container and Glama manifests" },
-        { version: "2.5.4", date: "2026-08-23", notes: "Fix hea-bench-mcp failing to start, and annotate every tool; Stop waiting for the desktop exe; open an issue that emails the owner if it fails" },
-        { version: "2.5.3", date: "2026-08-23", notes: "Landing design pass, and fix the overlay rendering at 733px on phones; Route questions to Discussions, and agree on one contact address; Give the README a banner, a screenshot and a pipeline diagram" },
-        { version: "2.5.2", date: "2026-08-18", notes: "Ship a crawlable favicon set and an Open Graph card for the site; State the agent-first operating rule at the top of the repo contract; Enforce the release preflight in a pre-push hook so no session can skip it; Add a release preflight: the failure catalog, a local gate runner, and metadata checks in CI and the bot" },
-        { version: "2.5.1", date: "2026-08-16", notes: "Shorten the MCP registry description to the 100-character limit" },
-        { version: "2.5.0", date: "2026-08-16", notes: "Set the version to 2.5.0 for the platform-expansion release; Move the Miedema decomposition into the core and generate its table from the vendored CSV; Deduplicate shared logic across surfaces and cache the hot descriptor tables; Check the campaign cold-start floor before the optional dependency; Tighten the plan's framing-rule wording so governance greps stay quiet; Extend the calculator to high\u2026" },
-        { version: "2.4.0", date: "2026-08-11", notes: "Set version to 2.4.0 for the benchmark reframing release; Reframe the benchmark: interpolative vs extrapolative, not leakage; Trim the download-window notice to its two essential sentences" },
-        { version: "2.3.2", date: "2026-08-10", notes: "Settle the corpus roles: v0.1.0 is the reference, v0.2.0 the extended option; Style the download-window notice as a proper callout" },
-        { version: "2.3.1", date: "2026-08-10", notes: "Handle the release window on the Windows-app download link" },
-        { version: "2.3.0", date: "2026-08-10", notes: "Set version to 2.3.0 for the corpus v0.2.0 release; Move the corpus v0.2.0 notes back under Unreleased (they postdate v2.2.1); Add corpus v0.2.0 with the newly licensed Chizhevskiy database" },
-        { version: "2.2.1", date: "2026-08-10", notes: "Refresh the baseline table and headline numbers on the canonical corpus; Normalize compositions with math.fsum; re-pin the frozen digests; Temporary CI diagnostic: first-divergence diff against a Windows-built reference; Temporary CI diagnostic: per-stage hashes in the freeze job; Make grouped fold assignment exact-integer; restage the unshipped notes" },
-        { version: "2.1.7", date: "2026-08-09", notes: "Writing pass over the app prose: no em dashes, fewer passives" },
-        { version: "2.1.6", date: "2026-08-09", notes: "Apply the composition full-consumption contract to the browser parser; fix: reject partially parsed composition formulas" },
-        { version: "2.1.5", date: "2026-08-08", notes: "Overhaul the landing page into a document-register design; Record Yen-Ming Horng as a Zenodo contributor; Add an attribution policy: named humans only, enforced by a commit-msg hook; Credit Yen-Ming Horng for the external review behind the v2.1.4 fix" },
-        { version: "2.1.4", date: "2026-07-29", notes: "Correct the delta_g_max documentation to match the runtime" },
-        { version: "2.1.3", date: "2026-07-24", notes: "Pin ruff to the 0.15 series so linter releases cannot break the release gate; Custom app icon: the hexagon-lattice mark replaces the default Tauri icon" },
-        { version: "2.1.2", date: "2026-07-23", notes: "Copied badge: bottom-left chip, clear of card titles and the info button" },
-        { version: "2.1.1", date: "2026-07-23", notes: "Provenance polish: real BibTeX, all authors, honest pair-source tag, contrast and overlap fixes" },
-        { version: "2.1.0", date: "2026-07-23", notes: "Release gate fix: export the new descriptors in descriptors.__all__; v2.1.0: the trustworthy-and-citable release; Code-review fixes: saved results and CSV carry the new descriptors; cite panel race closed; Verification fixes: permalinks open the calculator, map labels declutter; Docs: AGENTS.md and llms.txt API additions, changelog for v2.1.0; Theory, Equations, References: the new physics is der\u2026" },
-        { version: "2.0.10", date: "2026-07-19", notes: "SEO: sitemap discovery hint in the page head; Zenodo metadata: link the live web app as a related identifier" },
-        { version: "2.0.9", date: "2026-07-19", notes: "Add the Google Search Console ownership verification tag; SEO: canonical, Open Graph, and JSON-LD software metadata on the web app, plus a deploy-time sitemap.xml" },
-        { version: "2.0.8", date: "2026-07-17", notes: "Cite the published Materials article everywhere" },
-        { version: "2.0.7", date: "2026-07-09", notes: "Landing page: the top bar, stats strip, and footer now respect the page side padding; Auto-release: re-dispatch a cancelled downstream run once instead of only going red" },
-        { version: "2.0.6", date: "2026-07-09", notes: "Landing page: side padding now scales with the window so the top bar has real breathing room; Make releases autonomous: any shippable push to main cuts a full patch release; Add tools/autorelease.py: one-shot release preparation (version, stamps, changelog, history)" },
-        { version: "2.0.5", date: "2026-07-08", notes: "Landing page: widened the shared side padding so the top navigation bar and page sections are no longer crowded against the edges, with a narrower fallback on small phones. Presentation only, with no functional or numerical change to any descriptor, rule, or API" },
-        { version: "2.0.4", date: "2026-07-06", notes: "Maintenance: bumped the pinned GitHub Actions off the deprecated Node 20 runtime. No functional or numerical change to any descriptor or rule" },
-        { version: "2.0.3", date: "2026-07-06", notes: "Release-tooling bugfixes: the version bumper now fails loudly on a drifted pattern rather than a silent partial bump, the Rust lockfile is version-synced and drift-checked, and the release pipeline no longer lets a flaky registry publish block the archival DOI. No functional or numerical change to any descriptor or rule" },
-        { version: "2.0.2", date: "2026-07-06", notes: "Release engineering: one canonical version number that every surface derives from or is stamped from, guarded by a CI drift-check, plus a single hands-off tag-driven release pipeline (PyPI over OIDC, MCP registry, GitHub Release, Zenodo archive, and desktop build). No functional or numerical change to any descriptor or rule" },
-        { version: "2.0.1", date: "2026-06-14", notes: "Single-file web app: the landing page and the calculator are combined in one file, switched by the URL hash. The desktop app is now a portable no-install executable. Legal and accessibility information added to the landing page, and the home control made keyboard-accessible" },
-        { version: "2.0.0", date: "2026-06-12", notes: "First full public release: alloy and oxide descriptors, the six empirical rules, the four delivery surfaces, and the hea-bench-mcp agent server, with the Python and JavaScript cores locked by an automated parity suite and the implementation anchored to published per-alloy and per-oxide literature values. Fixes a JSON-serialization fault in the MCP server when King Phi diverges (compositions with no competing binary intermetallic, e.g. HfNbTaTiZr): the magnitude is now reported as null with a warning and the verdict is unchanged" },
-        { version: "1.8.0", date: "2026-06-11", notes: "Agent surface: a Model Context Protocol server (hea-bench-mcp, pip install hea-bench[mcp]) exposes the calculator to LLM agents as seven batch-oriented tools with units, citation keys, and the library version in every response, including an Omega pair-table sensitivity check" },
-        { version: "1.7.0", date: "2026-06-11", notes: "Project landing page; the calculator gets its own properly named page (calculator.html) with view deep links (#theory, #equations, #refs); References rebuilt as a grouped bibliography and Equation reference grouped into alloy / Miedema / oxide sections, both sharing the Theory docs shell; oxide theory, equations, and references included throughout; one version number across the library, page, desktop app, and citation metadata" },
-        { version: "1.6.1", date: "2026-06-10", notes: "Quality pass: welcome quick-start with one-click examples, manual light/dark/auto theme toggle, what's-new panel on the version badge, click-to-copy result cards, plain-language tooltips on every descriptor and rule card, Ctrl+Enter calculates from anywhere" },
-        { version: "1.6.0", date: "2026-06-10", notes: "High-entropy-oxide mode: rock salt, perovskite, fluorite, and pyrochlore descriptors with charge-balance oxidation-state assignment and Shannon radii (94 elements), parity-tested against the Python library; Enter-to-calculate; literature example presets" },
-        { version: "1.5.0", date: "2026-06-10", notes: "Electronegativity descriptors (mean chi, delta chi) on every surface, parity-tested; Miedema formation-enthalpy panel extended 24 -> 37 elements; per-element hybridization factors aligned with the de Boer parametrization" },
-        { version: "1.4.0", date: "2026-06-10", notes: "Element coverage 30 -> 37 across all surfaces (666 parity-tested pairs); page element table now derives from the core; Omega near-zero-enthalpy warning" },
-        { version: "1.1.0", date: "2026-05-27", notes: "Added King/Ye phi descriptors, King temperature control, and JS parity core" },
-        { version: "1.0.0", date: "2026-03-18", notes: "Initial versioned release" },
+        { version: "2.9.2", date: "2026-11-07", notes: "Drop five unused verdict thresholds from the browser core." },
+        { version: "2.9.1", date: "2026-11-07", notes: "Cut duplicated bridge code and archive shipped plan docs." },
+        { version: "2.9.0", date: "2026-10-08", notes: "Bump to 2.9.0: every source dataset ships, so the corpus builds offline. Ship the Peivaste dataset in every part, with no download." },
+        { version: "2.8.0", date: "2026-10-08", notes: "Predict on one thread so a prediction never changes between calls. Let the preflight pass a version bump and print why a check failed. Calibrate every interval on errors from unseen alloy systems." },
+        { version: "2.7.3", date: "2026-10-06", notes: "Ship the exe again, and fix the Sangiovanni 2021 volume. Pass the exe's browser arguments by machine policy when elevated. Probe the exe's DevTools port three ways on GitHub runners. Diagnose the exe smoke on GitHub runners." },
+        { version: "2.7.2", date: "2026-10-06", notes: "Fix the landing page's dataset count and docs left stale by 2.7.0." },
+        { version: "2.7.1", date: "2026-10-06", notes: "Formula strings everywhere, group notation, rule caveats, offline desktop. Every feature in all four parts: 24 MCP tools, the dataset from pip, a smoother app." },
+        { version: "2.7.0", date: "2026-10-06", notes: "Every feature in all four parts: 24 MCP tools, the dataset from pip, a smoother app." },
+        { version: "2.6.2", date: "2026-10-06", notes: "Test every tab in a real browser. Fix stale results. Drop dead weight." },
+        { version: "2.6.1", date: "2026-10-06", notes: "Pin the HEACalculator interop extra to its verified 2.0 series." },
+        { version: "2.6.0", date: "2026-10-06", notes: "App parity: every library feature now works in the web and desktop app." },
+        { version: "2.5.6", date: "2026-08-25", notes: "Lead the hero with the claim, not the abstract." },
+        { version: "2.5.5", date: "2026-08-24", notes: "Document every MCP tool parameter, and add the container and Glama manifests." },
+        { version: "2.5.4", date: "2026-08-23", notes: "Fix hea-bench-mcp failing to start, and annotate every tool. Stop waiting for the desktop exe. Open an issue that emails the owner if it fails." },
+        { version: "2.5.3", date: "2026-08-23", notes: "Landing design pass, and fix the overlay rendering at 733px on phones. Route questions to Discussions, and agree on one contact address. Give the README a banner, a screenshot and a pipeline diagram." },
+        { version: "2.5.2", date: "2026-08-18", notes: "Ship a crawlable favicon set and an Open Graph card for the site. State the agent-first operating rule at the top of the repo contract. Enforce the release preflight in a pre-push hook so no session can skip it. Add a release preflight: the failure catalog, a local gate runner, and metadata checks in CI and the bot." },
+        { version: "2.5.1", date: "2026-08-16", notes: "Shorten the MCP registry description to the 100-character limit." },
+        { version: "2.5.0", date: "2026-08-16", notes: "Set the version to 2.5.0 for the platform-expansion release. Move the Miedema decomposition into the core and generate its table from the vendored CSV. Deduplicate shared logic across surfaces and cache the hot descriptor tables. Check the campaign cold-start floor before the optional dependency. Tighten the plan's framing-rule wording so governance greps stay quiet. Extend the calculator to high\u2026" },
+        { version: "2.4.0", date: "2026-08-11", notes: "Set version to 2.4.0 for the benchmark reframing release. Reframe the benchmark: interpolative vs extrapolative, not leakage. Trim the download-window notice to its two essential sentences." },
+        { version: "2.3.2", date: "2026-08-10", notes: "Settle the corpus roles: v0.1.0 is the reference, v0.2.0 the extended option. Style the download-window notice as a proper callout." },
+        { version: "2.3.1", date: "2026-08-10", notes: "Handle the release window on the Windows-app download link." },
+        { version: "2.3.0", date: "2026-08-10", notes: "Set version to 2.3.0 for the corpus v0.2.0 release. Move the corpus v0.2.0 notes back under Unreleased (they postdate v2.2.1). Add corpus v0.2.0 with the newly licensed Chizhevskiy database." },
+        { version: "2.2.1", date: "2026-08-10", notes: "Refresh the baseline table and headline numbers on the canonical corpus. Normalize compositions with math.fsum and re-pin the frozen digests. Temporary CI diagnostic: first-divergence diff against a Windows-built reference. Temporary CI diagnostic: per-stage hashes in the freeze job. Make grouped fold assignment exact-integer and restage the unshipped notes." },
+        { version: "2.1.7", date: "2026-08-09", notes: "Writing pass over the app prose: no em dashes, fewer passives." },
+        { version: "2.1.6", date: "2026-08-09", notes: "Apply the composition full-consumption contract to the browser parser. Fix: reject partially parsed composition formulas." },
+        { version: "2.1.5", date: "2026-08-08", notes: "Overhaul the landing page into a document-register design. Record Yen-Ming Horng as a Zenodo contributor. Add an attribution policy: named humans only, enforced by a commit-msg hook. Credit Yen-Ming Horng for the external review behind the v2.1.4 fix." },
+        { version: "2.1.4", date: "2026-07-29", notes: "Correct the delta_g_max documentation to match the runtime." },
+        { version: "2.1.3", date: "2026-07-24", notes: "Pin ruff to the 0.15 series so linter releases cannot break the release gate. Custom app icon: the hexagon-lattice mark replaces the default Tauri icon." },
+        { version: "2.1.2", date: "2026-07-23", notes: "Copied badge: bottom-left chip, clear of card titles and the info button." },
+        { version: "2.1.1", date: "2026-07-23", notes: "Provenance polish: real BibTeX, all authors, honest pair-source tag, contrast and overlap fixes." },
+        { version: "2.1.0", date: "2026-07-23", notes: "Release gate fix: export the new descriptors in descriptors.__all__. v2.1.0: the trustworthy-and-citable release. Code-review fixes: saved results and CSV carry the new descriptors, and the cite panel race is closed. Verification fixes: permalinks open the calculator, map labels declutter. Docs: AGENTS.md and llms.txt API additions, changelog for v2.1.0. Theory, Equations, References: the new physics is der\u2026" },
+        { version: "2.0.10", date: "2026-07-19", notes: "SEO: sitemap discovery hint in the page head. Zenodo metadata: link the live web app as a related identifier." },
+        { version: "2.0.9", date: "2026-07-19", notes: "Add the Google Search Console ownership verification tag. SEO: canonical, Open Graph, and JSON-LD software metadata on the web app, plus a deploy-time sitemap.xml." },
+        { version: "2.0.8", date: "2026-07-17", notes: "Cite the published Materials article everywhere." },
+        { version: "2.0.7", date: "2026-07-09", notes: "Landing page: the top bar, stats strip, and footer now respect the page side padding. Auto-release: re-dispatch a cancelled downstream run once instead of only going red." },
+        { version: "2.0.6", date: "2026-07-09", notes: "Landing page: side padding now scales with the window so the top bar has real breathing room. Make releases autonomous: any shippable push to main cuts a full patch release. Add tools/autorelease.py: one-shot release preparation (version, stamps, changelog, history)." },
+        { version: "2.0.5", date: "2026-07-08", notes: "Landing page: widened the shared side padding so the top navigation bar and page sections are no longer crowded against the edges, with a narrower fallback on small phones. Presentation only, with no functional or numerical change to any descriptor, rule, or API." },
+        { version: "2.0.4", date: "2026-07-06", notes: "Maintenance: bumped the pinned GitHub Actions off the deprecated Node 20 runtime. No functional or numerical change to any descriptor or rule." },
+        { version: "2.0.3", date: "2026-07-06", notes: "Release-tooling bugfixes: the version bumper now fails loudly on a drifted pattern rather than a silent partial bump, the Rust lockfile is version-synced and drift-checked, and the release pipeline no longer lets a flaky registry publish block the archival DOI. No functional or numerical change to any descriptor or rule." },
+        { version: "2.0.2", date: "2026-07-06", notes: "Release engineering: one canonical version number that every surface derives from or is stamped from, guarded by a CI drift-check, plus a single hands-off tag-driven release pipeline (PyPI over OIDC, MCP registry, GitHub Release, Zenodo archive, and desktop build). No functional or numerical change to any descriptor or rule." },
+        { version: "2.0.1", date: "2026-06-14", notes: "Single-file web app: the landing page and the calculator are combined in one file, switched by the URL hash. The desktop app is now a portable no-install executable. Legal and accessibility information added to the landing page, and the home control made keyboard-accessible." },
+        { version: "2.0.0", date: "2026-06-12", notes: "First full public release: alloy and oxide descriptors, the six empirical rules, the four delivery surfaces, and the hea-bench-mcp agent server, with the Python and JavaScript cores locked by an automated parity suite and the implementation anchored to published per-alloy and per-oxide literature values. Fixes a JSON-serialization fault in the MCP server when King Phi diverges (compositions with no competing binary intermetallic, e.g. HfNbTaTiZr): the magnitude is now reported as null with a warning and the verdict is unchanged." },
+        { version: "1.8.0", date: "2026-06-11", notes: "Agent surface: a Model Context Protocol server (hea-bench-mcp, pip install hea-bench[mcp]) exposes the calculator to LLM agents as seven batch-oriented tools with units, citation keys, and the library version in every response, including an Omega pair-table sensitivity check." },
+        { version: "1.7.0", date: "2026-06-11", notes: "Project landing page. The calculator gets its own properly named page (calculator.html) with view deep links (#theory, #equations, #refs). References rebuilt as a grouped bibliography and Equation reference grouped into alloy / Miedema / oxide sections, both sharing the Theory docs shell. Oxide theory, equations, and references included throughout. One version number across the library, page, desktop app, and citation metadata." },
+        { version: "1.6.1", date: "2026-06-10", notes: "Quality pass: welcome quick-start with one-click examples, manual light/dark/auto theme toggle, what's-new panel on the version badge, click-to-copy result cards, plain-language tooltips on every descriptor and rule card, Ctrl+Enter calculates from anywhere." },
+        { version: "1.6.0", date: "2026-06-10", notes: "High-entropy-oxide mode: rock salt, perovskite, fluorite, and pyrochlore descriptors with charge-balance oxidation-state assignment and Shannon radii (94 elements), parity-tested against the Python library. Enter-to-calculate. Literature example presets." },
+        { version: "1.5.0", date: "2026-06-10", notes: "Electronegativity descriptors (mean chi, delta chi) on every surface, parity-tested. Miedema formation-enthalpy panel extended 24 -> 37 elements. Per-element hybridization factors aligned with the de Boer parametrization." },
+        { version: "1.4.0", date: "2026-06-10", notes: "Element coverage 30 -> 37 across all surfaces (666 parity-tested pairs). Page element table now derives from the core. Omega near-zero-enthalpy warning." },
+        { version: "1.1.0", date: "2026-05-27", notes: "Added King/Ye phi descriptors, King temperature control, and JS parity core." },
+        { version: "1.0.0", date: "2026-03-18", notes: "Initial versioned release." },
       ];
 
       const STORAGE_KEYS = {
@@ -6523,13 +6523,13 @@
         if (zhang) {
           html += '<figure class="map-figure"><div class="map-title">δ vs ΔH mix</div>' + zhang.svg +
             "<figcaption>Solid-solution windows from " + refJumpLink("zhang2008", "Zhang 2008") + " (δ 1-6 %, ΔH −15…+5 kJ/mol) and " +
-            refJumpLink("guo2011pnsmi", "Guo &amp; Liu 2011") + " (δ ≤ 8.5 %, ΔH −22…+7 kJ/mol); glass-forming region after the same survey." + (zhang.off ? offNote : "") + "</figcaption></figure>";
+            refJumpLink("guo2011pnsmi", "Guo &amp; Liu 2011") + " (δ ≤ 8.5 %, ΔH −22…+7 kJ/mol). The glass-forming region follows the same survey." + (zhang.off ? offNote : "") + "</figcaption></figure>";
         }
         html += '<figure class="map-figure"><div class="map-title">Ω vs δ</div>' + omegaMap.svg +
           "<figcaption>Single-phase quadrant Ω ≥ 1.1 and δ ≤ 6.6 % from " + refJumpLink("yang2012", "Yang &amp; Zhang 2012") + "." + (omegaMap.off ? offNote : "") + "</figcaption></figure>";
         html += '<figure class="map-figure map-figure--wide"><div class="map-title">VEC bands</div>' + vecStrip.svg +
-          "<figcaption>Structure bands from " + refJumpLink("guo2011vec", "Guo et al. 2011") + "; σ-phase window (annealed Cr/V alloys) from " +
-          refJumpLink("tsai2013", "Tsai et al. 2013") + "; refractory ductility line from " + refJumpLink("sheikh2016", "Sheikh et al. 2016") + "." + (vecStrip.off ? offNote : "") + "</figcaption></figure>";
+          "<figcaption>Structure bands from " + refJumpLink("guo2011vec", "Guo et al. 2011") + ", the σ-phase window (annealed Cr/V alloys) from " +
+          refJumpLink("tsai2013", "Tsai et al. 2013") + ", and the refractory ductility line from " + refJumpLink("sheikh2016", "Sheikh et al. 2016") + "." + (vecStrip.off ? offNote : "") + "</figcaption></figure>";
         grid.innerHTML = html;
         panel.classList.remove("hidden");
       }
@@ -6911,7 +6911,7 @@
             if (edited !== undefined) {
               sourceLabel = `<span class="pair-source pair-source-manual" title="User-entered value">manual</span>`;
             } else if (source === "miedema") {
-              sourceLabel = `<span class="pair-source pair-source-miedema" title="Miedema-model value: de Boer et al. (1988), digitized by matminer; provenance in the Element data view">Miedema</span>`;
+              sourceLabel = `<span class="pair-source pair-source-miedema" title="Miedema-model value: de Boer et al. (1988), digitized by matminer. The Element data view has its provenance.">Miedema</span>`;
             }
 
             rows.push(`
@@ -6963,7 +6963,7 @@
           warnings.push(
             "|ΔHmix| is below 2 kJ/mol, so Ω diverges toward infinity and its " +
             "magnitude depends strongly on the Miedema pair-table parametrization. " +
-            "Read Ω qualitatively here; the Ω > 1.1 verdict is robust, the number is not."
+            "Read Ω qualitatively here. The Ω > 1.1 verdict can be trusted, but the exact number cannot."
           );
         }
 
@@ -7125,7 +7125,7 @@
           return false;
         }
         if (parsed.length > 10) {
-          showInputError(`The calculator takes up to 10 elements; this formula has ${parsed.length}.`);
+          showInputError(`The calculator takes up to 10 elements, and this formula has ${parsed.length}.`);
           return false;
         }
         const count = Math.min(10, Math.max(2, parsed.length));
@@ -7667,7 +7667,7 @@
             "Spiridigliozzi radius-dispersion rule",
             "σ(r) > 0.095 Å → fluorite",
             isFluorite ? "Single-phase fluorite favored" : "Bixbyite-type or mixed phases likely",
-            `σ(r) = ${formatNumber(d.radius_sigma)} Å; calibrated on equimolar rare-earth oxides`
+            `σ(r) = ${formatNumber(d.radius_sigma)} Å (rule calibrated on equimolar rare-earth oxides)`
           ));
         }
         if (report.verdicts.goldschmidt) {
@@ -7698,7 +7698,7 @@
               "Bartel τ rule",
               "τ < 4.18 → perovskite",
               report.verdicts.bartel === "perovskite" ? "Perovskite predicted" : "Non-perovskite predicted",
-              `τ = ${formatNumber(d.bartel_tau)}; ~91% reported accuracy`
+              `τ = ${formatNumber(d.bartel_tau)} (~91% reported accuracy)`
             ));
           }
         }
@@ -7777,12 +7777,12 @@
         "Mixing entropy": "Ideal configurational entropy, −R Σ xᵢ ln xᵢ. At or above 1.5R is the usual high-entropy threshold.",
         "Atomic size difference": "Composition-weighted spread of atomic radii. Values above about 6.5% work against a single-phase solid solution.",
         "Mean melting temperature": "Rule-of-mixtures average of the elemental melting points.",
-        "Mixing enthalpy": "Miedema-model estimate. Semi-empirical; pairs involving Mn carry the largest parametrization uncertainty.",
+        "Mixing enthalpy": "Miedema-model estimate. The model is semi-empirical, and pairs involving Mn carry the largest parametrization uncertainty.",
         "Valence electron concentration": "Weighted mean valence-electron count. At or above 8 favors FCC, below 6.87 favors BCC.",
         "Omega parameter": "Tm·ΔSmix / |ΔHmix| (Yang and Zhang). Above 1.1 favors a solid solution. Diverges as ΔHmix approaches zero, so read it qualitatively there.",
         "Electronegativity mismatch": "Composition-weighted standard deviation of Pauling electronegativities. Large values favor ordered compounds.",
         "Mean electronegativity": "Composition-weighted mean Pauling electronegativity.",
-        "Mismatch entropy": "Mansoori hard-sphere excess entropy from the size distribution; an input to the Ye phi index.",
+        "Mismatch entropy": "Mansoori hard-sphere excess entropy from the size distribution. It feeds the Ye phi index.",
         "Solid-solution Gibbs proxy": "ΔHmix − T·ΔSmix at the chosen temperature. More negative means a more stable disordered solution.",
         "Most stable binary proxy": "Most negative raw pair enthalpy ΔHᵢⱼ over all pairs, with no composition scaling, a proxy for the strongest competing binary compound.",
         "King Phi": "Ratio of the solid-solution driving force to the strongest competing binary (King 2016). Above 1 predicts a stable solid solution.",
@@ -7794,14 +7794,14 @@
         "SS structural contribution": "Lattice-stability term from the valence-electron dependence of the bcc/fcc/hcp energies.",
         "Amorphous enthalpy": "Amorphous-phase formation enthalpy: chemical term plus a topological term.",
         "AM topological contribution": "Topological term of the amorphous-phase enthalpy, proportional to the mean melting temperature.",
-        "Yeh entropy rule": "ΔSmix at or above 1.5R counts as a high-entropy alloy (Yeh 2004); 1R to 1.5R is medium entropy.",
+        "Yeh entropy rule": "ΔSmix at or above 1.5R counts as a high-entropy alloy (Yeh 2004). From 1R to 1.5R the alloy is medium entropy.",
         "Zhang size-mismatch rule": "Single phase predicted when δ is below 6.5% (Zhang 2008).",
         "Guo–Liu VEC rule": "FCC at VEC ≥ 8, BCC below 6.87, mixed in between (Guo and Liu 2011).",
         "Yang–Zhang Ω rule": "Solid solution predicted when Ω is above 1.1 (Yang and Zhang 2012).",
         "King Phi rule": "Solid solution predicted when Φ is at least 1 at the chosen temperature (King 2016).",
         "Ye phi rule": "Solid solution predicted when φ is at least 20 (Ye 2015).",
         "Configurational entropy": "Sublattice-weighted ideal mixing entropy per mole of formula units. Fully ordered sublattices contribute zero.",
-        "Entropy per cation site": "The same entropy divided by the number of cation sites; the value the 1.5R threshold applies to.",
+        "Entropy per cation site": "The same entropy divided by the number of cation sites. The 1.5R threshold applies to this value.",
         "Cation size disorder": "Weighted spread of Shannon ionic radii on the cation sublattice, the ionic analog of the alloy δ.",
         "Mean cation radius": "Composition-weighted mean Shannon radius at the family's coordination number.",
         "A-site size disorder": "Size-disorder parameter of the A sublattice from Shannon radii.",
@@ -7812,8 +7812,8 @@
         "Radius dispersion (sample SD)": "Sample standard deviation of the eight-fold cation radii, the input of the Spiridigliozzi fluorite predictor.",
         "Goldschmidt tolerance factor": "(r̄A + rO) / √2(r̄B + rO). Cubic perovskites cluster near t = 1.",
         "Octahedral factor": "r̄B / rO. A stable BO₆ octahedron needs a value between 0.414 and 0.732.",
-        "Bartel tolerance factor": "Improved perovskite tolerance factor (Bartel 2019); below 4.18 predicts a perovskite.",
-        "Radius ratio": "Mean A radius over mean B radius; pyrochlores form between 1.46 and 1.78.",
+        "Bartel tolerance factor": "Improved perovskite tolerance factor (Bartel 2019). A value below 4.18 predicts a perovskite.",
+        "Radius ratio": "Mean A radius over mean B radius. Pyrochlores form between 1.46 and 1.78.",
         "Mean cation electronegativity": "Composition-weighted mean Pauling electronegativity over all cations.",
         "Singh Lambda": "ΔSmix / δ² with δ in percent. Above 0.96 favors a single disordered solid solution (Singh 2014).",
         "Wang gamma": "Solid-angle packing ratio around the smallest vs largest atom. Below 1.175 the mismatch is packable as a crystalline solid solution (Wang 2015).",
@@ -7831,21 +7831,21 @@
 
       const PROV_REGISTRY = {
         "Mixing entropy": { sym: "ΔS mix", eq: "\\Delta S_{\\mathrm{mix}} = -R\\sum_i c_i \\ln c_i", inputs: ["composition"], interp: "Ideal configurational entropy. Yeh's classes: ≥ 1.5R high entropy, 1R–1.5R medium, below 1R dilute.", refs: ["yeh2004"], theory: "sec-entropy", eqn: "eq-smix" },
-        "Atomic size difference": { sym: "δ", eq: "\\delta = 100\\sqrt{\\textstyle\\sum_i c_i\\,(1 - r_i/\\bar r)^2}", inputs: ["radius"], interp: "Zhang's single-phase window is δ < 6.5 %; the joint (δ, ΔH mix) windows are drawn on the phase-selection maps.", refs: ["zhang2008"], theory: "sec-delta", eqn: "eq-delta" },
-        "Mean melting temperature": { sym: "Tm", eq: "T_m = \\sum_i c_i\\,T_{m,i}", inputs: ["melting"], interp: "Rule-of-mixtures average; feeds Ω and is the default annealing temperature for King Φ and κ.", refs: ["crc", "yang2012"], theory: "sec-omega", eqn: "eq-omega" },
-        "Mixing enthalpy": { sym: "ΔH mix", eq: "\\Delta H_{\\mathrm{mix}} = \\sum_{i<j} 4\\,c_i c_j\\,\\Delta H^{\\mathrm{mix}}_{ij}", inputs: ["pairs"], interp: "Regular-solution estimate over Miedema binary enthalpies. Semi-empirical; pairs involving Mn carry the largest parametrization uncertainty.", refs: ["takeuchi2005", "deboer1988", "matminer2018"], theory: "sec-hmix", eqn: "eq-hmix" },
+        "Atomic size difference": { sym: "δ", eq: "\\delta = 100\\sqrt{\\textstyle\\sum_i c_i\\,(1 - r_i/\\bar r)^2}", inputs: ["radius"], interp: "Zhang's single-phase window is δ < 6.5 %. The phase-selection maps draw the joint (δ, ΔH mix) windows.", refs: ["zhang2008"], theory: "sec-delta", eqn: "eq-delta" },
+        "Mean melting temperature": { sym: "Tm", eq: "T_m = \\sum_i c_i\\,T_{m,i}", inputs: ["melting"], interp: "Rule-of-mixtures average. It feeds Ω and is the default annealing temperature for King Φ and κ.", refs: ["crc", "yang2012"], theory: "sec-omega", eqn: "eq-omega" },
+        "Mixing enthalpy": { sym: "ΔH mix", eq: "\\Delta H_{\\mathrm{mix}} = \\sum_{i<j} 4\\,c_i c_j\\,\\Delta H^{\\mathrm{mix}}_{ij}", inputs: ["pairs"], interp: "Regular-solution estimate over Miedema binary enthalpies. The model is semi-empirical, and pairs involving Mn carry the largest parametrization uncertainty.", refs: ["takeuchi2005", "deboer1988", "matminer2018"], theory: "sec-hmix", eqn: "eq-hmix" },
         "Valence electron concentration": { sym: "VEC", eq: "\\mathrm{VEC} = \\sum_i c_i\\,\\mathrm{VEC}_i", inputs: ["valence"], interp: "Guo's bands: FCC at VEC ≥ 8, BCC below 6.87, mixed between. Read it only after a solid-solution verdict.", refs: ["guo2011vec"], theory: "sec-vec", eqn: "eq-vec" },
         "Omega parameter": { sym: "Ω", eq: "\\Omega = \\dfrac{T_m\\,\\Delta S_{\\mathrm{mix}}}{|\\Delta H_{\\mathrm{mix}}|}", inputs: ["melting", "pairs"], interp: "Ω ≥ 1.1 favors the entropy-stabilized solid solution. Diverges as ΔH mix → 0, so treat huge values qualitatively.", refs: ["yang2012"], theory: "sec-omega", eqn: "eq-omega" },
         "Electronegativity mismatch": { sym: "Δχ", eq: "\\Delta\\chi = \\sqrt{\\textstyle\\sum_i c_i\\,(\\chi_i - \\bar\\chi)^2}", inputs: ["chi"], interp: "Large values favor ordered compounds. For oxides the same statistic runs over the cation set.", refs: ["pauling1960"], theory: null, eqn: "eq-chi" },
         "Mean electronegativity": { sym: "χ̄", eq: "\\bar\\chi = \\sum_i c_i\\,\\chi_i", inputs: ["chi"], interp: "Composition-weighted mean of the Pauling set.", refs: ["pauling1960"], theory: null, eqn: "eq-chi" },
-        "Mismatch entropy": { sym: "S_E", eq: null, inputs: ["radius"], interp: "Mansoori hard-sphere excess entropy from the diameter distribution, averaged over bcc (0.68) and fcc (0.74) packing fractions; the denominator of Ye's φ.", refs: ["mansoori1971", "takeuchi2000"], theory: null, eqn: null },
+        "Mismatch entropy": { sym: "S_E", eq: null, inputs: ["radius"], interp: "Mansoori hard-sphere excess entropy from the diameter distribution, averaged over bcc (0.68) and fcc (0.74) packing fractions. Ye's φ uses it as the denominator.", refs: ["mansoori1971", "takeuchi2000"], theory: null, eqn: null },
         "Solid-solution Gibbs proxy": { sym: "ΔG SS", eq: "\\Delta G_{\\mathrm{ss}} = \\Delta H_{\\mathrm{mix}} - T\\,\\Delta S_{\\mathrm{mix}}", inputs: ["pairs", "temperature"], interp: "Gibbs energy of the disordered solution at the chosen temperature.", refs: ["king2016"], theory: "sec-prediction", eqn: null },
         "Most stable binary proxy": { sym: "ΔG max", eq: null, inputs: ["pairs"], interp: "The most negative binary pair enthalpy, standing in for the most stable competing intermetallic (King's ΔS ≈ 0 assumption). Documented approximation: it underestimates King's multi-binary allocation for 4+ elements, so Φ here runs larger than the paper's scale.", refs: ["king2016", "takeuchi2005"], theory: "sec-prediction", eqn: null },
         "King Phi": { sym: "Φ", eq: "\\Phi = \\dfrac{\\Delta G_{\\mathrm{ss}}}{-|\\Delta G_{\\mathrm{max}}|}", inputs: ["pairs", "temperature"], interp: "Φ > 1 suggests the solid solution beats the best binary compound at the chosen temperature. Carries the ΔG max approximation noted on that card.", refs: ["king2016"], theory: "sec-prediction", eqn: null },
-        "Ye phi": { sym: "φ", eq: "\\varphi = \\dfrac{\\Delta S_{\\mathrm{mix}} - |\\Delta H_{\\mathrm{mix}}|/T_m}{|S_E|}", inputs: ["pairs", "melting", "radius"], interp: "Intrinsic-entropy screen; φ > 20 favors single-phase solid solutions.", refs: ["ye2015phi", "mansoori1971"], theory: "sec-prediction", eqn: null },
-        "Singh Lambda": { sym: "Λ", eq: "\\Lambda = \\dfrac{\\Delta S_{\\mathrm{mix}}}{\\delta^2}", inputs: ["radius"], interp: "Λ > 0.96 single disordered solid solution; 0.24–0.96 solid solution plus compounds; < 0.24 compound-dominated. δ enters in percent.", refs: ["singh2014"], theory: "sec-geometry", eqn: "eq-lambda" },
-        "Wang gamma": { sym: "γ", eq: "\\omega(r_c) = 1 - \\sqrt{\\dfrac{(r_c+\\bar r)^2 - \\bar r^2}{(r_c+\\bar r)^2}},\\quad \\gamma = \\dfrac{\\omega_S}{\\omega_L}", inputs: ["radius"], interp: "γ < 1.175 means the size mismatch is still packable as a crystalline solid solution; equal radii give exactly 1.", refs: ["wang2015"], theory: "sec-geometry", eqn: "eq-gamma-wang" },
-        "Elastic-strain energy": { sym: "ΔH el", eq: "\\Delta H_{\\mathrm{el}} = \\sum_i \\dfrac{c_i B_i (V_i - \\bar V)^2}{2 V_i},\\quad \\bar V = \\dfrac{\\sum_i c_i B_i V_i}{\\sum_i c_i B_i}", inputs: ["mechanics"], interp: "Andreoli's windows: fcc solid solutions ≤ 6.05 kJ/mol, bcc 6.05–22, above 22 glasses and intermetallics. Our B and V come from the vendored matminer table, which differs from the paper's elastic sources; read the window, not the third decimal.", refs: ["andreoli2019"], theory: "sec-elastic", eqn: "eq-hel" },
+        "Ye phi": { sym: "φ", eq: "\\varphi = \\dfrac{\\Delta S_{\\mathrm{mix}} - |\\Delta H_{\\mathrm{mix}}|/T_m}{|S_E|}", inputs: ["pairs", "melting", "radius"], interp: "Intrinsic-entropy screen. φ > 20 favors single-phase solid solutions.", refs: ["ye2015phi", "mansoori1971"], theory: "sec-prediction", eqn: null },
+        "Singh Lambda": { sym: "Λ", eq: "\\Lambda = \\dfrac{\\Delta S_{\\mathrm{mix}}}{\\delta^2}", inputs: ["radius"], interp: "Λ > 0.96 means a single disordered solid solution, 0.24–0.96 means solid solution plus compounds, and below 0.24 compounds dominate. δ enters in percent.", refs: ["singh2014"], theory: "sec-geometry", eqn: "eq-lambda" },
+        "Wang gamma": { sym: "γ", eq: "\\omega(r_c) = 1 - \\sqrt{\\dfrac{(r_c+\\bar r)^2 - \\bar r^2}{(r_c+\\bar r)^2}},\\quad \\gamma = \\dfrac{\\omega_S}{\\omega_L}", inputs: ["radius"], interp: "γ < 1.175 means the size mismatch is still packable as a crystalline solid solution. Equal radii give exactly 1.", refs: ["wang2015"], theory: "sec-geometry", eqn: "eq-gamma-wang" },
+        "Elastic-strain energy": { sym: "ΔH el", eq: "\\Delta H_{\\mathrm{el}} = \\sum_i \\dfrac{c_i B_i (V_i - \\bar V)^2}{2 V_i},\\quad \\bar V = \\dfrac{\\sum_i c_i B_i V_i}{\\sum_i c_i B_i}", inputs: ["mechanics"], interp: "Andreoli's windows: fcc solid solutions ≤ 6.05 kJ/mol, bcc 6.05–22, above 22 glasses and intermetallics. The B and V values here come from the vendored matminer table, which differs from the paper's elastic sources, so read the window, not the third decimal.", refs: ["andreoli2019"], theory: "sec-elastic", eqn: "eq-hel" },
         "Compound enthalpy (Miedema+ASD)": { sym: "ΔH compound", eq: null, inputs: ["miedema-params"], interp: "Ordered-compound formation enthalpy from the Miedema macroscopic-atom model with the atomic-size-difference correction.", refs: ["miedema1980", "deboer1988"], theory: "sec-compound", eqn: "eq-compound" },
         "Solid solution enthalpy": { sym: "ΔH SS", eq: null, inputs: ["miedema-params", "mechanics"], interp: "Chemical + elastic + structural decomposition of the disordered solution's formation enthalpy.", refs: ["deboer1988", "eshelby1957", "friedel1954"], theory: "sec-ss", eqn: "eq-ssmied" },
         "SS chemical contribution": { sym: "ΔH chem", eq: null, inputs: ["miedema-params"], interp: "Miedema interfacial term of the solid-solution enthalpy.", refs: ["miedema1980", "deboer1988"], theory: "sec-ss", eqn: "eq-ssmied" },
@@ -7854,15 +7854,15 @@
         "Amorphous enthalpy": { sym: "ΔH AM", eq: null, inputs: ["miedema-params", "melting"], interp: "Amorphous-phase enthalpy: chemical term plus the topological 3.5·Σcᵢ T m,i correction.", refs: ["loeff1988", "deboer1988"], theory: "sec-am", eqn: "eq-am" },
         "AM topological contribution": { sym: "ΔH topo", eq: null, inputs: ["melting"], interp: "The 3.5·Σcᵢ T m,i topological term of the amorphous enthalpy.", refs: ["loeff1988"], theory: "sec-am", eqn: "eq-am" },
         "Yeh entropy rule": { sym: "ΔS mix vs R", eq: null, inputs: ["composition"], interp: "≥ 1.5R high entropy, 1R–1.5R medium entropy, below dilute. A definition, not a phase prediction.", refs: ["yeh2004"], theory: "sec-entropy", eqn: "eq-smix" },
-        "Zhang size-mismatch rule": { sym: "δ < 6.5 %", eq: null, inputs: ["radius"], interp: "Single phase predicted below 6.5 %; an empirical screen calibrated on the 2008 survey.", refs: ["zhang2008"], theory: "sec-delta", eqn: "eq-delta" },
+        "Zhang size-mismatch rule": { sym: "δ < 6.5 %", eq: null, inputs: ["radius"], interp: "Single phase predicted below 6.5 %. The screen is empirical, calibrated on the 2008 survey.", refs: ["zhang2008"], theory: "sec-delta", eqn: "eq-delta" },
         "Guo–Liu VEC rule": { sym: "VEC bands", eq: null, inputs: ["valence"], interp: "FCC at VEC ≥ 8, BCC below 6.87. Says which lattice a solid solution prefers, not whether one forms. Within 0.2 of either cutoff the published data scatter, so the card adds a borderline note there.", refs: ["guo2011vec"], theory: "sec-vec", eqn: "eq-vec" },
         "Yang–Zhang Ω rule": { sym: "Ω > 1.1", eq: null, inputs: ["melting", "pairs"], interp: "Solid solution favored above 1.1. Unstable near ΔH mix ≈ 0 (reported, not hidden).", refs: ["yang2012"], theory: "sec-omega", eqn: "eq-omega" },
         "King Phi rule": { sym: "Φ > 1", eq: null, inputs: ["pairs", "temperature"], interp: "Solid solution predicted when Φ exceeds 1 at the chosen temperature.", refs: ["king2016"], theory: "sec-prediction", eqn: null },
         "Ye phi rule": { sym: "φ > 20", eq: null, inputs: ["pairs", "melting", "radius"], interp: "Solid solution predicted above 20.", refs: ["ye2015phi"], theory: "sec-prediction", eqn: null },
-        "Senkov–Miracle kappa": { sym: "k₁ vs k₁ᶜʳ(T)", eq: "k_1^{\\mathrm{cr}}(T) = 1 + \\dfrac{(1-k_2)\\,T\\,\\Delta S_{\\mathrm{mix}}}{|\\Delta H_{\\mathrm{mix}}|},\\quad k_2 = 0.6", inputs: ["pairs", "temperature"], interp: "Solid solution favored while k₁ = ΔH IM/ΔH mix stays below k₁ᶜʳ(T); the verdict here is computed from the direct Gibbs comparison (robust when ΔH mix ≥ 0), with ΔS IM = 0.6·ΔS mix per the paper and ΔH IM = the most-negative-binary proxy. That pair counts in full however little of its elements the alloy holds, so the card notes when one of them is under 10 at.%.", refs: ["senkov2016"], theory: "sec-kappa", eqn: "eq-kappa" },
-        "Tsai sigma window": { sym: "6.88 ≤ VEC ≤ 7.84", eq: null, inputs: ["valence"], interp: "Applies to annealed Cr- and/or V-containing alloys; inside the window the sigma phase tends to precipitate. Not applicable without Cr or V.", refs: ["tsai2013"], theory: "sec-prediction", eqn: "eq-vec" },
+        "Senkov–Miracle kappa": { sym: "k₁ vs k₁ᶜʳ(T)", eq: "k_1^{\\mathrm{cr}}(T) = 1 + \\dfrac{(1-k_2)\\,T\\,\\Delta S_{\\mathrm{mix}}}{|\\Delta H_{\\mathrm{mix}}|},\\quad k_2 = 0.6", inputs: ["pairs", "temperature"], interp: "Solid solution favored while k₁ = ΔH IM/ΔH mix stays below k₁ᶜʳ(T). The verdict here comes from the direct Gibbs comparison, which stays well defined when ΔH mix ≥ 0, with ΔS IM = 0.6·ΔS mix per the paper and ΔH IM = the most-negative-binary proxy. That pair counts in full however little of its elements the alloy holds, so the card notes when one of them is under 10 at.%.", refs: ["senkov2016"], theory: "sec-kappa", eqn: "eq-kappa" },
+        "Tsai sigma window": { sym: "6.88 ≤ VEC ≤ 7.84", eq: null, inputs: ["valence"], interp: "Applies to annealed Cr- and/or V-containing alloys. Inside the window the sigma phase tends to precipitate. Not applicable without Cr or V.", refs: ["tsai2013"], theory: "sec-prediction", eqn: "eq-vec" },
         "Sheikh ductility screen": { sym: "VEC < 4.5", eq: null, inputs: ["valence"], interp: "For single-phase bcc refractory HEAs made only of Ti, Zr, Hf, V, Nb, Ta, Cr, Mo and W: below 4.5 intrinsically ductile, at or above 4.6 brittle. Any other element makes it not applicable. Present it alongside the Guo bands, not as a universal verdict.", refs: ["sheikh2016"], theory: "sec-prediction", eqn: "eq-vec" },
-        "Configurational entropy": { sym: "ΔS config", eq: "\\Delta S_{\\mathrm{config}} = -R \\sum_s m_s \\sum_i x_{i,s} \\ln x_{i,s}", inputs: ["shannon"], interp: "Sublattice-weighted ideal mixing entropy per mole of formula units; ordered sublattices contribute zero.", refs: ["rost2015"], theory: "sec-heo", eqn: "eq-oxide-s" },
+        "Configurational entropy": { sym: "ΔS config", eq: "\\Delta S_{\\mathrm{config}} = -R \\sum_s m_s \\sum_i x_{i,s} \\ln x_{i,s}", inputs: ["shannon"], interp: "Sublattice-weighted ideal mixing entropy per mole of formula units. Ordered sublattices contribute zero.", refs: ["rost2015"], theory: "sec-heo", eqn: "eq-oxide-s" },
         "Entropy per cation site": { sym: "ΔS/site", eq: null, inputs: ["shannon"], interp: "The value the 1.5R rock-salt threshold applies to.", refs: ["rost2015"], theory: "sec-heo", eqn: "eq-oxide-s" },
         "Entropy classification": { sym: "ΔS vs 1.5R", eq: null, inputs: ["shannon"], interp: "Rost's entropy-stabilization regime marker.", refs: ["rost2015"], theory: "sec-heo", eqn: "eq-oxide-s" },
         "Cation size disorder": { sym: "δr", eq: "\\delta_r = 100\\sqrt{\\textstyle\\sum_i x_i (1 - r_i/\\bar r)^2}", inputs: ["shannon"], interp: "Ionic analog of the alloy δ over Shannon radii at the family's coordination.", refs: ["shannon1976", "manchon2025"], theory: "sec-shannon", eqn: "eq-deltar" },
@@ -7872,11 +7872,11 @@
         "Mean cation radius": { sym: "r̄", eq: null, inputs: ["shannon"], interp: "Composition-weighted mean Shannon radius.", refs: ["shannon1976"], theory: "sec-shannon", eqn: null },
         "Mean A-site radius": { sym: "r̄(A)", eq: null, inputs: ["shannon"], interp: "Mean Shannon radius of the A sublattice.", refs: ["shannon1976"], theory: "sec-perovskite", eqn: null },
         "Mean B-site radius": { sym: "r̄(B)", eq: null, inputs: ["shannon"], interp: "Mean Shannon radius of the B sublattice.", refs: ["shannon1976"], theory: "sec-perovskite", eqn: null },
-        "Radius dispersion (sample SD)": { sym: "σ(r)", eq: null, inputs: ["shannon"], interp: "Sample standard deviation of the eight-fold radii; Spiridigliozzi's fluorite predictor reads this directly.", refs: ["spiridigliozzi2021", "spiridigliozzi2023"], theory: "sec-fluorite", eqn: null },
+        "Radius dispersion (sample SD)": { sym: "σ(r)", eq: null, inputs: ["shannon"], interp: "Sample standard deviation of the eight-fold radii, which Spiridigliozzi's fluorite predictor reads directly.", refs: ["spiridigliozzi2021", "spiridigliozzi2023"], theory: "sec-fluorite", eqn: null },
         "Goldschmidt tolerance factor": { sym: "t", eq: "t = \\dfrac{\\bar r_A + r_O}{\\sqrt{2}\\,(\\bar r_B + r_O)}", inputs: ["shannon"], interp: "Cubic perovskites cluster near t = 1 (empirically ~0.9–1.0).", refs: ["goldschmidt1926"], theory: "sec-perovskite", eqn: "eq-tolerance" },
         "Octahedral factor": { sym: "μ", eq: "\\mu = \\bar r_B / r_O", inputs: ["shannon"], interp: "A stable BO₆ octahedron needs 0.414 ≤ μ ≤ 0.732.", refs: ["goldschmidt1926", "manchon2025"], theory: "sec-perovskite", eqn: null },
-        "Bartel tolerance factor": { sym: "τ", eq: null, inputs: ["shannon"], interp: "Improved tolerance factor; τ < 4.18 predicts perovskite stability.", refs: ["bartel2019"], theory: "sec-perovskite", eqn: null },
-        "Radius ratio": { sym: "r(A)/r(B)", eq: null, inputs: ["shannon"], interp: "Pyrochlores form for 1.46–1.78; below, the defect fluorite takes over.", refs: ["subramanian1983"], theory: "sec-fluorite", eqn: null },
+        "Bartel tolerance factor": { sym: "τ", eq: null, inputs: ["shannon"], interp: "Improved tolerance factor. τ < 4.18 predicts perovskite stability.", refs: ["bartel2019"], theory: "sec-perovskite", eqn: null },
+        "Radius ratio": { sym: "r(A)/r(B)", eq: null, inputs: ["shannon"], interp: "Pyrochlores form for 1.46–1.78. Below that range the defect fluorite takes over.", refs: ["subramanian1983"], theory: "sec-fluorite", eqn: null },
         "Mean cation electronegativity": { sym: "χ̄", eq: null, inputs: ["shannon"], interp: "Mean Pauling electronegativity over the cation set.", refs: ["pauling1960"], theory: null, eqn: "eq-chi" },
       };
 
@@ -7962,7 +7962,7 @@
           });
         });
         return `<table class="prov-inputs"><thead><tr><th>Cation</th><th>state</th><th>r (Å)</th><th></th></tr></thead><tbody>${rows.join("")}</tbody></table>` +
-          `<p class="prov-note">Shannon (1976) effective ionic radii at the family's coordination; assignment rules in the Theory view.</p>`;
+          `<p class="prov-note">Shannon (1976) effective ionic radii at the family's coordination. The Theory view gives the assignment rules.</p>`;
       }
 
       function oxideChargeLabelText(charge) {
@@ -7991,10 +7991,10 @@
           } else if (kind === "temperature") {
             html += provTemperatureRow();
           } else if (kind === "miedema-params") {
-            html += `<p class="prov-note">Per-element Miedema parameters (φ*, n<sub>ws</sub>, V<sup>2/3</sup>) from the vendored matminer table; see the <a href="#data" data-jump-view="data">Element data view</a> for the file pin and license.</p>`;
+            html += `<p class="prov-note">Per-element Miedema parameters (φ*, n<sub>ws</sub>, V<sup>2/3</sup>) from the vendored matminer table. See the <a href="#data" data-jump-view="data">Element data view</a> for the file pin and license.</p>`;
           }
         });
-        return html || `<p class="prov-note">Derived from the descriptors above; no additional element data enters.</p>`;
+        return html || `<p class="prov-note">Derived from the descriptors above, with no additional element data.</p>`;
       }
 
       function provRefsHtml(entry) {
@@ -8163,7 +8163,7 @@
           },
           generated: generated,
           data: {
-            element_table: "55 elements: radii LA-4003 (1968), melting CRC, VEC Guo convention, chi Pauling set; per-element notes in the Data view",
+            element_table: "55 elements: radii LA-4003 (1968), melting CRC, VEC Guo convention, chi Pauling set. Per-element notes are in the Data view.",
             pair_table: "Miedema binary enthalpies, de Boer 1988 via Takeuchi-Inoue 2005 and matminer",
             file_sha256: DATA_FILE_SHAS,
             tables_short_sha: DATA_TABLES_SHORT_SHA,
@@ -8272,7 +8272,7 @@
         const copyReceipt = document.getElementById("cite-copy-receipt");
         const download = document.getElementById("cite-download-receipt");
         if (!copyText) return;
-        const notReady = () => { citeMessage("Result ID is still computing; try again in a moment."); };
+        const notReady = () => { citeMessage("Result ID is still computing. Try again in a moment."); };
         copyText.addEventListener("click", () => {
           if (!citeState) { notReady(); return; }
           navigator.clipboard.writeText(citationText()).then(() => citeMessage("Citation copied.")).catch(() => citeMessage("Clipboard unavailable."));
@@ -8419,7 +8419,7 @@
         const files = [
           { name: "elemental.py", desc: "The 55-element property table (radii, melting points, VEC, chi) with per-element source comments.", up: "https://github.com/dfieser/hea-bench/blob/main/src/hea_bench/descriptors/data/elemental.py", license: "MIT (hea-bench)" },
           { name: "pair_enthalpies.tsv", desc: "2628 Miedema binary mixing enthalpies over 75 elements, vendored from matminer's MiedemaLiquidDeltaHf.tsv.", up: "https://github.com/hackingmaterials/matminer/blob/main/src/matminer/utils/data_files/MiedemaLiquidDeltaHf.tsv", license: "BSD-3-Clause (matminer)" },
-          { name: "miedema_parameters.csv", desc: "Per-element Miedema parameters and mechanics (molar volume; the upstream column named 'compressibility' holds the bulk modulus in GPa).", up: "https://github.com/hackingmaterials/matminer/blob/main/src/matminer/utils/data_files/Miedema.csv", license: "BSD-3-Clause (matminer)" },
+          { name: "miedema_parameters.csv", desc: "Per-element Miedema parameters and mechanics (molar volume, and the bulk modulus in GPa under the upstream column named 'compressibility').", up: "https://github.com/hackingmaterials/matminer/blob/main/src/matminer/utils/data_files/Miedema.csv", license: "BSD-3-Clause (matminer)" },
           { name: "provenance.py", desc: "The per-element source notes, cross-check values, and bibliography this page renders.", up: "https://github.com/dfieser/hea-bench/blob/main/src/hea_bench/descriptors/data/provenance.py", license: "MIT (hea-bench)" },
         ];
         document.getElementById("data-files-list").innerHTML = files.map((f) => {

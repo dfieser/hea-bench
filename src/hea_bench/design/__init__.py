@@ -5,7 +5,7 @@ filters by rule, property, composition, and domain constraints, and
 returns a Pareto front where every candidate carries its full receipt
 (descriptors, rule verdicts, property predictions with intervals,
 novelty components, domain flag). It is a screening and prioritization
-aid; the property models under it are honest about their error and so
+aid. The property models under it are honest about their error, and so
 is the front.
 """
 

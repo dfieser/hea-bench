@@ -4,10 +4,10 @@
 
 with ΔS_mix in J/(mol·K) and δ in percent, following the units used
 in the defining paper's Fig. 2. Interpretation bands from the paper:
-Λ > 0.96 single disordered solid solution; 0.24 ≤ Λ ≤ 0.96 solid
-solution plus compounds; Λ < 0.24 compound-dominated.
+Λ > 0.96 means a single disordered solid solution, 0.24 ≤ Λ ≤ 0.96 a
+solid solution plus compounds, and Λ < 0.24 compound-dominated.
 
-Two elements with identical tabulated radii give δ = 0; Λ is then
+Two elements with identical tabulated radii give δ = 0. Λ is then
 unbounded and this module returns ``math.inf`` (trivially inside the
 single-solid-solution band), which callers may render as "δ = 0".
 
@@ -30,7 +30,7 @@ from .size import delta
 
 @accepts_formula
 def singh_lambda(composition: Composition) -> float:
-    """Λ = ΔS_mix / δ² (J·mol⁻¹·K⁻¹·%⁻²); ``math.inf`` when δ = 0."""
+    """Λ = ΔS_mix / δ² in J·mol⁻¹·K⁻¹·%⁻², or ``math.inf`` when δ = 0."""
     d = delta(composition)
     if d == 0.0:
         return math.inf

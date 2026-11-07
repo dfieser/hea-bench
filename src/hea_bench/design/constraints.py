@@ -1,9 +1,9 @@
 """Constraint and objective vocabulary for the composition search.
 
-Small frozen dataclasses; the search evaluates them. Constraints AND
+Small frozen dataclasses that the search evaluates. Constraints AND
 together. ``DomainConstraint(in_domain=True)`` is present by default in
 every search because optimizers exploit model error hardest exactly
-where the data runs out; opting out is explicit
+where the data runs out. Opting out is explicit
 (``DomainConstraint(in_domain=None)``), never a silent default.
 """
 
@@ -31,8 +31,8 @@ class RuleConstraint:
     """Require a rule verdict.
 
     ``rule`` is a module name from ``hea_bench.rules`` (for example
-    ``"guo_vec"``); ``satisfied`` is the verdict string, or a tuple of
-    acceptable verdicts. A rule that cannot compute for a candidate
+    ``"guo_vec"``), and ``satisfied`` is the verdict string, or a tuple
+    of acceptable verdicts. A rule that cannot compute for a candidate
     (missing pair data) fails the constraint, conservatively.
     """
 
@@ -51,10 +51,11 @@ class RuleConstraint:
 class PropertyConstraint:
     """Bound a property. ``bound`` picks what is compared for tier B.
 
-    ``"point"`` compares the point prediction; ``"lower"``/``"upper"``
-    compare that end of the conformal interval, the conservative choice
-    when the constraint protects against over- or under-shooting.
-    Tier A properties have no interval; they always compare the value.
+    ``"point"`` compares the point prediction, and ``"lower"`` or
+    ``"upper"`` compares that end of the conformal interval, the
+    conservative choice when the constraint protects against over- or
+    under-shooting. Tier A properties have no interval, so they always
+    compare the value.
     """
 
     prop: str

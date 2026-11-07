@@ -44,14 +44,14 @@ def _element(label: str, values: Mapping) -> ElementProperties:
         )
     if label in ELEMENTAL_DATA:
         raise ValueError(
-            f"{label!r} is a tabulated element; give a custom element its own label, "
-            f"such as {label}2"
+            f"{label!r} is a tabulated element, so give the custom element its own "
+            f"label, such as {label}2"
         )
     unknown = sorted(set(values) - {"radius_pm", "melting_K", "valence", "electronegativity"})
     if unknown:
         raise ValueError(
-            f"custom element {label!r}: unknown fields {unknown}; use radius_pm, "
-            f"melting_K, valence and (optionally) electronegativity"
+            f"custom element {label!r} has unknown fields {unknown}. Use radius_pm, "
+            f"melting_K, valence and, optionally, electronegativity."
         )
 
     def number(name: str, *, minimum: float, strict: bool, optional: bool = False):

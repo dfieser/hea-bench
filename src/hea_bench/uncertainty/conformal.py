@@ -2,7 +2,7 @@
 
 Conformal prediction turns a fitted point predictor into a set- or
 interval-valued predictor with a distribution-free, finite-sample
-marginal coverage guarantee: at miscoverage level alpha, the returned
+marginal coverage guarantee. At miscoverage level alpha, the returned
 set contains the true label (or the interval the true value) with
 probability at least 1 - alpha, on average over draws of calibration
 and test data. The guarantee needs no assumption about the model, only
@@ -31,7 +31,7 @@ elements apart from the multi-principal alloys, whose errors differ.
 
 The exchangeability assumption is the honest print in the corner. A
 query in a novel chemistry is not exchangeable with the calibration
-rows, and the guarantee weakens there; that is why
+rows, and the guarantee weakens there. That is why
 :mod:`hea_bench.uncertainty.applicability` ships alongside and why
 every prediction surface in this package carries an ``in_domain`` flag
 next to its interval. Empirical behavior on the corpus is measured in
@@ -40,8 +40,8 @@ next to its interval. Empirical behavior on the corpus is measured in
 Scores are the standard ones: ``1 - p_model(true class)`` for
 classification, absolute residual for regression. The calibration
 quantile uses the finite-sample correction, the k-th smallest score
-with ``k = ceil((n + 1) * (1 - alpha))``. When k exceeds n the
-requested level is unreachable with this calibration size; the
+with ``k = ceil((n + 1) * (1 - alpha))``. When k exceeds n, the
+requested level is unreachable with this calibration size. The
 classifier then returns the full class set and the regressor an
 unbounded interval, and :meth:`degenerate` reports it, because a
 maximal prediction is the truthful answer rather than an error.
@@ -52,7 +52,7 @@ no label is credible, not a forced best guess.
 
 This module wraps models duck-typed to the scikit-learn interface
 (``predict_proba`` plus ``classes_``, or ``predict``) but does not
-import scikit-learn; it is standard-library only, like the core.
+import scikit-learn. It is standard-library only, like the core.
 """
 
 from __future__ import annotations
@@ -105,9 +105,9 @@ def cross_val_scores(
 ) -> list[float]:
     """Every row's nonconformity score from a model fitted without its fold.
 
-    ``make_model()`` returns a fresh unfitted estimator; ``folds`` yields
-    ``(train_positions, test_positions)`` pairs whose test parts cover
-    every row exactly once. Classifiers (anything with
+    ``make_model()`` returns a fresh unfitted estimator, and ``folds``
+    yields ``(train_positions, test_positions)`` pairs whose test parts
+    cover every row exactly once. Classifiers (anything with
     ``predict_proba``) get :func:`classifier_scores`, regressors
     :func:`regressor_scores`.
     """
@@ -134,8 +134,8 @@ class _SplitConformal:
     """Calibration-quantile machinery shared by both wrappers.
 
     Subclasses store sorted nonconformity scores per group in
-    ``_scores`` (the key :data:`POOLED` when not calibrated by group);
-    everything about turning those scores into a finite-sample threshold
+    ``_scores`` (the key :data:`POOLED` when not calibrated by group).
+    Everything about turning those scores into a finite-sample threshold
     lives here, once, because this is the trust layer and divergence
     between the two wrappers would be worst.
     """
@@ -187,7 +187,7 @@ class _SplitConformal:
         if self._scores is None:
             raise ValueError("call fit_calibrate before predicting")
         if group is POOLED and POOLED not in self._scores:
-            raise ValueError("this wrapper is calibrated by group; name the query's group")
+            raise ValueError("this wrapper is calibrated by group, so name the query's group")
         scores = self._scores.get(group, ())
         rank = _quantile_rank(len(scores), alpha)
         if rank > len(scores):
@@ -262,7 +262,7 @@ class ConformalClassifier(_SplitConformal):
     def predict_set(
         self, X: Sequence, alpha: float = 0.1, groups: Sequence | None = None
     ) -> list[set[str]]:
-        """One label set per query row; may be empty, may be the full set."""
+        """One label set per query row. A set may be empty or the full set."""
         rows = self._model.predict_proba(list(X))
         return [
             set(self._classes)
@@ -296,7 +296,7 @@ class ConformalRegressor(_SplitConformal):
     def predict_interval(
         self, X: Sequence, alpha: float = 0.1, groups: Sequence | None = None
     ) -> list[tuple[float, float]]:
-        """One symmetric interval per query row; unbounded when degenerate."""
+        """One symmetric interval per query row, unbounded when degenerate."""
         predictions = self._model.predict(list(X))
         return [
             (-math.inf, math.inf)

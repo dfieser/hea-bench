@@ -16,8 +16,8 @@ general-purpose HEA descriptor alongside the canonical six.
 References
 ----------
 Pauling, L. (1960). *The Nature of the Chemical Bond*, 3rd ed. Cornell
-University Press. (Source of the Pauling-scale values; the WebElements
-consistent set used here and reproduced in the CRC Handbook, Haynes 2016.)
+University Press. (Source of the Pauling-scale values. The WebElements
+consistent set used here is reproduced in the CRC Handbook, Haynes 2016.)
 
 Guo, S. & Liu, C. T. (2011). Phase stability in high entropy alloys.
 *Progress in Natural Science: Materials International* **21**, 433-446.

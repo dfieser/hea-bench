@@ -10,7 +10,7 @@ fractional solid angle subtended by one neighbor is
 
     γ = ω_S / ω_L,   ω_S = ω(r_min), ω_L = ω(r_max)
 
-Equal radii give γ = 1 exactly; γ grows with size mismatch. The paper
+Equal radii give γ = 1 exactly, and γ grows with size mismatch. The paper
 finds crystalline solid solutions require γ < 1.175 (their dataset's
 boundary against intermetallic- and amorphous-forming compositions).
 

@@ -9,7 +9,7 @@ published split silently is how a benchmark stops being one.
 Every digest was computed with math.fsum-based normalization (see
 :func:`hea_bench.composition.normalize`) and verified byte-identical
 across Python 3.10 and 3.13 on Windows and Python 3.12 on Linux before
-pinning. A version's numbers never change once published; adding data
+pinning. A version's numbers never change once published. Adding data
 means adding a version with its own block here. The test suite, the CI
 ``benchmark-freeze`` job and the web app all check against this table.
 """

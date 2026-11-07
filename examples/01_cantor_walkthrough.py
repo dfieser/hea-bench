@@ -1,5 +1,5 @@
 # %% [markdown]
-# # Example 1 — The Cantor alloy, end to end
+# # Example 1: the Cantor alloy, end to end
 #
 # This notebook walks through every descriptor and every empirical
 # rule in `hea-bench`, using the canonical equimolar CoCrFeMnNi
@@ -42,12 +42,12 @@ for el, frac in sorted(cantor.items()):
     print(f"  {el}: {frac:.4f}")
 
 # %% [markdown]
-# Alternative ways to express the same alloy — all three parse to
+# Alternative ways to express the same alloy. All three parse to
 # the same mole-fraction dict:
 
 # %%
 a = hea_bench.parse_formula("Co1Cr1Fe1Mn1Ni1")              # all unit coefficients
-b = hea_bench.parse_formula("Co 1 Cr 1 Fe 1 Mn 1 Ni 1")     # Borg-style spaces
+b = hea_bench.parse_formula("Co1 Cr1 Fe1 Mn1 Ni1")         # Borg-style spaces
 c = hea_bench.parse_formula("Co5Cr5Fe5Mn5Ni5")              # equimolar, any scale
 print("a == b == c:", a == b == c)
 
@@ -86,13 +86,13 @@ print(f"  Φ (King)  =  {hea_bench.phi_king(cantor):8.4f}              ΔG_ss / 
 print(f"  φ (Ye)    =  {hea_bench.phi_ye(cantor):8.4f}              (ΔS_mix - |ΔH_mix|/T_m) / |S_E|")
 
 # %% [markdown]
-# ## Applying the six canonical phase-prediction rules
+# ## Applying six of the nine canonical phase-prediction rules
 
 # %%
 from hea_bench.rules import yeh_smix, zhang_delta, guo_vec, yang_omega
 from hea_bench.rules import king_phi, ye_phi
 
-print(f"  Cantor — empirical rule predictions")
+print("  Cantor: empirical rule predictions")
 print(f"  --------------------------------------------")
 print(f"  Yeh ΔS_mix bin     :  {yeh_smix.predict(cantor)}")
 print(f"  Zhang δ < 6.5%     :  {zhang_delta.predict(cantor)}")
@@ -106,18 +106,18 @@ print(f"  Ye φ > 20.0        :  {ye_phi.predict(cantor)}")
 #
 # All six rules agree: Cantor is **HEA-class, single-phase, FCC,
 # solid-solution**. Experimentally, CoCrFeMnNi is indeed a single-phase
-# FCC solid solution at high temperature — this is the famous original
-# observation by Cantor *et al.* (2004) and Yeh *et al.* (2004) that
-# launched the field. So all six rules score correctly on this one.
+# FCC solid solution at high temperature. Cantor *et al.* (2004) and
+# Yeh *et al.* (2004) made that original observation, which launched
+# the field. All six rules therefore score correctly on this alloy.
 #
 # The rules are simple empirical surrogates: a clean call on the Cantor
-# alloy is not a guarantee they generalise. Treat them as fast screens,
+# alloy is not a guarantee they generalize. Treat them as fast screens,
 # not predictions.
 #
 # ## A composition the rules disagree on
 #
-# Al-doped FeCoCrNi is a known "rule disagreement" alloy. At low Al
-# the system stays FCC; with more Al it transitions through FCC+BCC
+# The rules are known to disagree on Al-doped FeCoCrNi. At low Al
+# the system stays FCC. With more Al it transitions through FCC+BCC
 # duplex to fully BCC.
 
 # %%

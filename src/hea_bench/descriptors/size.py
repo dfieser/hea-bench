@@ -49,9 +49,9 @@ def delta(composition: Composition) -> float:
 
     Examples
     --------
-    Cantor alloy CoCrFeMnNi at equimolar composition (against the
-    Pauling-style atomic radii in :mod:`hea_bench.descriptors.data.elemental`;
-    literature values for δ vary 3.0–3.5% depending on radius source):
+    Cantor alloy CoCrFeMnNi at equimolar composition, against the
+    Pauling-style atomic radii in :mod:`hea_bench.descriptors.data.elemental`.
+    Literature values for δ vary 3.0–3.5% depending on radius source:
 
     >>> round(delta({"Co": 0.2, "Cr": 0.2, "Fe": 0.2, "Mn": 0.2, "Ni": 0.2}), 4)
     3.1641

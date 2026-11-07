@@ -44,8 +44,8 @@ them:
    is available. Every response carries units or uncertainty fields, a
    citation key where a parametrization is involved, and the library
    version. If you are an agent with MCP support, prefer those tools
-   over reimplementing the formulas below; if not, the Python API is
-   identical.
+   over reimplementing the formulas below. Without MCP support, use the
+   Python API, which is identical.
 3. **Web app**: <https://dfieser.github.io/hea-bench/>, built from
    `web/`. The calculator (alloys, oxides, ceramics, property and phase
    predictions), the Dataset, Design and Benchmark tabs. Point a person
@@ -81,7 +81,7 @@ Python >= 3.10. No required runtime dependencies for the core. The
 
 A **composition is a plain `dict`** mapping element symbol to amount:
 `{"Co": 0.2, "Cr": 0.2, "Fe": 0.2, "Mn": 0.2, "Ni": 0.2}`. Amounts do
-**not** need to sum to 1; they are normalized internally, so
+**not** need to sum to 1. The library normalizes them internally, so
 `{"Al": 1, "Co": 1, "Cr": 1}` is equiatomic AlCoCr. Every descriptor
 and rule accepts this dict directly. You rarely need anything else.
 
@@ -129,8 +129,8 @@ hb.wang_gamma(cantor)        # 1.093
 hb.h_elastic(cantor)         # 0.900   (kJ/mol)
 ```
 
-These values for the Cantor alloy are pinned in the regression
-suite; treat them as the canonical sanity check.
+The regression suite pins these Cantor-alloy values. Treat them as the
+canonical sanity check.
 
 ## Descriptor backends (optional)
 
@@ -142,8 +142,8 @@ adapts an installed HEACalculator to the same interface:
 anything the active backend cannot produce, and
 `descriptor_matrix(comps, backend=...)` builds that backend's feature
 matrix. Same-named values legitimately differ between backends
-(different vendored reference data; radius conventions differ most).
-The measured comparison is `docs/backend-agreement.md`; a missing
+(different vendored reference data, with radius conventions differing
+most). The measured comparison is `docs/backend-agreement.md`. A missing
 install raises `BackendUnavailableError` naming the exact pip command.
 The CLI mirror is `hea-bench describe FORMULA --backend native|heacalculator`.
 
@@ -172,8 +172,8 @@ hb.smix("CoCrFeMnNi")                   # or the formula string
 manager: inside the `with` block every descriptor, rule and formula
 parse also knows your elements and your pair enthalpies. An element is
 `{"radius_pm", "melting_K", "valence", "electronegativity"}`
-(electronegativity optional). A label shaped like an element symbol
-(`Xx`) can be written in formulas; `X1` cannot, because it reads as X
+(electronegativity optional). Formulas accept a label shaped like an
+element symbol (`Xx`). They do not accept `X1`, because it reads as X
 with amount 1. A pair value (`"Co-Xx"`, kJ/mol) adds a missing pair or
 overrides a tabulated one. Blocks nest, and nothing leaks outside them.
 
@@ -207,16 +207,16 @@ values are strings:
 | Yeh ΔS_mix | `yeh_smix.predict(comp)` | `"HEA"` / `"MEA"` / `"dilute"` | fixed (descriptive) |
 | Zhang δ | `zhang_delta.predict(comp, threshold=6.5)` | `"single-phase"` / `"multi-phase"` | percent, default 6.5 |
 | Yang Ω | `yang_omega.predict(comp, threshold=1.1)` | `"single-phase"` / `"multi-phase"` | default 1.1 |
-| Guo-Liu VEC | `guo_vec.predict(comp)`; `guo_vec.boundary_note(comp)` | `"FCC"` / `"BCC"` / `"mixed"`; note is a string when VEC is within 0.2 of a cutoff, else `None` | fixed bounds 8.0 / 6.87 |
+| Guo-Liu VEC | `guo_vec.predict(comp)`, `guo_vec.boundary_note(comp)` | `"FCC"` / `"BCC"` / `"mixed"`, and the note is a string when VEC is within 0.2 of a cutoff, else `None` | fixed bounds 8.0 / 6.87 |
 | King `Phi` | `king_phi.predict(comp, temperature_policy=None, threshold=1.0)` | `"solid_solution"` / `"intermetallic"` | defaults to `T = Tm` |
 | Ye `phi` | `ye_phi.predict(comp, threshold=20.0)` | `"solid_solution"` / `"intermetallic"` | default 20.0 |
-| Senkov-Miracle κ | `senkov_kappa.predict(comp, temperature=None)` | dataclass: `.verdict`, `.k1`, `.k1_cr`, `.g_ss_kj`, `.g_im_kj`, `.im_pair`, `.note` (set when that pair has an element under 10 at.%) | defaults to `T = Tm`; k₂ = 0.6 |
+| Senkov-Miracle κ | `senkov_kappa.predict(comp, temperature=None)` | dataclass: `.verdict`, `.k1`, `.k1_cr`, `.g_ss_kj`, `.g_im_kj`, `.im_pair`, `.note` (set when that pair has an element under 10 at.%) | defaults to `T = Tm`, k₂ = 0.6 |
 | Tsai σ window | `tsai_sigma.predict(comp)` | dataclass: `.verdict` in `sigma_prone` / `sigma_unlikely` / `not_applicable` | fixed 6.88-7.84, needs Cr/V |
-| Sheikh ductility | `sheikh_ductility.predict(comp)` | dataclass: `.verdict` in `ductile` / `brittle` / `borderline` / `not_applicable`, `.applies` | fixed 4.5 / 4.6; only alloys of Ti, Zr, Hf, V, Nb, Ta, Cr, Mo, W |
+| Sheikh ductility | `sheikh_ductility.predict(comp)` | dataclass: `.verdict` in `ductile` / `brittle` / `borderline` / `not_applicable`, `.applies` | fixed 4.5 / 4.6 (only alloys of Ti, Zr, Hf, V, Nb, Ta, Cr, Mo, W) |
 
 The three v2.1 rules return small frozen dataclasses (not bare
 strings) because their verdicts carry context (temperature, window
-membership); use `.verdict` for the string. Sheikh returns
+membership). Use `.verdict` for the string. Sheikh returns
 `not_applicable` for any alloy with an element outside the nine
 refractory metals its screen was built on.
 
@@ -230,17 +230,17 @@ ye_phi.predict(cantor)        # 'solid_solution'
 
 **Important:** these rules are weak, semi-empirical screens, not
 predictions. They were calibrated on small historical datasets and
-generalize poorly; do not treat a rule's output as ground truth.
+generalize poorly. Do not treat a rule's output as ground truth.
 
 ## The Ω singularity (read this)
 
 `omega = Tm·ΔSmix / |ΔHmix|` diverges as `ΔHmix → 0`. For near-ideal
-alloys (`|ΔHmix| ≲ 1–2 kJ/mol`) Ω is extremely sensitive — a few-kJ
+alloys (`|ΔHmix| ≲ 1–2 kJ/mol`) Ω is extremely sensitive. A few-kJ
 change in one pair value, or a different Miedema parametrization, can
 move Ω by an order of magnitude. Read Ω **qualitatively** in that
-regime; the phase verdict (Ω ≫ 1.1) is robust even when the magnitude
+regime. The phase verdict (Ω ≫ 1.1) is robust even when the magnitude
 is not. Absolute `ΔHmix` values depend on which Miedema pair table is
-used; published compilations disagree most on **Mn**.
+used, and published compilations disagree most on **Mn**.
 
 `hb.omega_sensitivity(comp, perturbation_kj_mol=2.0)` measures this for
 one alloy. It returns each pair's contribution to ΔHmix, the element
@@ -256,18 +256,18 @@ hea-bench --version
 hea-bench describe Al0.3CoCrFeNi   # every descriptor for one composition, as JSON
 ```
 
-The CLI covers the version and that one report; the Python API above
+The CLI covers the version and that one report. The Python API above
 is the documented surface.
 
 ## Data layout
 
-- `src/hea_bench/descriptors/data/` — the vendored element table (55
+- `src/hea_bench/descriptors/data/`: the vendored element table (55
   elements: radius, melting point, VEC, Pauling electronegativity), the
   matminer-derived Miedema pair-enthalpy table (`pair_enthalpies.tsv`,
   75 elements), and the Miedema elemental-parameter table
-  (`miedema_parameters.csv`). These are shipped inside the wheel; no
-  fetch step is needed.
-- `web/hea-calculator-core.js` — the JS port of the same math + tables,
+  (`miedema_parameters.csv`). The wheel ships these files, so no fetch
+  step is needed.
+- `web/hea-calculator-core.js`: the JS port of the same math + tables,
   used by the browser and desktop apps.
 
 The **Miedema formation-enthalpy decomposition** is in the library
@@ -282,9 +282,9 @@ d = miedema_decomposition({"Cu": 0.5, "Zr": 0.5})
 d["compound"]["H_form"], d["amorphous"]["H_total"]   # -30.78, -16.19
 ```
 
-It covers the 37 elements of the Miedema parameter table; any pair
-outside it makes the three totals `None` with a warning, and the core
-descriptors are unaffected. The MCP tool `alloy_descriptors` returns it
+It covers the 37 elements of the Miedema parameter table. Any pair
+outside it makes the three totals `None` with a warning and leaves the
+core descriptors unaffected. The MCP tool `alloy_descriptors` returns it
 as `miedema_enthalpies`.
 
 `hea_bench.descriptors.elements.element_data(["Fe", "Ni"])` returns the
@@ -320,8 +320,8 @@ like the alloy rules. The JS core ports the same functions
 `describePyrochlore`), parity-locked by
 `tests/test_web_oxides_parity.py`, and the calculator page exposes them
 as an **Oxides mode** (mode switch at the top of the input rail). The
-module is deliberately not exported at the `hea_bench` top level;
-import it as `from hea_bench import oxides`.
+module is deliberately not exported at the `hea_bench` top level.
+Import it as `from hea_bench import oxides`.
 
 ## Ceramics module (experimental)
 
@@ -330,33 +330,35 @@ import it as `from hea_bench import oxides`.
 `describe_diboride(metals)` take the metal-sublattice composition dict
 and return one report: normalized metals, configurational entropy in
 every published normalization convention (per mole cation, per formula
-unit, per mole atoms; papers disagree silently, so all are labelled),
+unit, per mole atoms, all labelled because papers disagree silently),
 `vec_per_formula_unit` for the rock-salt classes (weighted metal group
 count plus 4 for C or 5 for N) with annotated literature reference
 points (8.4 hardness maximum, about 9.4 fracture resistance, about 9.5
 plasticity), warnings, and citations. No verdicts are emitted, no size
 mismatch yet (deferred with reasons), and no entropy-forming-ability
-or DEED (DFT-only; no parity claimed). See `docs/ceramics.md`.
+or DEED (DFT-only, no parity claimed). See `docs/ceramics.md`.
 
 ## Phase-prediction benchmark (experimental)
 
 `hea_bench.benchmark` evaluates phase-prediction models under two
-frozen five-fold splits of a consolidated experimental corpus (default
-corpus v0.1.0, ~7,700 alloys from Borg 2020, Pei 2020, and Peivaste;
-`load_benchmark(version="0.2.0")` opts into the 10,064-alloy corpus
-that adds the Chizhevskiy LLM-extracted database, whose noisier labels
-are quarantined-on-disagreement — see `data/raw/README.md`): a
-**grouped** split
-where a whole alloy family — the set of elements present, so every
-stoichiometric variant of one system — stays on one side of each
-train/test boundary, and a **random** split, the usual literature
-protocol. Neither split is correct on its own: they answer different
-questions (new stoichiometries of known systems versus unseen element
-systems), and the gap between them quantifies how much of a
+frozen five-fold splits of a consolidated experimental corpus:
+
+- A **grouped** split, where a whole alloy family stays on one side of
+  each train/test boundary. A family is the set of elements present, so
+  it holds every stoichiometric variant of one system.
+- A **random** split, the usual literature protocol.
+
+The default corpus is v0.1.0, ~7,700 alloys from Borg 2020, Pei 2020,
+and Peivaste. `load_benchmark(version="0.2.0")` opts into the
+10,064-alloy corpus that adds the Chizhevskiy LLM-extracted database.
+Its noisier labels are quarantined on disagreement (see
+`data/raw/README.md`). Neither split is correct on its own. They answer
+different questions (new stoichiometries of known systems versus unseen
+element systems), and the gap between them quantifies how much of a
 random-split score comes from testing on close relatives of training
 alloys. For a stock random forest on this package's descriptors that
-gap is about 0.21 balanced accuracy (0.941 random vs 0.734 grouped);
-see `docs/benchmark-baselines.md`. The report field carrying the
+gap is about 0.21 balanced accuracy (0.941 random vs 0.734 grouped).
+See `docs/benchmark-baselines.md`. The report field carrying the
 per-metric difference is named `gap`.
 
 ```python
@@ -369,7 +371,7 @@ print(report.table())                            # grouped vs random, side by si
 The grouped score is an **upper bound** on true out-of-system
 performance: element-set grouping still lets `CoCrFeNi` train while
 `AlCoCrFeNi` is tested. The stricter subset-closure rule was measured
-and ruled out, not skipped — on this corpus it collapses 94.5% of rows
+and ruled out, not skipped. On this corpus it collapses 94.5% of rows
 into one indivisible component, so no k-fold split can respect it
 (`subset_closure_components`, numbers pinned in the tests).
 
@@ -394,7 +396,7 @@ build_corpus()                              # or build_corpus("0.1.0") for one v
 
 From an installed package the corpus lands in the per-user hea-bench
 folder (`%LOCALAPPDATA%\hea-bench` on Windows, `~/.local/share/hea-bench`
-on Linux, `~/Library/Application Support/hea-bench` on macOS); in a repo
+on Linux, `~/Library/Application Support/hea-bench` on macOS). In a repo
 checkout it lands in `data/consolidated/`. `HEA_BENCH_BENCHMARK_DIR`
 points every load at a corpus built elsewhere. From an MCP client, call
 the `corpus_build` tool once. The apps build it in the page, once per
@@ -402,7 +404,7 @@ release, after their in-page engine starts.
 
 The split fold assignments are frozen: each carries a SHA-256 digest
 pinned in `tests/test_benchmark_corpus.py`. **Do not update those
-digests to make a test pass** — a moved digest means the benchmark
+digests to make a test pass.** A moved digest means the benchmark
 changed and needs a new corpus version, not a silenced test. Licensing
 per source: `data/raw/README.md`.
 
@@ -428,27 +430,28 @@ corpus.query(contains=["Al", "Cr"], n_elements=(4, 6), labelled=True).describe()
 `query` accepts `elements` (exact set), `contains`, `excludes`,
 `n_elements` (int or inclusive range), `phase`, `source`, `family`,
 `labelled`, `has_conflict`, `descriptor_ready`. `describe()` reports
-counts and the multi-source agreement rate; `to_csv()` writes any slice
+counts and the multi-source agreement rate. `to_csv()` writes any slice
 in the consolidated schema. Dataset card: `docs/corpus-card.md`.
-`load_benchmark` is now a thin wrapper over this API; its outputs and
+`load_benchmark` is now a thin wrapper over this API. Its outputs and
 frozen digests are unchanged.
 
 ## Uncertainty API
 
 `hea_bench.uncertainty` (stdlib, no extra needed for the wrappers
 themselves): `ConformalClassifier(model).fit_calibrate(X_cal,
-y_cal).predict_set(X, alpha=0.1)` returns one label set per row;
+y_cal).predict_set(X, alpha=0.1)` returns one label set per row.
 `ConformalRegressor(...).predict_interval(X, alpha=0.1)` returns
 `(low, high)` tuples. Calibration rows must be disjoint from training
 rows. `calibrate_scores(scores, groups=None)` takes scores made
 elsewhere, such as `hea_bench.uncertainty.conformal.cross_val_scores`
-(every row scored by a model fitted without its fold); with `groups`,
-each group gets its own threshold and `predict_set`/`predict_interval`
+(every row scored by a model fitted without its fold). With `groups`,
+each group gets its own threshold, and `predict_set`/`predict_interval`
 then need `groups=` too. The shipped phase sets and hardness interval
-calibrate by cross-validation over whole alloy systems. Sets can be empty (no label credible at that level) and both
-wrappers go maximal when `degenerate(alpha)` is True (calibration too
-small for the requested level). `fit_domain(corpus)` returns a
-JSON-serializable `DomainModel`; `domain.novelty(comp)` returns the
+calibrate by cross-validation over whole alloy systems. Sets can be
+empty (no label credible at that level), and both wrappers go maximal
+when `degenerate(alpha)` is True (calibration too small for the
+requested level). `fit_domain(corpus)` returns a JSON-serializable
+`DomainModel`. `domain.novelty(comp)` returns the
 applicability components (`element_set_seen`, `family_count`,
 `nearest_family_distance`, `descriptor_distance`, `element_coverage`)
 plus the conservative `in_domain` flag. Read the components, not just
@@ -460,15 +463,15 @@ the flag. Empirical coverage: `docs/uncertainty-coverage.md`.
 processing=None)` returns a frozen `PropertyPrediction` with `value`,
 `unit`, `interval` (tier B only), `alpha`, `tier`, `in_domain`,
 `novelty`, `n_training`, `model_card`, and `warnings`.
-`available_properties()` lists what exists: tier A `density` (g/cm3)
-and `melting_temperature` (K) are stdlib closed forms; tier B
+`available_properties()` lists what exists. Tier A `density` (g/cm3)
+and `melting_temperature` (K) are stdlib closed forms. Tier B
 `hardness` (HV) needs `pip install "hea-bench[properties]"` and always
 carries a conformal interval plus a domain flag fitted on its own
 training data (Borg room-temperature HV, 417 alloys). Missing installs,
 unknown properties, uncovered elements, and sub-floor training
 populations raise `PropertyUnavailableError` naming the fix. Model
 cards: `docs/property-hardness.md`, `docs/property-tier-a.md`. Read the
-interval width before ranking close candidates; the cards state what
+interval width before ranking close candidates. The cards state what
 the error supports.
 
 ## Design search API
@@ -480,26 +483,30 @@ max_evaluations=200_000, optimize_bound="point", alpha=0.1)` returns a
 n_front, `to_json()`). Constraints: `RuleConstraint(rule, satisfied)`,
 `PropertyConstraint(prop, min=, max=, bound="point"|"lower"|"upper")`,
 `CompositionConstraint(element, min=, max=)`,
-`DomainConstraint(in_domain=True|False|None)`; a domain constraint is
-injected ON by default, opt out with `DomainConstraint(in_domain=None)`.
+`DomainConstraint(in_domain=True|False|None)`. A domain constraint is
+injected ON by default. Opt out with `DomainConstraint(in_domain=None)`.
 Objectives: `Maximize(prop)` / `Minimize(prop)` over
 `available_properties()` names. Every candidate carries descriptors,
 all nine rule verdicts, property predictions with intervals, novelty
 components, and the domain flag. The lattice is exhaustive within
-`max_evaluations` and raises rather than sampling silently; truncation
+`max_evaluations` and raises rather than sampling silently. Truncation
 to `n_candidates` is visible via `n_front`. Treat fronts as screening
-output; see `docs/design-recovery.md`.
+output (see `docs/design-recovery.md`).
 
 ## Campaign API
 
-`hea_bench.design.campaign.Campaign(objective, palette, constraints=(),
-direction="maximize", seed=0, step=0.1, n_elements=(3,5),
-warm_start=True)`; `observe(comp, value, processing=None,
-uncertainty=None)`; `suggest(n=5, strategy="ei"|"ucb")` returns
-`Suggestion` objects whose repr carries the interval and domain flag;
-`save(path)`/`Campaign.load(path)` round-trip versioned plain JSON
-(schema 1). Warm start pools Borg hardness rows matching the palette
-when objective is "hardness"; any other objective starts cold. Below 10
+- `hea_bench.design.campaign.Campaign(objective, palette, constraints=(),
+  direction="maximize", seed=0, step=0.1, n_elements=(3,5),
+  warm_start=True)` creates a campaign.
+- `observe(comp, value, processing=None, uncertainty=None)` records a
+  measurement.
+- `suggest(n=5, strategy="ei"|"ucb")` returns `Suggestion` objects
+  whose repr carries the interval and domain flag.
+- `save(path)`/`Campaign.load(path)` round-trip versioned plain JSON
+  (schema 1).
+
+When the objective is `"hardness"`, warm start pools Borg hardness rows
+matching the palette. Any other objective starts cold. Below 10
 informative rows `suggest` raises `ColdStartError`. Suggestion
 intervals are 90 percent conformal intervals set from the forest's
 out-of-bag errors on the informative rows. Their coverage, and the
@@ -508,27 +515,27 @@ loop against random selection, are measured in
 
 ## Coverage limit
 
-The element table covers **55 elements** (alloy surface; the oxides
-module has its own 94-element Shannon table). v2.1 added the full
+The element table covers **55 elements** for the alloy surface. The
+oxides module has its own 94-element Shannon table. v2.1 added the full
 experimentally active rare-earth palette (Pr Nd Sm Tb Dy Ho Er Tm Yb
 Lu), Ga, Ge, the nuclear pair U/Th, Sr, and the solder metals Sb Bi
 Pb. Compositions containing elements outside it (C, B, N, the alkali
 metals) are not fully scorable: `delta`, `smix`-class
 geometric/melting descriptors need the element table, while
 Miedema-based descriptors fall back to the wider 75-element pair
-table (which lacks exactly one of our pairs, Th-U; that pair raises
+table (which lacks exactly one of our pairs, Th-U, and that pair raises
 rather than returning a silent zero).
-Carbon and boron are deliberately held out (no metallic radius; no
+Carbon and boron are deliberately held out (no metallic radius, and no
 1-atm melting point for carbon).
 
 ## Things not to do
 
 - **Do not edit the pinned numbers** in `tests/` to make a test pass.
-  Those values are derived from the data and code; a changed number
+  Those values are derived from the data and code. A changed number
   means real drift you should explain, not silence.
 - **Do not edit `web/hea-calculator-core.js` to diverge from the Python
-  library.** The two are parity-locked by `tests/test_web_parity.py`;
-  change both together and re-run that test.
+  library.** The two are parity-locked by `tests/test_web_parity.py`.
+  Change both together and re-run that test.
 - **Do not add elements to the element table** without a citable source
   for the atomic radius, VEC, and melting point. Unsourced values
   corrupt every descriptor that uses them.
@@ -536,11 +543,11 @@ Carbon and boron are deliberately held out (no metallic radius; no
   semi-empirical Miedema estimate with known systematic error for some
   pairs (Mn especially).
 - **Do not assume composition fixes phase.** The same composition can
-  form different phases depending on processing history; the descriptors
+  form different phases depending on processing history. The descriptors
   describe equilibrium driving forces only.
 - **Do not tag, version-bump, or publish by hand.** Pushing to `main`
   auto-releases every surface from the one version counter (see
-  [RELEASING.md](./RELEASING.md)); hand-made tags and partial publishes
+  [RELEASING.md](./RELEASING.md)). Hand-made tags and partial publishes
   are how the surfaces skew apart.
 
 ## Verifying your integration
@@ -601,4 +608,4 @@ canonical implementation. If not, check (in this order): Python
 version >= 3.10, whether you accidentally installed a fork or an
 older PyPI snapshot, whether your composition dict uses integer
 proportional amounts vs already-normalised mole fractions (both
-work, the descriptors normalise internally).
+work, because the descriptors normalise internally).

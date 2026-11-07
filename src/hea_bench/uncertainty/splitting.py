@@ -5,9 +5,9 @@ systems instead (:func:`hea_bench.uncertainty.conformal.cross_val_scores`),
 so every alloy both trains and calibrates. This helper remains for
 anyone calibrating on a held-out split of their own.
 
-Split conformal calibration must be disjoint from training; when the
+Split conformal calibration must be disjoint from training. When the
 data is organized in families of near-duplicate compositions, an
-honest split keeps whole families on one side, otherwise calibration
+honest split keeps whole families on one side. Otherwise calibration
 scores are measured on close relatives of training rows and the
 intervals come out optimistically narrow.
 """

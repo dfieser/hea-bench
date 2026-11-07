@@ -1,10 +1,10 @@
 # %% [markdown]
-# # Example 2 — High-entropy oxides, end to end
+# # Example 2: high-entropy oxides, end to end
 #
 # This notebook walks through the `hea_bench.oxides` module using the
 # literature anchor compositions that are pinned in the test suite:
 #
-# 1. The rock-salt prototype (MgCoNiCuZn)O, the "J14" entropy-stabilized
+# 1. The rock-salt prototype (MgCoNiCuZn)O, the J14 entropy-stabilized
 #    oxide of Rost et al. (2015)
 # 2. The single-phase high-entropy perovskites of Jiang et al. (2018)
 # 3. The fluorite radius-dispersion rule of Spiridigliozzi et al. (2021)
@@ -27,8 +27,8 @@ print("hea_bench", hea_bench.__version__)
 # %% [markdown]
 # ## The rock-salt prototype: (MgCoNiCuZn)O
 #
-# Each `describe_*` function takes cation amounts (any scale; the site is
-# normalized internally) and returns one dict with everything: the solved
+# Each `describe_*` function takes cation amounts (any scale, since the site
+# is normalized internally) and returns one dict with everything: the solved
 # oxidation states, the Shannon radii actually used, the descriptors, the
 # rule verdicts, and any warnings.
 
@@ -63,7 +63,7 @@ pvk = oxides.describe_perovskite(
     {"Zr": 1, "Sn": 1, "Ti": 1, "Hf": 1, "Mn": 1},
 )
 d = pvk["descriptors"]
-print("  Sr(Zr,Sn,Ti,Hf,Mn)O3 — single-phase cubic in Jiang 2018")
+print("  Sr(Zr,Sn,Ti,Hf,Mn)O3: single-phase cubic in Jiang 2018")
 print(f"  B-site states :", {el: q for el, q in pvk['oxidation_states'].items() if el != 'Sr'})
 print(f"  t   = {d['goldschmidt_t']:.4f}   (window 0.92–1.04)")
 print(f"  μ   = {d['octahedral_mu']:.4f}   (window 0.414–0.732)")
@@ -77,12 +77,12 @@ print("  Verdicts:", pvk["verdicts"])
 # For equimolar rare-earth-based oxides, Spiridigliozzi et al. (2021,
 # Acta Mater. 202, 181) found that a single-phase fluorite forms when the
 # sample standard deviation of the eight-fold cation radii exceeds
-# 0.095 Å; below that, bixbyite-type or mixed phases form instead. Their
+# 0.095 Å. Below that, bixbyite-type or mixed phases form instead. Their
 # follow-up (Materials 16, 2219, 2023) also showed the fluorite
 # transition temperature drops as the dispersion grows.
 #
 # Rare-earth fluorites are oxygen-deficient, so the oxygen content per
-# formula unit is an input (1.7 for an equimolar 4+/3+ mix); the charge
+# formula unit is an input (1.7 for an equimolar 4+/3+ mix), and the charge
 # balance is solved against it.
 
 # %%
@@ -101,15 +101,15 @@ for label, cations, oxygen in samples:
 # The three rare-earth samples reproduce the published standard
 # deviations to every quoted digit, which is an end-to-end check of the
 # vendored radii and the convention (eight-fold radii, n−1 denominator).
-# Chen's (Ce,Zr,Hf,Sn,Ti)O2 sits below the threshold: consistent with
-# experiment, it only forms a single phase at very high temperature as a
-# true entropy-stabilized oxide, multiphase at low temperature and
-# reversible.
+# Chen's (Ce,Zr,Hf,Sn,Ti)O2 sits below the threshold, consistent with
+# experiment. It forms a single phase only at very high temperature, as a
+# true entropy-stabilized oxide, and turns multiphase at low temperature,
+# reversibly.
 #
 # ## Pyrochlores: the radius-ratio window
 #
 # A2B2O7 pyrochlores form for 1.46 < r(A)/r(B) < 1.78 (eight-fold A over
-# six-fold B); below the window a defect fluorite forms instead. Walking
+# six-fold B). Below the window a defect fluorite forms instead. Walking
 # the B site through Zr, Hf, Ti, and Sn shows the window in action for a
 # five-RE A site.
 
@@ -146,9 +146,9 @@ print(f"  δr(B) all-3+  = {forced['descriptors']['delta_r_b']:.3f} %")
 
 # %% [markdown]
 # The size-disorder value changes with the assignment because every
-# Shannon radius depends on the oxidation state. This is the main
-# convention risk in oxide descriptors, which is why the report always
-# shows the states and radii it used.
+# Shannon radius depends on the oxidation state. That dependence is the
+# main convention risk in oxide descriptors, which is why the report
+# always shows the states and radii it used.
 #
 # Spin matters the same way for 3d cations. The module defaults to
 # high-spin radii (appropriate at ceramic synthesis temperatures) and

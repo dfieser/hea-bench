@@ -4,7 +4,7 @@
 > and high-entropy-oxide (HEO) thermodynamic and geometric descriptors
 > plus the canonical empirical phase-prediction rules. Every descriptor is a
 > transparent closed-form expression over a curated element-property
-> table — no fitted model, no black box. It also carries a
+> table, with no fitted model and no black box. It also carries a
 > provenance-tracked experimental phase corpus, a paired benchmark,
 > hardness and phase predictions with calibrated uncertainty, and
 > composition search. It ships as four parts, each with every feature:
@@ -30,7 +30,8 @@ Cantor-alloy sanity values, and the mistakes to avoid.
 
 A composition is a plain `dict` mapping element symbol to amount, or a
 formula string such as `"CoCrFeMnNi"` or `"(CoCrFeNi)95Al5"`.
-Amounts do not need to sum to 1; they are normalised internally.
+Amounts do not need to sum to 1, because the library normalises them
+internally.
 
 ```python
 import hea_bench as hb
@@ -75,8 +76,8 @@ hb.phi_ye(cantor)      # 34.822 (Ye 2015 proxy)
 | `rules.tsai_sigma` | sigma_prone / sigma_unlikely / not_applicable | Cr/V and 6.88 ≤ VEC ≤ 7.84 |
 | `rules.sheikh_ductility` | ductile / brittle / borderline / not_applicable | VEC < 4.5 / ≥ 4.6, only alloys of Ti, Zr, Hf, V, Nb, Ta, Cr, Mo, W |
 
-The rules are weak, semi-empirical screens (calibrated on small
-historical datasets); do not treat a single prediction as ground truth.
+The rules are weak, semi-empirical screens, calibrated on small
+historical datasets. Do not treat a single prediction as ground truth.
 `rules.guo_vec.boundary_note` flags a VEC within 0.2 of either cutoff,
 and the κ result names its strongest pair (`im_pair`) with a `note`
 when that pair has an element under 10 at.%.
@@ -102,7 +103,7 @@ AGENTS.md for examples.
 
 Every feature is in all four, so use whichever fits.
 
-The MCP server: `pip install "hea-bench[mcp]"`, then `hea-bench-mcp`
+The MCP server: after `pip install "hea-bench[mcp]"`, `hea-bench-mcp`
 exposes 24 deterministic tools: parse_composition, batch
 alloy_descriptors (with the Miedema enthalpies) and alloy_rules,
 omega_sensitivity, oxide_report, ceramic_report, element_data,
@@ -114,8 +115,8 @@ benchmark_score, coverage_study and about. Units, citation keys and the
 library version are stamped into every response. Agents should call
 these instead of reimplementing formulas.
 
-The Python library: `pip install "hea-bench[all]"` (the core alone has
-no dependencies; the extra adds scikit-learn and the MCP SDK).
+The Python library: `pip install "hea-bench[all]"`. The core alone has
+no dependencies, and the `[all]` extra adds scikit-learn and the MCP SDK.
 
 The web app at <https://dfieser.github.io/hea-bench/> runs entirely in
 the browser: the calculator (alloys, oxides, ceramics, predictions),
@@ -128,21 +129,21 @@ Windows exe.
 
 ## Reference papers
 
-- Yeh et al. 2004, *Adv. Eng. Mater.* 6, 299 — ΔS_mix rule.
-- Cantor et al. 2004, *Mater. Sci. Eng. A* 375-377, 213 — Cantor alloy.
-- Zhang et al. 2008, *Adv. Eng. Mater.* 10, 534 — δ rule.
-- Guo & Liu 2011, *Prog. Nat. Sci.* 21, 433 — VEC rule.
-- Yang & Zhang 2012, *Mater. Chem. Phys.* 132, 233 — Ω rule.
-- King et al. 2016, *Acta Mater.* 104, 172 — Φ rule.
-- Ye et al. 2015, *Scripta Mater.* 104, 53 — φ rule.
-- de Boer et al. 1988, *Cohesion in Metals* — Miedema model parameters.
-- Zhang R.F. et al. 2016, *Comput. Phys. Commun.* 209, 58 — Miedema formation enthalpies.
-- Takeuchi & Inoue 2005, *Mater. Trans.* 46, 2817 — tabulated pair enthalpies.
-- Mansoori et al. 1971, *J. Chem. Phys.* 54, 1523 — hard-sphere excess entropy.
+- Yeh et al. 2004, *Adv. Eng. Mater.* 6, 299 (ΔS_mix rule).
+- Cantor et al. 2004, *Mater. Sci. Eng. A* 375-377, 213 (Cantor alloy).
+- Zhang et al. 2008, *Adv. Eng. Mater.* 10, 534 (δ rule).
+- Guo & Liu 2011, *Prog. Nat. Sci.* 21, 433 (VEC rule).
+- Yang & Zhang 2012, *Mater. Chem. Phys.* 132, 233 (Ω rule).
+- King et al. 2016, *Acta Mater.* 104, 172 (Φ rule).
+- Ye et al. 2015, *Scripta Mater.* 104, 53 (φ rule).
+- de Boer et al. 1988, *Cohesion in Metals* (Miedema model parameters).
+- Zhang R.F. et al. 2016, *Comput. Phys. Commun.* 209, 58 (Miedema formation enthalpies).
+- Takeuchi & Inoue 2005, *Mater. Trans.* 46, 2817 (tabulated pair enthalpies).
+- Mansoori et al. 1971, *J. Chem. Phys.* 54, 1523 (hard-sphere excess entropy).
 
 ## Citing
 
-hea-bench is described in a Materials article; cite it when you use
+hea-bench is described in a Materials article. Cite it when you use
 the library:
 
 ```bibtex

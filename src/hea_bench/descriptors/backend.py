@@ -2,7 +2,7 @@
 
 A backend is anything that can turn a composition into a named set of
 descriptor values. The package's own stdlib implementations are the
-default (:class:`NativeBackend`); an installed HEACalculator can serve
+default (:class:`NativeBackend`). An installed HEACalculator can serve
 as an alternative through :class:`HEACalculatorBackend`, so a user
 already standardized on that tool can keep its numbers while using
 everything downstream in this package.
@@ -13,13 +13,13 @@ Two honesty rules govern the layer:
   :data:`UNION_DESCRIPTOR_NAMES` and returns ``None`` for names the
   active backend cannot produce (either because the quantity is not in
   its repertoire or because an element is missing from its tables).
-  ``None`` is the typed "cannot compute" signal; nothing is imputed.
+  ``None`` is the typed "cannot compute" signal. Nothing is imputed.
 - **Near-equivalents are never swapped silently.** Each backend owns
   its reference data (pair-enthalpy tables, radius tabulations), so the
   same published quantity can return different numbers under different
-  backends; the radius conventions differ most in practice. The
-  quantified comparison lives in ``docs/backend-agreement.md``; neither
-  side is declared correct.
+  backends. The radius conventions differ most in practice.
+  ``docs/backend-agreement.md`` quantifies the comparison and declares
+  neither side correct.
 
 The native backend is dependency-free like the rest of the core. The
 HEACalculator backend needs ``pip install "hea-bench[interop]"`` and is
@@ -150,12 +150,12 @@ class NativeBackend:
         return _MATRIX_NAMES
 
     def compute(self, composition: Composition) -> dict[str, float | None]:
-        """Compute all native descriptors; None where data is missing.
+        """Compute all native descriptors, with None where data is missing.
 
         A descriptor that raises for this composition (an element absent
         from its table) or that returns None itself (h_elastic) reports
         None. Mathematically divergent values (singh_lambda at delta=0)
-        stay as the float infinity; JSON-facing surfaces handle those.
+        stay as the float infinity. JSON-facing surfaces handle those.
 
         The composition is passed to the descriptor functions untouched
         (they normalize internally), so a value computed here is
@@ -196,7 +196,7 @@ def matrix_vector(
     any entry is missing or non-finite. This is the benchmark's finite
     filter, the single definition of "descriptor-scorable row" shared by
     the hardness surrogate, campaign training, and the applicability
-    domain model; those feature spaces are only meaningful because they
+    domain model. Those feature spaces are meaningful only because they
     all come from here.
     """
     resolved = backend if backend is not None else NativeBackend()
@@ -223,7 +223,7 @@ def _heacalculator_api():
 
 #: Union descriptor name -> HEACalculator ``get_dict`` key. Verified
 #: against HEACalculator 2.0.1. Only same-published-quantity mappings
-#: appear here; a name absent from this table is deliberately unmapped:
+#: appear here. A name absent from this table is deliberately unmapped:
 #:
 #: - ``smix``/``vec``/``omega``/``melting_temperature``: identical
 #:   definitions (their melting point is ceil-rounded, a sub-kelvin
@@ -235,12 +235,12 @@ def _heacalculator_api():
 #: - ``mixing_enthalpy``: same regular-solution form over binary pair
 #:   enthalpies. Both packages vendor tables in the Takeuchi-Inoue and
 #:   Miedema lineage (ours via matminer), and the agreement panel
-#:   measures them as near-identical; the mapping still treats the value
+#:   measures them as near-identical. The mapping still treats the value
 #:   as backend-owned data (docs/backend-agreement.md).
 #: - ``singh_lambda``: same Singh formula, both over CN12 delta.
-#: - ``wang_gamma``: same Wang formula; they evaluate it over generic
-#:   atomic radii where we use CN12, the largest convention gap in the
-#:   mapped set.
+#: - ``wang_gamma``: same Wang formula, but they evaluate it over generic
+#:   atomic radii where we use CN12. That is the largest convention gap
+#:   in the mapped set.
 #: - King-family quantities (delta_g_ss, delta_g_max, phi_king), phi_ye,
 #:   s_excess, delta_chi, mean_electronegativity, h_elastic are NOT
 #:   mapped: their implementations differ structurally from ours (for
@@ -272,7 +272,7 @@ class HEACalculatorBackend:
     """Adapter over an installed HEACalculator (optional interop extra).
 
     HEACalculator raises at construction for compositions containing
-    elements outside its database; the adapter reports such compositions
+    elements outside its database. The adapter reports such compositions
     as all-None rather than propagating upstream exception types. Their
     missing-pair sentinel (NaN) also becomes None.
     """
@@ -308,7 +308,7 @@ class HEACalculatorBackend:
 
 
 def get_backend(backend: str | DescriptorBackend | None = None) -> DescriptorBackend:
-    """Resolve a backend name or instance; None means the native default.
+    """Resolve a backend name or instance. None means the native default.
 
     Raises
     ------
@@ -325,7 +325,7 @@ def get_backend(backend: str | DescriptorBackend | None = None) -> DescriptorBac
         if backend == "heacalculator":
             return HEACalculatorBackend()
         raise ValueError(
-            f"unknown descriptor backend {backend!r}; expected 'native', "
+            f"unknown descriptor backend {backend!r}: expected 'native', "
             f"'heacalculator', or a DescriptorBackend instance"
         )
     return backend

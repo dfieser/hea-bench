@@ -4,7 +4,7 @@
 fold count, once under the composition-family-grouped split and once
 under the random split, and reports both side by side. The difference
 between them is the headline output. A model that scores far better
-under the random split is not better at predicting phases, it is better
+under the random split is not better at predicting phases. It is better
 at interpolating between stoichiometries it has already seen.
 
 What counts as a model
@@ -142,7 +142,7 @@ def _predict_fold(
     if _is_trainable(model):
         # Refit from scratch on this fold. A model whose fit does not
         # fully reset prior state would carry the previous fold's
-        # training rows into this one, which is leakage of a second kind.
+        # training rows into this fold's predictions.
         model.fit(list(train_compositions), list(train_labels))
         return [str(label) for label in model.predict(list(test_compositions))]
     predictor: Callable[[Composition], str] = model  # type: ignore[assignment]
@@ -165,8 +165,8 @@ def _run_scheme(
         if not test_indices or not train_indices:
             raise ValueError(
                 f"{scheme.name} fold {fold.index} has {len(train_indices)} train and "
-                f"{len(test_indices)} test rows after filtering; the filter removed too much "
-                f"to evaluate"
+                f"{len(test_indices)} test rows after filtering, so the filter removed too "
+                f"much to evaluate"
             )
         predictions = _predict_fold(
             model,
@@ -241,7 +241,7 @@ def evaluate(
     else:
         active = tuple(indices)
         if not active:
-            raise ValueError("indices is empty; nothing to evaluate")
+            raise ValueError("indices is empty, so there is nothing to evaluate")
     grouped = _run_scheme(model, benchmark, benchmark.grouped, active)
     randomized = _run_scheme(model, benchmark, benchmark.random, active)
 
@@ -306,7 +306,7 @@ def score_predictions(
         if bad:
             raise ValueError(
                 f"{name} predictions use labels {bad} that are not classes of the "
-                f"{benchmark.task} task; expected one of {sorted(classes)}"
+                f"{benchmark.task} task: expected one of {sorted(classes)}"
             )
     both = set(predictions["grouped"]) & set(predictions["random"])
     active = [index for index, row in enumerate(benchmark.rows) if row.composition_key in both]
@@ -320,8 +320,8 @@ def score_predictions(
             test = [index for index in fold.test if index in active_set]
             if not test:
                 raise ValueError(
-                    f"{scheme.name} fold {fold.index} has no predicted rows; every fold "
-                    f"needs at least one"
+                    f"{scheme.name} fold {fold.index} has no predicted rows, and every "
+                    f"fold needs at least one"
                 )
             fold_scores.append(
                 _metrics.score(

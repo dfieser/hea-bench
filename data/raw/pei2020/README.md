@@ -1,9 +1,9 @@
-# pei2020/ — Pei et al. 2020 HEA dataset (npj CM)
+# pei2020/: Pei et al. 2020 HEA dataset (npj CM)
 
 > **Mirrored under CC-BY-4.0.** The CSV in this folder is a verbatim copy
 > of the supplementary data file attached to Pei *et al.* (2020). It is
 > redistributed here under the Creative Commons Attribution 4.0
-> International License — see "License" below for the formal statement.
+> International License. See "License" below for the formal statement.
 
 ## Source
 
@@ -22,9 +22,9 @@
 
 [Creative Commons Attribution 4.0 International (CC-BY-4.0)](https://creativecommons.org/licenses/by/4.0).
 Confirmed via Crossref license metadata for DOI
-`10.1038/s41524-020-0308-7` — both `tdm` (text-and-data-mining) and `vor`
+`10.1038/s41524-020-0308-7`: both `tdm` (text-and-data-mining) and `vor`
 (version-of-record) license entries point to CC-BY-4.0 with zero delay.
-*npj Computational Materials* is a fully open-access journal; the
+*npj Computational Materials* is a fully open-access journal, and the
 supplementary data inherits the article's license.
 
 **You may use this data freely with attribution to the original authors.**
@@ -34,8 +34,8 @@ verify provenance.
 
 ## File
 
-`pei2020_alloys_phases.csv` (renamed from upstream `MOESM2_ESM.csv` for
-clarity; contents byte-identical, verified by SHA-256).
+`pei2020_alloys_phases.csv`, renamed from upstream `MOESM2_ESM.csv` for
+clarity. The contents are byte-identical, verified by SHA-256.
 
 ## Schema
 
@@ -58,21 +58,21 @@ Two columns, 1,252 data rows + 1 header.
 ### Notes for downstream consolidation
 
 - **Coarse label set.** Pei collapses everything non-single-phase into
-  `multi-phase` — no distinction between dual-phase solid solutions
-  (FCC+BCC), intermetallics, or amorphous. This is *coarser* than
-  Borg 2020's labels (which expose IM, AM, etc. via the full
-  Microstructure column) and *much* coarser than Peivaste's 12-category
-  set. When consolidating, Pei's `multi-phase` maps cleanly to "other"
-  in Borg's simplified column or to the union of {IM, AM, BCC+FCC, …}
-  in Peivaste.
+  `multi-phase`, with no distinction between dual-phase solid solutions
+  (FCC+BCC), intermetallics, or amorphous phases. This label set is
+  *coarser* than Borg 2020's labels (which expose IM, AM, etc. via the
+  full Microstructure column) and *much* coarser than Peivaste's
+  12-category set. When consolidating, Pei's `multi-phase` maps cleanly
+  to `other` in Borg's simplified column or to the union of
+  {IM, AM, BCC+FCC, …} in Peivaste.
 - **Lower-case labels.** Pei uses `bcc`/`fcc`/`hcp` (lower-case). Other
   sources use `BCC`/`FCC`/`HCP`. Normalize to upper-case on load.
 - **Formula duplicates.** 43 rows repeat a formula already seen earlier
   in the file. The loader dedups by raw formula string (first occurrence
-  wins), leaving 1,209 unique formulas; consolidation then re-dedups by
+  wins), leaving 1,209 unique formulas. Consolidation then re-dedups by
   normalized composition across sources and flags label conflicts.
-- **No processing metadata.** Like Peivaste, this is composition-only.
-  All entries are nominally "as-reported."
+- **No processing metadata.** Like Peivaste, this dataset is
+  composition-only. Every entry is nominally as-reported.
 
 ## Why this dataset is worth pulling
 
@@ -80,7 +80,7 @@ Two columns, 1,252 data rows + 1 header.
   (~600 citations as of 2026). Reviewers will look for it in any
   consolidated benchmark.
 - **Author curation.** 1,252 alloys hand-curated by the ORNL group from
-  primary literature; quality is high.
+  primary literature, so quality is high.
 - **Cross-verification.** Where Borg, Peivaste, and Pei agree on the
-  phase of a composition, confidence is high; where they disagree, that
+  phase of a composition, confidence is high. Where they disagree, that
   composition is flagged for review during consolidation.

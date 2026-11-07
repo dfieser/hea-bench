@@ -8,8 +8,8 @@ contact_links:
   - name: Question about using hea-bench
     url: https://github.com/dfieser/hea-bench/discussions/new?category=q-a
     about: >-
-      Ask in Discussions Q&A. Which descriptor applies, how to read a
-      result, why two sources disagree, how to call it from an agent.
+      Ask in Discussions Q&A: which descriptor applies, how to read a
+      result, why two sources disagree, or how to call it from an agent.
   - name: Idea or feature suggestion
     url: https://github.com/dfieser/hea-bench/discussions/new?category=ideas
     about: >-

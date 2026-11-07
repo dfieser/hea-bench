@@ -38,7 +38,7 @@ abstract: >-
   the published fluorite and pyrochlore formability criteria. Every descriptor
   is a transparent closed-form expression over a curated element-property
   table, with no fitted model. The same calculation core ships as a Python
-  library, a zero-install browser app, and a native desktop app; the browser
+  library, a zero-install browser app, and a native desktop app. The browser
   core is parity-tested against the Python library.
 keywords:
   - high-entropy alloys

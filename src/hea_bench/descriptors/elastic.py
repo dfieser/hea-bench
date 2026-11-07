@@ -10,9 +10,9 @@ the paper's 235-alloy survey: fcc solid solutions form mainly for
 for 6.05 < ΔH_el ≤ 22 kJ/mol (86.2%), and everything above 22 kJ/mol
 is bulk-metallic-glass or single-phase-intermetallic territory.
 
-Our B_i and V_i come from the vendored matminer Miedema table
+hea-bench takes B_i and V_i from the vendored matminer Miedema table
 (``data/mechanics.py``), which differs from the paper's own elastic
-sources; absolute values can shift by tenths of kJ/mol, so treat the
+sources. Absolute values can shift by tenths of kJ/mol, so treat the
 windows as the calibrated object, not the third decimal.
 
 References
@@ -34,7 +34,7 @@ def _h_elastic_from_tables(
     bulk_gpa: dict[str, float],
     volume_cm3: dict[str, float],
 ) -> float:
-    """ΔH_el from explicit tables (testable core; kJ/mol)."""
+    """ΔH_el in kJ/mol from explicit tables (the testable core)."""
     total = sum(fractions.values())
     norm = {k: v / total for k, v in fractions.items() if v > 0}
     weight = sum(norm[k] * bulk_gpa[k] for k in norm)

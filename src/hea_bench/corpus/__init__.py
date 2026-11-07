@@ -1,19 +1,19 @@
 """The consolidated experimental corpus as a standalone, queryable product.
 
-:func:`load_corpus` reads a built corpus release (every row, including
-the conflict-quarantined and otherwise unlabelled ones) into a
-:class:`Corpus` of :class:`CorpusRow` records carrying the full
-per-source provenance the build already writes: which sources
-contributed, each source's canonical and verbatim reported phase label,
-Borg's processing route and primary-literature DOI where present, and
-the upstream row identifiers. That is enough to audit any label without
-leaving the package.
+:func:`load_corpus` reads a built corpus release into a :class:`Corpus`
+of :class:`CorpusRow` records. It reads every row, including the
+conflict-quarantined and otherwise unlabelled ones, and each record
+carries the full per-source provenance the build already writes: which
+sources contributed, each source's canonical and verbatim reported phase
+label, Borg's processing route and primary-literature DOI where present,
+and the upstream row identifiers. That provenance is enough to audit any
+label without leaving the package.
 
 This module is deliberately independent of the benchmark machinery: no
 task projection, no splits. :func:`hea_bench.benchmark.load_benchmark`
 is a thin wrapper that filters to consensus-labelled rows, projects a
-task, and attaches the frozen splits; its outputs and digests are
-unchanged by this module's existence.
+task, and attaches the frozen splits. This module's existence leaves
+the benchmark's outputs and digests unchanged.
 
 Every source dataset ships with the package, and the corpus is built
 from them on your machine, once::
@@ -82,11 +82,12 @@ def corpus_location(version: str, corpus_dir: pathlib.Path | None = None) -> pat
 
 
 def missing_corpus_error(path: pathlib.Path) -> FileNotFoundError:
-    """The corpus is built, not shipped; the error must say how to build it."""
+    """The corpus is built, not shipped, so the error must say how to build it."""
     return FileNotFoundError(
         f"the corpus is not built yet (looked for {path}).\n"
-        f"Build it once, from the source datasets that ship with the package, with:\n"
-        f'    python -c "import hea_bench.corpus; hea_bench.corpus.build_corpus()"\n'
+        f"Build it once, from the source datasets that ship with the package. "
+        f"In Python, call hea_bench.corpus.build_corpus(). From a shell, run:\n"
+        f"    python -m hea_bench.benchmark.consolidate\n"
         f"Set {_ENV_VAR} to point at a corpus directory elsewhere."
     )
 
@@ -106,7 +107,7 @@ def build_corpus(*versions: str) -> dict:
     unknown = sorted(set(versions) - set(SOURCES_BY_VERSION))
     if unknown:
         raise ValueError(
-            f"unknown corpus version(s) {unknown}; expected some of {sorted(SOURCES_BY_VERSION)}"
+            f"unknown corpus version(s) {unknown}: expected some of {sorted(SOURCES_BY_VERSION)}"
         )
     built = {}
     for version in versions or sorted(SOURCES_BY_VERSION):
@@ -144,7 +145,7 @@ class CorpusRow:
         any harmonization. The audit trail for every label decision.
     processing
         Processing route where the upstream source records it (Borg
-        only); None elsewhere. Not part of the join key.
+        only), None elsewhere. Not part of the join key.
     doi
         DOI of the primary-literature paper the alloy was reported in,
         where the upstream source records it (Borg only).
@@ -215,7 +216,7 @@ class Corpus:
         has_conflict: bool | None = None,
         descriptor_ready: bool | None = None,
     ) -> "Corpus":
-        """Filter rows; every given condition must hold (they AND together).
+        """Filter rows. Every given condition must hold (they AND together).
 
         Parameters
         ----------
@@ -236,8 +237,8 @@ class Corpus:
         family
             Alloy-family key match (str or set).
         labelled
-            True keeps only rows with a consensus label; False only rows
-            without one.
+            True keeps only rows with a consensus label, and False keeps
+            only rows without one.
         has_conflict / descriptor_ready
             Match the corresponding flag.
         """
@@ -287,8 +288,8 @@ class Corpus:
         """Composition of this (possibly filtered) corpus slice.
 
         ``multi_source_agreement_rate`` is the fraction of rows carrying
-        two or more sources whose sources agree on the canonical label;
-        its complement is exactly the conflict quarantine.
+        two or more sources whose sources agree on the canonical label.
+        Its complement is exactly the conflict quarantine.
         """
         multi_source = [row for row in self.rows if len(row.sources) >= 2]
         conflicts = sum(1 for row in self.rows if row.has_conflict)
@@ -407,7 +408,7 @@ def load_corpus(
     Raises
     ------
     FileNotFoundError
-        If the corpus has not been built; the message gives the build
+        If the corpus has not been built. The message gives the build
         commands.
     """
     directory = corpus_location(version, corpus_dir)

@@ -97,8 +97,9 @@ def dataset_status() -> dict:
 
 def dataset_build(version: str = "0.2.0") -> dict:
     """Build one corpus version from the raw sources, exactly as the CLI
-    does, into the directory the loaders read (which honours
-    HEA_BENCH_BENCHMARK_DIR, where the app keeps its persistent copy)."""
+    does. The build goes into the directory the loaders read, which
+    honours HEA_BENCH_BENCHMARK_DIR, where the app keeps its persistent
+    copy."""
     from .benchmark.consolidate import build
     from .corpus import corpus_location
 
@@ -140,7 +141,7 @@ def _slice(version: str, filters: dict | None):
     }
     unknown = sorted(set(filters) - allowed)
     if unknown:
-        raise ValueError(f"unknown dataset filters {unknown}; expected {sorted(allowed)}")
+        raise ValueError(f"unknown dataset filters {unknown}: expected {sorted(allowed)}")
     return _corpus(version).query(**{k: v for k, v in filters.items() if v not in (None, [], "")})
 
 
@@ -244,7 +245,7 @@ def measured_properties(prop: str = "hardness", contains: list | None = None) ->
 def properties(
     composition, alpha: float = 0.1, processing: str | None = None, names: list | None = None
 ) -> dict:
-    """Every property for one composition; a property that cannot be
+    """Every property for one composition. A property that cannot be
     computed carries its reason instead of hiding the others."""
     from .properties import (
         PropertyUnavailableError,
@@ -309,9 +310,9 @@ def search(**params) -> dict:
 def campaign_suggest(campaign: dict, n: int = 5, strategy: str = "ei") -> dict:
     """Next suggestions for a campaign file's contents (schema 1).
 
-    Observation compositions may be formulas; they are normalized here.
-    The response carries the campaign back in canonical form, which is
-    what the app saves.
+    Observation compositions may be formulas, which this function
+    normalizes. The response carries the campaign back in canonical
+    form, which is what the app saves.
     """
     from .design.campaign import Campaign
     from .mcp_server import _stamp, _suggestions
@@ -373,7 +374,7 @@ def benchmark_summary(task: str = "single_vs_multi", version: str = "0.1.0") -> 
 
 
 class _Counted:
-    """A baseline that reports progress per fold fit; predictions unchanged."""
+    """A baseline wrapper that reports progress per fold fit and leaves predictions unchanged."""
 
     def __init__(self, model, total: int) -> None:
         self._model = model
@@ -444,8 +445,8 @@ def benchmark_score(
     missing = needed - set(reader.fieldnames or ())
     if missing:
         raise ValueError(
-            f"the predictions file needs the columns composition_key, grouped and random; "
-            f"missing {sorted(missing)}"
+            f"the predictions file needs the columns composition_key, grouped and random. "
+            f"Missing: {sorted(missing)}"
         )
     predictions: dict = {"grouped": {}, "random": {}}
     for record in reader:

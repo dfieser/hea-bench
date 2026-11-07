@@ -1,29 +1,30 @@
 """Canonical phase-label taxonomy for the consolidated benchmark.
 
-For v0.1.0 we adopt a deliberately coarse 4-class taxonomy:
+Corpus v0.1.0 uses a deliberately coarse 4-class taxonomy:
 
     BCC          : single-phase body-centred-cubic solid solution
     FCC          : single-phase face-centred-cubic solid solution
     HCP          : single-phase hexagonal-close-packed solid solution
-    multi-phase  : everything else — including dual-phase solid solutions,
+    multi-phase  : everything else, including dual-phase solid solutions,
                    intermetallics (IM), amorphous (AM), Laves, B2,
                    and any combination thereof
 
-This is the lowest-common-denominator that all three v0.1.0 source datasets
-(Borg 2020, Pei 2020, Peivaste) can map into without ambiguity. Sources
-with finer labels (Borg's full Microstructure column with 30+ sublabels;
-Peivaste's 12-category column distinguishing AM, IM, HCP, and various
-multi-phase combinations) **retain their original labels as side-channel
-columns** in the consolidated CSV — so a future v0.2.0 release can ship
-a finer canonical taxonomy without re-acquiring data.
+This is the lowest common denominator that all three v0.1.0 source
+datasets (Borg 2020, Pei 2020, Peivaste) can map into without ambiguity.
+Sources with finer labels **retain their original labels as side-channel
+columns** in the consolidated CSV. Borg's full Microstructure column has
+30+ sublabels, and Peivaste's 12-category column distinguishes AM, IM,
+HCP and various multi-phase combinations. A future v0.2.0 release can
+therefore ship a finer canonical taxonomy without re-acquiring data.
 
-Naming note. "multi-phase" follows Pei (2020) convention and is the most
-common literature usage, but is technically broader than its name
-suggests: it includes amorphous alloys (which are *not* multi-phase in
-the crystallographic sense — they are single-phase non-crystalline) and
-single-phase intermetallics. A more accurate name would be "not-single-
-phase-crystalline-SS" but that is unwieldy and unstandard. Users with
-strict definitions should consult the side-channel columns.
+Naming note. "multi-phase" follows the Pei (2020) convention and is the
+most common literature usage, but it is technically broader than its
+name suggests. It includes amorphous alloys, which are *not* multi-phase
+in the crystallographic sense because they are single-phase and
+non-crystalline, and it includes single-phase intermetallics. A more
+accurate name would be "not-single-phase-crystalline-SS", but that is
+unwieldy and unstandard. Users with strict definitions should consult
+the side-channel columns.
 """
 
 from __future__ import annotations
@@ -33,7 +34,7 @@ from enum import Enum
 
 class PhaseClass(str, Enum):
     """Canonical 4-class phase taxonomy. Subclasses `str` so it serializes
-    cleanly to CSV / JSON without explicit conversion."""
+    cleanly to CSV and JSON without explicit conversion."""
 
     BCC = "BCC"
     FCC = "FCC"
@@ -110,11 +111,11 @@ _CHIZH_CLEAN_SS = {"bcc": PhaseClass.BCC, "fcc": PhaseClass.FCC, "hcp": PhaseCla
 def chizhevskiy_canonical_phase(raw: str) -> PhaseClass | None:
     """Map a free-text Chizhevskiy `Phase` string to the canonical 4-class.
 
-    Conservative by design — anything that is not unambiguously a clean
-    single-phase or multi-phase *solid solution* is either flagged MULTI (if it
-    names an intermetallic/amorphous phase) or skipped (``None``) if it is
-    ambiguous/uninformative (``cubic``, ``martensite``, ``not specified`` …).
-    The finer SS/ORD/LAV distinction is intentionally *not* made here; that
+    Conservative by design. Anything that is not unambiguously a clean
+    single-phase or multi-phase *solid solution* is either flagged MULTI, if it
+    names an intermetallic or amorphous phase, or skipped (``None``) if it is
+    ambiguous or uninformative (``cubic``, ``martensite``, ``not specified`` …).
+    The finer SS/ORD/LAV distinction is intentionally *not* made here. It
     lives in the typing analysis, which reads the preserved raw string.
 
     Returns ``None`` for rows to skip.
@@ -148,7 +149,7 @@ def binary_observed(canonical_phase: str) -> str | None:
     """Project a canonical 4-class label to the textbook binary vocabulary.
 
     Returns ``"single-phase"`` for BCC/FCC/HCP, ``"multi-phase"`` for
-    ``multi-phase``, and ``None`` for an empty / conflict label so the
+    ``multi-phase``, and ``None`` for an empty or conflict label so the
     caller can skip the row.
     """
     if not canonical_phase:

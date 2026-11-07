@@ -1,4 +1,4 @@
-# peivaste/ — Iman Peivaste's MPEA phase dataset
+# peivaste/: Iman Peivaste's MPEA phase dataset
 
 > **Per-source documentation** for the Peivaste *et al.* HEA phase dataset.
 > `dataset11252_79.csv` is mirrored here byte for byte under CC BY 4.0.
@@ -25,11 +25,11 @@ instead of mirroring it.
 | Upstream file | Size | What it is |
 |---|---|---|
 | `Dataset_HEAs.xlsx` | 254 KB | Original Excel compilation |
-| `dataset11252_79.csv` | 6.4 MB | **Primary dataset** — 11,252 records, post-CSV conversion |
+| `dataset11252_79.csv` | 6.4 MB | **Primary dataset**: 11,252 records, post-CSV conversion |
 | `dataset10387_70.csv` | 5.6 MB | First-stage cleaned, 10,387 records |
 | `Enthalpy_mix.csv` | 20 KB | Auxiliary: pair mixing enthalpies |
 | `elemental_propertieses.csv` | 52 KB | Auxiliary: per-element parameter table |
-| `Dataset_preparation.ipynb` | 33 KB | Cleaning pipeline (produces final 5,677-row dataset, which is *not* committed upstream — must be regenerated) |
+| `Dataset_preparation.ipynb` | 33 KB | Cleaning pipeline (produces the final 5,677-row dataset, which is *not* committed upstream and must be regenerated) |
 
 Only `dataset11252_79.csv`, the primary dataset, is mirrored here. The
 other files are in the upstream repository.
@@ -42,9 +42,9 @@ no quoting irregularities).
 
 ### Header / data alignment quirk
 
-The upstream header is offset by one position relative to the data — the
-first header field is *empty*, and downstream labels are shifted left by
-one. Concretely:
+The upstream header is offset by one position relative to the data. The
+first header field is *empty*, and the labels after it are shifted left
+by one. Concretely:
 
 | Data column | Header label says | What it actually is |
 |---|---|---|
@@ -57,7 +57,7 @@ one. Concretely:
 | 68 | `Melting_point_K` | Composition-weighted melting point |
 | 69 | `DFT_LDA_Etot` | DFT total energy (LDA functional) |
 | 70 | `outer_shell_electrons` | Outer-shell e⁻ count |
-| 71 | `no_of_valence_electrons` | Same family — total valence e⁻ |
+| 71 | `no_of_valence_electrons` | Same family: total valence e⁻ |
 | 72 | `Atomic_radius_calculated` | Mean atomic radius |
 | 73 | `Atomic_weight` | Mean atomic weight |
 | 74 | `Pauling_EN_div` | Electronegativity stdev/divergence |
@@ -89,7 +89,7 @@ one. Concretely:
 
 Notes:
 - `AM` = amorphous, `IM` = intermetallic. Borg 2020 collapses both into
-  "other"; Peivaste keeps them separate. This finer-grained labeling is
+  `other`, while Peivaste keeps them separate. This finer-grained labeling is
   one reason to consolidate Peivaste alongside Borg.
 - `HCP` is rare (1.4%) but present.
 
@@ -97,23 +97,23 @@ Notes:
 
 - **Recompute descriptors from raw composition** rather than trust the
   upstream precomputed values. Different sources use different elemental
-  parameter tables; consistency is more important than matching upstream.
-- **Treat the precomputed descriptors as benchmark-able predictions** —
-  comparing our recomputed values to upstream's is a sanity check.
+  parameter tables, and consistency matters more than matching upstream.
+- **Treat the precomputed descriptors as benchmark-able predictions.**
+  Comparing the recomputed values with upstream's is a sanity check.
 - **Dedup key:** the formula string (col 2) only. Peivaste doesn't track
-  processing route, so all rows are nominally "as-reported."
+  processing route, so every row is nominally as-reported.
 - **Label-conflict policy:** when Peivaste and Borg (or any other source)
-  give different phase labels for the same composition, record both;
-  don't silently pick.
+  give different phase labels for the same composition, record both and
+  don't silently pick one.
 
 ## Why this dataset is in the corpus
 
-- **Scale.** 11,252 records — by far the largest open MPEA phase
-  database we've identified. Borg 2020 has 740 (formula, processing)
-  pairs; Peivaste alone is ~15× larger.
+- **Scale.** 11,252 records, by far the largest open MPEA phase
+  database this project has identified. Borg 2020 has 740 (formula,
+  processing) pairs, and Peivaste alone is ~15× larger.
 - **Label granularity.** AM, IM, HCP, and multi-phase combinations
-  separated rather than collapsed into "other."
-- **Composition-only.** No processing metadata, which means it can't
-  distinguish phases that depend on processing history — but this also
-  makes it the right level for descriptor-rule validation (which is
-  composition-only by design).
+  separated rather than collapsed into `other`.
+- **Composition-only.** Without processing metadata, the dataset can't
+  distinguish phases that depend on processing history. The same
+  property makes it the right level for descriptor-rule validation,
+  which is composition-only by design.

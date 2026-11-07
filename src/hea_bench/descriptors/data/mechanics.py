@@ -14,8 +14,8 @@ the column as ``bulk_modulus_gpa``. ``molar_volume`` is cm3/mol and
 ``shear_modulus`` is GPa.
 
 Rows whose modulus or volume is exactly 0.0 upstream (gases, some
-nonmetals) are loaded as stored; consumers must treat a zero as "not
-available" — ``h_elastic`` returns None rather than dividing by it.
+nonmetals) load as stored. Consumers must treat a zero as "not
+available": ``h_elastic`` returns None rather than dividing by it.
 """
 
 from __future__ import annotations

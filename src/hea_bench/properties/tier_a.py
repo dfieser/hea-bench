@@ -10,9 +10,9 @@ return None rather than a number when a table has no entry.
 volumes, ``sum(c_i M_i) / sum(c_i V_i)``, with masses from the IUPAC
 standard atomic weights and volumes from the vendored matminer Miedema
 parameter table. Volume additivity ignores excess mixing volume, which
-for solid solutions is typically a few percent; the measured comparison
-against the experimental densities in the Borg dataset lives in
-``docs/property-tier-a.md``.
+for solid solutions is typically a few percent. ``docs/property-tier-a.md``
+compares the estimate against the experimental densities in the Borg
+dataset.
 """
 
 from __future__ import annotations
@@ -31,7 +31,7 @@ def cost_per_kg(composition: Composition) -> float | None:
     ``sum(w_i p_i)`` with ``w_i`` the mass fraction. This prices the
     elements going in, not melting, processing, yield losses, or
     research-quantity purchasing, all of which dominate real cost at lab
-    scale; the table's docstring carries the full basis caveats. None
+    scale. The table's docstring carries the full basis caveats. None
     when any element has no price row.
     """
     comp = normalize(composition)
@@ -52,7 +52,7 @@ def cost_breakdown(composition: Composition) -> dict[str, dict]:
     """Per-element cost contributions with each row's basis and source.
 
     Raises ValueError when the composition has unpriced or massless
-    elements; use :func:`cost_per_kg` for the None-returning form.
+    elements. Use :func:`cost_per_kg` for the None-returning form.
     """
     comp = normalize(composition)
     weights = _mass_fractions(comp)
@@ -92,7 +92,7 @@ def density(composition: Composition) -> float | None:
     """Rule-of-mixtures density in g/cm3, or None where a table has no row.
 
     None (never a guess) when any element lacks an atomic mass or a
-    positive molar volume; upstream stores 0.0 volume for gases and some
+    positive molar volume. Upstream stores 0.0 volume for gases and some
     nonmetals, which means "not available", not "zero volume".
     """
     comp = normalize(composition)

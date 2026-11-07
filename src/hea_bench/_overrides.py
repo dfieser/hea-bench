@@ -1,11 +1,11 @@
 """Context-local custom element data and pair enthalpies.
 
-Set only by :func:`hea_bench.custom.custom_data`; read by the element
-table, the pair-enthalpy table and the formula parser. A leaf module
-with no package imports, so those low-level modules can all read it
-without import cycles. Context variables keep concurrent callers
-(threads, asyncio tasks, the MCP server) from seeing each other's
-overrides.
+Only :func:`hea_bench.custom.custom_data` sets these values. The
+element table, the pair-enthalpy table and the formula parser read
+them. This is a leaf module with no package imports, so those low-level
+modules can all read it without import cycles. Context variables keep
+concurrent callers (threads, asyncio tasks, the MCP server) from seeing
+each other's overrides.
 """
 
 from __future__ import annotations

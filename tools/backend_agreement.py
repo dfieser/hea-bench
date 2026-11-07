@@ -2,7 +2,7 @@
 
 Both backends can compute a shared set of published descriptor
 quantities, from different reference data (Miedema-computed pair
-enthalpies versus the tabulated Takeuchi-Inoue set; LA-4003 CN12 radii
+enthalpies versus the tabulated Takeuchi-Inoue set, LA-4003 CN12 radii
 versus their radius tabulations). Users who switch backends will see
 different numbers and deserve a documented, quantified answer rather
 than a surprise, so this tool computes the shared descriptors under
@@ -52,38 +52,39 @@ SHARED = (
 
 PER_DESCRIPTOR_NOTE = {
     "smix": (
-        "Identical formula and gas constant; HEACalculator rounds compositions "
+        "Identical formula and gas constant. HEACalculator rounds compositions "
         "internally, so even the equiatomic maximum differs in the fourth decimal."
     ),
     "delta": (
-        "Same Fang formula over CN12 metallic radii; different radius tabulations "
-        "(LA-4003 here, Smithells-derived there)."
+        "Same Fang formula over CN12 metallic radii, from different radius "
+        "tabulations (LA-4003 here, Smithells-derived there)."
     ),
-    "vec": "Identical definition (Guo s+d counting); integer element data.",
+    "vec": "Identical definition (Guo s+d counting) and integer element data.",
     "melting_temperature": (
-        "Same rule of mixtures; HEACalculator ceil-rounds the result to a whole kelvin."
+        "Same rule of mixtures. HEACalculator ceil-rounds the result to a whole kelvin."
     ),
     "mixing_enthalpy": (
         "Same regular-solution form over binary pair enthalpies. The measured "
         "near-zero difference shows both packages vendor tables from the same "
-        "published Takeuchi-Inoue and Miedema lineage; divergence would appear only "
+        "published Takeuchi-Inoue and Miedema lineage. Divergence would appear only "
         "for pairs where the tabulations differ, and this panel found none."
     ),
     "omega": (
-        "Same Yang-Zhang formula; inherits the (small) mixing-enthalpy and melting "
-        "differences and amplifies them without bound as the enthalpy approaches "
-        "zero, so near-ideal alloys can disagree by orders of magnitude. Read Omega "
-        "qualitatively there under either backend."
+        "Same Yang-Zhang formula. Omega inherits the small mixing-enthalpy and "
+        "melting differences and amplifies them without bound as the enthalpy "
+        "approaches zero, so near-ideal alloys can disagree by orders of magnitude. "
+        "Read Omega qualitatively there under either backend."
     ),
     "singh_lambda": (
-        "Same Singh formula over each backend's CN12 delta; because Lambda divides "
-        "by delta squared, small radius-table differences are strongly amplified "
-        "wherever delta is small, which is where the max below comes from."
+        "Same Singh formula over each backend's CN12 delta. Lambda divides by delta "
+        "squared, so small differences between the radius tables are strongly "
+        "amplified wherever delta is small, and the table's maximum comes from such "
+        "a composition."
     ),
     "wang_gamma": (
-        "Same Wang solid-angle formula; HEACalculator evaluates it over generic "
-        "atomic radii where this package uses CN12 metallic radii. This is the "
-        "largest convention gap in the mapped set."
+        "Same Wang solid-angle formula. HEACalculator evaluates it over generic "
+        "atomic radii where this package uses CN12 metallic radii. That radius "
+        "choice is the largest convention gap in the mapped set."
     ),
 }
 
@@ -147,11 +148,11 @@ def main() -> int:
         f"backend's data or the adapter mapping.",
         "",
         "Both backends compute the same published quantities from different",
-        "reference data. The differences below are therefore expected and are",
-        "reference-data choices, not defects; neither backend is declared",
-        "correct, and the benchmark's published baselines use the native",
-        "backend unchanged. The panel is the fixed 50-composition list in the",
-        "generator, spanning the corpus chemistry.",
+        "reference data. The differences below are therefore expected. They",
+        "come from reference-data choices, not defects. Neither backend is",
+        "declared correct, and the benchmark's published baselines use the",
+        "native backend unchanged. The panel is the fixed list of 50",
+        "compositions in the generator, and it spans the corpus chemistry.",
         "",
         "| descriptor | unit | n | mean abs diff | max abs diff | max at |",
         "|---|---|---:|---:|---:|---|",
@@ -181,7 +182,7 @@ def main() -> int:
             names = missing[formula]
             what = "all shared descriptors" if len(names) == len(SHARED) else ", ".join(names)
             parts.append(f"{formula} ({what})")
-        return "; ".join(parts)
+        return ", ".join(parts)
 
     lines += [
         "",
@@ -191,16 +192,16 @@ def main() -> int:
         f"{_coverage(native_missing)}.",
         "",
         f"Compositions HEACalculator could not fully compute: "
-        f"{_coverage(theirs_missing)}. These are element-coverage gaps in its "
+        f"{_coverage(theirs_missing)}. These gaps are elements missing from its "
         f"database (rare-earth and solder-metal palettes, lithium), reported "
-        f"here as measured; coverage differences are exactly the kind of thing "
-        f"a backend choice should be made on.",
+        f"here as measured. Coverage differences like these are a sound basis "
+        f"for choosing a backend.",
         "",
         "## What is deliberately not mapped",
         "",
         "King-family quantities (`delta_g_ss`, `delta_g_max`, `phi_king`),",
         "`phi_ye`, `s_excess`, `delta_chi`, `mean_electronegativity`, and",
-        "`h_elastic` stay native-only, and HEACalculator's density, plain-radius",
+        "`h_elastic` stay native-only. HEACalculator's density, plain-radius",
         "delta, percent-scale electronegativity mismatches, e/a ratio, and",
         "Troparevsky formation enthalpies are exposed under their own names",
         "rather than merged into near-equivalents. Where implementations differ",

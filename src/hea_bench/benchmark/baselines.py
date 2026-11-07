@@ -103,12 +103,12 @@ def build_models(task: str, *, n_jobs: int | None = -1) -> list[object]:
     """Baselines for one task, all scored on the same rows so they compare.
 
     ``n_jobs`` goes to the random forest only and never changes a
-    prediction; the browser engine passes None because it has one thread.
+    prediction. The browser engine passes None because it has one thread.
     """
     from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 
     if task not in BASELINE_NAMES:
-        raise ValueError(f"unknown task {task!r}; expected one of {sorted(BASELINE_NAMES)}")
+        raise ValueError(f"unknown task {task!r}: expected one of {sorted(BASELINE_NAMES)}")
     models: list[object] = [MajorityClass()]
     if task == "single_vs_multi":
         models.append(_rule_single_vs_multi(zhang_delta))
@@ -134,7 +134,7 @@ def baseline_model(task: str, name: str, *, n_jobs: int | None = -1) -> object:
     """One baseline by its table name, for example ``"random-forest"``."""
     if name not in BASELINE_NAMES.get(task, ()):
         raise ValueError(
-            f"unknown baseline {name!r} for task {task!r}; expected one of "
+            f"unknown baseline {name!r} for task {task!r}: expected one of "
             f"{list(BASELINE_NAMES.get(task, ()))}"
         )
     if name == "majority-class":

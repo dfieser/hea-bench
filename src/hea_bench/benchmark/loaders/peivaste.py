@@ -7,16 +7,16 @@ byte under the CC BY 4.0 license its authors added on 2026-10-08. See
 Two upstream quirks the loader handles transparently:
 
 1. **Header/data column offset.** The upstream CSV's first header
-   field is empty; the second header field is misleadingly named
-   ``index`` but actually holds the alloy *formula string*. Python's
-   ``csv.DictReader`` will key the formula under the literal column
-   name ``"index"``. We accept that naming and document it here
-   rather than fight upstream.
+   field is empty. The second header field is misleadingly named
+   ``index`` but actually holds the alloy *formula string*, so Python's
+   ``csv.DictReader`` keys the formula under the literal column
+   name ``"index"``. The loader accepts that naming and documents it
+   here rather than fight upstream.
 
 2. **Per-element-column composition.** Mole fractions live in 62
    separate columns (Li through Au) rather than in a parseable
-   formula string. We use ``from_element_columns`` to assemble the
-   composition rather than ``parse_formula``.
+   formula string. The loader assembles the composition with
+   ``from_element_columns`` rather than ``parse_formula``.
 """
 
 from __future__ import annotations

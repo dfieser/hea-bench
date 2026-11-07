@@ -1,7 +1,7 @@
 """Binary mixing-enthalpy lookups (Miedema model).
 
 Wraps the Miedema-derived pair-enthalpy table vendored from
-matminer (BSD-3-Clause; LICENSE.matminer.txt in this folder).
+matminer (BSD-3-Clause, see LICENSE.matminer.txt in this folder).
 The table itself derives from de Boer, Boom, Mattens, Miedema &
 Niessen (1988) *Cohesion in Metals* and is equivalent to (and
 spot-check-verified against) the open Takeuchi & Inoue 2005
@@ -31,10 +31,10 @@ _TSV_FILENAME = "pair_enthalpies.tsv"
 
 @functools.lru_cache(maxsize=1)
 def _load_table() -> dict[frozenset[str], float]:
-    """Read the vendored TSV once; build a symmetric lookup dict.
+    """Read the vendored TSV once and build a symmetric lookup dict.
 
     Keys are frozen-set element pairs so lookup is order-independent.
-    Self-pairs are not stored — `pair_enthalpy(X, X)` returns 0.0 by
+    Self-pairs are not stored. `pair_enthalpy(X, X)` returns 0.0 by
     convention (a pure element mixed with itself has zero enthalpy of
     mixing).
     """

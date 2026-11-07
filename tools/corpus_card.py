@@ -3,7 +3,7 @@
 The card is the one document a user reads before trusting a label:
 where every row came from, under what license, what harmonization did
 to it, and what the corpus cannot support. Statistics are computed from
-the built corpus releases; provenance and license text is maintained
+the built corpus releases. Provenance and license text is maintained
 here and must stay consistent with data/raw/README.md.
 
 Run from the repository root with both corpus versions built:
@@ -35,35 +35,36 @@ SOURCE_SECTIONS = {
         "**CC-BY-4.0**, mirrored verbatim in `data/raw/borg2020/` since 2026-05-20. "
         "1,545 measurement rows covering 740 unique (formula, processing) alloys "
         "with phase, processing route, mechanical properties, and a per-row "
-        "primary-literature DOI. The canonical backbone of the corpus; it is the "
+        "primary-literature DOI. The canonical backbone of the corpus, and the "
         "only source contributing the processing and DOI side channels."
     ),
     "pei2020": (
         "**Pei et al. 2020** (npj Comput. Mater. 6, 50, doi:10.1038/s41524-020-0308-7). "
         "License **CC-BY-4.0** (Crossref-confirmed for text and data mining and "
         "the version of record). Mirrored in `data/raw/pei2020/` since 2026-05-20. "
-        "1,252 rows of (alloy, phase) pairs with four phase labels; 1,208 unique "
-        "formulas load after deduplication and one malformed-entry rejection."
+        "1,252 rows of (alloy, phase) pairs with four phase labels. After "
+        "deduplication and one malformed-entry rejection, 1,208 unique formulas "
+        "load."
     ),
     "peivaste": (
         "**Peivaste et al.** (GitHub Iman-Peivaste/ML_HEAs_Phase_Dataset, companion "
         "article Sci. Rep. 13, 22556 (2023), doi:10.1038/s41598-023-50044-0). "
         "License **CC-BY-4.0**, added by the authors on 2026-10-08 (merged pull "
         "request #2). Mirrored in `data/raw/peivaste/` since that day, byte-identical "
-        "to the snapshot acquired 2026-05-20, which the license merge left unchanged; "
-        "the loader refuses any other bytes (pinned SHA-256). The largest contributor "
+        "to the snapshot acquired 2026-05-20, which the license merge left unchanged. "
+        "The loader refuses any other bytes (pinned SHA-256). The largest contributor "
         "to the corpus."
     ),
     "chizhevskiy2026": (
         "**Chizhevskiy et al. 2026** (Sci. Data 13, 612, "
-        "doi:10.1038/s41597-026-06930-z; repo Vladimirchizh/hea_database). "
-        "**CC-BY-4.0** since 2026-08-10, when upstream merged a LICENSE file; "
+        "doi:10.1038/s41597-026-06930-z, repo Vladimirchizh/hea_database). "
+        "**CC-BY-4.0** since 2026-08-10, when upstream merged a LICENSE file, and "
         "mirrored at the pinned SHA-256 the same day. 12,427 LLM-extracted records "
         "yielding 2,974 unique alloys in plain formulas. Rows in group notation, "
         "such as (CrCoNi)97W1Mo2, stay out because v0.2.0 is frozen. Feeds corpus "
         "v0.2.0 only. Its "
         "labels agree with the v0.1.0 consensus on about 70 percent of overlapping "
-        "alloys; every disagreement is quarantined as a conflict rather than voted "
+        "alloys. Every disagreement is quarantined as a conflict rather than voted "
         "on, and the named-intermetallic raw labels (B2, L12, Laves, sigma) are "
         "preserved verbatim in the raw-label column."
     ),
@@ -74,14 +75,14 @@ HARMONIZATION = """\
 
 - **Join key**: composition only, elements alphabetical at 4-decimal
   mole-fraction precision (`canonical_formula_key`). Two upstream rows
-  differing only by float noise merge; two processing states of the same
+  differing only by float noise merge. Two processing states of the same
   composition also merge, with Borg's processing string preserved as a
   side channel rather than in the key.
-- **Label policy**: sources agree, the label becomes `canonical_phase`;
-  sources disagree, the row gets `has_conflict=1` and an empty canonical
-  label. Nothing votes. Conflict rows stay in the CSV for anyone who
-  wants to study the disagreement itself and are excluded from the
-  benchmark projection.
+- **Label policy**: when sources agree, the label becomes
+  `canonical_phase`. When sources disagree, the row gets
+  `has_conflict=1` and an empty canonical label. Nothing votes.
+  Conflict rows stay in the CSV for anyone who wants to study the
+  disagreement itself and are excluded from the benchmark projection.
 - **Per-source dedup**: each loader drops exact repeats before
   consolidation and keeps the first row (Borg on formula and processing
   together, Pei and Peivaste on the formula string). A source can still
@@ -106,21 +107,21 @@ LIMITATIONS = """\
 - **A source's repeated records are not checked against each other.**
   When repeated records of one composition in one source disagree, the
   first record decides, where a disagreement between sources would
-  quarantine the row. This decides the label of 59 consensus-labelled
-  rows in v0.1.0 and 49 in v0.2.0. Both versions are frozen, so they
-  keep the rule and their digests.
+  quarantine the row. The first-record rule decides the label of 59
+  consensus-labelled rows in v0.1.0 and 49 in v0.2.0. Both versions
+  are frozen, so they keep the rule and their digests.
 - **The conflict quarantine removes contested chemistry.** Excluded
   conflict rows are not random: heavily studied systems are more likely
   to accumulate disagreeing reports.
 - **The corpus inherits literature bias.** Element and family counts
   reflect what experimentalists chose to make, not a design of
-  experiments; 3d transition-metal systems dominate.
+  experiments. Systems of 3d transition metals dominate.
 - **Chizhevskiy rows are LLM-extracted** and measurably noisier than the
   hand-curated sources (about 70 percent agreement on overlaps). They
   are confined to v0.2.0, and disagreements with the reference corpus
   are quarantined, not resolved.
 - **`descriptor_ready` marks scorability, not quality.** Rows with
-  elements outside the descriptor tables are kept; the flag only says
+  elements outside the descriptor tables are kept. The flag only says
   whether this package's descriptor stack can score them.
 """
 
@@ -182,8 +183,8 @@ def main() -> int:
         "benchmark (`load_benchmark`), the phase predictions and the domain "
         "flag always use it, and it is the recommended evaluation target.",
         "- **v0.2.0 is the extended corpus**: the same recipe plus the "
-        "Chizhevskiy LLM-extracted database. Larger and noisier. It is what "
-        "`load_corpus()` and the apps' Dataset tab open by default, for "
+        "Chizhevskiy LLM-extracted database. Larger and noisier. "
+        "`load_corpus()` and the apps' Dataset tab open it by default for "
         "browsing and download, and `load_benchmark(version=\"0.2.0\")` "
         "opts the benchmark into it.",
         "- The corpus version counter (v0.x) is independent of the package "
@@ -193,7 +194,7 @@ def main() -> int:
         "## How the corpus is built",
         "",
         "Every source dataset ships with the package, so the corpus is built "
-        "on the user's machine, once, with no download: loaders, consolidation "
+        "once on the user's machine, with no download. Loaders, consolidation "
         "rules, a pinned SHA-256 of the largest source, and the split "
         "algorithm turn the shipped files into a corpus byte-identical to the "
         "one every reported number was computed against. The build refuses to "

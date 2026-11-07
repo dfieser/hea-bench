@@ -20,8 +20,8 @@ the chosen confidence. One label is a confident answer, several labels
 mean the data cannot separate them, and an empty set means no label
 reaches the calibrated bar. The corpus domain flag rides along, because
 the coverage guarantee assumes the query resembles the calibration
-alloys and an unusual alloy breaks that assumption, and so does what
-the coverage study measured (``measured_coverage``).
+alloys and an unusual alloy breaks that assumption. What the coverage
+study measured rides along too (``measured_coverage``).
 
 Needs the built corpus (see :mod:`hea_bench.corpus`) and scikit-learn
 (``pip install "hea-bench[benchmark]"``).
@@ -52,7 +52,7 @@ def system_fold_positions(bench, rows) -> list[tuple[list[int], list[int]]]:
     """The frozen system-split folds as positions into ``rows``.
 
     ``rows`` is a list of benchmark row indices (the descriptor-finite
-    ones); rows outside it are dropped from every fold.
+    ones). Rows outside it are dropped from every fold.
     """
     position = {row: p for p, row in enumerate(rows)}
     return [
@@ -113,7 +113,7 @@ def predict_phase_set(
         ``"single_vs_multi"`` (single-phase solid solution or not) or
         ``"phase4"`` (multi-phase, BCC, FCC or HCP).
     alpha
-        Miscoverage level; 0.1 asks for a set that contains the true
+        Miscoverage level. A value of 0.1 asks for a set that contains the true
         label about 90 percent of the time on alloys like the
         calibration set.
     version
@@ -136,13 +136,13 @@ def predict_phase_set(
         Unknown task, or a composition whose descriptors are not all
         computable (an element outside the tables, or a singular value).
     FileNotFoundError
-        The corpus is not built; the message gives the build commands.
+        The corpus is not built. The message gives the build commands.
     """
     from ..benchmark.corpus import TASKS
     from ..descriptors.backend import matrix_vector
 
     if task not in TASKS:
-        raise ValueError(f"unknown task {task!r}; expected one of {sorted(TASKS)}")
+        raise ValueError(f"unknown task {task!r}: expected one of {sorted(TASKS)}")
     comp = normalize(composition)
     vector = matrix_vector(comp)
     if vector is None:
@@ -219,7 +219,7 @@ def _domain_for(version: str):
 
 
 def _corpus_domain(version: str):
-    """The corpus domain model; the shared default for the reference corpus."""
+    """The corpus domain model, the shared default for the reference corpus."""
     if version == "0.1.0":
         from .applicability import default_domain
 

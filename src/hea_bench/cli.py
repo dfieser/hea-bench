@@ -3,7 +3,7 @@
 ``hea-bench`` alone reports the package version and points at the API
 surface. ``hea-bench describe FORMULA`` computes every descriptor the
 selected backend offers for one composition and prints a strict-JSON
-report with units; ``--backend`` selects the computation backend
+report with units. ``--backend`` selects the computation backend
 (``native`` by default, ``heacalculator`` once the interop extra is
 installed).
 """
@@ -42,7 +42,7 @@ def _describe(formula: str, backend_name: str) -> int:
         # nulled and flagged instead of breaking downstream parsers.
         safe = json_safe(value)
         if safe is None and value is not None:
-            warnings.append(f"{name}: value is unbounded for {formula!r}; reported as null")
+            warnings.append(f"{name}: value is unbounded for {formula!r}, so it is reported as null")
         elif value is None:
             warnings.append(
                 f"{name}: not computable for {formula!r} "

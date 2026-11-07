@@ -40,7 +40,7 @@ from . import (
 #: string). The three rules whose ``predict`` returns a result object
 #: are adapted here so every entry answers with the verdict string,
 #: which is what constraint filtering consumes. This is the one place
-#: the nine-rule vocabulary lives; the design search, campaigns, and
+#: the nine-rule vocabulary lives. The design search, campaigns, and
 #: the MCP surface all draw from it.
 VERDICT_FUNCTIONS = {
     "yeh_smix": yeh_smix.predict,

@@ -17,7 +17,8 @@ Units
 -----
 T_m is in K and ΔS_mix is in J/(mol·K), so ``T_m · ΔS_mix`` has units
 of J/mol. ΔH_mix from :mod:`hea_bench.descriptors.miedema` is in
-kJ/mol; we multiply by 1000 in the denominator so Ω is dimensionless.
+kJ/mol, so the denominator carries a factor of 1000 to make Ω
+dimensionless.
 
 References
 ----------
@@ -52,7 +53,7 @@ def omega(composition: Composition) -> float:
     -------
     float
         Ω = (T_m · ΔS_mix) / |ΔH_mix|. Returns ``+inf`` when ΔH_mix is
-        identically zero (ideal mixing — entropy wins unconditionally).
+        identically zero (ideal mixing, where entropy wins unconditionally).
 
     Raises
     ------
@@ -81,7 +82,7 @@ def omega(composition: Composition) -> float:
 
 @accepts_formula
 def omega_sensitivity(composition: Composition, perturbation_kj_mol: float = 2.0) -> dict:
-    """How robust Omega is to the choice of Miedema pair table.
+    """How sensitive Omega is to the choice of Miedema pair table.
 
     Omega diverges as the mixing enthalpy approaches zero, so its value
     for near-ideal alloys depends strongly on which published pair table
@@ -164,5 +165,5 @@ def omega_sensitivity(composition: Composition, perturbation_kj_mol: float = 2.0
             "Omega varies between the endpoint values across the typical spread "
             "of published Miedema pair tables."
         ),
-        "source": "deBoer1988 / Takeuchi2005 pair table; Yang2012 Omega",
+        "source": "deBoer1988 / Takeuchi2005 pair table, Yang2012 Omega",
     }

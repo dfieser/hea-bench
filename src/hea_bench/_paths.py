@@ -1,11 +1,11 @@
 """Where hea-bench reads and writes its data files.
 
-There are two layouts. In a repository checkout, and in the web app's
-in-page engine, which mirrors one, the mirrored source datasets live in
-``data/raw`` and built corpora in ``data/consolidated``. An installed
-wheel carries the mirrored datasets inside the package (``_data``, put
-there by the wheel build in pyproject.toml) and keeps what it builds in
-a per-user folder, because site-packages may not be
+There are two layouts. A repository checkout keeps the mirrored source
+datasets in ``data/raw`` and built corpora in ``data/consolidated``, and
+so does the web app's in-page engine, which mirrors a checkout. An
+installed wheel carries the mirrored datasets inside the package
+(``_data``, put there by the wheel build in pyproject.toml) and keeps
+what it builds in a per-user folder, because site-packages may not be
 writable. Every data path in the package comes from this module, so the
 two layouts cannot drift apart.
 """

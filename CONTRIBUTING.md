@@ -49,7 +49,7 @@ the suite and update the affected pinned values only after confirming
 the new number by an independent measurement. The repository convention
 is to measure first and assert second, never to write an expected value
 from memory. The Python library and the JavaScript calculator core are
-parity-locked by `tests/test_web_parity.py`; change both together.
+parity-locked by `tests/test_web_parity.py`. Change both together.
 
 When adding a new descriptor or rule, add tests that cover at least one
 canonical reference case (the equiatomic Cantor alloy CoCrFeMnNi is the
@@ -67,34 +67,34 @@ whatever part is still missing and the exact fix.
 ## Documentation and writing style
 
 Write so a reader understands the document on the **first read**, in
-place. This is a hard rule, not a preference — readability has been a
-recurring problem.
+place. This is a hard rule, not a preference, because readability has
+been a recurring problem.
 
 Calibrate to the audience: **a reader of a materials-informatics
-journal**. Terms such a reader would naturally already know (FCC, BCC,
-HCP, alloy, phase, entropy, enthalpy, melting temperature, and the like)
-need no explanation — do not over-explain them. Everything beyond that
-shared background — above all **jargon specific to this project**: its
-descriptors, named rules, and symbols (`δ`, `Ω`, `Φ`, …) — must be
-minimized, especially early, and explained in plain context the first
-time it appears.
+journal**. Terms such a reader would already know (FCC, BCC, HCP,
+alloy, phase, entropy, enthalpy, melting temperature, and the like) need
+no explanation, so do not over-explain them. Everything beyond that
+shared background must be minimized, especially early, and explained in
+plain context the first time it appears. That applies above all to
+**jargon specific to this project**: its descriptors, named rules, and
+symbols (`δ`, `Ω`, `Φ`, …).
 
 - **Minimize jargon, especially at the start** of any document,
-  section, abstract, or table. Lead with plain language; introduce a
+  section, abstract, or table. Lead with plain language. Introduce a
   technical term only when it is actually needed.
 - **Explain any necessary term inline, in plain language, with context,
-  the first time it appears** — woven into the sentence. Do **not**
+  the first time it appears**, woven into the sentence. Do **not**
   defer to a glossary: a glossary just relocates the confusion, and
   readers do not jump to one mid-read.
 - **State what a metric is measured against.** Never write a bare
   "sensitivity", "specificity", or "FCC sensitivity". Write, in context,
   "of the alloys that are truly single-phase, the fraction the rule
-  labels single-phase", and always name the class — a metric with no
+  labels single-phase", and always name the class. A metric with no
   reference class is meaningless.
 - **No undefined shorthand** (`n_eval`, `sens`, `spec`, bare `δ`, `Ω`,
-  `VEC`, `HEA`, `IM`, "Youden's J", …). Prefer plain words; use a symbol
+  `VEC`, `HEA`, `IM`, "Youden's J", …). Prefer plain words. Use a symbol
   only after giving its plain name.
-- **Figures** carry no titles and no bare symbols on axes — spell the
+- **Figures** carry no titles and no bare symbols on axes. Spell the
   quantity out (e.g. "mixing enthalpy (kJ/mol)", not `ΔH_mix`).
 
 Before committing any prose or figure change, reread it cold as a

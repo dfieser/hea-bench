@@ -9,7 +9,7 @@ of 4 normalizes for arbitrary composition: at equiatomic
 tabulated pair value.
 
 The pair enthalpies come from :mod:`hea_bench.descriptors.data.pair_enthalpies`,
-which wraps the matminer-vendored Miedema table (75 elements, BSD-3;
+which wraps the matminer-vendored Miedema table (75 elements, BSD-3,
 cross-verified against Takeuchi & Inoue 2005 *Mater. Trans.* **46**, 2817).
 
 References
@@ -41,8 +41,8 @@ def mixing_enthalpy(composition: Composition) -> float:
     Parameters
     ----------
     composition
-        Mapping of element symbol to mole fraction (or proportional
-        amount — values are normalized to sum to 1 internally).
+        Mapping of element symbol to mole fraction or proportional
+        amount. Values are normalized to sum to 1 internally.
 
     Returns
     -------
@@ -89,7 +89,7 @@ def mixing_enthalpy(composition: Composition) -> float:
             gaps.append(f"{a}-{b}")
     if gaps:
         raise ValueError(
-            f"no pair enthalpy for {', '.join(gaps)}; give one with "
+            f"no pair enthalpy for {', '.join(gaps)}. Give one with "
             f"hea_bench.custom_data(pair_enthalpies={{...}})"
         )
     return h

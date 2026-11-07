@@ -24,9 +24,9 @@ def smix(composition: dict[str, float]) -> float:
     Parameters
     ----------
     composition
-        Mapping of element symbol to mole fraction (or any positive amount —
-        values are normalized internally so they only need to be proportional
-        to the molar amounts).
+        Mapping of element symbol to mole fraction, or to any positive
+        amount. Values are normalized internally, so they need only be
+        proportional to the molar amounts.
 
     Returns
     -------
@@ -41,7 +41,7 @@ def smix(composition: dict[str, float]) -> float:
 
     Examples
     --------
-    Cantor alloy CoCrFeMnNi — five elements at equal fractions:
+    Cantor alloy CoCrFeMnNi, five elements at equal fractions:
 
     >>> round(smix({'Co': 1, 'Cr': 1, 'Fe': 1, 'Mn': 1, 'Ni': 1}), 3)
     13.382

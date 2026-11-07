@@ -64,7 +64,7 @@ function callPython(method, params) {
 
 async function fetchBytes(url) {
   var response = await fetch(url);
-  if (!response.ok) throw new Error("could not download " + url + " (HTTP " + response.status + ")");
+  if (!response.ok) throw new Error("Could not download " + url + " (HTTP " + response.status + ")");
   return new Uint8Array(await response.arrayBuffer());
 }
 
@@ -170,7 +170,7 @@ async function pump() {
   try {
     await booted;
   } catch (error) {
-    var reason = "the engine did not start: " + String(error && error.message ? error.message : error);
+    var reason = "The engine did not start: " + String(error && error.message ? error.message : error);
     requests.splice(0).forEach(function (message) {
       post({ id: message.id, ok: false, error: reason });
     });

@@ -1,7 +1,7 @@
 """Structure-family reports for high-entropy oxides.
 
 Each ``describe_*`` function takes cation occupancies (amounts need not
-sum to 1; they are normalized per sublattice), solves the
+sum to 1, since they are normalized per sublattice), solves the
 charge-neutrality oxidation-state assignment, looks up the Shannon
 radii at the family's coordination numbers, and returns one dict with
 the descriptors, the rule verdicts, and every warning produced along
@@ -14,17 +14,18 @@ the way. The verdict thresholds and their sources:
   (1.61 R on the B sublattice) even though the value per total cation
   site is half that. Both normalizations are reported.
 - Perovskite Goldschmidt window 0.92 <= t <= 1.04 (Manchón-Gordón et
-  al. 2025 compilation; the classic textbook window is 0.9-1.0 and the
+  al. 2025 compilation. The classic textbook window is 0.9-1.0, and the
   bound is configurable), octahedral factor 0.414 < mu < 0.732, and
   Bartel tau < 4.18 (Bartel et al. 2019, ~91% reported accuracy).
 - Fluorite: sample standard deviation of the eight-fold cation radii
-  > 0.095 A predicts a single-phase (entropy-stabilized) fluorite;
-  below it, bixbyite-type or mixed phases are expected (Spiridigliozzi
-  et al. 2021; convention verified against their published SD values).
-  Calibrated on equimolar rare-earth-based five-cation oxides — treat
-  verdicts outside that domain as extrapolation.
-- Pyrochlore: 1.46 < rA/rB < 1.78 (Subramanian et al. 1983); below the
-  window a defect fluorite is expected, above it no single cubic phase.
+  > 0.095 A predicts a single-phase (entropy-stabilized) fluorite.
+  Below it, bixbyite-type or mixed phases are expected (Spiridigliozzi
+  et al. 2021, convention verified against their published SD values).
+  The screen is calibrated on equimolar rare-earth-based five-cation
+  oxides, so treat verdicts outside that domain as extrapolation.
+- Pyrochlore: 1.46 < rA/rB < 1.78 (Subramanian et al. 1983). Below the
+  window a defect fluorite is expected, and above it no single cubic
+  phase.
 
 All verdicts are weak empirical screens, exactly like the alloy-side
 rules: calibrated on small historical datasets, never ground truth.
@@ -143,7 +144,7 @@ def describe_fluorite(
 ) -> dict:
     """Descriptor report for a fluorite oxide MO_x (cations eight-fold).
 
-    ``oxygen`` is the O content per cation formula unit; rare-earth
+    ``oxygen`` is the O content per cation formula unit. Rare-earth
     systems are typically oxygen-deficient (e.g. ``oxygen=1.7`` for an
     equimolar 4+/3+ mix), and the charge balance is solved against
     ``2 * oxygen``.
@@ -171,7 +172,7 @@ def describe_fluorite(
         if max(fracs) - min(fracs) > 1e-9:
             warnings.append(
                 "the fluorite radius-dispersion criterion is calibrated on equimolar "
-                "compositions; this composition is not equimolar"
+                "compositions, and this composition is not equimolar"
             )
         sigma = radius_sample_std(list(radii.values()))
         sigma_verdict = "fluorite" if sigma > 0.095 else "bixbyite-or-multiphase"
@@ -220,8 +221,8 @@ def _two_site_report(
     shared = set(norm_a) & set(norm_b)
     if shared:
         raise ValueError(
-            f"{', '.join(sorted(shared))} appears on both sublattices; site-resolved "
-            f"oxidation states are not supported — describe the sites separately"
+            f"{', '.join(sorted(shared))} appears on both sublattices. Site-resolved "
+            f"oxidation states are not supported, so describe the sites separately"
         )
     warnings: list[str] = []
     moles = {el: x * site_multiplicity for el, x in norm_a.items()}

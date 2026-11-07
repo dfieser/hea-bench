@@ -26,4 +26,22 @@ if grep -qiE '(generated with|created by|written by)[[:space:]]+.*(claude|anthro
     exit 1
 fi
 
+# No semicolons and no em dashes in commit messages (owner rule,
+# 2026-11-07). Commit subjects become the CHANGELOG bullets, the GitHub
+# release notes and the app's What's-new history. Text inside backticks
+# is code and is ignored, as are git's own comment lines and the diff
+# below the scissors line that `git commit -v` adds.
+prose=$(sed -e '/^# -\{24\} >8 -\{24\}$/,$d' -e '/^#/d' -e 's/`[^`]*`//g' "$msg_file")
+bad=$(printf '%s\n' "$prose" | grep -nE ';|—| -- | – ')
+if [ -n "$bad" ]; then
+    echo "commit-msg hook: refusing a semicolon or an em dash in the commit message." >&2
+    echo "" >&2
+    printf '%s\n' "$bad" | sed 's/^/  line /' >&2
+    echo "" >&2
+    echo "  Commit messages become the release notes, which never carry either mark." >&2
+    echo "  Rewrite each one as a period (two sentences) or a comma, then commit again." >&2
+    echo "  Code belongs in backticks, where the check ignores it." >&2
+    exit 1
+fi
+
 exit 0

@@ -8,7 +8,7 @@ composition-only, which in the ceramics literature buys less than it
 does for alloys, and this module says so instead of pretending:
 
 - **Configurational entropy** follows the high-entropy-ceramics
-  convention (Oses, Toher and Curtarolo 2020; Wright and Luo 2020):
+  convention (Oses, Toher and Curtarolo 2020, Wright and Luo 2020):
   mixing disorder lives on the metal sublattice, the anion sublattice
   is ordered and contributes nothing. Because published papers switch
   between per-formula-unit, per-mole-cation, and per-mole-atom
@@ -22,7 +22,7 @@ does for alloys, and this module says so instead of pretending:
   (Jhi et al. 1999), enhanced fracture resistance above about 9.4
   (Sangiovanni et al. 2023), plasticity above about 9.5 (Sangiovanni et
   al. 2021), against the binary-systematics backdrop of Balasubramanian
-  et al. 2018. The report annotates those points; it deliberately emits
+  et al. 2018. The report annotates those points. It deliberately emits
   no verdict, because no single published window exists.
 - **Size mismatch is deferred, with the reason stated.** The carbide
   formability literature computes it from metal-carbon bond lengths of
@@ -31,16 +31,16 @@ does for alloys, and this module says so instead of pretending:
   literature from binary MB2 lattice parameters (Gild et al. 2016).
   Adopting such a table is a data-curation task with real choices
   (metastable rock-salt MoC, WC, CrC have no experimental stoichiometric
-  lattice constant), and this module refuses to rush it; a future
+  lattice constant), and this module refuses to rush it. A future
   change can add the descriptor with a properly per-row-cited table.
 - **Entropy-forming ability and DEED are DFT-ensemble quantities**
-  (Sarker et al. 2018; Divilov et al. 2024) and cannot be computed from
-  composition. Nothing here claims parity with them; the best published
+  (Sarker et al. 2018, Divilov et al. 2024) and cannot be computed from
+  composition. Nothing here claims parity with them. The best published
   composition-only correlate of EFA explains about R squared 0.58 and
   its authors hedge its threshold.
 
 The screens here are context for reading literature and planning
-syntheses, weaker than the alloy rules; treat every number accordingly.
+syntheses, weaker than the alloy rules, so treat every number accordingly.
 """
 
 from __future__ import annotations
@@ -54,7 +54,7 @@ from ..oxides.descriptors import R_GAS
 SOURCES = {
     "Oses2020": (
         "Oses, Toher and Curtarolo (2020). Nat. Rev. Mater. 5, 295. "
-        "High-entropy ceramics review; cation-sublattice entropy convention."
+        "High-entropy ceramics review and the cation-sublattice entropy convention."
     ),
     "WrightLuo2020": (
         "Wright and Luo (2020). J. Mater. Sci. 55, 9812. Sublattice mixing "
@@ -62,8 +62,8 @@ SOURCES = {
     ),
     "Dippo2021": (
         "Dippo and Vecchio (2021). Scr. Mater. 201, 113974. Sublattice-"
-        "resolved entropy metric; the normalization ambiguity this module "
-        "reports around."
+        "resolved entropy metric, addressing the normalization ambiguity this "
+        "module reports around."
     ),
     "Jhi1999": (
         "Jhi, Ihm, Louie and Cohen (1999). Nature 399, 132. VEC 8.4 hardness "
@@ -76,7 +76,7 @@ SOURCES = {
     ),
     "Sangiovanni2023": (
         "Sangiovanni, Kaufmann and Vecchio (2023). Sci. Adv. 9, eadi2960. "
-        "VEC controls fracture resistance; enhanced above about 9.4."
+        "VEC controls fracture resistance, which is enhanced above about 9.4."
     ),
     "Balasubramanian2018": (
         "Balasubramanian, Khare and Gall (2018). Acta Mater. 152, 175. VEC "
@@ -84,18 +84,18 @@ SOURCES = {
     ),
     "Sarker2018": (
         "Sarker et al. (2018). Nat. Commun. 9, 4980. Entropy-forming "
-        "ability; a DFT-ensemble descriptor, not computable from composition."
+        "ability, a DFT-ensemble descriptor not computable from composition."
     ),
     "Divilov2024": (
-        "Divilov et al. (2024). Nature 625, 66. DEED; DFT ensemble plus "
+        "Divilov et al. (2024). Nature 625, 66. DEED, from a DFT ensemble plus "
         "convex hull, not computable from composition."
     ),
     "Kretschmer2024": (
         "Kretschmer and Mayrhofer (2024). Sci. Rep. 14, 7210. Carbide size "
-        "mismatch from DFT binary bond lengths; the deferred descriptor."
+        "mismatch from DFT binary bond lengths, the deferred descriptor."
     ),
     "Gild2016": (
-        "Gild et al. (2016). Sci. Rep. 6, 37946. High-entropy diborides; "
+        "Gild et al. (2016). Sci. Rep. 6, 37946. High-entropy diborides and "
         "lattice-parameter mismatch bracketing."
     ),
 }
@@ -141,7 +141,7 @@ def _entropy(metals: Composition, atoms_per_formula_unit: int) -> dict:
         "per_formula_unit_j_mol_k": R_GAS * per_cation_r,
         "per_mole_atoms_j_mol_k": R_GAS * per_cation_r / atoms_per_formula_unit,
         "note": (
-            "metal-sublattice ideal mixing; anion sublattice ordered "
+            "metal-sublattice ideal mixing, anion sublattice ordered "
             "(Oses2020). All normalization conventions reported because "
             "papers switch between them without warning (Dippo2021): per "
             "mole of cations equals per formula unit here, and per mole of "
@@ -193,7 +193,7 @@ def describe_rock_salt_carbide(metals: Composition) -> dict:
     """Composition-only descriptors for a rock-salt high-entropy carbide.
 
     ``metals`` is the metal-sublattice composition (amounts normalize
-    internally); carbon fills the anion sublattice at one per metal.
+    internally). Carbon fills the anion sublattice at one per metal.
     """
     return _describe(
         metals,

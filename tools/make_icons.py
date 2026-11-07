@@ -2,8 +2,8 @@
 """Generate the desktop and web icon sets from the HEA-Bench mark.
 
 The mark: the app's hexagon (the titlebar's U+2B22 glyph) in the brand
-terracotta, carrying a cream hexagonal close-packed lattice — seven
-nodes, center bonded to ring, ring bonded around — the crystallography
+terracotta, carrying a cream hexagonal close-packed lattice (seven
+nodes, center bonded to ring, ring bonded around), the crystallography
 the calculator is about. Flat two-tone so it survives 16 px.
 
 Two tunings of the same geometry, because the two surfaces are viewed at

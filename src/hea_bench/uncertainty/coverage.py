@@ -4,13 +4,13 @@ Design, stated up front because the numbers only mean something under
 it. The study is a nested cross-validation over the frozen system split,
 so it tests exactly the procedure the released predictor uses
 (:mod:`hea_bench.uncertainty.phase`). For each fold, the other four folds
-play the part of the whole corpus: their calibration scores come from
-cross-validation among those four folds (every alloy scored by a forest
-that never saw its system, and never saw the held-out fold either), a
-random forest (300 trees, seed 0, the baseline configuration) refit on
-all four folds predicts the held-out fold, and sets at nominal 80, 90
-and 95 percent are calibrated separately for alloys with fewer than four
-and with four or more elements. A domain model fitted on the same four
+play the part of the whole corpus. Their calibration scores come from
+cross-validation among those four folds, so every alloy is scored by a
+forest that never saw its system and never saw the held-out fold either.
+A random forest (300 trees, seed 0, the baseline configuration) refit on
+all four folds predicts the held-out fold. Sets at nominal 80, 90 and 95
+percent are calibrated separately for alloys with fewer than four and
+with four or more elements. A domain model fitted on the same four
 folds flags every test row as in or out of domain. Each cross-validation
 forest leaves out two folds, so it serves both of them and the study
 fits ten such forests plus five refits.
@@ -75,7 +75,7 @@ def coverage_study(
     task
         ``"single_vs_multi"`` or ``"phase4"``.
     alphas
-        Miscoverage levels; 0.1 is a nominal 90 percent set.
+        Miscoverage levels, where 0.1 is a nominal 90 percent set.
     version
         Corpus version. The published study uses ``"0.1.0"``.
     progress

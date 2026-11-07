@@ -3,12 +3,13 @@ alloy and high-entropy oxide thermodynamic and geometric descriptors plus the
 canonical empirical phase-prediction rules (oxides in ``hea_bench.oxides``).
 
 Every descriptor is a transparent closed-form expression over a curated
-element-property table — no fitted model, no black box. The same calculation
-core ships as this Python library, a zero-install browser app, and a native
-desktop app; the browser core is parity-tested against this library.
+element-property table, with no fitted model and no black box. The same
+calculation core ships as this Python library, a zero-install browser app,
+and a native desktop app. The browser core is parity-tested against this
+library.
 
-Top-level convenience imports for the most-used names; full surface
-documented in ``README.md``.
+This module imports the most-used names at the top level. ``README.md``
+documents the full surface.
 
 Quick start::
 

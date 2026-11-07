@@ -11,7 +11,7 @@ conventions:
                 like 'AlAuCoCrCuNi' or 'AlCoCrCu0.5Fe'
 
 A single regex `_ELEMENT_TOKEN` parses any of these formula strings into
-a list of (element-symbol, coefficient) pairs; missing coefficients
+a list of (element-symbol, coefficient) pairs. Missing coefficients
 default to 1. `normalize` then converts proportional amounts to mole
 fractions summing to 1.
 
@@ -20,7 +20,8 @@ For Peivaste, the per-element-column representation is parsed by
 
 This module lives at package root (not under ``benchmark/``) because
 both the benchmark loaders *and* the descriptor functions consume the
-``Composition`` type — descriptors should not depend on benchmark.
+``Composition`` type, and the descriptors should not depend on the
+benchmark package.
 """
 
 from __future__ import annotations
@@ -89,7 +90,7 @@ def parse_formula(formula: str) -> Composition:
 
     Repeated elements add up, so ``CoCrFeNiNi`` is Co1Cr1Fe1Ni2. A
     parenthesized group is one unit made of the elements inside it, in
-    their own ratio, and the number after it is that unit's amount:
+    their own ratio. The number after the group is that unit's amount:
     ``(CoCrFeNi)95Al5`` is 95 parts equimolar CoCrFeNi plus 5 parts Al.
     A group with no number counts as 1 part, and groups nest. The
     browser core (``parseFormula`` in ``web/hea-calculator-core.js``)
@@ -224,8 +225,8 @@ def normalize(amounts: dict[str, float]) -> Composition:
     in the last bit of the total, which shifts a handful of mole
     fractions across a decimal rounding boundary. That single bit made
     the benchmark corpus build produce different composition keys on
-    different Python versions until it was caught by the benchmark's CI
-    freeze gate. ``fsum`` closes the class of bug, not just the case.
+    different Python versions until the benchmark's CI freeze gate
+    caught it. ``fsum`` closes the class of bug, not just the case.
 
     Raises
     ------
@@ -249,8 +250,8 @@ def from_element_columns(
     Parameters
     ----------
     row
-        Mapping from column name to value. Values may be float or string;
-        strings are converted via `float`.
+        Mapping from column name to value. Values may be floats or
+        strings, and strings are converted with `float`.
     element_symbols
         The element symbols to look up in `row`. Symbols absent from `row`
         or holding non-numeric values are silently skipped.

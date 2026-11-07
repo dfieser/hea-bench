@@ -1,14 +1,14 @@
 """Loader for the Pei et al. 2020 HEA dataset (npj Comput. Mater. 6, 50).
 
 Source: ``data/raw/pei2020/pei2020_alloys_phases.csv`` (CC-BY-4.0,
-mirrored verbatim from Springer's CDN — see
+mirrored verbatim from Springer's CDN as described in
 ``data/raw/pei2020/README.md``).
 
 Upstream schema is minimal: two columns (``Alloy``, ``Phase``), 1,252
 rows, four lower-case phase labels (``bcc``, ``fcc``, ``hcp``,
-``multi-phase``). 43 of those rows repeat a formula already seen; per
-the design decision in this loader those are deduplicated on first
-occurrence to match the Borg loader's behaviour.
+``multi-phase``). 43 of those rows repeat a formula already seen. By
+design, this loader keeps only the first occurrence of each, matching
+the Borg loader's behaviour.
 
 One further row is dropped: row 1251 carries the malformed upstream
 formula ``Ta_Th``. Until hea-bench 2.1.6 the parser consumed the two
@@ -18,7 +18,7 @@ to be fully consumed, so the row is rejected. Yield is therefore 1,208
 unique formulas, one below the 1,209 recorded in the v0.1.0 corpus
 manifest built before that fix.
 
-Pei has no processing column and no per-row DOI; both AlloyRecord
+Pei has no processing column and no per-row DOI, so both AlloyRecord
 fields are left ``None``. The whole dataset shares one DOI
 (10.1038/s41524-020-0308-7), recorded once at the source level.
 """
@@ -50,8 +50,8 @@ def load(csv_path: pathlib.Path) -> Iterator[AlloyRecord]:
     - Rows with an unparseable formula, an empty phase label, or a
       phase label not in :data:`hea_bench.benchmark.taxonomy.PEI_MAP`
       are skipped silently.
-    - ``source_row_id`` is the 0-indexed CSV data row number (matches
-      Pei's internal ordering; not a stable upstream ID).
+    - ``source_row_id`` is the 0-indexed CSV data row number. It matches
+      Pei's internal ordering but is not a stable upstream ID.
     """
     seen: set[str] = set()
 

@@ -4,8 +4,8 @@ Walks each source loader, merges records on a *composition-only* join
 key (Borg's processing column is preserved as side-channel data but
 does **not** participate in the join), and produces:
 
-- ``<corpus dir>/consolidated.csv``  — the benchmark
-- ``<corpus dir>/manifest.json``     — provenance, dedup stats, SHA-256s
+- ``<corpus dir>/consolidated.csv``: the benchmark
+- ``<corpus dir>/manifest.json``: provenance, dedup stats, SHA-256s
 
 where the corpus dir is ``hea_bench.corpus.corpus_location(version)``:
 ``data/consolidated/v<version>`` in a checkout, a per-user folder in an
@@ -68,8 +68,8 @@ SOURCES_BY_VERSION: dict[str, tuple[str, ...]] = {
 def canonical_formula_key(composition: Composition, precision: int = 4) -> str:
     """Stable string key for a normalized composition.
 
-    Elements sorted alphabetically; fractions formatted at fixed
-    precision. Two compositions differing only by float noise produce
+    Elements are sorted alphabetically and fractions formatted at fixed
+    precision, so two compositions differing only by float noise produce
     the same key.
 
     >>> canonical_formula_key({'Fe': 0.5, 'Co': 0.5})
@@ -276,8 +276,11 @@ def build_manifest(
         },
         "consolidation_rules": {
             "join_key": "composition_only, 4-decimal mole-fraction precision",
-            "label_policy": "agreement → canonical; disagreement → has_conflict=1, canonical_phase blank",
-            "borg_processing": "Preserved as side-channel; not part of join key",
+            "label_policy": (
+                "agreement → canonical, "
+                "disagreement → has_conflict=1 and canonical_phase blank"
+            ),
+            "borg_processing": "Preserved as side-channel, not part of join key",
             "per_source_dedup": "Each loader deduplicates internally before consolidation",
         },
     }

@@ -222,7 +222,7 @@
     var fraction = null;
     if (!engine.available()) {
       el.classList.add("is-error");
-      text = esc(status.error || "The engine needs the app to be served over http(s).");
+      text = esc(status.error || "The engine needs the app served over http(s).");
     } else if (this.error) {
       el.classList.add("is-error");
       text = esc(this.error);
@@ -236,10 +236,10 @@
     } else if (status.state === "idle") {
       text =
         "<b>" + esc(this.what) + "</b> This runs the hea-bench Python library inside the page. " +
-        "The first start downloads about 30 MB, which the browser then keeps" +
+        "The first start downloads about 30 MB, which the browser then keeps." +
         (this.needsCorpus
-          ? ", and builds the alloy dataset once per release from the source files it carries."
-          : ".");
+          ? " It also builds the alloy dataset once per release from the source files in that download."
+          : "");
       button = '<button type="button" class="primary" data-gate="start">Start</button>';
     } else if (status.state === "loading") {
       text = esc(status.message || "Starting the engine") + "…";
@@ -413,7 +413,7 @@
           })
           .join("") +
         "</tbody></table></div>" +
-        '<p class="feature-note">Prices the elements going in, not melting, processing, yield losses or research-quantity purchasing, which dominate real cost at lab scale.</p>';
+        '<p class="feature-note">The estimate prices only the raw elements. It leaves out melting, processing, yield losses and research-quantity purchasing, which dominate real cost at lab scale.</p>';
     }
   }
 
@@ -457,7 +457,7 @@
       probabilityBars(result.probabilities, set) +
       (result.warnings.length ? "<ul>" + result.warnings.map(function (w) { return "<li>" + esc(w) + "</li>"; }).join("") + "</ul>" : "") +
       '<p class="feature-note">Random forest on the 14 descriptors, ' + int(result.n_training) + " training and " + int(result.n_calibration) +
-      " calibration alloys from corpus v" + esc(result.corpus_version) + ". Coverage on unseen alloy systems is measured in the Benchmark view.</p></div>"
+      " calibration alloys from corpus v" + esc(result.corpus_version) + ". The Benchmark view measures coverage on unseen alloy systems.</p></div>"
     );
   }
 
@@ -503,18 +503,18 @@
   function domainCard(result, binary, phase4) {
     if (result.error) return '<div class="predict-card"><h3>Inside the dataset\'s range?</h3>' + errorHtml(result.error) + "</div>";
     var measured = [measuredInRange(binary, "single-phase sets"), measuredInRange(phase4, "structure sets")].filter(Boolean);
-    var target = binary && !binary.error ? pct(binary.target_coverage, 0) : "the target";
+    var target = binary && !binary.error ? pct(binary.target_coverage, 0) : "target";
     var reading = result.in_domain
       ? "Inside the range is not a promise of accuracy." +
         (measured.length
-          ? " On unseen alloy systems inside it, the " + target + " " + measured.join(" and ") +
-            " of the time held the true label in the coverage study (docs/uncertainty-coverage.md)."
+          ? " In the coverage study (docs/uncertainty-coverage.md), the " + target + " sets held the true label this often " +
+            "on unseen alloy systems inside the range: " + measured.join(" and ") + "."
           : "")
-      : "Outside the range the coverage guarantee is weakest, so read every prediction here with extra care.";
+      : "Outside the range, the coverage guarantee is weakest, so read every prediction here with extra care.";
     return (
       '<div class="predict-card"><h3>Inside the dataset\'s range?</h3>' +
       '<div class="predict-card__value" style="font-size:17px">' + (result.in_domain ? "yes" : "no") + "</div><ul>" +
-      "<li>" + (result.element_coverage ? "every element is covered by the data tables" : "an element is outside the data tables") + "</li>" +
+      "<li>" + (result.element_coverage ? "the data tables cover every element" : "an element is outside the data tables") + "</li>" +
       "<li>" + (result.element_set_seen ? "this alloy system appears " + int(result.family_count) + " times in the dataset" : "this alloy system is not in the dataset") + "</li>" +
       "<li>nearest studied system differs by " + num(result.nearest_family_distance, 2) + " in element-set (Jaccard) distance, limit " + num(result.family_distance_threshold, 2) + "</li>" +
       "<li>descriptor distance " + num(result.descriptor_distance, 2) + ", limit " + num(result.descriptor_distance_threshold, 2) + "</li>" +
@@ -685,11 +685,11 @@
     } else if (unbounded) {
       verdict =
         "<b>The Ω number is not robust here.</b> The shifted ΔH<sub>mix</sub> range includes zero, so across the " +
-        "spread of published pair tables Ω can be anything from " + num(low, 2) + " upward.";
+        "spread of published pair tables, Ω can be anything from " + num(low, 2) + " upward.";
       verdict +=
         low >= threshold
           ? " <b>The verdict is robust:</b> Ω stays at or above Yang's 1.1 threshold throughout, so trust the rule's verdict, not the Ω number."
-          : " Ω also drops below Yang's 1.1 threshold within that range, so at this shift neither the Ω number nor its Ω ≥ 1.1 verdict should be trusted.";
+          : " Ω also drops below Yang's 1.1 threshold within that range, so at this shift, trust neither the Ω number nor its Ω ≥ 1.1 verdict.";
     } else {
       verdict = "<b>Ω stays between " + num(low, 2) + " and " + num(high, 2) + "</b> across the shift.";
       if (low >= threshold) {
@@ -697,7 +697,7 @@
       } else if (high < threshold) {
         verdict += " That is below Yang's 1.1 threshold throughout, so the Ω < 1.1 verdict does not depend on the pair table.";
       } else {
-        verdict += " Yang's 1.1 threshold falls inside that range, so the Ω ≥ 1.1 verdict depends on which pair table is used.";
+        verdict += " Yang's 1.1 threshold falls inside that range, so the Ω ≥ 1.1 verdict depends on which pair table you use.";
       }
     }
     out.innerHTML =
@@ -972,7 +972,7 @@
       return !core.ELEMENT_DATA[el];
     });
     return outside.length
-      ? '<button type="button" class="ghost" disabled title="' + esc(outside.join(", ")) + ' outside the calculator element table">Calculator</button>'
+      ? '<button type="button" class="ghost" disabled title="' + esc(outside.join(", ")) + ' outside the calculator\'s element table">Calculator</button>'
       : '<button type="button" class="ghost" data-open="' + index + '">Calculator</button>';
   }
 
@@ -1158,7 +1158,7 @@
         });
       if (diffs.length) {
         note +=
-          " On these rows the instant rule-of-mixtures estimate differs from the measurement by " +
+          " On these rows, the instant rule-of-mixtures estimate differs from the measurement by " +
           pct(
             diffs.reduce(function (a, b) {
               return a + b;
@@ -1270,8 +1270,8 @@
         [pct(o.random_fraction_rows_interpolable), "of rows share a system across a random-split boundary"],
       ]) +
       "<p>Under the random split, " + int(o.random_straddling_families) + " alloy systems appear on both sides of a fold boundary, covering " +
-      int(o.random_rows_in_straddling_families) + " rows. Under the family-grouped split that number is " + int(o.grouped_straddling_families) + " by construction.</p>" +
-      '<div class="table-wrap"><table class="data feature-table"><caption>The fold assignment below was recomputed in this page and checked against the published digest.</caption>' +
+      int(o.random_rows_in_straddling_families) + " rows. Under the family-grouped split, that number is " + int(o.grouped_straddling_families) + " by construction.</p>" +
+      '<div class="table-wrap"><table class="data feature-table"><caption>This page recomputed the fold assignment below and checked it against the published digest.</caption>' +
       "<thead><tr><th>Split</th><th>Digest (SHA-256)</th><th>Check</th><th>Rows per fold</th></tr></thead><tbody>" +
       digest("grouped") + digest("random") + "</tbody></table></div>";
   }
@@ -1322,8 +1322,8 @@
         return baselineRow(name, published[name], bench.live[name]);
       }).join("") +
       "</tbody></table></div>" +
-      '<p class="feature-note">' + (s.published ? "Published values are from docs/benchmark-baselines.json; " : "No published table for this corpus version; ") +
-      "± is the standard error over the five folds. The random forest takes about a minute here, gradient boosting several.</p>";
+      '<p class="feature-note">' + (s.published ? "Published values come from docs/benchmark-baselines.json. " : "This corpus version has no published table. ") +
+      "The ± figure is the standard error over the five folds. The random forest takes about a minute to run here, and gradient boosting takes several.</p>";
   }
 
   function loadBenchmark() {
@@ -1735,12 +1735,12 @@
       ]) +
       paretoPlot(result) +
       (result.candidates.length
-        ? '<div class="table-wrap"><table class="data feature-table"><caption>Pareto-front alloys. Fitted properties show their interval; ranking ' +
+        ? '<div class="table-wrap"><table class="data feature-table"><caption>Pareto-front alloys. Fitted properties show their interval. The ranking ' +
           (result.settings.optimize_bound === "lower" ? "uses the cautious interval end" : "uses the point estimate") + ".</caption><thead>" + head + "</thead><tbody>" + body + "</tbody></table></div>"
         : '<p class="feature-note">No composition meets every requirement. Loosen a limit, widen the palette, or include alloys outside the dataset\'s range.</p>') +
       '<div class="feature-controls"><button type="button" class="ghost" id="search-download">Download the full result (JSON)</button></div>' +
       '<p class="feature-note">The predicted phase is the four-class prediction set (BCC, FCC, HCP or multi-phase) at the interval confidence: every label the model cannot rule out. ' +
-      "Hover a rule badge for all nine verdicts. Each candidate in the JSON carries its descriptors, rule verdicts, property predictions with intervals and its novelty measures.</p>";
+      "Hover over a rule badge to see all nine verdicts. Each candidate in the JSON carries its descriptors, rule verdicts, property predictions with intervals and its novelty measures.</p>";
   }
 
   $("search-form").addEventListener("submit", function (event) {
@@ -1818,7 +1818,7 @@
 
   function loadCampaign(payload) {
     var form = $("campaign-form");
-    if (payload.schema !== 1) throw new Error("This campaign file uses schema " + payload.schema + "; this version reads schema 1.");
+    if (payload.schema !== 1) throw new Error("This campaign file uses schema " + payload.schema + ", but this version reads schema 1.");
     form.elements.objective.value = payload.objective;
     form.elements.direction.value = payload.direction;
     form.elements.palette.value = (payload.palette || []).join(" ");
@@ -1905,7 +1905,7 @@
           (r.strategy === "ei" ? "expected improvement" : "upper confidence bound") + ".</caption>" +
           '<thead><tr><th>Composition</th><th class="num">Predicted</th><th class="num">90% interval</th><th>Like your data</th><th class="num">Score</th><th></th></tr></thead><tbody>' +
           rows + "</tbody></table></div>" +
-          '<p class="feature-note">Each interval is a 90 percent conformal interval, set by the forest\'s errors on the rows each tree did not train on. Its coverage in replayed campaigns is in docs/campaign-replay.md. Make an alloy, then use Record result to add your measurement and ask again.</p>';
+          '<p class="feature-note">Each interval is a 90 percent conformal interval, set by the forest\'s errors on the rows each tree did not train on. The interval\'s coverage in replayed campaigns is in docs/campaign-replay.md. Make an alloy, then use Record result to add your measurement and ask again.</p>';
       })
       .catch(function (error) {
         $("campaign-results").innerHTML = errorHtml(error);

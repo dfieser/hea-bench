@@ -2,23 +2,23 @@
 
 Tier A properties (``density``, ``melting_temperature``) are closed-form
 arithmetic over cited tables, exactly like the descriptors: no fitted
-model, so no interval; their measured accuracy against experiment is
-documented in ``docs/property-tier-a.md``. Tier B (``hardness``) is a
+model, so no interval. ``docs/property-tier-a.md`` documents their
+measured accuracy against experiment. Tier B (``hardness``) is a
 fitted surrogate and always returns a conformal interval plus a
-domain-of-applicability flag; its model card is
+domain-of-applicability flag. Its model card is
 ``docs/property-hardness.md``.
 
 The domain flag means slightly different things per tier, and the
-docstrings say so: for tier B it reflects the property's own training
-data; for tier A it reflects the experimental phase corpus (available
+docstrings say so. For tier B it reflects the property's own training
+data. For tier A it reflects the experimental phase corpus (available
 from a repository checkout), answering "is this a chemistry anyone has
 studied", and is None with a warning when no corpus is built.
 
 Properties whose public data cannot support a decision a user would
 actually make (yield strength across uncontrolled test temperatures,
-ductility, corrosion measures) are deliberately not shipped; the model
-card documents the omissions. Tier A is standard-library only; tier B
-needs ``pip install "hea-bench[properties]"``.
+ductility, corrosion measures) are deliberately not shipped, and the
+model card documents the omissions. Tier A is standard-library only.
+Tier B needs ``pip install "hea-bench[properties]"``.
 """
 
 from __future__ import annotations
@@ -35,18 +35,18 @@ from .tier_a import cost_breakdown, cost_per_kg, density
 _TIER_A_NOTES = {
     "density": (
         "closed form over cited tables (IUPAC masses, vendored molar "
-        "volumes); volume additivity ignores excess mixing volume. Measured "
+        "volumes). Volume additivity ignores excess mixing volume. Measured "
         "error versus experiment: docs/property-tier-a.md"
     ),
     "melting_temperature": (
-        "closed form: rule of mixtures over CRC elemental melting points; "
-        "solidus/liquidus spread and intermetallic melting sit outside the "
+        "closed form: rule of mixtures over CRC elemental melting points. "
+        "Solidus/liquidus spread and intermetallic melting sit outside the "
         "model"
     ),
     "cost_per_kg": (
         "indicative raw-material screening number, mass-weighted over a "
         "date-stamped element price table with per-element basis caveats "
-        "(two-tier markets, oxide and contained-element rows); processing, "
+        "(two-tier markets, oxide and contained-element rows). Processing, "
         "yield, and research-quantity purchasing dominate real cost and are "
         "not included. Never read this as precise."
     ),
@@ -74,7 +74,7 @@ class PropertyPrediction:
         """Strict-JSON payload of this prediction (non-finite floats null).
 
         The one serialization every surface derives from: the MCP
-        ``predict_properties`` payload is exactly this dict; design
+        ``predict_properties`` payload is exactly this dict, and design
         receipts carry a documented subset of its keys.
         """
         return {
@@ -166,14 +166,14 @@ def predict_property(
     processing
         Tier B only: restrict training to one processing route (Borg's
         vocabulary, e.g. ``"CAST"``, ``"ANNEAL"``). Fewer rows, more
-        homogeneous population; below the floor the model refuses.
+        homogeneous population. Below the floor the model refuses.
 
     Raises
     ------
     PropertyUnavailableError
         Unknown property, missing optional install, missing table rows,
         or a training population below the floor. The message names the
-        fix; nothing is imputed.
+        fix. Nothing is imputed.
     """
     comp = normalize(composition)
 
@@ -234,7 +234,7 @@ def predict_property(
         return _tier_a_prediction("melting_temperature", comp, value, "K")
 
     raise PropertyUnavailableError(
-        f"unknown property {prop!r}; available: {sorted(available_properties())}"
+        f"unknown property {prop!r}. Available: {sorted(available_properties())}"
     )
 
 
@@ -251,7 +251,7 @@ def predict_property_batch(
     or the :class:`PropertyUnavailableError` :func:`predict_property`
     would have raised for that row. Tier B runs its forest once for the
     whole batch instead of once per row, which is what the composition
-    search needs; tier A is closed form and simply loops.
+    search needs. Tier A is closed form and simply loops.
     """
     if prop != "hardness":
         results: list = []

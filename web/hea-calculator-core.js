@@ -2024,7 +2024,7 @@
             ? "Missing Miedema data for " + missingMiedemaPairs[0] + " compound enthalpy."
             : "Miedema decomposition unavailable: " + missingMiedemaPairs.length +
               " element pairs lack Miedema parameters (" + missingMiedemaPairs.join(", ") +
-              "). Core descriptors are unaffected; see the Data view coverage matrix."
+              "). Core descriptors are unaffected. See the Data view coverage matrix."
         );
       }
 
@@ -2640,7 +2640,7 @@
 
       if (pairTerms.missingPairs.length) {
         warnings.push(
-          "Missing pair enthalpy data for " + pairTerms.missingPairs.join(", ") + "; values that depend on Hmix are unavailable."
+          "Missing pair enthalpy data for " + pairTerms.missingPairs.join(", ") + ". Values that depend on Hmix are unavailable."
         );
       }
 
@@ -2655,7 +2655,7 @@
       if (chiMissing.length) {
         warnings.push(
           "Missing Pauling electronegativity for " + chiMissing.join(", ") +
-          "; the electronegativity descriptors are unavailable."
+          ". The electronegativity descriptors are unavailable."
         );
       } else {
         meanChi = meanChiFromNormalized(norm, elementData);
@@ -2684,7 +2684,7 @@
       var hElastic = hElasticFromNormalized(norm, options && options.mechanicsData);
       if (hElastic === null) {
         warnings.push(
-          "Missing bulk modulus or molar volume for at least one element; the elastic-strain energy (Andreoli) is unavailable."
+          "Missing bulk modulus or molar volume for at least one element. The elastic-strain energy (Andreoli) is unavailable."
         );
       }
       var sigmaFormerPresent = false;
@@ -3127,7 +3127,7 @@
         usedCn = best;
         warnings.push(
           element + oxideChargeLabel(charge) + ": no Shannon radius at CN=" + coordination +
-          "; using the nearest tabulated CN=" + usedCn
+          ", using the nearest tabulated CN=" + usedCn
         );
       }
       var spins = byCharge[String(usedCn)];
@@ -3142,7 +3142,7 @@
         radius = spins[fallbackKey];
         warnings.push(
           element + oxideChargeLabel(charge) + " CN=" + usedCn + ": no " + wanted.toLowerCase() +
-          " entry; using the " + (fallbackKey.toLowerCase() || "unspecified-spin") + " radius"
+          " entry, using the " + (fallbackKey.toLowerCase() || "unspecified-spin") + " radius"
         );
       }
       return { radius: radius, warnings: warnings };
@@ -3219,7 +3219,7 @@
         if (nCombos > OXIDE_MAX_COMBINATIONS) {
           throw new Error(
             "oxidation-state search space too large (" + nCombos +
-            " combinations); pin states for some elements via `allowed`"
+            " combinations). Pin states for some elements via `allowed`"
           );
         }
         var found = [];
@@ -3237,8 +3237,8 @@
         solutions = solve(widenedLists);
         if (solutions.length) {
           warnings.push(
-            "no charge-neutral assignment using only common oxidation states; " +
-            "a less common state was used"
+            "no charge-neutral assignment uses only common oxidation states, " +
+            "so a less common state was used"
           );
         }
       }
@@ -3253,7 +3253,7 @@
         });
         throw new Error(
           "no oxidation-state assignment reaches total charge " + oxidePlusG(targetCharge) +
-          " (closest achievable: " + oxidePlusG(bestTotal) + "); check the composition, " +
+          " (closest achievable: " + oxidePlusG(bestTotal) + "). Check the composition, " +
           "the oxygen content, or pass explicit states via `allowed`"
         );
       }
@@ -3318,8 +3318,8 @@
       }
       if (solutions.length > 1) {
         warnings.push(
-          solutions.length + " charge-neutral assignments exist; chose the most " +
-          "charge-uniform, most common one (pass `allowed` to override)"
+          solutions.length + " charge-neutral assignments exist. The most " +
+          "charge-uniform, most common one was chosen (pass `allowed` to override)"
         );
       }
       var statesOut = {};
@@ -3412,7 +3412,7 @@
       if (rA <= rB) {
         throw new Error(
           "bartel_tau requires rA > rB (got rA=" + rA.toFixed(3) + ", rB=" + rB.toFixed(3) +
-          "); the larger cation belongs on the A site"
+          "). The larger cation belongs on the A site"
         );
       }
       var ratio = rA / rB;
@@ -3538,7 +3538,7 @@
         if (Math.max.apply(null, fracs) - Math.min.apply(null, fracs) > 1e-9) {
           warnings.push(
             "the fluorite radius-dispersion criterion is calibrated on equimolar " +
-            "compositions; this composition is not equimolar"
+            "compositions, and this composition is not equimolar"
           );
         }
         sigma = oxideRadiusSampleStd(symbols.map(function (el) { return radii[el]; }));
@@ -3581,8 +3581,8 @@
       }).sort();
       if (shared.length) {
         throw new Error(
-          shared.join(", ") + " appears on both sublattices; site-resolved oxidation " +
-          "states are not supported — describe the sites separately"
+          shared.join(", ") + " appears on both sublattices. Site-resolved oxidation " +
+          "states are not supported, so describe the sites separately"
         );
       }
       var warnings = [];
@@ -3802,25 +3802,25 @@
       Cr: { usd: 13.0, basis: "metal, US market (tariff-inflated vs China)", asof: "2025", source: "USGS MCS 2026" },
       Cu: { usd: 14.4, basis: "LME cash, grade A", asof: "2026-08", source: "LME via Westmetall" },
       Dy: { usd: 930.0, basis: "metal, Western warehouse", asof: "2026-08", source: "Strategic Metals Invest" },
-      Er: { usd: 82.0, basis: "oxide basis (Er2O3), China; no metal market", asof: "2026-08", source: "SMM relay (rare-earth-mining.com)" },
-      Fe: { usd: 0.5, basis: "pig iron ~95% Fe, FOB export; lab-grade Fe costs far more", asof: "2026-07", source: "steelonthenet pig iron" },
+      Er: { usd: 82.0, basis: "oxide basis (Er2O3), China, no metal market", asof: "2026-08", source: "SMM relay (rare-earth-mining.com)" },
+      Fe: { usd: 0.5, basis: "pig iron ~95% Fe, FOB export (lab-grade Fe costs far more)", asof: "2026-07", source: "steelonthenet pig iron" },
       Ga: { usd: 2270.0, basis: "99.99% metal, Western market (China domestic ~4x lower)", asof: "2026-08", source: "Strategic Metals Invest" },
       Gd: { usd: 55.0, basis: "metal 99.9%, China domestic", asof: "2026-08", source: "SMM relay (rare-earth-mining.com)" },
       Ge: { usd: 8600.0, basis: "zone-refined metal, Western market", asof: "2026-08", source: "Strategic Metals Invest" },
       Hf: { usd: 3800.0, basis: "unwrought metal (2026 merchant quotes run higher)", asof: "2025", source: "USGS MCS 2026" },
-      Ho: { usd: 79.0, basis: "oxide basis (Ho2O3), China; no metal market", asof: "2026-08", source: "SMM relay (rare-earth-mining.com)" },
+      Ho: { usd: 79.0, basis: "oxide basis (Ho2O3), China, no metal market", asof: "2026-08", source: "SMM relay (rare-earth-mining.com)" },
       In: { usd: 970.0, basis: "99.99% metal, Western warehouse", asof: "2026-08", source: "Strategic Metals Invest" },
       Ir: { usd: 254000.0, basis: "spot", asof: "2026-08", source: "Umicore precious-metal prices" },
       La: { usd: 3.2, basis: "metal 99%, China domestic", asof: "2026-08", source: "SMM relay (rare-earth-mining.com)" },
       Li: { usd: 140.0, basis: "metal 99.9%, China", asof: "2026-03", source: "ChemAnalyst lithium metal" },
-      Lu: { usd: 670.0, basis: "oxide basis (Lu2O3), China; no metal market", asof: "2026-08", source: "SMM relay (rare-earth-mining.com)" },
+      Lu: { usd: 670.0, basis: "oxide basis (Lu2O3), China, no metal market", asof: "2026-08", source: "SMM relay (rare-earth-mining.com)" },
       Mg: { usd: 2.5, basis: "99.8% metal, European free market", asof: "2025", source: "USGS MCS 2026" },
       Mn: { usd: 2.3, basis: "electrolytic metal 99.7%, China", asof: "2026-07", source: "SMM relay (critical-minerals-news)" },
       Mo: { usd: 51.0, basis: "contained in molybdic oxide, US", asof: "2025", source: "USGS MCS 2026" },
       Nb: { usd: 40.0, basis: "contained in ferroniobium (65% Nb)", asof: "2025", source: "USGS MCS 2026" },
       Nd: { usd: 245.0, basis: "metal, Western warehouse (China domestic ~2.5x lower)", asof: "2026-08", source: "Strategic Metals Invest" },
       Ni: { usd: 16.6, basis: "LME cash, class 1", asof: "2026-08", source: "LME via Westmetall" },
-      Os: { usd: 12900.0, basis: "nominal benchmark; essentially untraded", asof: "2026-08", source: "Metalary osmium" },
+      Os: { usd: 12900.0, basis: "nominal benchmark, essentially untraded", asof: "2026-08", source: "Metalary osmium" },
       Pb: { usd: 1.9, basis: "LME cash", asof: "2026-08", source: "LME via Westmetall" },
       Pd: { usd: 44900.0, basis: "spot", asof: "2026-08", source: "Umicore precious-metal prices" },
       Pr: { usd: 245.0, basis: "metal, Western warehouse", asof: "2026-08", source: "Strategic Metals Invest" },
@@ -3836,14 +3836,14 @@
       Sr: { usd: 11.0, basis: "metal 99%, EXW China", asof: "2026-07", source: "ScrapMonster minor metals" },
       Ta: { usd: 500.0, basis: "metal, US market", asof: "2026-06", source: "IMARC tantalum index" },
       Tb: { usd: 4030.0, basis: "metal, Western warehouse", asof: "2026-08", source: "Strategic Metals Invest" },
-      Th: { usd: 26.0, basis: "contained in compounds, US import unit value; not metal", asof: "2025", source: "USGS MCS 2026" },
+      Th: { usd: 26.0, basis: "contained in compounds, US import unit value, not metal", asof: "2025", source: "USGS MCS 2026" },
       Ti: { usd: 12.0, basis: "sponge, US published price (tariff-inflated vs China)", asof: "2025", source: "USGS MCS 2026" },
-      Tm: { usd: 180.0, basis: "oxide basis (Tm2O3), single producer quote; weak market", asof: "2026-03", source: "SMM relay (rare-earth-mining.com)" },
-      U: { usd: 225.0, basis: "contained in U3O8 spot, natural U; not fabricated metal", asof: "2026-08", source: "U3O8 spot trackers" },
+      Tm: { usd: 180.0, basis: "oxide basis (Tm2O3), single producer quote, weak market", asof: "2026-03", source: "SMM relay (rare-earth-mining.com)" },
+      U: { usd: 225.0, basis: "contained in U3O8 spot, natural U, not fabricated metal", asof: "2026-08", source: "U3O8 spot trackers" },
       V: { usd: 31.0, basis: "contained in ferrovanadium, US", asof: "2025", source: "USGS MCS 2026" },
       W: { usd: 114.0, basis: "contained in APT, China domestic (Western ~3x higher)", asof: "2026-08", source: "SMM relay (critical-minerals-news)" },
       Y: { usd: 40.0, basis: "metal 99.9%", asof: "2025", source: "USGS MCS 2026" },
-      Yb: { usd: 13.0, basis: "oxide basis (Yb2O3), China; no metal market", asof: "2026-08", source: "SMM relay (rare-earth-mining.com)" },
+      Yb: { usd: 13.0, basis: "oxide basis (Yb2O3), China, no metal market", asof: "2026-08", source: "SMM relay (rare-earth-mining.com)" },
       Zn: { usd: 3.8, basis: "LME cash, SHG", asof: "2026-08", source: "LME via Westmetall" },
       Zr: { usd: 22.0, basis: "sponge, ex-works China", asof: "2025", source: "USGS MCS 2026" }
     };
@@ -3912,14 +3912,14 @@
     var CERAMIC_SOURCES = {
       Oses2020:
         "Oses, Toher and Curtarolo (2020). Nat. Rev. Mater. 5, 295. " +
-        "High-entropy ceramics review; cation-sublattice entropy convention.",
+        "High-entropy ceramics review and the cation-sublattice entropy convention.",
       WrightLuo2020:
         "Wright and Luo (2020). J. Mater. Sci. 55, 9812. Sublattice mixing " +
         "entropy formulation for compositionally complex ceramics.",
       Dippo2021:
         "Dippo and Vecchio (2021). Scr. Mater. 201, 113974. Sublattice-" +
-        "resolved entropy metric; the normalization ambiguity this module " +
-        "reports around.",
+        "resolved entropy metric, addressing the normalization ambiguity this " +
+        "module reports around.",
       Jhi1999:
         "Jhi, Ihm, Louie and Cohen (1999). Nature 399, 132. VEC 8.4 hardness " +
         "maximum in rock-salt carbonitrides.",
@@ -3929,21 +3929,21 @@
         "high-entropy carbides.",
       Sangiovanni2023:
         "Sangiovanni, Kaufmann and Vecchio (2023). Sci. Adv. 9, eadi2960. " +
-        "VEC controls fracture resistance; enhanced above about 9.4.",
+        "VEC controls fracture resistance, which is enhanced above about 9.4.",
       Balasubramanian2018:
         "Balasubramanian, Khare and Gall (2018). Acta Mater. 152, 175. VEC " +
         "systematics for rock-salt nitrides and carbides.",
       Sarker2018:
         "Sarker et al. (2018). Nat. Commun. 9, 4980. Entropy-forming " +
-        "ability; a DFT-ensemble descriptor, not computable from composition.",
+        "ability, a DFT-ensemble descriptor not computable from composition.",
       Divilov2024:
-        "Divilov et al. (2024). Nature 625, 66. DEED; DFT ensemble plus " +
+        "Divilov et al. (2024). Nature 625, 66. DEED, from a DFT ensemble plus " +
         "convex hull, not computable from composition.",
       Kretschmer2024:
         "Kretschmer and Mayrhofer (2024). Sci. Rep. 14, 7210. Carbide size " +
-        "mismatch from DFT binary bond lengths; the deferred descriptor.",
+        "mismatch from DFT binary bond lengths, the deferred descriptor.",
       Gild2016:
-        "Gild et al. (2016). Sci. Rep. 6, 37946. High-entropy diborides; " +
+        "Gild et al. (2016). Sci. Rep. 6, 37946. High-entropy diborides and " +
         "lattice-parameter mismatch bracketing."
     };
 
@@ -3987,7 +3987,7 @@
           per_formula_unit_j_mol_k: OXIDE_R * perCation,
           per_mole_atoms_j_mol_k: (OXIDE_R * perCation) / atomsPerFormulaUnit,
           note:
-            "metal-sublattice ideal mixing; anion sublattice ordered " +
+            "metal-sublattice ideal mixing, anion sublattice ordered " +
             "(Oses2020). All normalization conventions reported because " +
             "papers switch between them without warning (Dippo2021): per " +
             "mole of cations equals per formula unit here, and per mole of " +
@@ -4117,7 +4117,7 @@
             "not the Omega magnitude."
           : "Omega varies between the endpoint values across the typical spread " +
             "of published Miedema pair tables.",
-        source: "deBoer1988 / Takeuchi2005 pair table; Yang2012 Omega"
+        source: "deBoer1988 / Takeuchi2005 pair table, Yang2012 Omega"
       };
     }
 

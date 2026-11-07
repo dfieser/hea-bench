@@ -8,7 +8,7 @@ instead of metallic radii, charge neutrality against the oxygen
 sublattice is enforced by an explicit oxidation-state solver, and the
 phase screens are the structure-family geometric rules of the HEO
 literature. Everything remains a transparent closed-form expression
-over vendored, citable data tables — no DFT, no fitted model.
+over vendored, citable data tables, with no DFT and no fitted model.
 
 Entry points are the per-family report functions:
 
@@ -20,7 +20,7 @@ Entry points are the per-family report functions:
 plus the low-level pieces (``shannon_radius``,
 ``assign_oxidation_states``, and the descriptor functions) for
 power users. Verdicts are weak empirical screens calibrated on small
-historical datasets, exactly like the alloy-side rules; never treat
+historical datasets, exactly like the alloy-side rules. Never treat
 one as ground truth. The alloy descriptors in the parent package are
 untouched by this subpackage.
 """

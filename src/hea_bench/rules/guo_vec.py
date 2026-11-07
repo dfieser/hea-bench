@@ -2,7 +2,7 @@
 
 Three-class crystal-structure predictor for single-phase HEA solid
 solutions. Note: this rule predicts the *crystal structure given that
-the alloy forms single-phase*; it is NOT a single-vs-multi-phase
+the alloy forms single-phase*. It is NOT a single-vs-multi-phase
 predictor on its own. Stratified evaluation against the canonical
 benchmark should restrict the observed set to single-phase entries
 (BCC or FCC).
@@ -49,8 +49,8 @@ def predict(composition: Composition) -> str:
     return "mixed"
 
 
-#: The caution band around each cutoff, in VEC units. hea-bench adds it;
-#: it is not part of Guo's rule and never changes the verdict.
+#: The caution band around each cutoff, in VEC units. hea-bench adds it.
+#: It is not part of Guo's rule and never changes the verdict.
 NEAR_CUTOFF = 0.2
 
 _NOTE = (

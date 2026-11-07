@@ -169,8 +169,8 @@ def main() -> int:
         "",
         "## Data",
         "",
-        f"Source: Borg et al. 2020 (Sci. Data 7, 430; CC-BY-4.0 figshare "
-        f"deposit mirrored in `data/raw/borg2020/`). {hardness['n_records']} "
+        f"Source: Borg et al. 2020 (Sci. Data 7, 430), from the CC-BY-4.0 "
+        f"figshare deposit mirrored in `data/raw/borg2020/`. {hardness['n_records']} "
         f"unique (formula, processing) alloys carry a near-room-temperature "
         f"Vickers hardness after the loader rules (median over repeat "
         f"measurements, test temperature at most 35 C). "
@@ -234,15 +234,14 @@ def main() -> int:
         "",
         "Yield strength: the same deposit carries 1,067 strength rows, but "
         "they span test temperatures from ambient to 1000 C with uneven "
-        "strain conditions; a pooled fit would predict an ill-defined "
+        "strain conditions. A pooled fit would predict an ill-defined "
         "quantity, and the near-room-temperature subset thins per system "
         "to where family-grouped validation is not meaningful. Elastic "
         "moduli and experimental ductility: too few rows after the same "
         "filters. Corrosion and oxidation measures: no adequately licensed "
-        "public dataset at screening scale. These return as tier B "
-        "properties if and when a licensed dataset supports a defensible "
-        "held-out error; the omission is the honest outcome, not a "
-        "roadmap gap.",
+        "public dataset at screening scale. Each can return as a tier B "
+        "property if a licensed dataset supports a defensible held-out "
+        "error. The omission is the honest outcome, not a roadmap gap.",
     ]
 
     tier_a_lines = [
@@ -271,9 +270,9 @@ def main() -> int:
         f"| worst case | {dens['max_abs']:.2f} g/cm3 |",
         "",
         "Volume additivity ignores excess mixing volume and porosity in "
-        "the measured samples; both contribute to the spread. The estimate "
-        "is a screening quantity, reported without an interval because "
-        "there is no fitted model to calibrate one on; treat the mean "
+        "the measured samples, and both contribute to the spread. The "
+        "estimate is a screening quantity. It carries no interval because "
+        "there is no fitted model to calibrate one on, so treat the mean "
         "relative error above as its typical scale of wrongness.",
         "",
         "## Melting temperature (rule of mixtures)",
@@ -281,9 +280,9 @@ def main() -> int:
         "Composition-weighted mean of CRC elemental melting points, shipped "
         "since v1.x as a descriptor and re-exposed as a tier A property. "
         "The Borg deposit carries no measured melting temperatures, so no "
-        "validation table exists here; the estimate ignores "
-        "solidus/liquidus spread and eutectics, and should be read as the "
-        "scale used inside Omega rather than a melting prediction.",
+        "validation table exists here. The estimate ignores "
+        "solidus/liquidus spread and eutectics. Read it as the scale used "
+        "inside Omega rather than a melting prediction.",
         "",
         "## Cost per kg (indicative)",
         "",
@@ -291,15 +290,15 @@ def main() -> int:
         "`hea_bench.properties.data.element_prices` (assembled 2026-08 from "
         "USGS Mineral Commodity Summaries 2026, LME reference prices, "
         "bullion spot quotes, and named minor-metal and rare-earth market "
-        "relays; every row carries its own basis, as-of date, and source). "
-        "This is a screening number for comparing palettes, never a quote: "
-        "several rows are oxide-basis or contained-element prices because "
-        "no pure-metal market exists, Western and Chinese domestic prices "
-        "for export-controlled elements differ by factors of 2 to 4, 2026 "
-        "spot markets are unusually hot, and processing plus "
+        "relays). Every row carries its own basis, as-of date, and source. "
+        "The cost is a screening number for comparing palettes, never a "
+        "quote. Several rows are oxide-basis or contained-element prices "
+        "because no pure-metal market exists. Western and Chinese domestic "
+        "prices for export-controlled elements differ by factors of 2 to 4, "
+        "2026 spot markets are unusually hot, and processing plus "
         "research-quantity purchasing dominate real lab cost. "
         "`cost_breakdown()` exposes the per-element contributions with "
-        "their bases so none of this is hidden behind one number.",
+        "their bases, so these caveats are not hidden behind one number.",
     ]
 
     (REPO_ROOT / "docs" / "property-hardness.md").write_text(

@@ -3,8 +3,8 @@
 Source: ``data/raw/borg2020/MPEA_dataset.csv`` (CC-BY-4.0, mirrored
 verbatim from figshare 10.6084/m9.figshare.12642953 v9).
 
-Schema, dedup behaviour, and label-normalization decisions are
-documented inline below; see ``data/raw/borg2020/README.md`` for the
+Comments below document the schema, the dedup behaviour and the
+label-normalization decisions. ``data/raw/borg2020/README.md`` has the
 full source-level context.
 """
 
@@ -33,19 +33,19 @@ def load(csv_path: pathlib.Path) -> Iterator[AlloyRecord]:
     """Yield one `AlloyRecord` per unique ``(formula, processing)`` alloy.
 
     Borg has 1,545 measurement rows for 740 unique ``(formula, processing)``
-    alloys — the duplicates come from multiple mechanical tests at
-    different temperatures/test types on the same alloy. Phase is a
-    property of the alloy and its processing, not the test, so we
-    deduplicate here.
+    alloys. The duplicates come from multiple mechanical tests at
+    different temperatures or test types on the same alloy. Phase is a
+    property of the alloy and its processing, not of the test, so the
+    loader deduplicates here.
 
     When duplicate ``(formula, processing)`` rows disagree on the phase
-    label, the first row encountered wins. (Borg's data is internally
-    consistent on this point — duplicate rows from the same source paper
-    always carry the same phase label — but the loader is defensive.)
+    label, the first row encountered wins. Borg's data is internally
+    consistent on this point, since duplicate rows from the same source
+    paper always carry the same phase label, but the loader is defensive.
 
     Rows missing a parseable formula or a simplified phase label are
-    skipped silently. Caller can compare yielded count to file row count
-    if a count of skipped rows is needed.
+    skipped silently. A caller that needs the number of skipped rows can
+    compare the yielded count with the file's row count.
     """
     seen: set[tuple[str, str]] = set()
 

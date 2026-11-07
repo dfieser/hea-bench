@@ -60,7 +60,7 @@ def element_data(elements: Iterable[str] | None = None) -> dict:
     Parameters
     ----------
     elements
-        Symbols to report; all 55 curated elements when omitted. Unknown
+        Symbols to report, or all 55 curated elements when omitted. Unknown
         symbols raise ``ValueError`` naming them.
 
     Returns

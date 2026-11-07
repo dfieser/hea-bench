@@ -1,7 +1,7 @@
 """Closed-form HEO descriptors.
 
 Every function here is a transparent algebraic expression over the
-vendored Shannon-radius and electronegativity tables; nothing is
+vendored Shannon-radius and electronegativity tables. Nothing is
 fitted. The structure-family wrappers in :mod:`hea_bench.oxides.families`
 assemble these into complete reports with verdicts.
 
@@ -73,10 +73,10 @@ def sublattice_entropy(
         Sublattice label -> occupancy mapping (each normalized internally).
     multiplicities
         Sublattice label -> sites per formula unit (e.g. A=1, B=1 for
-        ABO3; A=2, B=2 for A2B2O7).
+        ABO3 and A=2, B=2 for A2B2O7).
     per
         ``"formula"`` (default) returns J/(mol K) per mole of formula
-        units; ``"cation"`` divides by the total number of cation sites
+        units. ``"cation"`` divides by the total number of cation sites
         passed, which reduces to the alloy ``smix`` convention (1.61 R
         for five equimolar cations on one site) and is the value the
         1.5 R high-entropy threshold applies to.
@@ -133,21 +133,21 @@ def goldschmidt_t(r_a: float, r_b: float, r_o: float = OXYGEN_RADIUS) -> float:
 
 
 def octahedral_factor(r_b: float, r_o: float = OXYGEN_RADIUS) -> float:
-    """Octahedral factor ``mu = rB / rO``; a stable BO6 needs 0.414 < mu < 0.732."""
+    """Octahedral factor ``mu = rB / rO``. A stable BO6 needs 0.414 < mu < 0.732."""
     return r_b / r_o
 
 
 def bartel_tau(r_a: float, r_b: float, n_a: float, r_x: float = OXYGEN_RADIUS) -> float:
-    """Bartel tolerance factor tau; tau < 4.18 predicts a perovskite.
+    """Bartel tolerance factor tau, where tau < 4.18 predicts a perovskite.
 
     ``tau = rX/rB - nA (nA - (rA/rB) / ln(rA/rB))`` with ``nA`` the
     (composition-weighted mean) oxidation state of the A site. Defined
-    for ``rA > rB``; raises otherwise, since ln(rA/rB) changes sign.
+    for ``rA > rB``. Raises otherwise, since ln(rA/rB) changes sign.
     """
     if r_a <= r_b:
         raise ValueError(
-            f"bartel_tau requires rA > rB (got rA={r_a:.3f}, rB={r_b:.3f}); "
-            f"the larger cation belongs on the A site"
+            f"bartel_tau requires rA > rB (got rA={r_a:.3f}, rB={r_b:.3f}). "
+            f"The larger cation belongs on the A site"
         )
     ratio = r_a / r_b
     return r_x / r_b - n_a * (n_a - ratio / math.log(ratio))

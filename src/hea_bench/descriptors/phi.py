@@ -71,8 +71,8 @@ def delta_g_max(composition: Composition) -> float:
     from Bakker 1998). Since hea-bench's data layer is the
     matminer-vendored Miedema pair-enthalpy table rather than Bakker's
     binary-intermetallic enthalpy formula, this function returns the
-    most negative *raw* pair enthalpy across all binaries — no
-    composition scaling — as the documented approximation. King's
+    most negative *raw* pair enthalpy across all binaries, with no
+    composition scaling, as the documented approximation. King's
     assumption that ΔS_conf = 0 for ordered intermetallics means
     ΔG_int ≈ ΔH_int, so the pair enthalpy stands in for the binary
     intermetallic Gibbs energy directly.

@@ -8,14 +8,14 @@ of five-fold cross-validation that holds out whole alloy systems, so
 every alloy calibrates, the interval is not narrowed by stoichiometric
 near-duplicates, and it describes the error on systems the model has
 not seen. Its job is a screening estimate with an honest interval, not
-a hardness theory; the held-out error and the processing-state mix are
+a hardness theory. The held-out error and the processing-state mix are
 in the model card, ``docs/property-hardness.md``, and whether the
 interval supports ranking close candidates is stated there rather than
 implied.
 
 Everything is fitted on demand per process (seeded, cached), because
 shipping a pickled model would freeze a scikit-learn version into the
-wheel; the ``properties`` extra pins the series instead.
+wheel. The ``properties`` extra pins the series instead.
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ class PropertyUnavailableError(RuntimeError):
     """A property, or the capability to compute it, is not available.
 
     The message names the missing install, the data floor, or the
-    omission reason; it never hands back a silent guess.
+    omission reason. It never hands back a silent guess.
     """
 
 
@@ -146,7 +146,7 @@ def predict_hardness_batch(
     Returns one entry per input, in order: the same tuple
     :func:`predict_hardness` returns, or the :class:`PropertyUnavailableError`
     it would have raised. One forest call instead of one per row is what
-    makes a lattice search affordable in the browser engine; the numbers
+    makes a lattice search affordable in the browser engine. The numbers
     are identical, because a forest averages its trees per row in the
     same order either way.
     """
@@ -189,17 +189,17 @@ def _assemble(comp, value, conformal, domain, n_training, alpha, processing):
     if processing is None:
         warnings.append(
             "training data pools multiple processing routes (cast, annealed, "
-            "powder and more); pass processing='CAST' style filters to "
+            "powder and more). Pass processing='CAST' style filters to "
             "condition, at the cost of training rows"
         )
     if threshold is None:
         warnings.append(
-            f"calibration size cannot support alpha={alpha}; the interval is "
+            f"calibration size cannot support alpha={alpha}, so the interval is "
             f"unbounded at this level"
         )
     if not novelty["in_domain"]:
         warnings.append(
-            "composition is outside the hardness training domain; the "
+            "composition is outside the hardness training domain. The "
             "interval's guarantee is weakest exactly here"
         )
     return value, interval, novelty, n_training, tuple(warnings)

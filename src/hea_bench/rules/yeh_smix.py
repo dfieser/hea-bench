@@ -2,7 +2,7 @@
 
 Predicts "HEA-class" composition when configurational mixing entropy
 exceeds 1.5R ≈ 12.47 J/(mol·K). The rule classifies *compositions* into
-HEA / MEA / dilute bins; it does NOT predict phase formation on its own.
+HEA / MEA / dilute bins. It does NOT predict phase formation on its own.
 
 Reference
 ---------

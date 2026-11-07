@@ -1,7 +1,7 @@
 """Standard atomic weights, in g/mol.
 
 Values are the IUPAC/CIAAW abridged standard atomic weights (2021
-revision; Prohaska et al., Pure Appl. Chem. 94, 573 (2022),
+revision, Prohaska et al., Pure Appl. Chem. 94, 573 (2022),
 doi:10.1515/pac-2019-0603), conventional values where IUPAC gives an
 interval (H, Li, B, C, N, O, Mg, Si, S, Cl, Ar, Br, Tl, Pb). Elements
 with no standard atomic weight (Tc, Pm, and the heavy radioactives

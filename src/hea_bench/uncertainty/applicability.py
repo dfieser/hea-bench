@@ -1,31 +1,31 @@
 """Domain of applicability: is this composition inside what the corpus covers.
 
 A prediction's interval says how uncertain the model is where its
-assumptions hold; this module says whether the assumptions plausibly
+assumptions hold. This module says whether the assumptions plausibly
 hold at all. :func:`fit_domain` summarizes a corpus into a
 :class:`DomainModel`, and :meth:`DomainModel.novelty` reports several
 deliberately orthogonal signals for a query composition, because they
 fail differently:
 
 - ``element_set_seen`` and ``family_count``: is this exact element set
-  in the corpus, and with how many compositions. Catches "new system"
+  in the corpus, and with how many compositions. Catches a new system
   even when every element is common.
 - ``nearest_family_distance``: minimum Jaccard distance between the
-  query's element set and any corpus family. Catches "nothing even
-  similar was ever made".
+  query's element set and any corpus family. Catches a query where
+  nothing even similar was ever made.
 - ``descriptor_distance``: root-mean-square z-score of the query's 14
-  matrix descriptors against the corpus cloud (scaled Euclidean,
-  deliberately not Mahalanobis: a stdlib 14x14 inversion buys
-  correlation-awareness at the price of numerical fragility, and this
-  flag must never fail exotically). Catches "chemically plausible but
-  physically far outside the data".
+  matrix descriptors against the corpus cloud. The distance is scaled
+  Euclidean, deliberately not Mahalanobis: a stdlib 14x14 inversion
+  buys correlation-awareness at the price of numerical fragility, and
+  this flag must never fail exotically. Catches a composition that is
+  chemically plausible but physically far outside the data.
 - ``element_coverage``: whether the descriptor tables cover every
   element at all.
 
 ``in_domain`` combines them with a conservative documented rule:
 element coverage AND descriptor distance within the fitted threshold
 (the 99th percentile of the corpus's own self-distances) AND nearest
-family distance at most 0.5. It is a convenience; ship and read the
+family distance at most 0.5. It is a convenience. Ship and read the
 components. All signals describe this package's corpus coverage for
 your query, nothing else.
 """
@@ -55,9 +55,9 @@ DISTANCE_QUANTILE = 0.99
 class DomainRow:
     """Minimal corpus-row adapter for :func:`fit_domain`.
 
-    Lets any (composition, family) pair population — property training
-    records, campaign observations — be summarized into a DomainModel
-    without inventing a private adapter per caller.
+    Lets any population of (composition, family) pairs, such as property
+    training records or campaign observations, be summarized into a
+    DomainModel without inventing a private adapter per caller.
     """
 
     composition: Composition
@@ -67,7 +67,7 @@ class DomainRow:
 
 @dataclass(frozen=True)
 class DomainModel:
-    """A corpus summarized for applicability queries; JSON-serializable."""
+    """A corpus summarized for applicability queries, JSON-serializable."""
 
     corpus_version: str
     families: dict[str, int]
@@ -163,7 +163,7 @@ def fit_domain(corpus) -> DomainModel:
 
     Families are counted over every row. The descriptor cloud uses only
     rows whose elements the tables cover and whose 14 matrix descriptors
-    are all finite, mirroring the benchmark's finite filter; the number
+    are all finite, mirroring the benchmark's finite filter. The number
     of rows that survived is recorded as ``n_fit_rows``.
 
     Raises
@@ -230,8 +230,8 @@ def fit_domain(corpus) -> DomainModel:
 def default_domain() -> DomainModel | None:
     """The v0.1.0 phase-corpus domain model, or None outside a checkout.
 
-    Fitted once per process (several seconds) and cached; the shared
-    default for surfaces that want a corpus-coverage flag without
+    Fitted once per process (several seconds) and cached. It is the
+    shared default for surfaces that want a corpus-coverage flag without
     managing their own DomainModel. None, never an exception, when the
     corpus is not built, so callers can degrade to a typed warning.
     """
@@ -249,7 +249,7 @@ def novelty_score(composition: Composition, corpus) -> dict:
     """Convenience one-shot: fit a domain model and query it once.
 
     Refits from scratch on every call, which costs seconds on the full
-    corpus; hold the :class:`DomainModel` from :func:`fit_domain` when
+    corpus. Hold the :class:`DomainModel` from :func:`fit_domain` when
     querying repeatedly.
     """
     return fit_domain(corpus).novelty(composition)

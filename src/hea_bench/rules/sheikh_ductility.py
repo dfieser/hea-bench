@@ -1,7 +1,7 @@
 """Sheikh intrinsic-ductility screen for refractory bcc HEAs.
 
 Single-phase bcc refractory HEAs are intrinsically ductile when
-VEC < 4.5 and brittle when VEC ≥ 4.6; the narrow band between is
+VEC < 4.5 and brittle when VEC ≥ 4.6. The narrow band between is
 reported as ``borderline``. Sheikh et al. built the screen on
 refractory HEAs made of group IV (Ti, Zr, Hf), V (V, Nb, Ta) and VI
 (Cr, Mo, W) elements, so it says nothing about an alloy with any other
@@ -26,7 +26,7 @@ from ..constants import SHEIKH_BRITTLE_VEC, SHEIKH_DUCTILE_VEC
 from ..descriptors.vec import vec
 
 DESCRIPTION = (
-    "Sheikh 2016: VEC < 4.5 -> ductile; VEC >= 4.6 -> brittle "
+    "Sheikh 2016: VEC < 4.5 -> ductile, VEC >= 4.6 -> brittle "
     "(bcc RHEAs of Ti, Zr, Hf, V, Nb, Ta, Cr, Mo, W only)"
 )
 

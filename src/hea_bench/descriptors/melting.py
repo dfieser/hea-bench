@@ -2,7 +2,7 @@
 
 T_m = Σ_i  c_i · T_{m,i}
 
-A simple linear (rule-of-mixtures) estimate; serves as the
+A linear rule-of-mixtures estimate. It serves as the
 characteristic temperature in the Yang-Zhang Ω parameter
 (``Ω = T_m · ΔS_mix / |ΔH_mix|``).
 

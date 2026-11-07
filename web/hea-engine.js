@@ -66,7 +66,7 @@
     if (ready) return ready;
     if (!available()) {
       var message =
-        "The prediction engine needs the app to be served over http(s): browsers block it on " +
+        "The prediction engine needs the app served over http(s), because browsers block it on " +
         "file:// pages. Use the website or the desktop app, or run " +
         "\"python -m http.server -d web\" in the repository.";
       emit({ state: "unavailable", error: message });

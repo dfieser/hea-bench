@@ -1,28 +1,44 @@
 # Changelog
 
-All notable changes to `hea-bench` are recorded here. Numbering follows
+This file records every notable change to `hea-bench`. Numbering follows
 [Semantic Versioning](https://semver.org/). Each release section pairs
 the version label with the date and links to the corresponding Zenodo
 DOI for the archived snapshot.
 
-The format is loosely based on
+The format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-## [2.9.2] — 2026-11-07
+### Changed
+
+- Public text in every part of hea-bench is now free of em dashes and
+  semicolons. The sweep covered the documents, the dataset cards and the
+  text of the web and desktop app. It also covered the program's own
+  text: MCP tool descriptions, docstrings, warnings and error messages.
+  Only wording changed. Every number, citation and result is the same.
+- Release notes can no longer carry either mark. The release tooling
+  writes What's-new entries as sentences and changelog headings with a
+  plain hyphen. The commit-msg hook and the preflight refuse both marks
+  in commit messages. `tests/test_public_text_style.py` fails CI on any
+  em dash or semicolon in public text.
+- The Cantor example notebook runs again. Its spaced formula now uses
+  the Borg style the parser accepts (`Co1 Cr1 Fe1 Mn1 Ni1`). Its rules
+  heading now says it applies six of the nine rules.
+
+## [2.9.2] - 2026-11-07
 
 ### Changed
 
 - Drop five unused verdict thresholds from the browser core
 
-## [2.9.1] — 2026-11-07
+## [2.9.1] - 2026-11-07
 
 ### Changed
 
 - Cut duplicated bridge code and archive shipped plan docs
 
-## [2.9.0] — 2026-10-08
+## [2.9.0] - 2026-10-08
 
 ### Changed
 
@@ -43,18 +59,18 @@ The format is loosely based on
   `peivaste_source` and `peivaste_install` bridge methods, and
   `data/raw/peivaste/fetch.py`.
 
-## [2.8.0] — 2026-10-08
+## [2.8.0] - 2026-10-08
 
 ### Changed
 
 - Phase prediction sets calibrate by five-fold cross-validation over
   whole alloy systems, so every alloy both trains the model and
-  calibrates it, and alloys with fewer than four elements calibrate
-  apart from those with four or more. On unseen alloy systems the 90
-  percent sets now cover 0.900 of alloys on the single-phase task and
-  0.884 on the phase-structure task, against 0.882 and 0.839 before,
-  and alloys with four or more elements reach 0.898 and 0.881, against
-  0.871 and 0.822. `docs/uncertainty-coverage.md` reports every group
+  calibrates it. Alloys with fewer than four elements calibrate apart
+  from those with four or more. On unseen alloy systems the 90 percent
+  sets now cover 0.900 of alloys on the single-phase task and 0.884 on
+  the phase-structure task, against 0.882 and 0.839 before. Alloys with
+  four or more elements reach 0.898 and 0.881, against 0.871 and
+  0.822. `docs/uncertainty-coverage.md` reports every group
   with its alloy-system count, fold-to-fold standard error and set
   size, and the app's coverage table shows the system counts.
 - The hardness model trains on all 384 alloys, and its 90 percent
@@ -66,9 +82,10 @@ The format is loosely based on
   the forest's out-of-bag errors, in place of the spread of the trees.
   `docs/campaign-replay.md` adds a replay against random selection on
   the 384 Borg hardness alloys. After 50 measurements the loop's
-  hardest alloy averages 1,030 HV against 942 HV for random picks, it
-  reaches one of the ten hardest alloys in 25 of 25 runs against 16,
-  and its intervals hold 0.903 of the revealed values.
+  hardest alloy averages 1,030 HV, against 942 HV for random picks. The
+  loop reaches one of the ten hardest alloys in 25 of 25 runs, against
+  16 for random picks, and its intervals hold 0.903 of the revealed
+  values.
 - `docs/design-recovery.md` adds a front searched with a hardness model
   that never saw the palette's four- and five-element alloys.
 
@@ -85,7 +102,7 @@ The format is loosely based on
   `family_grouped_calibration_split`, which belonged to the old
   split-calibration coverage study.
 
-## [2.7.3] — 2026-10-06
+## [2.7.3] - 2026-10-06
 
 ### Fixed
 
@@ -96,11 +113,11 @@ The format is loosely based on
   exe smoke test could not open WebView2's DevTools port on GitHub's
   runners: they run elevated, and WebView2 ignores
   `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS` for an elevated app. The test
-  now also sets the machine-wide policy WebView2 honors there, and the
+  now also sets the machine-wide policy that WebView2 honors there. The
   release preflight refuses a releasing push whose desktop files
   changed until a `Desktop smoke` run on GitHub passes.
 
-## [2.7.2] — 2026-10-06
+## [2.7.2] - 2026-10-06
 
 ### Fixed
 
@@ -112,7 +129,7 @@ The format is loosely based on
   Those rows parse, and the loader keeps them out because v0.2.0 is
   frozen.
 
-## [2.7.1] — 2026-10-06
+## [2.7.1] - 2026-10-06
 
 2.7.1 is the first published 2.7 release. GitHub refused the v2.7.0 tag
 push, so 2.7.0 reached only the web site. 2.7.1 contains everything
@@ -154,17 +171,17 @@ review of the app and the library.
 - The domain flag reads "Inside the dataset's range?" instead of
   "Resembles the dataset?". Inside the range it gives the measured
   coverage of the 90% sets on unseen alloy systems (87.5% for single
-  versus multi-phase, 82.9% for the structure), so a yes is not read as
-  a promise of accuracy.
+  versus multi-phase, 82.9% for the structure), so no one mistakes a yes
+  for a promise of accuracy.
 - **The desktop app starts its engine by itself.** The engine has always
   been inside the exe. The app now also fetches the Peivaste source file
   by itself the first time it is online, checks it and keeps it, so the
   whole app works offline after that. That file cannot ship inside the
-  exe until its authors license it for redistribution. Until the app
-  has been online once, the hardness prediction still works, because it
-  needs only data inside the app, and the phase and dataset cards say
-  what they are waiting for. The website's Start button behaves the
-  same way.
+  exe until its authors license it for redistribution. The hardness
+  prediction works even before the app first goes online, because it
+  needs only data inside the app. Until then, the phase and dataset
+  cards say what they are waiting for. The website's Start button
+  behaves the same way.
 - The Benchmark tab leads with each model's two scores and the gap.
 - The app's footer says "Runs on this device" instead of "Offline",
   which read like a warning.
@@ -186,17 +203,17 @@ review of the app and the library.
   v2.7.0.
 
 The experimental corpus is unchanged. The Chizhevskiy loader keeps rows
-written in group notation out, so corpus v0.2.0 stays byte-identical,
-and adding them is left for a future corpus version.
+written in group notation out, so corpus v0.2.0 stays byte-identical.
+A future corpus version can add them.
 
-## [2.7.0] — 2026-10-06
+## [2.7.0] - 2026-10-06
 
 ### Added
 
 - **Every feature is now in all four parts**: the Python package, the
   MCP server, the website and the desktop app. A person only needs to
-  pick one of them. This is a standing project rule from now on, and CI
-  enforces it (see the last item below).
+  pick one of them. Parity is a standing project rule from now on, and
+  CI enforces it (see the last item below).
 - **The MCP server has every feature of the package: 24 tools, up from
   13.** New tools: `ceramic_report`, `element_data`, `corpus_build`,
   `corpus_export`, `measured_properties`, `predict_phase_set`,
@@ -205,11 +222,11 @@ and adding them is left for a future corpus version.
   returns the Miedema formation enthalpies, and `alloy_descriptors`,
   `alloy_rules` and `omega_sensitivity` accept custom elements and pair
   enthalpies. `campaign_suggest` also accepts a campaign inline. The
-  server moves to the official MCP Python SDK 2.x (`mcp>=2.3,<3`), and
-  the `mcp` extra now includes scikit-learn, so hardness, phase sets and
+  server moves to the official MCP Python SDK 2.x (`mcp>=2.3,<3`). The
+  `mcp` extra now includes scikit-learn, so hardness, phase sets and
   campaigns work from a registry install.
 - **The dataset works from a plain pip install.** The wheel ships the
-  openly licensed source datasets, and `hea_bench.corpus.build_corpus()`
+  openly licensed source datasets. `hea_bench.corpus.build_corpus()`
   downloads the one file that declares no license (Peivaste), checks its
   SHA-256 and builds every corpus version in a per-user folder. The MCP
   `corpus_build` tool does the same.
@@ -234,7 +251,7 @@ and adding them is left for a future corpus version.
 ### Changed
 
 - **The app is much smoother.** It keeps its fitted models (hardness,
-  phase sets, the dataset check) in the browser between visits, so a
+  phase sets, the dataset check) in the browser between visits. A
   returning visitor gets predictions about a second after the engine
   starts instead of waiting about 18 seconds for refits. The engine
   prepares models in the background while the page is idle, starts by
@@ -252,11 +269,11 @@ and adding them is left for a future corpus version.
 ### Fixed
 
 - The data-file fingerprints the app shows now match the ones the
-  library reports on every platform. They were computed from a Windows
-  checkout's line endings; they now use the bytes git stores. The data
-  itself is unchanged.
+  library reports on every platform. They came from a Windows
+  checkout's line endings and now come from the bytes git stores. The
+  data itself is unchanged.
 
-## [2.6.2] — 2026-10-06
+## [2.6.2] - 2026-10-06
 
 ### Added
 
@@ -265,61 +282,66 @@ and adding them is left for a future corpus version.
   calculator in its three modes, the predictions panel, the dataset, the
   benchmark (including an uploaded predictions file scored with the gap)
   and the design tab. It runs in the CI `web-engine` job, so a broken tab
-  now blocks a release, and `tests/test_app_parity.py` fails when a
-  feature that uses the engine has no step in it.
+  now blocks a release. `tests/test_app_parity.py` fails when a feature
+  that uses the engine has no step in the browser test.
 
 ### Fixed
 
 - A returning visitor no longer sees numbers for a different alloy. The
   calculator restored the last inputs but showed leftover example
-  results beside them until Calculate was pressed. It now shows the
-  welcome screen until then.
+  results beside them until the user pressed Calculate. It now shows
+  the welcome screen until then.
 
 ### Changed
 
 - The site and the desktop app are lighter. `index.html` drops about
-  150 KB of styles left over from a saved copy of the page, none of which
-  matched anything on it, and `web/mathjax/` drops 14 MB of bundles the
+  150 KB of styles left over from a saved copy of the page, and none of
+  them matched anything on it. `web/mathjax/` drops 14 MB of bundles the
   page never loads. Equations, the MathJax menu, its SVG renderer and its
   accessibility tools work as before.
 
-## [2.6.1] — 2026-10-06
+## [2.6.1] - 2026-10-06
 
 ### Fixed
 
 - The `interop` extra now pins HEACalculator to the 2.0 series
-  (`~=2.0.1`), the one the comparison in `docs/backend-agreement.md` was
-  made with. Their 2.1.0 and 2.2.0 changed the reference data, and the
-  looser pin let them into the release checks, which stopped 2.6.0
-  before it reached PyPI, the MCP registry and GitHub Releases. 2.6.1 is
+  (`~=2.0.1`), the series behind the comparison in
+  `docs/backend-agreement.md`. HEACalculator 2.1.0 and 2.2.0 changed the
+  reference data. The looser pin let them into the release checks,
+  which stopped 2.6.0 before it reached PyPI, the MCP registry and
+  GitHub Releases. 2.6.1 is
   the first 2.6 release there, and it contains everything listed under
   2.6.0.
 
-## [2.6.0] — 2026-10-06
+## [2.6.0] - 2026-10-06
 
 ### Added
 
 - **Every library feature now works in the app**, on the website and in
   the desktop exe, for people who never write code. New tabs:
-  **Dataset** (the consolidated corpus with every source's label and
-  paper, filters, paging, CSV download, and the measured hardness and
-  density records), **Design** (composition search with property
-  limits, rule filters and the Pareto front, and experiment planning
-  from your own measurements with save and reopen) and **Benchmark**
-  (the frozen random and family-grouped splits with their digests,
-  live baseline reruns, scoring of uploaded predictions with the gap,
-  an example predictions file, and the coverage study). The Calculator
-  gains a Properties and predictions panel (density and raw-material
-  cost instantly, hardness with its conformal interval, the conformal
-  phase prediction sets and the domain flag), a check of how far Ω
-  moves under the spread between published pair tables, and a
-  Ceramics mode for carbides, nitrides and diborides.
+  - **Dataset**: the consolidated corpus with every source's label and
+    paper, filters, paging, CSV download, and the measured hardness and
+    density records.
+  - **Design**: composition search with property limits, rule filters
+    and the Pareto front, and experiment planning from your own
+    measurements with save and reopen.
+  - **Benchmark**: the frozen random and family-grouped splits with
+    their digests, live baseline reruns, scoring of uploaded
+    predictions with the gap, an example predictions file, and the
+    coverage study.
+
+  The Calculator gains a Properties and predictions panel, a check of
+  how far Ω moves under the spread between published pair tables, and a
+  Ceramics mode for carbides, nitrides and diborides. The panel shows
+  density and raw-material cost instantly, hardness with its conformal
+  interval, the conformal phase prediction sets and the domain flag.
 - The app runs the `hea_bench` package itself, unchanged, inside the
   page (Pyodide 0.29.3 in a Web Worker, `web/hea-engine-worker.js`),
-  with the built corpus kept in browser storage. The engine bundle is
-  assembled at deploy time by `tools/build_web_engine.py` with every
-  file SHA-256 pinned, and `tests/test_web_engine.py` runs the shipped
-  bundle under Node and checks that it returns what CPython returns.
+  with the built corpus kept in browser storage.
+  `tools/build_web_engine.py` assembles the engine bundle at deploy time
+  and pins every file's SHA-256. `tests/test_web_engine.py` runs the
+  shipped bundle under Node and checks that it returns what CPython
+  returns.
   The new `hea_bench.webapp` module is the JSON bridge it calls.
 - App parity is enforced: `tests/test_app_parity.py` maps every public
   name, MCP tool, phase rule and CLI command to its app surface in
@@ -327,8 +349,8 @@ and adding them is left for a future corpus version.
   one has none. The HEACalculator bridge is the one owner-deferred
   exception.
 - `score_predictions` scores labels predicted outside the package on the
-  frozen folds, `predict_property_batch` and `predict_hardness_batch`
-  predict many compositions in one call, and the benchmark baselines,
+  frozen folds. `predict_property_batch` and `predict_hardness_batch`
+  predict many compositions in one call. The benchmark baselines,
   frozen digest table, coverage study and phase prediction sets moved
   from `tools/` scripts into `hea_bench.benchmark.baselines`,
   `hea_bench.benchmark.frozen`, `hea_bench.uncertainty.coverage` and
@@ -337,8 +359,8 @@ and adding them is left for a future corpus version.
 - CI gains a `web-engine` job that builds the corpus and the engine
   bundle and runs the engine, bridge and parity suites with skips
   turned into failures. The site deploy and the desktop build assemble
-  the engine, and the release check now also requires the live engine
-  to report the released version.
+  the engine. The release check now also requires the live engine to
+  report the released version.
 
 ### Changed
 
@@ -353,36 +375,37 @@ and adding them is left for a future corpus version.
 - Experiment-planning campaigns ignored `PropertyConstraint` limits.
   They now apply them to the candidate pool exactly as `search()` does.
 
-## [2.5.6] — 2026-08-25
+## [2.5.6] - 2026-08-25
 
 ### Changed
 
 - The landing hero now leads with the claim that distinguishes the tool
-  rather than an abstract. The headline sets at a scale that lands in two
-  lines instead of three, and the 88-word opening paragraph is cut to one
-  sentence. Everything the paragraph said about descriptors, phase rules,
-  oxide screens and receipts is already stated, in more detail, in the
-  sections below it, so nothing was lost by cutting rather than moving it.
+  rather than an abstract. The headline is now sized to fit on two lines
+  instead of three, and the 88-word opening paragraph is cut to one
+  sentence. The sections below the hero already cover everything the
+  paragraph said about descriptors, phase rules, oxide screens and
+  receipts, in more detail, so cutting it rather than moving it lost
+  nothing.
 
-## [2.5.5] — 2026-08-24
+## [2.5.5] - 2026-08-24
 
 ### Changed
 
 - Document every MCP tool parameter, and add the container and Glama manifests
 
-## [2.5.4] — 2026-08-23
+## [2.5.4] - 2026-08-23
 
 ### Fixed
 
 - `hea-bench-mcp` could not start. The `mcp` extra declared an
   unbounded `mcp>=1.2`, so a fresh `uvx --from hea-bench[mcp]
-  hea-bench-mcp` resolved the MCP SDK to 2.0.0, which removed the
+  hea-bench-mcp` resolved the MCP SDK to 2.0.0. SDK 2.0.0 removed the
   `mcp.server.fastmcp` module the server is built on, and the server
   exited claiming the `mcp` package was not installed. The extra now
   requires `mcp>=1.9.4,<2`. The floor also clears CVE-2025-53366 (HIGH)
-  in SDKs older than 1.9.4, and the failure path now names the
-  installed SDK version and the exact command that fixes it instead of
-  telling the reader to install a package they already have.
+  in SDKs older than 1.9.4. The failure path now names the installed
+  SDK version and the exact command that fixes it, instead of telling
+  the reader to install a package they already have.
 - Registering the tools raised `TypeError: issubclass() arg 1 must be a
   class` on MCP SDKs that inspect parameter annotations directly, so no
   tool was ever served. `mcp_server.py` no longer uses
@@ -403,11 +426,12 @@ and adding them is left for a future corpus version.
   once the `pypi`, `mcp` and `release` jobs succeed, so the `Auto
   release` run finishes in minutes rather than after a 15-20 minute
   Rust build. A new `desktop-failed` job in `release.yml` opens an
-  issue labelled `desktop-build` that mentions and assigns the owner
-  when `desktop-build` or `desktop-attach` fails, which GitHub delivers
-  by email, and comments on the open issue instead of opening another.
+  issue labelled `desktop-build` when `desktop-build` or
+  `desktop-attach` fails. The issue mentions and assigns the owner, so
+  GitHub delivers it by email. If such an issue is already open, the
+  job comments on it instead of opening another.
 
-## [2.5.3] — 2026-08-23
+## [2.5.3] - 2026-08-23
 
 ### Added
 
@@ -415,8 +439,9 @@ and adding them is left for a future corpus version.
   computing the Cantor alloy, each in a light and a dark cut served
   through `<picture>` so GitHub matches the reader's theme. PyPI strips
   `<source>` but keeps the `<img>`, so the light cut is the fallback
-  there. A mermaid diagram of the path from composition to report
-  replaces the claim that nothing is fitted with a picture of it.
+  there. A mermaid diagram of the path from composition to report now
+  shows what the README used to state only in words: that nothing is
+  fitted.
 - `tools/make_screenshots.py` re-captures those screenshots from the
   current `web/` sources with Playwright, so refreshing them is a
   command rather than a manual capture that nobody repeats.
@@ -439,30 +464,31 @@ and adding them is left for a future corpus version.
   agree.
 - Landing page design pass. The hero crystallite is drawn in the
   brand's own tones (ink, terracotta, oxblood, warm grey, and a ringed
-  fifth species) instead of five categorical primaries, so it reads as
+  fifth species) instead of five categorical primaries. It now reads as
   the mark grown large rather than a chart dropped onto a document. The
-  worked example is composed as one band: the composition set as a
-  label in display size, Table 1 and Table 2 side by side from 1120px,
-  both starting on the same line whatever their captions' length, and
-  the Guo-Liu screen set on two lines on purpose. Figures (the
+  worked example is composed as one band. The composition is set as a
+  label in display size. From 1120px, Table 1 and Table 2 sit side by
+  side and start on the same line whatever their captions' length. The
+  Guo-Liu screen is set on two lines on purpose. Figures (the
   crystallite and the worked example) may extend up to 120px into the
-  right margin on wide screens; text never does.
+  right margin on wide screens. Text never does.
 
 ### Fixed
 
 - On Android Chrome the landing rendered at 733px on a 390px phone,
   with the title running off the right edge and the nav off-screen.
-  The calculator underneath the overlay still lays out, its
-  saved-results table escapes its scroll wrapper and widens the body,
-  and mobile Chrome grows the layout viewport to fit, dragging the
+  The calculator underneath the overlay still lays out, and its
+  saved-results table escapes its scroll wrapper and widens the body.
+  Mobile Chrome then grows the layout viewport to fit and drags the
   fixed overlay with it. The hidden app is now clipped while the
-  landing shows; the rule stops applying the moment the app opens.
+  landing shows, and the clipping rule stops applying the moment the
+  app opens.
 - The rules table on a phone now keeps one line per row and scrolls
   sideways instead of crushing the first column into three lines.
 - The crystallite's growth entrance now plays when the figure is first
   scrolled into view, rather than silently at load while off-screen.
 
-## [2.5.2] — 2026-08-18
+## [2.5.2] - 2026-08-18
 
 ### Added
 
@@ -478,15 +504,16 @@ and adding them is left for a future corpus version.
 - `tools/preflight.py` now checks the web assets the `<head>` promises:
   every icon exists at its declared size, the card is exactly 1200x630,
   the manifest and JSON-LD parse, and no icon is a `data:` URI or a
-  root-absolute path. These fail silently in production otherwise.
+  root-absolute path. Without the check, these assets fail silently in
+  production.
 
-## [2.5.1] — 2026-08-16
+## [2.5.1] - 2026-08-16
 
 ### Changed
 
 - Shorten the MCP registry description to the 100-character limit
 
-## [2.5.0] — 2026-08-16
+## [2.5.0] - 2026-08-16
 
 ### Added
 
@@ -495,130 +522,141 @@ and adding them is left for a future corpus version.
   the oxides module's API shape. Reports carry the metal-sublattice
   configurational entropy in every published normalization convention
   (per mole cation, per formula unit, per mole atoms), because the
-  ceramics literature switches between them without warning, and VEC
-  per formula unit for the rock-salt classes with annotated literature
-  reference points (the 8.4 hardness maximum, the roughly 9.4 fracture
-  resistance and 9.5 plasticity marks) instead of a verdict, because
-  no single published window exists. Deliberately absent, with reasons
-  in `docs/ceramics.md`: a size-mismatch descriptor (the field derives
-  it from DFT binary-cell bond lengths; adopting a cited
-  composition-only table is future curation work), entropy-forming
-  ability and DEED (DFT-ensemble quantities; no parity claimed
-  anywhere), and a ceramics corpus or benchmark task (the available
-  outcome data is too small to support one; a license audit of every
-  candidate dataset is recorded for the future consolidation).
-- The MCP surface grows from seven to thirteen tools, covering the
-  whole workflow: `corpus_query` and `corpus_describe` (filtered slices
-  of the provenance-tracked corpus, sample hard-capped at 50 rows),
-  `predict_properties` (every property entry carries interval, tier,
-  domain flag, novelty, and warnings at the top level of its payload),
-  `check_applicability` (the novelty components), `design_search`
-  (hard caps: 10 palette elements, step at least 0.05, 20 candidates,
-  a fixed 50,000-point budget; oversized requests are refused with the
-  cap named), and `campaign_suggest` (batch capped at 10, operating on
-  a campaign file the user supplies and never writing it). Missing
-  optional extras or missing local corpus data surface as a clear
-  message naming the exact fix rather than a traceback, and `about()`
-  now reports per-capability availability for the running environment.
+  ceramics literature switches between them without warning. For the
+  rock-salt classes they also carry VEC per formula unit with annotated
+  literature reference points instead of a verdict, because no single
+  published window exists. The reference points are the 8.4 hardness
+  maximum and the roughly 9.4 fracture resistance and 9.5 plasticity
+  marks. Three things are deliberately absent, with reasons in
+  `docs/ceramics.md`:
+  - A size-mismatch descriptor. The field derives it from DFT
+    binary-cell bond lengths, and adopting a cited composition-only
+    table is future curation work.
+  - Entropy-forming ability and DEED. Both are DFT-ensemble
+    quantities, and no parity is claimed anywhere.
+  - A ceramics corpus or benchmark task. The available outcome data is
+    too small to support one. A license audit of every candidate
+    dataset is recorded for the future consolidation.
+- The MCP surface grows from seven to thirteen tools and covers the
+  whole workflow:
+  - `corpus_query` and `corpus_describe`: filtered slices of the
+    provenance-tracked corpus, with the sample hard-capped at 50 rows.
+  - `predict_properties`: every property entry carries interval, tier,
+    domain flag, novelty, and warnings at the top level of its payload.
+  - `check_applicability`: the novelty components.
+  - `design_search`: hard caps of 10 palette elements, a step of at
+    least 0.05, 20 candidates and a fixed 50,000-point budget. The tool
+    refuses an oversized request and names the cap it exceeds.
+  - `campaign_suggest`: batch capped at 10. The tool operates on a
+    campaign file the user supplies and never writes it.
+
+  Missing optional extras or missing local corpus data produce a clear
+  message naming the exact fix rather than a traceback. `about()` now
+  reports per-capability availability for the running environment.
 - `hea_bench.design.campaign`: the active-learning loop. A `Campaign`
-  holds an objective, palette, and constraints, accepts the user's own
-  measurements (`observe`), and ranks the unexplored lattice by
-  expected improvement or UCB over a seeded random-forest ensemble
-  whose uncertainty is tree disagreement (documented as a
-  model-disagreement band, not a coverage guarantee). Batches use the
-  believer heuristic; hardness campaigns warm start from the Borg
-  records matching the palette; state round-trips through versioned
-  plain JSON on the user's disk with no accounts and no telemetry;
-  and below 10 informative rows `suggest` raises `ColdStartError`
-  because a near-random loop should refuse rather than pretend. A
-  publication-year replay on the Al-Co-Cr-Fe-Ni hardness record is
-  reported in `docs/campaign-replay.md`, honest outcome included.
+  holds an objective, palette, and constraints and accepts the user's
+  own measurements (`observe`). It ranks the unexplored lattice by
+  expected improvement or UCB over a seeded random-forest ensemble. The
+  ensemble's uncertainty is tree disagreement, documented as a
+  model-disagreement band, not a coverage guarantee. Batches use the
+  believer heuristic. Hardness campaigns warm start from the Borg
+  records matching the palette. State round-trips through versioned
+  plain JSON on the user's disk, with no accounts and no telemetry.
+  Below 10 informative rows, `suggest` raises `ColdStartError`, because
+  a near-random loop should refuse rather than pretend.
+  `docs/campaign-replay.md` reports a publication-year replay on the
+  Al-Co-Cr-Fe-Ni hardness record, honest outcome included.
 - `hea_bench.design`: constrained composition search. `search()` walks
   a deterministic simplex lattice over a palette (element subsets times
-  fixed-step compositions), filters by rule verdicts, property bounds
-  (point or conservative interval end), per-element composition bounds,
-  and a domain-of-applicability constraint that is ON by default, then
-  returns a Pareto front where every candidate carries its complete
-  receipt: descriptors, all nine rule verdicts, property predictions
-  with intervals, novelty components, and the domain flag.
+  fixed-step compositions). It filters by rule verdicts, property
+  bounds (point or conservative interval end), per-element composition
+  bounds, and a domain-of-applicability constraint that is ON by
+  default. It then returns a Pareto front where every candidate carries
+  its complete receipt: descriptors, all nine rule verdicts, property
+  predictions with intervals, novelty components, and the domain flag.
   `optimize_bound="lower"` ranks fitted objectives by the conservative
-  interval end, the standard mitigation for optimizers exploiting model
-  error. The lattice is exhaustive within a hard `max_evaluations`
-  budget and refuses loudly rather than sampling silently; results
-  record seed and settings and serialize to JSON. A retrospective
-  recovery study over the Al-Co-Cr-Fe-Ni and Mo-Nb-Ta-V-W palettes
-  (`docs/design-recovery.md`) reports where measured alloys sit
-  relative to recovered fronts, including the misses. Limitation,
-  framed throughout: this is a screening and prioritization aid whose
-  fronts are only as good as the tier B surrogates under them.
+  interval end, the standard mitigation for optimizers that exploit
+  model error. The lattice is exhaustive within a hard
+  `max_evaluations` budget and refuses loudly rather than sampling
+  silently. Results record seed and settings and serialize to JSON. A
+  retrospective recovery study over the Al-Co-Cr-Fe-Ni and
+  Mo-Nb-Ta-V-W palettes (`docs/design-recovery.md`) reports where
+  measured alloys sit relative to recovered fronts, including the
+  misses. The documentation states the limitation throughout: the
+  search is a screening and prioritization aid, and its fronts are only
+  as good as the tier B surrogates under them.
 - `hea_bench.properties`: property predictions in explicit tiers.
-  Tier A closed forms (stdlib): `density` by rule of mixtures over a
-  new cited IUPAC standard-atomic-weight table and the vendored molar
-  volumes, validated against the 49 experimentally measured densities
-  in the Borg deposit (mean absolute error 0.20 g/cm3, documented in
-  `docs/property-tier-a.md`); `melting_temperature` re-exposed; and
-  `cost_per_kg`, an explicitly indicative raw-material screening number
-  mass-weighted over a date-stamped element price table whose every row
-  carries its own basis, as-of date, and source (USGS MCS 2026, LME,
-  bullion spot, named minor-metal relays), with `cost_breakdown()`
-  exposing per-element contributions so the bases are never hidden.
-  Tier B (`hardness`, new `properties` extra pinning scikit-learn
-  1.7.2): a seeded random forest over the package's own descriptors on
-  the 417 near-room-temperature Borg HV alloys, always returned with a
-  family-grouped split conformal interval and a domain-of-applicability
-  flag fitted on its own training data; `processing=` conditions on one
-  processing route and refuses below a 50-alloy floor. The model card
-  (`docs/property-hardness.md`) records the family-grouped CV error
-  (mean absolute error 115 HV, empirical interval coverage 0.909 at
-  nominal 90 percent, mean width 658 HV) and states plainly that this
-  supports coarse screening, not ranking close candidates. Yield
-  strength, moduli, ductility, and corrosion are deliberately not
-  shipped; the card documents why (test-temperature and processing
-  confounds, thin licensed data), because a confidently wrong number
-  would be worse than an absent one.
+  - Tier A closed forms (stdlib). `density` applies the rule of
+    mixtures over a new cited IUPAC standard-atomic-weight table and
+    the vendored molar volumes. It is validated against the 49
+    experimentally measured densities in the Borg deposit (mean
+    absolute error 0.20 g/cm3, documented in
+    `docs/property-tier-a.md`). `melting_temperature` is re-exposed.
+    `cost_per_kg` is an explicitly indicative raw-material screening
+    number, mass-weighted over a date-stamped element price table.
+    Every row of that table carries its own basis, as-of date, and
+    source (USGS MCS 2026, LME, bullion spot, named minor-metal
+    relays). `cost_breakdown()` exposes per-element contributions so
+    the bases are never hidden.
+  - Tier B (`hardness`, with a new `properties` extra pinning
+    scikit-learn 1.7.2): a seeded random forest over the package's own
+    descriptors on the 417 near-room-temperature Borg HV alloys. It
+    always returns a family-grouped split conformal interval and a
+    domain-of-applicability flag fitted on its own training data.
+    `processing=` conditions on one processing route and refuses below
+    a 50-alloy floor. The model card (`docs/property-hardness.md`)
+    records the family-grouped CV error (mean absolute error 115 HV,
+    empirical interval coverage 0.909 at nominal 90 percent, mean width
+    658 HV). The card states plainly that this accuracy supports coarse
+    screening, not ranking close candidates.
+  - Yield strength, moduli, ductility, and corrosion are deliberately
+    not shipped, because a confidently wrong number would be worse than
+    an absent one. The card documents why: test-temperature and
+    processing confounds, and thin licensed data.
 - `hea_bench.uncertainty`: the trust layer. Standard-library split
   conformal prediction (`ConformalClassifier`, `ConformalRegressor`)
   wraps any fitted sklearn-style model with prediction sets or
-  intervals carrying the distribution-free finite-sample coverage
-  guarantee, including honest edge behavior: sets may be empty, and
-  both wrappers go maximal (full class set, unbounded interval) when
-  the calibration size cannot support the requested level. A
+  intervals that carry the distribution-free finite-sample coverage
+  guarantee. The edge behavior is honest: sets may be empty, and both
+  wrappers go maximal (full class set, unbounded interval) when the
+  calibration size cannot support the requested level. A
   domain-of-applicability model (`fit_domain`, `DomainModel.novelty`)
   reports orthogonal novelty signals (family seen, nearest-family
   Jaccard distance, descriptor-cloud distance, element coverage) plus a
-  conservative combined `in_domain` flag, JSON round-trippable for
-  caching. Empirical coverage at nominal 80/90/95 on the frozen grouped
-  folds, split by domain flag, is measured in
-  `docs/uncertainty-coverage.md`. Limitation, stated where it matters:
-  the conformal guarantee assumes calibration/test exchangeability,
-  which novel chemistries violate; that is what the domain flag is for.
-  These tools describe this package's confidence only.
-- The consolidated experimental corpus is now a first-class, standalone
-  product: `hea_bench.corpus.load_corpus()` returns every corpus row
-  (including conflict-quarantined ones) with full per-source provenance
-  already recorded by the build (per-source canonical and verbatim
-  phase labels, Borg processing and primary-literature DOI, upstream
-  row identifiers), chainable `query()` filters, `describe()`
-  statistics with a multi-source agreement rate, and `to_csv()` export
-  of any slice. A generated dataset card (`docs/corpus-card.md`)
-  documents provenance chains, per-source license status, harmonization
-  rules, and known limitations. `load_benchmark()` is now a thin
-  wrapper over this API with byte-identical output: all frozen split
-  digests, row counts, and baseline numbers are unchanged, and the
-  corpus build now refuses loudly (naming the missing source and its
-  fetch command) rather than ever building a partial corpus. The corpus
-  API is standard-library only and, like the benchmark, works from a
-  repository checkout or `HEA_BENCH_BENCHMARK_DIR`.
+  conservative combined `in_domain` flag. The model round-trips through
+  JSON for caching. `docs/uncertainty-coverage.md` measures empirical
+  coverage at nominal 80/90/95 on the frozen grouped folds, split by
+  domain flag. The limitation is stated where it matters: the conformal
+  guarantee assumes calibration/test exchangeability, which novel
+  chemistries violate, and the domain flag exists for exactly that
+  case. These tools describe this package's confidence only.
+- The consolidated experimental corpus is now a standalone product.
+  `hea_bench.corpus.load_corpus()` returns every corpus row, including
+  conflict-quarantined ones, with the full per-source provenance the
+  build already records: per-source canonical and verbatim phase
+  labels, Borg processing and primary-literature DOI, and upstream row
+  identifiers. The corpus offers chainable `query()` filters,
+  `describe()` statistics with a multi-source agreement rate, and
+  `to_csv()` export of any slice. A generated dataset card
+  (`docs/corpus-card.md`) documents provenance chains, per-source
+  license status, harmonization rules, and known limitations.
+  `load_benchmark()` is now a thin wrapper over this API with
+  byte-identical output. All frozen split digests, row counts, and
+  baseline numbers are unchanged. The corpus build now refuses loudly,
+  naming the missing source and its fetch command, rather than ever
+  building a partial corpus. The corpus API is standard-library only
+  and, like the benchmark, works from a repository checkout or
+  `HEA_BENCH_BENCHMARK_DIR`.
 - Descriptor computation is now backend-pluggable. The default
   (`native`) backend is the package's own stdlib implementation and is
-  unchanged; `pip install "hea-bench[interop]"` adds an adapter over an
-  installed HEACalculator (Sariturk et al., GPLv3) exposing the same
-  interface, `descriptor_matrix(..., backend=...)` accepts either, and
-  a new CLI subcommand `hea-bench describe FORMULA [--backend ...]`
+  unchanged. `pip install "hea-bench[interop]"` adds an adapter over an
+  installed HEACalculator (Sariturk et al., GPLv3) that exposes the
+  same interface, and `descriptor_matrix(..., backend=...)` accepts
+  either. A new CLI subcommand, `hea-bench describe FORMULA [--backend ...]`,
   prints a strict-JSON descriptor report. Same-named values can differ
-  between backends because each vendors its own reference data (radius
-  conventions differ most); the measured comparison is committed as
-  `docs/backend-agreement.md`, structurally different quantities are
+  between backends because each vendors its own reference data, and
+  radius conventions differ most. `docs/backend-agreement.md` records
+  the measured comparison. Structurally different quantities are
   deliberately left unmapped, and every published baseline number still
   comes from the native backend. Limitations: the adapter targets
   HEACalculator's 2.0 `get_dict` schema, and compositions outside its
@@ -628,31 +666,34 @@ and adding them is left for a future corpus version.
 
 - The web app's Miedema solid-solution / amorphous / compound
   decomposition moved from hand-maintained page script into the
-  parity-tested core. Its per-element parameter table is now generated
-  from the vendored matminer `Miedema.csv` (the same file the Python
-  mechanics table reads) by `tests/data/_sync_js_tables.py`, and a
-  Node regression suite pins the decomposition's values. Reconciling
-  the old hand table against the CSV corrects several displayed
-  numbers, most visibly: the Ti and Ru surface areas V^(2/3) (the hand
-  table carried 4.12 and 4.60 where the CSV volumes give 4.82 and
-  4.07, shifting Ti- and Ru-pair chemical terms by roughly ten
-  percent), silicon's metallic molar volume (12.06 -> 8.6 cm3/mol,
-  which shrinks Ni-Si elastic mismatch terms severalfold and makes the
-  volume consistent with the V^(2/3) the page already used), manganese
-  and chromium bulk moduli (120 -> 59.67 and 160 -> 190.3 GPa), and
-  yttrium's volume-correction constant (0.04 -> 0.07). Bulk and shear
-  moduli and molar volumes for all 37 covered elements now match the
-  vendored table exactly (Fe 170 -> 168.3 GPa and similar
-  rounding-level shifts elsewhere).
+  parity-tested core. `tests/data/_sync_js_tables.py` now generates the
+  decomposition's per-element parameter table from the vendored
+  matminer `Miedema.csv`,
+  the same file the Python mechanics table reads, and a Node regression
+  suite pins the decomposition's values. Reconciling the old hand table
+  against the CSV corrects several displayed numbers. The most visible:
+  - The Ti and Ru surface areas V^(2/3). The hand table carried 4.12
+    and 4.60 where the CSV volumes give 4.82 and 4.07, which shifts Ti-
+    and Ru-pair chemical terms by roughly ten percent.
+  - Silicon's metallic molar volume, 12.06 -> 8.6 cm3/mol. The change
+    shrinks Ni-Si elastic mismatch terms severalfold and makes the
+    volume consistent with the V^(2/3) the page already used.
+  - Manganese and chromium bulk moduli, 120 -> 59.67 and 160 -> 190.3
+    GPa.
+  - Yttrium's volume-correction constant, 0.04 -> 0.07.
+
+  Bulk and shear moduli and molar volumes for all 37 covered elements
+  now match the vendored table exactly (Fe 170 -> 168.3 GPa, and
+  similar rounding-level shifts elsewhere).
 - Internal consolidation across surfaces with no API change: one JSON
   non-finite sanitizer, one 14-descriptor feature-row builder, one
   scorable-element set, and one rules registry shared by the design
-  search, campaigns, and the MCP surface, which also makes
-  `yeh_entropy` accepted as an alias of `yeh_smix` in rule
+  search, campaigns, and the MCP surface. The shared registry also
+  accepts `yeh_entropy` as an alias of `yeh_smix` in rule
   constraints. Caching the pair-table coverage set makes a full native
   descriptor profile about eight times faster.
 
-## [2.4.0] — 2026-08-11
+## [2.4.0] - 2026-08-11
 
 ### Changed
 
@@ -661,26 +702,26 @@ and adding them is left for a future corpus version.
   and extrapolative (family-grouped) evaluation, rather than as leakage
   or inflation, following the established reading of grouped evaluation
   in the literature (Li et al., Commun. Mater. 6:9, 2025,
-  doi:10.1038/s43246-024-00731-w; Meredig et al. 2018 LOCO-CV). The
+  doi:10.1038/s43246-024-00731-w, and Meredig et al. 2018 LOCO-CV). The
   `EvaluationReport.inflation` field is renamed `gap`, and
   `leakage_profile` is renamed `family_overlap_profile`. All split
   digests, fold assignments, corpus builds, and baseline numbers are
-  unchanged; only wording and the two names moved.
+  unchanged. Only the wording and the two names changed.
 
-## [2.3.2] — 2026-08-10
+## [2.3.2] - 2026-08-10
 
 ### Changed
 
 - Settle the corpus roles: v0.1.0 is the reference, v0.2.0 the extended option
 - Style the download-window notice as a proper callout
 
-## [2.3.1] — 2026-08-10
+## [2.3.1] - 2026-08-10
 
 ### Changed
 
 - Handle the release window on the Windows-app download link
 
-## [2.3.0] — 2026-08-10
+## [2.3.0] - 2026-08-10
 
 ### Added
 
@@ -688,15 +729,15 @@ and adding them is left for a future corpus version.
   HEA database (Sci. Data 13, 612), which became usable when its
   repository gained a CC-BY-4.0 license on 2026-08-10. The labelled
   corpus grows from 7,683 to 10,064 alloys with its own frozen,
-  digest-pinned splits. `load_benchmark(version="0.2.0")` opts in; the
+  digest-pinned splits. `load_benchmark(version="0.2.0")` opts in. The
   default stays v0.1.0 because the new source's LLM-extracted labels
   agree with the established consensus on only about 70% of overlapping
-  alloys, and every such disagreement is quarantined as a conflict
-  rather than resolved by voting. The named-intermetallic raw labels
+  alloys. Every such disagreement is quarantined as a conflict rather
+  than resolved by voting. The named-intermetallic raw labels
   (B2, L12, Laves, sigma) are preserved verbatim as side-channel
   columns.
 
-## [2.2.1] — 2026-08-10
+## [2.2.1] - 2026-08-10
 
 ### Added
 
@@ -709,18 +750,18 @@ and adding them is left for a future corpus version.
   gap, which measures how much of a random-split score is interpolation
   between stoichiometric variants rather than prediction. Each split
   carries a SHA-256 digest of its fold assignment, pinned in the test
-  suite, and the grouped split uses no random number generator and no
+  suite. The grouped split uses no random number generator and no
   float arithmetic in fold assignment, so the same corpus produces
-  byte-identical folds on every platform (a CI job rebuilds the corpus
-  and verifies the digests on each push).
+  byte-identical folds on every platform. A CI job rebuilds the corpus
+  and verifies the digests on each push.
   On corpus v0.1.0 a stock random forest over this package's descriptors
   scores 0.941 balanced accuracy under the random split and 0.734 under
-  the grouped one; baseline results and provenance live in
-  `docs/benchmark-baselines.md`.
-- The benchmark corpus is built locally, not shipped: its largest source
+  the grouped one. `docs/benchmark-baselines.md` holds the baseline
+  results and their provenance.
+- The benchmark corpus is built locally, not shipped. Its largest source
   dataset (Peivaste) declares no license, so the repo carries loaders,
-  pinned SHA-256 hashes, and a fetch script instead of that data, and
-  the derived corpus inherits the restriction. The two CC-BY sources
+  pinned SHA-256 hashes, and a fetch script instead of that data. The
+  derived corpus inherits the restriction. The two CC-BY sources
   (Borg 2020, Pei 2020) are mirrored. See `data/raw/README.md` for the
   per-source licensing audit.
 - New optional extra `benchmark` pinning the scikit-learn version used
@@ -728,44 +769,44 @@ and adding them is left for a future corpus version.
   needs only the standard library.
 
 (These notes were first staged for a v2.2.0 that was tagged but never
-published: its release run was correctly blocked by the new benchmark
-CI gate itself, which caught the corpus build producing different
+published. The new benchmark CI gate itself correctly blocked its
+release run, because it caught the corpus build producing different
 composition keys on Python 3.12 than on 3.10. Builtin `sum` switched
 to compensated summation in 3.12, and that last-bit difference in
 normalization totals moved a few mole fractions across the 4-decimal
 rounding boundary. Composition normalization now uses exactly rounded
-`math.fsum`, fold assignment uses exact integer arithmetic, and the
-frozen digests were re-pinned after verifying byte-identical corpus
-builds on Python 3.10, 3.12, and 3.13 across Windows and Linux. No
-published result was affected, because nothing had been published.)
+`math.fsum`, and fold assignment uses exact integer arithmetic. The
+frozen digests were re-pinned once corpus builds proved byte-identical
+on Python 3.10, 3.12, and 3.13 across Windows and Linux. No published
+result was affected, because nothing had been published.)
 
-## [2.1.7] — 2026-08-09
+## [2.1.7] - 2026-08-09
 
 ### Changed
 
-- Writing pass over the web app's prose: em dashes removed from page
-  text, footer labels, drawer notes, and the title tag (value
-  placeholders, cited paper titles, and TeX are untouched), several
-  passive constructions made active on the landing page and Data view,
-  and the version badge now uses consistent separators. No functional
-  or numerical change.
+- Writing pass over the web app's prose. Em dashes are gone from page
+  text, footer labels, drawer notes, and the title tag, while value
+  placeholders, cited paper titles, and TeX are untouched. Several
+  passive constructions on the landing page and Data view are now
+  active, and the version badge uses consistent separators. No
+  functional or numerical change.
 
-## [2.1.6] — 2026-08-09
+## [2.1.6] - 2026-08-09
 
 ### Fixed
 
-- Composition parsing now rejects non-whitespace input that is not consumed by the
-  documented element-and-amount grammar, instead of silently calculating a composition
-  from only the matched tokens. Existing compact, percent-style proportional, and
-  space-separated forms are unchanged. Reported by Yen-Ming Horng in
+- Composition parsing now rejects non-whitespace input that the documented
+  element-and-amount grammar does not consume, instead of silently calculating a
+  composition from only the matched tokens. Existing compact, percent-style
+  proportional, and space-separated forms are unchanged. Reported by Yen-Ming Horng in
   [#1](https://github.com/dfieser/hea-bench/issues/1).
 - The browser and desktop apps apply the same full-consumption contract
-  in their own formula parser, so a malformed `?comp=` permalink now
-  shows a parse error instead of silently computing a composition built
-  from only the recognizable tokens, and a rejected permalink no longer
+  in their own formula parser. A malformed `?comp=` permalink now shows
+  a parse error instead of silently computing a composition built from
+  only the recognizable tokens, and a rejected permalink no longer
   renders results or a citable record at all. Same report, [#1].
 
-## [2.1.5] — 2026-08-08
+## [2.1.5] - 2026-08-08
 
 ### Added
 
@@ -780,17 +821,17 @@ published result was affected, because nothing had been published.)
   acknowledgement carries into the archived DOI metadata of the next
   release. The `creators` list is unchanged.
 
-## [2.1.4] — 2026-07-29
+## [2.1.4] - 2026-07-29
 
 ### Fixed
 
 - Documentation of `delta_g_max` corrected in the two places that still
   described a composition-weighted form. The AGENTS.md API table and the
-  result-card tooltip in the web app now state the raw definition that
-  the runtime, the docstring, the README, llms.txt, the provenance
-  drawer, the paper, and the pinned regression test all already use:
-  the most negative raw Miedema pair enthalpy, with no 4*c_i*c_j
-  scaling. Both stale strings were leftovers from the composition
+  result-card tooltip in the web app now state the raw definition: the
+  most negative raw Miedema pair enthalpy, with no 4*c_i*c_j scaling.
+  The runtime, the docstring, the README, llms.txt, the provenance
+  drawer, the paper, and the pinned regression test all already used
+  that definition. Both stale strings were leftovers from the composition
   weighted draft removed during the 1.1.0 phi-family work. Reported by
   Yen-Ming Horng (external reproducibility and documentation review).
   No calculated value changes on any surface.
@@ -802,7 +843,7 @@ published result was affected, because nothing had been published.)
 
 - README prose no longer uses em dashes.
 
-## [2.1.3] — 2026-07-24
+## [2.1.3] - 2026-07-24
 
 ### Changed
 
@@ -811,14 +852,14 @@ published result was affected, because nothing had been published.)
   Tauri icon across every size (generated reproducibly by
   tools/make_icons.py). The browser favicon now matches.
 
-## [2.1.2] — 2026-07-23
+## [2.1.2] - 2026-07-23
 
 ### Fixed
 
 - The "copied" badge moved to the bottom-left of the card as a small
-  chip; at the top right it collided with long card titles.
+  chip. At the top right it collided with long card titles.
 
-## [2.1.1] — 2026-07-23
+## [2.1.1] - 2026-07-23
 
 ### Fixed
 
@@ -828,19 +869,19 @@ published result was affected, because nothing had been published.)
   instead of low-contrast default blue on dark surfaces.
 - The cite panel's citation and BibTeX list all three authors, and the
   article BibTeX is a real entry with journal, volume, number, and pages
-  fields (the Zenodo software entry likewise); the bibliography
-  generator now emits field-level BibTeX for every reference.
+  fields, as is the Zenodo software entry. The bibliography generator
+  now emits field-level BibTeX for every reference.
 - The pair-enthalpy source tag now names the actual source, Miedema /
   de Boer et al. (1988), instead of "hea-bench".
 - Drawer equations containing "<" (like the ΔH mix sum over i<j) render
   as math instead of being eaten by the HTML parser.
 
-## [2.1.0] — 2026-07-23
+## [2.1.0] - 2026-07-23
 
 ### Fixed
 
-- Composition permalinks (`?comp=...`) now open the calculator directly;
-  previously the landing overlay stayed on top of the computed result,
+- Composition permalinks (`?comp=...`) now open the calculator directly.
+  Previously the landing overlay stayed on top of the computed result,
   which made shared and cited links look broken.
 - Alloys outside the Miedema decomposition's parameter set now get one
   summary warning instead of a warning per element pair.
@@ -849,11 +890,12 @@ published result was affected, because nothing had been published.)
 
 - Element coverage 37 → 55 across all surfaces: the full experimentally
   active rare-earth HEA palette (Pr, Nd, Sm, Tb, Dy, Ho, Er, Tm, Yb, Lu),
-  Ga, Ge, U, Th, Sr, Sb, Bi, Pb. Radius authority: Teatum, Gschneidner &
-  Waber LA-4003 (1968), every value read from the Table I scan; CRC
-  melting points; Guo-convention VEC (lanthanides 3, divalent Yb 2,
-  Zachariasen U 6); Pauling electronegativities. 1484 of 1485 Miedema
-  pairs covered (the lone Th–U gap is reported, never zeroed).
+  Ga, Ge, U, Th, Sr, Sb, Bi, Pb. The radius authority is Teatum,
+  Gschneidner & Waber LA-4003 (1968), with every value read from the
+  Table I scan. Melting points are CRC values, VEC follows the Guo
+  convention (lanthanides 3, divalent Yb 2, Zachariasen U 6), and
+  electronegativities are Pauling values. 1484 of 1485 Miedema pairs
+  are covered, and the lone Th–U gap is reported, never zeroed.
 - Six new criteria on all surfaces, parity-tested: Singh Λ, Wang
   solid-angle γ, Andreoli elastic-strain energy ΔH_el (with a new
   per-element mechanics loader), the temperature-explicit Senkov–Miracle
@@ -865,8 +907,8 @@ published result was affected, because nothing had been published.)
 - Provenance drawer: an info button on every result card opens the
   defining equation, the exact per-element inputs the number consumed
   (with source links and user-edit flags), the interpretation window
-  with primary citations, per-descriptor BibTeX, and cross-links into
-  Theory, Equations, References, and the new Data view.
+  with primary citations, and per-descriptor BibTeX. The drawer
+  cross-links into Theory, Equations, References, and the new Data view.
 - Cite-this-result panel: content-derived result IDs
   (`hea-<sha256/12>` over version + canonical inputs), permalinks,
   formatted citation and BibTeX, and a downloadable JSON receipt with
@@ -878,70 +920,72 @@ published result was affected, because nothing had been published.)
   lookup, data-file integrity pins, and a per-element feature-coverage
   matrix.
 - Theory sections for Λ/γ (tangent-cone derivation), κ (Gibbs
-  derivation), and ΔH_el; four new equation cards; anchors on every
-  bibliography entry; a new "Element data sources" reference group; the
-  previously uncited King 2016 and Ye 2015 rules now carry full entries.
+  derivation), and ΔH_el, plus four new equation cards. Every
+  bibliography entry gains an anchor, a new "Element data sources"
+  reference group appears, and the previously uncited King 2016 and Ye
+  2015 rules now carry full entries.
 
 ### Changed
 
-- MCP: `alloy_descriptors` gains `lambda_singh`, `gamma_wang`,
-  `h_elastic`; `alloy_rules` gains `senkov_kappa` (shares
-  `king_temperature`), `tsai_sigma`, `sheikh_ductility`; source keys for
-  the new criteria and the element-data authorities.
+- MCP: `alloy_descriptors` gains `lambda_singh`, `gamma_wang` and
+  `h_elastic`. `alloy_rules` gains `senkov_kappa` (shares
+  `king_temperature`), `tsai_sigma` and `sheikh_ductility`. New source
+  keys cover the new criteria and the element-data authorities.
 - The LA-4003 attribution replaces the imprecise "Teatum & Waber 1967"
   in the data-layer documentation.
 - Landing page, JSON-LD (`variableMeasured`), status bar, and READMEs
-  reflect the 55-element / 1484-pair coverage; the version badge now
+  reflect the 55-element / 1484-pair coverage. The version badge now
   carries the data-table fingerprint.
 - The auxiliary Miedema decomposition panel deliberately stays on its
   original 37-element parameter set (no invented f-block Miedema
-  classes); the coverage matrix in the Data view makes that explicit.
+  classes). The coverage matrix in the Data view makes that limit
+  explicit.
 
-## [2.0.10] — 2026-07-19
+## [2.0.10] - 2026-07-19
 
 ### Changed
 
 - SEO: sitemap discovery hint in the page head
 - Zenodo metadata: link the live web app as a related identifier
 
-## [2.0.9] — 2026-07-19
+## [2.0.9] - 2026-07-19
 
 ### Changed
 
 - Add the Google Search Console ownership verification tag
 - SEO: canonical, Open Graph, and JSON-LD software metadata on the web app, plus a deploy-time sitemap.xml
 
-## [2.0.8] — 2026-07-17
+## [2.0.8] - 2026-07-17
 
 ### Changed
 
 - Cite the published Materials article everywhere
 
-## [2.0.7] — 2026-07-09
+## [2.0.7] - 2026-07-09
 
 ### Changed
 
 - Landing page: the top bar, stats strip, and footer now respect the page side padding
 - Auto-release: re-dispatch a cancelled downstream run once instead of only going red
 
-## [2.0.6] — 2026-07-09
+## [2.0.6] - 2026-07-09
 
 ### Changed
 
-- Landing page: side padding now scales with the window so the top bar has real breathing room
+- Landing page: side padding now scales with the window so the top bar no longer crowds the edges
 - Make releases autonomous: any shippable push to main cuts a full patch release
 - Add tools/autorelease.py: one-shot release preparation (version, stamps, changelog, history)
 
-## [2.0.5] — 2026-07-08
+## [2.0.5] - 2026-07-08
 
 ### Changed
 
 - Landing page. Widened the shared side padding on the landing page so the top
   navigation bar and page sections are no longer crowded against the edges, with
-  a narrower fallback on small phones. Presentation only; no functional or
-  numerical change to any descriptor, rule, or API.
+  a narrower fallback on small phones. Presentation only, with no functional
+  or numerical change to any descriptor, rule, or API.
 
-## [2.0.4] — 2026-07-06
+## [2.0.4] - 2026-07-06
 
 ### Changed
 
@@ -951,7 +995,7 @@ published result was affected, because nothing had been published.)
   longer run on the deprecated Node 20 runtime. No functional or numerical
   change to any descriptor or rule.
 
-## [2.0.3] — 2026-07-06
+## [2.0.3] - 2026-07-06
 
 ### Fixed
 
@@ -959,19 +1003,19 @@ published result was affected, because nothing had been published.)
   unknown flag and re-verifies the whole tree after stamping, so a drifted
   pattern fails loudly instead of leaving a silent partial bump. The Rust
   lockfile (`src-tauri/Cargo.lock`) is now version-synced and drift-checked
-  like the other surfaces, and the drift-check additionally verifies that the
+  like the other surfaces, and the drift-check also verifies that the
   two release-date fields agree and that the `.zenodo.json` author list matches
   `CITATION.cff`.
 - Release pipeline. The GitHub Release, and therefore the Zenodo DOI, now
   depends only on the PyPI publish, so a transient MCP-registry failure can no
   longer strand a published version without its archival DOI. The desktop
-  executable now builds in parallel rather than behind the other jobs, a manual
+  executable now builds in parallel rather than behind the other jobs. A manual
   run from a branch ref fails fast instead of deriving a bogus version, and an
   empty changelog section can no longer publish a release with empty notes.
 
 No functional or numerical change to any descriptor or rule.
 
-## [2.0.2] — 2026-07-06
+## [2.0.2] - 2026-07-06
 
 ### Changed
 
@@ -979,8 +1023,8 @@ No functional or numerical change to any descriptor or rule.
   (`__version__` in `hea_bench/__init__.py`). Every other surface either
   derives from it (`pyproject.toml` via hatchling, the desktop bundle via
   `Cargo.toml`, the CLI/MCP/tests via import) or is stamped from it by the
-  new `tools/version.py`, whose `--check` mode runs in CI and fails the
-  build on any drift.
+  new `tools/version.py`. That tool's `--check` mode runs in CI and fails
+  the build on any drift.
 - Releases are now a single hands-off, tag-driven pipeline: a `vX.Y.Z` tag
   runs the tests, publishes to PyPI over OIDC trusted publishing (no token),
   publishes to the MCP registry, creates the GitHub Release that archives to
@@ -989,7 +1033,7 @@ No functional or numerical change to any descriptor or rule.
   to the latest release, and a `.zenodo.json` pins the complete author list
   for every archived version.
 
-## [2.0.1] — 2026-06-14
+## [2.0.1] - 2026-06-14
 
 ### Changed
 
@@ -1009,27 +1053,28 @@ No functional or numerical change to any descriptor or rule.
   `mcp-name` marker in the README for listing as
   `io.github.dfieser/hea-bench`.
 
-## [2.0.0] — 2026-06-12 — first full public release
+## [2.0.0] - 2026-06-12 - first full public release
 
 First full public release. Consolidates the alloy and oxide descriptors,
 the six empirical rules, the four delivery surfaces (Python library and
 command line, zero-install browser app, offline desktop app, and the
 `hea-bench-mcp` agent server), the dual-implementation parity lock, and
 the literature anchors into one citable version. No API breaks relative
-to 1.8.0; the major bump marks the v1-to-v2 line and the first archived
+to 1.8.0. The major bump marks the v1-to-v2 line and the first archived
 public release of the full feature set.
 
 ### Fixed
 
-- **MCP server emitted invalid JSON when King Phi diverges.** For a
-  composition with no competing binary intermetallic (every Miedema pair
-  enthalpy non-negative, e.g. the refractory HEA HfNbTaTiZr) the King Phi
-  proxy is `+inf`, and `alloy_rules` / `alloy_descriptors` serialized it
-  as the bare `Infinity` token, which strict MCP clients reject. The
-  magnitude is now reported as `null` with a warning, and the verdict
-  (which does not depend on the finite magnitude) is unchanged. The
-  Python `phi_king` API still returns `math.inf`; only the JSON boundary
-  is sanitized (`tests/test_mcp_server.py`).
+- **MCP server emitted invalid JSON when King Phi diverges.** The King
+  Phi proxy is `+inf` for a composition with no competing binary
+  intermetallic, where every Miedema pair enthalpy is non-negative (the
+  refractory HEA HfNbTaTiZr, for example). `alloy_rules` /
+  `alloy_descriptors` serialized it as the bare `Infinity` token, which
+  strict MCP clients reject. The magnitude is now reported as `null`
+  with a warning, and the verdict (which does not depend on the finite
+  magnitude) is unchanged. The Python `phi_king` API still returns
+  `math.inf`. Only the JSON boundary is sanitized
+  (`tests/test_mcp_server.py`).
 
 ### Added
 
@@ -1037,7 +1082,7 @@ public release of the full feature set.
   tests (`tests/test_yang_zhang_anchors.py`): the Miedema mixing
   enthalpies reproduce the published values to their printed precision.
 
-## [1.8.0] — 2026-06-11 — agent surface (MCP server)
+## [1.8.0] - 2026-06-11 - agent surface (MCP server)
 
 ### Added
 
@@ -1052,18 +1097,18 @@ public release of the full feature set.
   citation key of each parametrization, and the library version, so agent
   reasoning traces contain auditable receipts rather than bare floats.
   The tool bodies are plain functions tested in CI without the optional
-  dependency (`tests/test_mcp_server.py`, 15 tests); the calculator core
+  dependency (`tests/test_mcp_server.py`, 15 tests). The calculator core
   remains dependency-free.
 
-## [1.7.0] — 2026-06-11 — landing page, named pages, redesigned docs
+## [1.7.0] - 2026-06-11 - landing page, named pages, redesigned docs
 
 ### Added
 
-- **Project landing page.** `web/index.html` is now a real product page —
-  hero, the three surfaces, what the tool computes, the reproducibility
-  pillars, and a citation block — and is what GitHub Pages serves at the
-  site root. It launches the calculator and honors the calculator's saved
-  theme.
+- **Project landing page.** `web/index.html` is now a real product page,
+  and GitHub Pages serves it at the site root. It holds a hero, the three
+  surfaces, what the tool computes, the reproducibility pillars, and a
+  citation block. It launches the calculator and honors the calculator's
+  saved theme.
 - **View deep links.** `calculator.html#theory`, `#equations`, `#refs`
   (and any theory section id such as `#sec-perovskite`) open the matching
   view directly, so the landing page and external docs can link straight
@@ -1072,26 +1117,28 @@ public release of the full feature set.
 ### Changed
 
 - **The calculator has a name.** The app moved from `web/index.html` to
-  `web/calculator.html`; the desktop app loads it directly via the window
-  `url` in `tauri.conf.json`. Proper page titles and a vector favicon on
-  both pages, and the stale "saved from" artifact comment is gone.
+  `web/calculator.html`, and the desktop app loads it directly through the
+  window `url` in `tauri.conf.json`. Both pages gain proper page titles
+  and a vector favicon, and the stale "saved from" artifact comment is
+  gone.
 - **References view redesigned.** The flat footer-styled list is now a
-  grouped bibliography (foundations of the field, descriptors and rules,
-  the Miedema model, high-entropy oxides, methods and applications) in the
-  same documentation shell as the Theory view, with a sticky section nav,
-  scroll-spy, hanging-indent entries, and DOI links. The license,
+  grouped bibliography in the same documentation shell as the Theory
+  view. Its groups are foundations of the field, descriptors and rules,
+  the Miedema model, high-entropy oxides, and methods and applications.
+  The view has a sticky section nav, scroll-spy, hanging-indent entries,
+  and DOI links. The license,
   third-party, and privacy notices became an "About this software"
   section.
 - **Equation reference grouped.** The card grid is split into alloy
   descriptors, Miedema formation enthalpies, and oxide descriptors, each
-  with a numbered section header; the filter hides empty groups. The view
+  with a numbered section header. The filter hides empty groups. The view
   header matches the docs shell.
 - **Versions.** Library, browser page, desktop bundle, and CITATION.cff
   all move to 1.7.0 together. PyPI metadata updated (oxides in the
   description and keywords, status Production/Stable, homepage now the
   hosted landing page).
 
-## [1.6.1] — 2026-06-10 — usability and onboarding pass
+## [1.6.1] - 2026-06-10 - usability and onboarding pass
 
 ### Added
 
@@ -1101,7 +1148,7 @@ public release of the full feature set.
   Theory tab), plus a shortcut hint. The Oxides mode empty state gains its
   own one-click literature example.
 - **Manual theme toggle** in the title bar cycling auto → light → dark
-  (persisted; auto follows the OS preference as before).
+  (persisted, with auto following the OS preference as before).
 - **What's-new panel.** The version badge now opens a popover listing the
   release history.
 - **Click-to-copy result cards.** Clicking any numeric descriptor, rule,
@@ -1113,7 +1160,7 @@ public release of the full feature set.
 - **Oxide theory, equations, and references.** The Theory tab gains four
   sections covering the oxide module (sublattice configurational entropy,
   oxidation-state assignment and Shannon radii, the Goldschmidt/Bartel
-  perovskite factors, and the fluorite/pyrochlore criteria), the Equation
+  perovskite factors, and the fluorite/pyrochlore criteria). The Equation
   reference gains the corresponding eight closed-form cards, and the
   References tab gains the nine oxide primary sources.
 
@@ -1121,77 +1168,83 @@ public release of the full feature set.
 
 - **One version number across all surfaces.** The desktop bundle
   (`tauri.conf.json`, `src-tauri/Cargo.toml`) and `CITATION.cff` now carry
-  the library version instead of an independent 0.1.0, so the Python
+  the library version instead of an independent 0.1.0. The Python
   package, the browser page, the desktop executable, and the citation
   metadata all report the same release.
 - Examples refreshed: the Cantor walkthrough no longer dates itself by
   internal version numbers and now includes the electronegativity
-  descriptors; a new `02_oxides_walkthrough` notebook covers the oxide
+  descriptors. A new `02_oxides_walkthrough` notebook covers the oxide
   module on its literature anchors (J14, Jiang 2018 perovskites, the
   Spiridigliozzi fluorite samples with their published SDs, the pyrochlore
   window, and oxidation-state overrides).
 
-## [1.6.0] — 2026-06-10 — high-entropy-oxide support on every surface
+## [1.6.0] - 2026-06-10 - high-entropy-oxide support on every surface
 
 ### Added
 
 - **Oxides mode in the browser/desktop calculator.** A mode switch in the
   input rail toggles between Alloys and Oxides. The Oxides mode covers the
-  same four structure families as the Python module via a family selector,
-  free-text per-site cation inputs (formula syntax, any amount scale), an
-  oxygen-content field for fluorites, a high/low-spin toggle, and five
-  literature example presets (Rost J14, Jiang 2018, the two Spiridigliozzi
-  F-ESO samples, a rare-earth zirconate pyrochlore). Results show the
+  same four structure families as the Python module. Its inputs are a
+  family selector, free-text per-site cation inputs (formula syntax, any
+  amount scale), an oxygen-content field for fluorites, a high/low-spin
+  toggle, and five literature example presets (Rost J14, Jiang 2018, the
+  two Spiridigliozzi F-ESO samples, a rare-earth zirconate pyrochlore).
+  Results show the
   solved oxidation states and Shannon radii per site, the descriptor
   cards, the formability screens with their windows, and a copy-as-JSON
   button. The JS core port (`describeRockSalt`, `describePerovskite`,
   `describeFluorite`, `describePyrochlore` + the oxidation-state solver
   and Shannon lookup) is parity-tested against the Python implementation
   on 16 curated fixtures, including exact warning-string agreement
-  (`tests/test_web_oxides_parity.py`); the 94-element oxide table is
-  generated into the core by `tests/data/_sync_js_oxide_tables.py`.
+  (`tests/test_web_oxides_parity.py`). `tests/data/_sync_js_oxide_tables.py`
+  generates the 94-element oxide table into the core.
 - **Enter-to-calculate** in the alloy composition table, the King
   temperature field, and all oxide inputs.
 - **High-entropy-oxide descriptor module (`hea_bench.oxides`), Python surface.**
   First increment of the oxide expansion: closed-form HEO descriptors and
   empirical formability screens for four structure families via
   `describe_rock_salt`, `describe_perovskite`, `describe_fluorite`, and
-  `describe_pyrochlore` (spinel deferred). Computes per-sublattice
-  configurational entropy (formula / per-cation / per-site conventions),
-  Shannon-radius size disorder per sublattice, Goldschmidt `t`, octahedral
-  factor `mu`, Bartel `tau` (< 4.18 rule), the Spiridigliozzi fluorite
-  radius-dispersion criterion (sigma > 0.095 Å, eight-fold radii, sample SD —
-  reproduces the published SDs of the F-ESO samples exactly), the
-  Subramanian pyrochlore radius-ratio window, and cation electronegativity
-  statistics. A deterministic charge-neutrality solver assigns oxidation
+  `describe_pyrochlore` (spinel deferred). The module computes:
+  - per-sublattice configurational entropy (formula / per-cation /
+    per-site conventions)
+  - Shannon-radius size disorder per sublattice
+  - Goldschmidt `t`, octahedral factor `mu` and Bartel `tau` (< 4.18 rule)
+  - the Spiridigliozzi fluorite radius-dispersion criterion
+    (sigma > 0.095 Å, eight-fold radii, sample SD, which reproduces the
+    published SDs of the F-ESO samples exactly)
+  - the Subramanian pyrochlore radius-ratio window
+  - cation electronegativity statistics
+
+  A deterministic charge-neutrality solver assigns oxidation
   states (common states first, charge-uniform sublattices preferred,
-  explicit override supported); Shannon radii resolve by oxidation state,
+  explicit override supported). Shannon radii resolve by oxidation state,
   coordination number, and spin (high-spin default, low-spin toggle), with
-  documented nearest-CN fallback warnings. Data vendored from pymatgen's
-  digitization of Shannon 1976 (MIT, 94 elements, provenance + SHA pinned
+  documented nearest-CN fallback warnings. The radius data is vendored
+  from pymatgen's digitization of Shannon 1976 (MIT, 94 elements, provenance + SHA pinned
   in `src/hea_bench/oxides/data/README.md`). 19 new tests pin literature
   anchors (Rost J14, Jiang 2018 perovskites, Spiridigliozzi F-ESO,
   zirconate pyrochlore). The alloy surface and the browser/desktop apps are
-  untouched; the JS port and calculator Oxides mode are the next increment.
+  untouched. The JS port and calculator Oxides mode are the next increment.
 
-## [1.5.0] — 2026-06-10 — electronegativity descriptors; full-coverage Miedema panel
+## [1.5.0] - 2026-06-10 - electronegativity descriptors and full-coverage Miedema panel
 
 ### Added
 
 - **Electronegativity descriptors on every surface.** `delta_chi` (Pauling
-  electronegativity mismatch) and `mean_electronegativity`, present in the
-  Python library since v1.3 but never exported at the top level or ported to
-  the calculator, are now top-level Python exports, computed by the JS core
-  (`deltaChi`, `meanElectronegativity`), shown as result cards, included in
-  the saved-results table and CSV export, documented in the Equations view,
-  and covered by the Python↔JS parity test on all 676 fixtures. The synced
-  element table now carries the Pauling values; custom elements accept an
+  electronegativity mismatch) and `mean_electronegativity` have been in the
+  Python library since v1.3 but were never exported at the top level or
+  ported to the calculator. They are now top-level Python exports, computed
+  by the JS core (`deltaChi`, `meanElectronegativity`), shown as result
+  cards, and included in the saved-results table and CSV export. The
+  Equations view documents them, and the Python↔JS parity test covers them
+  on all 676 fixtures. The synced
+  element table now carries the Pauling values. Custom elements accept an
   optional electronegativity and degrade with a warning when it is absent.
 - **Miedema formation-enthalpy panel extended 24 → 37 elements.** The
   page-side `MIEDEMA_PARAMS` and `ELEMENT_EXTENDED` tables now cover every
-  element the calculator supports (adds Au, Be, Ca, Ce, Gd, In, La, Li, Mg,
-  Re, Sc, Sn, Zn), sourced from the vendored matminer Miedema parameter
-  table (the de Boer 1988 parametrization, BSD-3). The compound,
+  element the calculator supports, adding Au, Be, Ca, Ce, Gd, In, La, Li,
+  Mg, Re, Sc, Sn and Zn. The values come from the vendored matminer Miedema
+  parameter table (the de Boer 1988 parametrization, BSD-3). The compound,
   solid-solution, and amorphous decompositions now compute for all 666
   binary pairs instead of skipping alloys containing the 13 missing
   elements.
@@ -1202,23 +1255,24 @@ public release of the full feature set.
   R correction in the formation-enthalpy panel previously used factor 1.0
   for every element except Al and Si. It now uses the per-element factors
   from the vendored parameter table (Cu/Ag/Au 0.3, Sc/Y/La/Ce/Gd 0.7,
-  Zn 1.4, In 1.9, Sn 2.1, Be/Mg/Ca 0.4, Li 0.0), which slightly changes
-  the panel's decomposition values for alloys pairing Cu, Ag, or Y with Al
-  or Si. The parity-tested descriptors and rules are unaffected.
+  Zn 1.4, In 1.9, Sn 2.1, Be/Mg/Ca 0.4, Li 0.0). The change slightly
+  shifts the panel's decomposition values for alloys pairing Cu, Ag, or Y
+  with Al or Si. The parity-tested descriptors and rules are unaffected.
 
-## [1.4.0] — 2026-06-10 — 37-element coverage on every surface
+## [1.4.0] - 2026-06-10 - 37-element coverage on every surface
 
 ### Added
 
-- **Calculator coverage 30 → 37 elements everywhere.** The JS core's element
-  and pair tables are now generated from the Python library by
-  `tests/data/_sync_js_tables.py` (Be, Ca, Ce, Gd, In, La, Sc join the
-  browser/desktop surfaces; the pair table grows 435 → 666 entries). The
-  parity fixture regenerated to 676 cases (666 exhaustive binaries + 10
-  curated multis); the Python↔JS parity test passes.
+- **Calculator coverage 30 → 37 elements everywhere.**
+  `tests/data/_sync_js_tables.py` now generates the JS core's element and
+  pair tables from the Python library. Be, Ca, Ce, Gd, In, La and Sc join
+  the browser/desktop surfaces, and the pair table grows 435 → 666 entries.
+  The parity fixture regenerated to 676 cases (666 exhaustive binaries +
+  10 curated multis), and the Python↔JS parity test passes.
 - **Ω near-zero-enthalpy warning** in the calculator page: when
   |ΔH_mix| < 2 kJ/mol the result panel warns that Ω diverges and its
-  magnitude is pair-table-sensitive (the Ω > 1.1 verdict remains robust).
+  magnitude is pair-table-sensitive. The Ω > 1.1 verdict holds across
+  pair tables.
 
 ### Fixed
 
@@ -1231,44 +1285,46 @@ public release of the full feature set.
   decomposition parameters degrade gracefully (warning + panel skip), as
   before.
 
-## [Unreleased] — V2: descriptor-calculator repackaging
+## [Unreleased] - V2: descriptor-calculator repackaging
 
 Refocused the project from a phase-prediction *benchmark* to an open,
 interpretable **descriptor calculator** (the research-software direction). The
-calculation core is unchanged; the Python↔JS parity test still passes.
+calculation core is unchanged, and the Python↔JS parity test still passes.
 
 ### Added
 
 - **Native desktop app** (`src-tauri/`): a Tauri wrapper that bundles the
   browser calculator into a single offline executable.
-- **Redesigned calculator UI** (`web/index.html`): a desktop app shell —
-  title bar with Calculator / Theory / Equations / References tabs, a
-  two-pane workspace (input rail + results), a draggable rail divider, a
-  results empty state, a documentation-style Theory view with a sticky
-  section nav, and a filterable equation reference.
+- **Redesigned calculator UI** (`web/index.html`): a desktop app shell.
+  A title bar holds Calculator / Theory / Equations / References tabs
+  over a two-pane workspace (input rail + results) with a draggable rail
+  divider and a results empty state. The Theory view is
+  documentation-style with a sticky section nav, and the equation
+  reference is filterable.
 
 ### Changed
 
 - Corrected the stale "Implementation note" in the theory section that
   claimed a non-existent factor-of-4 bug in ΔH_mix. The multi-component
-  sum applies the factor of 4 exactly once over equiatomic pair values;
-  replaced with an accurate provenance + Ω-singularity note (Ω is
-  parametrization-sensitive as ΔH_mix → 0; sources disagree most on Mn).
+  sum applies the factor of 4 exactly once over equiatomic pair values.
+  An accurate provenance + Ω-singularity note replaces it: Ω is
+  parametrization-sensitive as ΔH_mix → 0, and sources disagree most on
+  Mn.
 - Package description, README, AGENTS.md, llms.txt, and CITATION refocused
   on the descriptor-calculator tool and its three surfaces.
 
 ### Removed
 
 - **Phase-prediction benchmark subsystem moved out of the public repo**
-  (recoverable; archived for later reintegration): the `benchmark/`,
+  (recoverable, and archived for later reintegration): the `benchmark/`,
   `classifiers/`, and `evaluation/` packages, `evaluate.py`, the
   consolidated/raw datasets under `data/`, the benchmark loader/evaluation
   tests, the benchmark example notebook, and `docs/v1.1-phi-spec.md`. The
   descriptor + rule library and the parity-tested calculator are unchanged.
 - Dropped the now-unused `[data]` (pandas) and `[plot]` (matplotlib)
-  optional-dependency extras; the calculator core remains dependency-free.
+  optional-dependency extras. The calculator core remains dependency-free.
 
-## [1.3.0] — browser parity at 30 elements (prior benchmark line)
+## [1.3.0] - browser parity at 30 elements (prior benchmark line)
 
 `v1.3-baseline` branch, stacked on `v1.2-coverage`. Targets tag `v1.3.0`.
 
@@ -1281,11 +1337,11 @@ calculation core is unchanged; the Python↔JS parity test still passes.
   Miedema parameter set, the volume-mismatch coefficient table, and
   the vendored binary pair-enthalpy table (159 new pairs). The parity
   fixture expanded from 286 to 445 cases (every C(30, 2) binary plus
-  the 10 curated multi-element compositions); the byte-for-byte
+  the 10 curated multi-element compositions), and the byte-for-byte
   Python/JS parity test continues to pass at `rtol=5e-4`.
 - **Pauling electronegativity** added to `ElementProperties`
   (`electronegativity` field) for all 37 covered elements, sourced from
-  the WebElements consistent set (Pauling 1960; reproduced in the CRC
+  the WebElements consistent set (Pauling 1960, as reproduced in the CRC
   Handbook, Haynes 2016). New `hea_bench.descriptors.electronegativity`
   module exports `delta_chi` (electronegativity mismatch, the
   composition-weighted standard deviation) and `mean_electronegativity`,
@@ -1312,7 +1368,7 @@ calculation core is unchanged; the Python↔JS parity test still passes.
   `web/index.html`. The extended Miedema formation-enthalpy panel
   (compound / solid-solution / amorphous decompositions) is unchanged.
 
-## [1.2.0] — elemental coverage 24 → 30 (complete; release on hold)
+## [1.2.0] - elemental coverage 24 → 30 (complete, release on hold)
 
 `v1.2-coverage` branch, stacked on `v1.1-phi`.
 
@@ -1322,12 +1378,12 @@ calculation core is unchanged; the Python↔JS parity test still passes.
   Re, Au, Li to `ELEMENTAL_DATA` with cross-verified Goldschmidt
   12-coordinate metallic radii, CRC melting points, and s+d /
   group-number valences. Scorable coverage of the consolidated
-  benchmark rose from 86.7% (6,750 alloys) to 90.2% (7,021 alloys);
-  the binary scored set grew 6,651 → 6,922. The consolidated CSV is
-  unchanged — only `coverage_report.json`, `rule_baselines.json`, and
+  benchmark rose from 86.7% (6,750 alloys) to 90.2% (7,021 alloys),
+  and the binary scored set grew 6,651 → 6,922. The consolidated CSV is
+  unchanged. Only `coverage_report.json`, `rule_baselines.json`, and
   `rule_baselines_v1.1.json` were regenerated.
 - **Boron and carbon deliberately excluded.** Boron is a metalloid
-  with no metallic radius; carbon has no 1-atm melting point (it
+  with no metallic radius. Carbon has no 1-atm melting point (it
   sublimes) and no metallic radius. Adding either would mix radius
   conventions in the δ calculation and, for carbon, require inventing
   a rule-of-mixtures melting temperature. Even adding both would only
@@ -1349,7 +1405,7 @@ calculation core is unchanged; the Python↔JS parity test still passes.
   `test_v12_added_element_values_pinned`). Test count 234 → 236, ruff
   clean.
 
-## [1.1.0] — phi family (unreleased)
+## [1.1.0] - phi family (unreleased)
 
 `v1.1-phi` branch, the phi-family + held-out increment that v1.2.0
 builds on.
@@ -1363,7 +1419,7 @@ builds on.
   capital Φ), and `phi_ye` (Ye 2015 lowercase φ).
 - **Phi-family rules**: `rules.king_phi` (Φ > 1.0 → solid_solution)
   and `rules.ye_phi` (φ > 20.0 → solid_solution). Both return native
-  `solid_solution` / `intermetallic` strings; the evaluator collapses
+  `solid_solution` / `intermetallic` strings. The evaluator collapses
   `intermetallic` to `multi-phase` when scoring against the main
   benchmark's coarse four-class taxonomy.
 - **Held-out cross-validation protocol** in `hea_bench.evaluation`:
@@ -1406,11 +1462,11 @@ builds on.
 
 ### Fixed
 
-- Stale "future descriptor" framing in the supplementary information.
-  Section S10 (King Φ) is now a shipped-descriptor specification
-  rather than a planned-feature placeholder.
+- The supplementary information no longer frames King Φ as a future
+  descriptor. Section S10 (King Φ) is now a shipped-descriptor
+  specification rather than a planned-feature placeholder.
 
-## [0.1.0] — 2026-05-22
+## [0.1.0] - 2026-05-22
 
 Initial release.
 [Zenodo](https://doi.org/10.5281/zenodo.20346288).

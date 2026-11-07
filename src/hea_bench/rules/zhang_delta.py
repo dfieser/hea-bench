@@ -3,7 +3,7 @@
 Binary classifier: predicts "single-phase" (BCC or FCC or HCP solid
 solution) when the atomic-size mismatch is below the threshold,
 "multi-phase" otherwise. The 6.5% threshold is the canonical value
-from Zhang 2008; the function exposes ``threshold`` so downstream
+from Zhang 2008. The function exposes ``threshold`` so downstream
 ROC analysis can sweep it.
 
 Reference

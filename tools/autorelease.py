@@ -2,12 +2,12 @@
 """Prepare a release commit in one shot: version, stamps, changelog, history.
 
 This is the file-editing half of the automatic release pipeline
-(``.github/workflows/auto-release.yml``); it is equally usable by hand.
+(``.github/workflows/auto-release.yml``), and it is equally usable by hand.
 It decides the next version, stamps every surface through
 ``tools/version.py``, promotes the ``## [Unreleased]`` section of
 CHANGELOG.md (or synthesizes notes from the commit subjects since the
 last tag), prepends the web ``VERSION_HISTORY`` entry, and re-verifies
-the whole tree. It does NOT run git commit/tag/push; the workflow (or
+the whole tree. It does NOT run git commit/tag/push. The workflow (or
 you) does that::
 
     python tools/autorelease.py --prepare              # auto patch bump
@@ -17,7 +17,7 @@ you) does that::
 Version choice: if ``__version__`` in ``src/hea_bench/__init__.py`` is
 already ahead of the latest ``v*`` tag (someone ran
 ``tools/version.py --set X.Y.0`` for a minor/major bump), that version
-is released as-is; otherwise the patch number is incremented. If HEAD
+is released as-is. Otherwise the patch number is incremented. If HEAD
 *is* the latest tag's commit there is nothing to release and the script
 exits cleanly.
 
@@ -85,6 +85,46 @@ def commit_subjects(last: str | None) -> list[str]:
     return [s for s in keep if s]
 
 
+_CODE_SPAN = re.compile(r"(`+).+?\1")
+
+
+def _plain_prose(text: str) -> str:
+    text = re.sub(r"\s*—\s*|\s+--\s+|\s+–\s+", ", ", text)
+    return re.sub(r"\s*;\s*(\w?)", lambda m: ". " + m.group(1).upper(), text)
+
+
+def plain(text: str) -> str:
+    """``text`` with no semicolon and no em dash outside code.
+
+    Owner rule (2026-11-07): no semicolons and no em dashes in any version
+    log, meaning the CHANGELOG, the GitHub release notes built from it and
+    the web What's-new history. The commit-msg hook and the preflight refuse
+    them at the source. This is the backstop for text that got past both,
+    so a release never fails over punctuation.
+    """
+    lines, fenced = [], False
+    for line in text.split("\n"):
+        fence = line.lstrip().startswith(("```", "~~~"))
+        if fence:
+            fenced = not fenced
+        if fence or fenced:
+            lines.append(line)
+            continue
+        out, last = [], 0
+        for m in _CODE_SPAN.finditer(line):
+            out.append(_plain_prose(line[last:m.start()]))
+            out.append(m.group(0))
+            last = m.end()
+        out.append(_plain_prose(line[last:]))
+        lines.append("".join(out).rstrip())
+    return "\n".join(lines)
+
+
+def as_sentences(subjects: list[str]) -> str:
+    """Commit subjects as plain sentences on one line, for the web history."""
+    return " ".join(s if s.endswith((".", "!", "?")) else s + "." for s in subjects)
+
+
 def promote_changelog(target: str, today: str, bullets: list[str]) -> None:
     """Turn ## [Unreleased] into the new release section (keeping a fresh one).
 
@@ -98,11 +138,11 @@ def promote_changelog(target: str, today: str, bullets: list[str]) -> None:
     if not m:
         raise SystemExit("CHANGELOG.md: cannot find the '## [Unreleased]' "
                          "section followed by a previous release section")
-    body = m.group(1).strip("\n")
+    body = plain(m.group(1).strip("\n"))
     if not body.strip():
-        lines = "\n".join(f"- {s}" for s in bullets) or "- Maintenance release."
+        lines = "\n".join(f"- {plain(s)}" for s in bullets) or "- Maintenance release."
         body = f"### Changed\n\n{lines}"
-    section = f"## [Unreleased]\n\n## [{target}] — {today}\n\n{body}\n\n"
+    section = f"## [Unreleased]\n\n## [{target}] - {today}\n\n{body}\n\n"
     p.write_text(text[:m.start()] + section + text[m.end():], encoding="utf-8")
 
 
@@ -136,7 +176,7 @@ def prepare(explicit_version: str | None, explicit_notes: str | None,
         if last and _parse(explicit_version) <= _parse(last.lstrip("v")):
             raise SystemExit(f"--version {explicit_version} is not after {last}")
     subjects = commit_subjects(last)
-    notes = explicit_notes or "; ".join(subjects) or "Maintenance release"
+    notes = plain(explicit_notes or as_sentences(subjects) or "Maintenance release.")
     print(f"canonical {canon}, latest tag {last or '(none)'} -> release {target}")
     print(f"notes: {notes}")
     if dry_run:

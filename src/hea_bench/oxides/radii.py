@@ -11,7 +11,7 @@ this module resolves the lookup with two documented fallbacks:
   descriptor literature, where e.g. twelve-fold radii are missing for
   many transition metals.
 - 3d transition metals with crystal-field-split entries default to the
-  high-spin radius (appropriate at ceramic synthesis temperatures);
+  high-spin radius, which suits ceramic synthesis temperatures.
   ``spin="low"`` selects the low-spin value where tabulated.
 
 References
@@ -44,12 +44,12 @@ def shannon_radius(
     element
         Element symbol, e.g. ``"Ce"``.
     charge
-        Formal oxidation state (signed integer; ``-2`` for the oxide anion).
+        Formal oxidation state as a signed integer (``-2`` for the oxide anion).
     coordination
         Target coordination number (6, 8, 12, ...). Falls back to the
         nearest tabulated coordination with a warning.
     spin
-        ``"high"`` (default) or ``"low"``; only meaningful for ions with
+        ``"high"`` (default) or ``"low"``. It matters only for ions with
         spin-split Shannon entries.
 
     Returns
@@ -92,7 +92,7 @@ def shannon_radius(
     else:
         used_cn = min(available, key=lambda n: (abs(n - coordination), -n))
         warnings.append(
-            f"{element}{charge:+d}: no Shannon radius at CN={coordination}; "
+            f"{element}{charge:+d}: no Shannon radius at CN={coordination}, "
             f"using the nearest tabulated CN={used_cn}"
         )
     spins = available[used_cn]
@@ -106,7 +106,7 @@ def shannon_radius(
         fallback_key = sorted(spins)[0]
         radius = spins[fallback_key]
         warnings.append(
-            f"{element}{charge:+d} CN={used_cn}: no {wanted.lower()} entry; "
+            f"{element}{charge:+d} CN={used_cn}: no {wanted.lower()} entry, "
             f"using the {fallback_key.lower() or 'unspecified-spin'} radius"
         )
     return float(radius), warnings

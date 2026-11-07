@@ -2,7 +2,7 @@
 
 Binary classifier: predicts "single-phase" solid solution when the
 Ω parameter exceeds 1.1, "multi-phase" otherwise. The threshold is
-the value Yang & Zhang 2012 used in their original delineation; the
+the value Yang & Zhang 2012 used in their original delineation. The
 function exposes ``threshold`` so downstream ROC analysis can sweep it.
 
 Reference

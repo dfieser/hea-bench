@@ -8,7 +8,7 @@ Four baselines, each scored under both frozen splits:
     The canonical empirical screens already in this package, used as
     published, with no fitting. Having no fitted parameters, they have
     no training rows to sit close to, so their grouped and random
-    columns should agree; see the note in ``hea_bench.benchmark.evaluate``.
+    columns should agree. See the note in ``hea_bench.benchmark.evaluate``.
 ``random-forest`` and ``gradient-boosting``
     Fitted on this package's own descriptors, so the comparison is
     against the same physics the rules use rather than against a
@@ -19,7 +19,7 @@ Run from the repository root:
     PYTHONPATH=src python tools/benchmark_baselines.py
 
 Needs scikit-learn, which the library core deliberately does not depend
-on; install the pinned version with ``pip install -e .[benchmark]``.
+on. Install the pinned version with ``pip install -e .[benchmark]``.
 Writes docs/benchmark-baselines.md and prints each report.
 """
 
@@ -136,10 +136,10 @@ def main() -> int:
         "a corpus dense with stoichiometric series, and largely measures",
         "interpolation within known alloy systems. The grouped column keeps every",
         "alloy family whole across the fold boundary and measures extrapolation to",
-        "unseen element systems. Neither is correct on its own; the gap between",
-        "them, which this benchmark exists to measure, quantifies how much of a",
-        "random-split score comes from testing on close relatives of training",
-        "alloys. For the interpolation-versus-extrapolation reading of grouped",
+        "unseen element systems. Neither is correct on its own. The gap between",
+        "them is what this benchmark exists to measure, and it quantifies how",
+        "much of a random-split score comes from testing on close relatives of",
+        "training alloys. For the interpolation-versus-extrapolation reading of grouped",
         "evaluation see Li et al., Commun. Mater. 6:9 (2025),",
         "doi:10.1038/s43246-024-00731-w.",
         "",
@@ -188,21 +188,20 @@ def main() -> int:
         "## Reading the rule rows",
         "",
         "The rule baselines carry no fitted parameters, so they have no training",
-        "rows to be close to and their gap is near zero. That is a property of",
-        "the protocol, not evidence",
-        "that the rules generalize well. Compare rules against the fitted models",
-        "on the grouped column only.",
+        "rows to be close to and their gap is near zero. The near-zero gap is a",
+        "property of the protocol, not evidence that the rules generalize well.",
+        "Compare rules against the fitted models on the grouped column only.",
         "",
         "## What the fitted models are, and are not",
         "",
         "The random forest (300 trees) and gradient boosting rows use",
         "scikit-learn defaults apart from the fixed seed, fitted on this",
-        "package's own fourteen descriptors. They are deliberately not",
-        "reimplementations of any published HEA model, and no hyperparameter",
-        "tuning was done, so they measure what a stock ensemble extracts from",
-        "these descriptors rather than any specific paper's ceiling. A tuned or",
-        "differently featurized model belongs in a new row, fitted only inside",
-        "training folds, not in a revision of these.",
+        "package's own fourteen descriptors. They deliberately reimplement no",
+        "published HEA model, and no hyperparameters were tuned. They measure",
+        "what a stock ensemble extracts from these descriptors, not any specific",
+        "paper's ceiling. A tuned or differently featurized model belongs in a",
+        "new row, fitted only inside training folds, not in a revision of these",
+        "rows.",
         "",
     ]
 

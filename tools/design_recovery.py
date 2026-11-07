@@ -180,15 +180,15 @@ def main() -> int:
         "Protocol: run the search over a heavily studied palette with the "
         "hardness-versus-density objectives, then place the alloys "
         "experimentalists measured (Borg hardness records inside the palette) "
-        "relative to the returned front. Two readings matter and they are "
-        "different: whether the hardest measured alloys are recovered near "
-        "the front (retrospective sanity), and whether the surrogate ranks "
-        "the measured alloys in the measured order (Spearman rho below; the "
-        "model card's error analysis applies). Front members with no "
-        "measured neighbor are suggestions the study never tested, not "
-        "validated predictions, and a measured alloy far from the front is "
-        "not refuted, it may simply be dominated on these two objectives or "
-        "sit off the lattice.",
+        "relative to the returned front. Two different readings matter. The "
+        "first is whether the hardest measured alloys are recovered near the "
+        "front, a retrospective sanity check. The second is whether the "
+        "surrogate ranks the measured alloys in the measured order, given as "
+        "Spearman rho below and read with the model card's error analysis. "
+        "Front members with no measured neighbor are suggestions the study "
+        "never tested, not validated predictions. A measured alloy far from "
+        "the front is not refuted either. It may simply be dominated on these "
+        "two objectives or sit off the lattice.",
         "",
     ]
     for name, palette in PALETTES.items():
@@ -200,9 +200,9 @@ def main() -> int:
         "With the released model, recovery is a necessary check rather than "
         "a test, because the model trained on these alloys. The held-out "
         "column is the test. There the model has seen no four- or "
-        "five-element alloy of the palette, the situation of a palette no "
-        "one has explored, and the front and the rank correlation say how "
-        "far the search would have pointed toward the alloys later measured. "
+        "five-element alloy of the palette, as with a palette no one has "
+        "explored. The front and the rank correlation then say how far the "
+        "search would have pointed toward the alloys later measured. "
         "The search is a screening aid whose value is receipts and "
         "constraint handling, not oracle ranking.",
     ]

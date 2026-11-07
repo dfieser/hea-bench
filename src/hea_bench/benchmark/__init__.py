@@ -10,7 +10,7 @@ on ``Al0.3CoCrFeNi`` has very often been trained on ``Al0.25CoCrFeNi``.
 That largely measures interpolation within known alloy systems. A
 family-grouped split keeps every stoichiometric variant of a system on
 one side of the boundary, so it measures extrapolation to unseen
-element systems. Neither protocol is correct on its own; they answer
+element systems. Neither protocol is correct on its own. They answer
 different questions, and most published evaluations in this area use
 random splits, so grouped results are rarely reported. This subpackage
 ships one corpus, both splits frozen over it, and one call that reports
@@ -23,11 +23,12 @@ them side by side:
 The gap between the two columns quantifies how much of a random-split
 score comes from testing on close relatives of training alloys. That
 interpolation-versus-extrapolation reading of grouped evaluation is
-established prior art, not this package's discovery: see Li et al.,
-Commun. Mater. 6:9 (2025), doi:10.1038/s43246-024-00731-w; Meredig et
-al., Mol. Syst. Des. Eng. 3, 819 (2018), doi:10.1039/C8ME00012C
-(LOCO-CV); Zhao, del Cueto and Troisi, Digital Discovery 1, 266 (2022),
-doi:10.1039/D1DD00050K; and Witman and Schindler, Digital Discovery
+established prior art, not this package's discovery. The prior work
+includes Li et al., Commun. Mater. 6:9 (2025),
+doi:10.1038/s43246-024-00731-w, and Meredig et al., Mol. Syst. Des.
+Eng. 3, 819 (2018), doi:10.1039/C8ME00012C (LOCO-CV). It also includes
+Zhao, del Cueto and Troisi, Digital Discovery 1, 266 (2022),
+doi:10.1039/D1DD00050K, and Witman and Schindler, Digital Discovery
 (2025), doi:10.1039/D4DD00250D (MatFold). What this package adds is the
 frozen, digest-pinned, paired protocol for this corpus.
 

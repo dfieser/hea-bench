@@ -22,8 +22,8 @@ over a curated element-property table, validated against the primary
 literature. The fitted predictions (hardness, phase prediction sets) carry
 calibrated uncertainty and flag alloys unlike their training data.
 
-**Try it now:** <https://dfieser.github.io/hea-bench/>. No install, it runs
-entirely in your browser, and every library feature works there: the
+**Try it now:** <https://dfieser.github.io/hea-bench/>. It needs no
+install, runs entirely in your browser, and has every library feature: the
 calculator for alloys, oxides and ceramics with property and phase
 predictions, the experimental dataset, alloy search and experiment
 planning, and the benchmark.
@@ -71,9 +71,10 @@ Element coverage: 55 elements for alloys (Ag Al Au Be Bi Ca Ce Co Cr
 Cu Dy Er Fe Ga Gd Ge Hf Ho In Ir La Li Lu Mg Mn Mo Nb Nd Ni Os Pb Pd
 Pr Pt Re Rh Ru Sb Sc Si Sm Sn Sr Ta Tb Th Ti Tm U V W Y Yb Zn Zr,
 covering the full experimentally active rare-earth HEA palette plus the
-nuclear, solder, and HE-BMG corners); the Miedema pair table covers
-75 (1484 of our 1485 pairs; the lone Th-U gap is reported, never
-zeroed); the oxide module's Shannon table covers 94.
+nuclear, solder, and HE-BMG corners). The Miedema pair table covers 75
+elements and 1484 of our 1485 pairs. The one missing pair, Th-U, is
+reported, never zeroed. The oxide module's Shannon table covers 94
+elements.
 
 ## How a number gets made
 
@@ -100,26 +101,30 @@ flowchart LR
 | **MCP server for AI agents** | `pip install "hea-bench[mcp]"`, then `hea-bench-mcp` | Claude, Cursor and other MCP clients, as 24 tools |
 
 Every feature is in all four parts, so pick whichever suits you and you
-lose nothing. That is a standing project rule, and CI enforces it:
-`tests/test_feature_parity.py` fails whenever a public feature lacks
-its library function, its MCP tool or a working app surface, a headless
-browser uses every tab of the built site, the built desktop exe goes
-through the same steps before it is attached to a release, and a
-freshly installed wheel answers every MCP tool. `pip install
-hea-bench` alone has no dependencies and covers everything except the
-fitted models and the MCP server; the `[all]` extra adds scikit-learn
-and the MCP SDK for those.
+lose nothing. This parity is a standing project rule, and CI enforces
+it four ways:
+
+- `tests/test_feature_parity.py` fails whenever a public feature lacks
+  its library function, its MCP tool or a working app surface.
+- A headless browser uses every tab of the built site.
+- The built desktop exe goes through the same steps before it is
+  attached to a release.
+- A freshly installed wheel answers every MCP tool.
+
+`pip install hea-bench` alone has no dependencies and covers everything
+except the fitted models and the MCP server. The `[all]` extra adds
+scikit-learn and the MCP SDK for those.
 
 All four share **one calculation core**. The browser/desktop
 core (`web/hea-calculator-core.js`) is a pure-JS port of the Python
-library, and `tests/test_web_parity.py` guarantees the two match on all
-1484 binary pairs and the canonical multi-element fixtures, while
+library. `tests/test_web_parity.py` guarantees the two match on all
+1484 binary pairs and the canonical multi-element fixtures, and
 `tests/test_web_oxides_parity.py` does the same for the oxide module,
 down to identical warning messages. The app's Dataset, Design and
 Benchmark tabs and its predictions panel run the Python package itself,
-unchanged, inside the page (Pyodide, `web/hea-engine-worker.js`), and
-`tests/test_web_engine.py` checks that it returns exactly what CPython
-returns.
+unchanged, inside the page (Pyodide, `web/hea-engine-worker.js`).
+`tests/test_web_engine.py` checks that the in-page package returns
+exactly what CPython returns.
 
 ## Quick start (Python)
 
@@ -158,12 +163,13 @@ rather than predictions, so treat their output accordingly.
 
 ### Descriptor backends (optional interop)
 
-Descriptors can also be computed through a pluggable backend. The
-default (`native`) is this package's own stdlib implementation; with
-`pip install "hea-bench[interop]"` the same interface drives an
+A pluggable backend can also compute the descriptors. The default
+(`native`) is this package's own stdlib implementation. With
+`pip install "hea-bench[interop]"`, the same interface drives an
 installed [HEACalculator](https://github.com/dogusariturk/HEACalculator)
-(GPLv3, installed at the user's choice), so a workflow standardized on
-its numbers can keep them while using everything downstream here:
+(GPLv3, installed at the user's choice). A workflow standardized on
+HEACalculator's numbers can then keep them while using everything
+downstream here:
 
 ```python
 from hea_bench.descriptors.backend import get_backend
@@ -175,12 +181,12 @@ hea-bench describe Al0.3CoCrFeNi --backend native
 ```
 
 The two backends vendor different reference data (radius conventions
-differ most), so same-named values legitimately differ; the measured,
-per-descriptor comparison lives in
-[docs/backend-agreement.md](docs/backend-agreement.md). Quantities
-whose implementations differ structurally are deliberately not mapped
-onto each other, and the benchmark's published baselines use the
-native backend unchanged.
+differ most), so same-named values legitimately differ.
+[docs/backend-agreement.md](docs/backend-agreement.md) gives the
+measured comparison for each descriptor. Quantities whose
+implementations differ structurally are deliberately not mapped onto
+each other. The benchmark's published baselines use the native backend
+unchanged.
 
 ## Quick start (oxides)
 
@@ -220,19 +226,19 @@ hec["entropy"]                     # all normalization conventions, labelled
 ```
 
 Reports carry the metal-sublattice entropy in every published
-normalization convention (papers switch between them without warning),
-VEC with annotated reference points rather than a verdict (the
-literature marks points, not one window), and explicit notes on what
-is deferred: the size-mismatch descriptor (the field computes it from
-DFT binary-cell bond lengths, and adopting a cited table is real
-curation work), and entropy-forming-ability or DEED, which are
-DFT-ensemble quantities this package cannot and does not claim to
+normalization convention, because papers switch between them without
+warning. They give VEC with annotated reference points rather than a
+verdict, since the literature marks points, not one window. They also
+state what is deferred. The size-mismatch descriptor waits because the
+field computes it from DFT binary-cell bond lengths, and adopting a
+cited table is real curation work. Entropy-forming-ability and DEED are
+DFT-ensemble quantities that this package cannot and does not claim to
 reproduce. Background, citations, and a license audit of candidate
 ceramics datasets: [docs/ceramics.md](docs/ceramics.md).
 
 ## Quick start (AI agents, MCP)
 
-LLM agents hallucinate descriptor values; this server grounds them.
+LLM agents hallucinate descriptor values. This server grounds them.
 `hea_bench.mcp_server` exposes every feature of the package over the
 [Model Context Protocol](https://modelcontextprotocol.io/) as 24
 deterministic tools. The calculator: `parse_composition`, batch
@@ -248,12 +254,12 @@ the domain flag, and `check_applicability`. Design:
 and `campaign_suggest`, on a campaign file or an inline campaign. The
 benchmark: `benchmark_summary`, `benchmark_run`, `benchmark_folds`,
 `benchmark_score` and `coverage_study`. And `about`. Every response
-carries units or uncertainty fields, citation keys
-where a parametrization is involved, and the library version, so an
-agent's reasoning trace contains auditable receipts rather than bare
-floats; `about()` reports which capabilities are available in the
-running environment, and missing optional extras come back as a clear
-message naming the exact install.
+carries units or uncertainty fields, citation keys where a
+parametrization is involved, and the library version. An agent's
+reasoning trace then contains auditable receipts rather than bare
+floats. The `about()` tool reports which capabilities are available in
+the running environment, and a missing optional extra comes back as a
+clear message naming the exact install.
 
 ```bash
 pip install "hea-bench[mcp]"
@@ -325,9 +331,9 @@ print(evaluate(my_model, load_benchmark(task="phase4")).table())
 
 A stock random forest over this package's own descriptors scores 0.941
 balanced accuracy under the random split and 0.734 under the grouped
-one. Neither number is wrong; they answer different questions (new
-stoichiometries of known systems versus unseen element systems), and
-the gap between them quantifies how much of the random-split score
+one. Neither number is wrong. They answer different questions (new
+stoichiometries of known systems versus unseen element systems). The
+gap between them quantifies how much of the random-split score
 comes from testing on close relatives of training alloys. For this
 interpolation-versus-extrapolation reading of grouped evaluation, see
 Li et al., *Commun. Mater.* **6**:9 (2025),
@@ -394,7 +400,7 @@ count, is measured in
 [docs/uncertainty-coverage.md](docs/uncertainty-coverage.md). The
 released phase sets calibrate by cross-validation over whole alloy
 systems, separately for alloys with fewer than four and with four or
-more elements, and their 90 percent sets cover 0.900 of unseen-system
+more elements. Their 90 percent sets cover 0.900 of unseen-system
 alloys on the single-phase task and 0.884 on the phase-structure task.
 Read the flag together with the set size rather than either alone.
 These tools describe this package's confidence about your composition
@@ -420,12 +426,12 @@ closed-form arithmetic over cited tables, validated where experiment
 exists ([docs/property-tier-a.md](docs/property-tier-a.md)).
 Tier B (`hardness`, behind `pip install "hea-bench[properties]"`) is a
 seeded random forest over this package's descriptors wrapped in a
-family-grouped conformal interval and a domain flag; its held-out
-error, interval calibration, and the decisions that error does and
-does not support are stated in
-[docs/property-hardness.md](docs/property-hardness.md). Intervals are
-wide because the public data is small and heterogeneous; that is the
-honest outcome, shown rather than hidden. Properties whose public data
+family-grouped conformal interval and a domain flag.
+[docs/property-hardness.md](docs/property-hardness.md) states its
+held-out error, its interval calibration, and the decisions that error
+does and does not support. Intervals are wide because the public data
+is small and heterogeneous. The wide interval is the honest outcome,
+shown rather than hidden. Properties whose public data
 cannot support a defensible held-out error (yield strength across
 uncontrolled test temperatures, ductility, corrosion) are deliberately
 not shipped, and the model card says why.
@@ -450,20 +456,20 @@ result = search(
 result.candidates[0].properties["hardness"].interval   # every number has one
 ```
 
-The domain constraint is on by default (optimizers exploit model error
-hardest where data runs out; opting out is explicit), and
+The domain constraint is on by default, because optimizers exploit
+model error hardest where data runs out. Opting out is explicit.
 `optimize_bound="lower"` ranks fitted objectives by the conservative
 end of their intervals. The search is exhaustive within a hard budget
 and refuses loudly rather than sampling silently, so a result is
-reproducible by construction. Where measured alloys land relative to a
-recovered front is studied honestly in
-[docs/design-recovery.md](docs/design-recovery.md); the front is a
+reproducible by construction.
+[docs/design-recovery.md](docs/design-recovery.md) studies where
+measured alloys land relative to a recovered front. The front is a
 prioritization aid, not a set of answers.
 
 ## Active-learning campaigns (bring your own measurements)
 
-`hea_bench.design.campaign.Campaign` runs the loop that creates repeat
-usage: observe your own measurements, get a ranked next batch, keep
+`hea_bench.design.campaign.Campaign` runs the active-learning loop:
+observe your own measurements, get a ranked next batch, and keep
 everything in a plain JSON file on your disk (no accounts, no server,
 no telemetry):
 
@@ -479,14 +485,13 @@ campaign.save("my-campaign.json")
 The surrogate is a seeded random forest. Each suggestion carries a 90
 percent conformal interval set from the forest's out-of-bag errors, so
 calibration costs none of your measurements. Acquisition is expected
-improvement or UCB with
-batched picks via the believer heuristic, and hardness campaigns warm
-start from the Borg records inside your palette so the loop is useful
-before your tenth sample. Below 10 informative rows it refuses rather
-than pretending. Two replays on the Borg hardness record, the loop
-against random selection with the intervals' coverage, and a
-year-ordered replay on Al-Co-Cr-Fe-Ni, are in
-[docs/campaign-replay.md](docs/campaign-replay.md).
+improvement or UCB, with batched picks via the believer heuristic.
+Hardness campaigns warm start from the Borg records inside your
+palette, so the loop is useful before your tenth sample. Below 10
+informative rows it refuses rather than pretending.
+[docs/campaign-replay.md](docs/campaign-replay.md) has two replays on
+the Borg hardness record: the loop against random selection, with the
+intervals' coverage, and a year-ordered replay on Al-Co-Cr-Fe-Ni.
 
 ## A note on Ω near ΔH<sub>mix</sub> ≈ 0
 
@@ -632,5 +637,5 @@ thermodynamic methods (e.g. CALPHAD or DFT).
 Software is provided **"as is"** under the [MIT License](LICENSE).
 Vendored Miedema elemental parameters from
 [matminer](https://github.com/hackingmaterials/matminer) remain under
-their upstream BSD-3-Clause license; see
+their upstream BSD-3-Clause license. See
 [`src/hea_bench/descriptors/data/LICENSE.matminer.txt`](./src/hea_bench/descriptors/data/LICENSE.matminer.txt).

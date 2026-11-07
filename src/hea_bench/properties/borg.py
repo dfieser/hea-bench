@@ -3,7 +3,7 @@
 Source: ``data/raw/borg2020/MPEA_dataset.csv`` (CC-BY-4.0, figshare
 10.6084/m9.figshare.12642953 v9, mirrored verbatim). The phase loader
 in ``hea_bench.benchmark.loaders.borg2020`` reads the same file for
-labels; this module reads the mechanical-property columns the property
+labels, and this module reads the mechanical-property columns the property
 tier trains on.
 
 Loader rules, stated because they define the training population:

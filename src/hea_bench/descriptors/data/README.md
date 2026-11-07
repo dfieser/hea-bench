@@ -1,21 +1,21 @@
-# descriptors/data — vendored physical-property tables
+# descriptors/data: vendored physical-property tables
 
 This folder holds two kinds of reference data that the descriptor
 modules consume:
 
 | File | Origin | License | Loader |
 |---|---|---|---|
-| `elemental.py` | Curated by hand; radii follow the Goldschmidt CN12 convention with Teatum, Gschneidner & Waber LA-4003 (1968) as the declared authority for the v2.1 additions (earlier notes cited "Teatum & Waber 1967"; LA-4003 1968 is the precise citation), CRC melting points, Guo-convention valence counts | hea-bench's own (MIT) | importable Python dict |
+| `elemental.py` | Curated by hand: radii following the Goldschmidt CN12 convention, with Teatum, Gschneidner & Waber LA-4003 (1968) as the declared authority for the v2.1 additions (earlier notes cited "Teatum & Waber 1967", but LA-4003 1968 is the precise citation), CRC melting points, and Guo-convention valence counts | hea-bench's own (MIT) | importable Python dict |
 | `pair_enthalpies.tsv` | Vendored from [matminer](https://github.com/hackingmaterials/matminer)'s `MiedemaLiquidDeltaHf.tsv` | BSD-3-Clause | `pair_enthalpies.py` |
-| `miedema_parameters.csv` | Vendored from matminer's `Miedema.csv` (per-element Miedema parameters: φ\*, n_ws, V_m, valence, bulk modulus, shear modulus, T_m, structural stability) | BSD-3-Clause | source of the calculator page's Miedema decomposition tables (`MIEDEMA_PARAMS`, `ELEMENT_EXTENDED` in `web/index.html`); no Python loader yet |
-| `LICENSE.matminer.txt` | matminer's full BSD-3-Clause license | — | — |
+| `miedema_parameters.csv` | Vendored from matminer's `Miedema.csv` (per-element Miedema parameters: φ\*, n_ws, V_m, valence, bulk modulus, shear modulus, T_m, structural stability) | BSD-3-Clause | source of the calculator page's Miedema decomposition tables (`MIEDEMA_PARAMS`, `ELEMENT_EXTENDED` in `web/index.html`). No Python loader yet |
+| `LICENSE.matminer.txt` | matminer's full BSD-3-Clause license | n/a | n/a |
 
 ## What's in `pair_enthalpies.tsv`
 
 2,628 binary mixing-enthalpy pairs from the Miedema macroscopic-atom
 model, covering 75 chemical elements. Format: tab-separated
-`elem_A`, `elem_B`, `delta_Hf` (kJ/mol). Self-pairs are not stored —
-the loader returns `0.0` by convention.
+`elem_A`, `elem_B`, `delta_Hf` (kJ/mol). Self-pairs are not stored,
+and the loader returns `0.0` for them by convention.
 
 ### Provenance
 
@@ -27,13 +27,13 @@ originally tabulated in:
 > Cohesion and Structure, Vol. 1. North-Holland, Amsterdam.
 > ISBN 978-0-444-87098-8.
 
-This is the same primary source that Takeuchi & Inoue 2005
-(*Mater. Trans.* **46**, 2817-2829) tabulated in their Tables 1, 2, 3.
+Takeuchi & Inoue 2005 (*Mater. Trans.* **46**, 2817-2829) tabulated
+the same primary source in their Tables 1, 2, 3.
 
 ### Cross-verification against Takeuchi-Inoue 2005
 
-Pairs from Takeuchi-Inoue 2005 Table 1 that I read directly from the
-PDF during acquisition (2026-05-20) and confirmed match matminer's
+Pairs from Takeuchi-Inoue 2005 Table 1, read directly from the PDF
+during acquisition (2026-05-20) and confirmed to match matminer's
 vendored values:
 
 | Pair | matminer | Takeuchi-Inoue 2005 Table 1 | Match |
@@ -43,26 +43,27 @@ vendored values:
 | Cu-Ni |  +4 kJ/mol |  +4 kJ/mol | ✓ |
 | Ti-Ni | -35 kJ/mol | -35 kJ/mol | ✓ |
 
-Other pair values used in our test suite (Cr-Fe, Co-Fe, Co-Cr,
-Mn-Ni, etc.) were *computationally* spot-checked — the per-pair
-values are what matminer ships, and our tests assert exactly those
-values. We did **not** independently re-verify every test pair
-against the PDF, only the four above. Both matminer and Takeuchi-
-Inoue derive from the same primary source (de Boer *et al.* 1988),
-so wholesale agreement is the expected outcome; the four
-hand-confirmed cases are the evidence for that expectation.
+Other pair values used in the test suite (Cr-Fe, Co-Fe, Co-Cr,
+Mn-Ni, etc.) were *computationally* spot-checked. The per-pair
+values are what matminer ships, and the tests assert exactly those
+values. Only the four pairs above were re-verified against the PDF.
+The other test pairs were **not** independently re-verified. Both
+matminer and Takeuchi-Inoue derive from the same primary source
+(de Boer *et al.* 1988), so wholesale agreement is the expected
+outcome. The four hand-confirmed cases are the evidence for that
+expectation.
 
-If reviewers ask for fuller verification, the matminer maintainers
-maintain the source-of-truth file at
+For fuller verification, the matminer maintainers keep the
+source-of-truth file at
 [`hackingmaterials/matminer/.../MiedemaLiquidDeltaHf.tsv`](https://github.com/hackingmaterials/matminer/blob/main/src/matminer/utils/data_files/MiedemaLiquidDeltaHf.tsv)
 and document its provenance in their package.
 
-### Coverage vs. our 55-element ELEMENTAL_DATA
+### Coverage of the 55-element ELEMENTAL_DATA
 
 1484 of the 1485 unique pairs needed for the 55 elements in
 [`elemental.py`](elemental.py) are present in `pair_enthalpies.tsv`.
-The single gap is Th-U (the only actinide-actinide pair we would
-need); `pair_enthalpy("Th", "U")` raises rather than returning a
+The single gap is Th-U, the only actinide-actinide pair the table
+would need. `pair_enthalpy("Th", "U")` raises rather than returning a
 silent zero, and `tests/test_pair_enthalpies.py` pins the gap exactly
 so any other vendored-data drift still fails the suite.
 
@@ -95,8 +96,9 @@ after any re-vendoring.
 matminer is BSD-3-Clause. The license text is preserved at
 [LICENSE.matminer.txt](LICENSE.matminer.txt) in this folder.
 Per condition (1) of the BSD-3 license, the matminer copyright notice
-must be retained alongside any redistribution; this folder's `LICENSE.matminer.txt`
-satisfies that. Per condition (3), we do not claim endorsement by the
+must be retained alongside any redistribution, and this folder's
+`LICENSE.matminer.txt` satisfies that condition. Per condition (3),
+hea-bench does not claim endorsement by the
 University of California / Lawrence Berkeley National Laboratory /
 the U.S. Department of Energy.
 

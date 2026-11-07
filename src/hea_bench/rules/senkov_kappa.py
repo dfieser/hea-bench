@@ -12,15 +12,15 @@ parameterization
     k₁ = ΔH_IM / ΔH_ss   and   k₁^cr(T) = 1 + (1 − k₂) · T·ΔS_ss / |ΔH_ss|
 
 with SS favored when k₁ < k₁^cr. (The (1 − k₂) factor multiplies the
-temperature term; deriving the inequality from the Gibbs comparison
+temperature term. Deriving the inequality from the Gibbs comparison
 fixes the typography ambiguity in some restatements.) This module
 always decides the verdict from the direct Gibbs comparison, which
-stays well-defined when ΔH_ss ≥ 0 or ΔH_IM ≥ 0; k₁ and k₁^cr are
-reported only when ΔH_ss < 0 so the ratio form is meaningful.
+stays well-defined when ΔH_ss ≥ 0 or ΔH_IM ≥ 0. The ratios k₁ and
+k₁^cr are reported only when ΔH_ss < 0, so the ratio form is meaningful.
 
 ΔH_IM is approximated by the most negative binary pair enthalpy over
 the alloy's constituents (``descriptors.phi.delta_g_max``), the same
-documented approximation the King Φ implementation uses; see that
+documented approximation the King Φ implementation uses. See that
 function's docstring for the scale caveat. That pair counts in full
 however little of its elements the alloy holds, so when one of them is
 under 10 at.% the prediction carries a ``note`` saying so.
@@ -75,7 +75,7 @@ def predict(
     composition: Composition,
     temperature: float | None = None,
 ) -> KappaPrediction:
-    """Evaluate the κ criterion; ``temperature`` defaults to the
+    """Evaluate the κ criterion. ``temperature`` defaults to the
     rule-of-mixtures melting temperature (K)."""
     t = melting_temperature(composition) if temperature is None else float(temperature)
     if t <= 0:

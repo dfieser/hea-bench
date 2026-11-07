@@ -5,14 +5,14 @@ for the user's own measured quantity), a palette, constraints, and the
 user's observations. :meth:`suggest` fits an ensemble surrogate on
 warm-start data plus the observations and ranks unexplored lattice
 compositions by an acquisition function. State is plain human-readable
-JSON on the user's disk; there are no accounts, no server, and no
+JSON on the user's disk. There are no accounts, no server and no
 telemetry, and the loop runs on the user's data, which is the point.
 
 Design choices, stated rather than implied:
 
 - **Surrogate**: random forest, ranking by per-tree disagreement. A
   Gaussian process over variable-length composition vectors was
-  considered and rejected as fragile; the ensemble is less elegant and
+  considered and rejected as fragile. The ensemble is less elegant and
   much harder to break.
 - **Intervals**: each suggestion's interval is conformal at 90 percent,
   the prediction plus or minus the 90th percentile of the forest's
@@ -23,7 +23,7 @@ Design choices, stated rather than implied:
 - **Warm start**: when the objective is ``"hardness"`` (the shipped
   tier B property) and ``warm_start=True``, the Borg room-temperature
   records whose chemistry fits the palette are pooled with the user's
-  observations, equally weighted; the user's data dominates
+  observations, equally weighted. The user's data dominates
   progressively simply by accumulating. Any other objective starts
   cold.
 - **Cold-start floor**: below 10 informative rows the loop is close to
@@ -31,7 +31,7 @@ Design choices, stated rather than implied:
   pretending.
 - **Batches**: several suggestions per round via the believer loop
   (refit after appending each pick's own predicted value), the standard
-  cheap batch heuristic; documented, not hidden.
+  cheap batch heuristic, documented rather than hidden.
 """
 
 from __future__ import annotations
@@ -199,7 +199,7 @@ class Campaign:
         """A campaign from a campaign file's contents (schema 1)."""
         if payload.get("schema") != 1:
             raise ValueError(
-                f"unsupported campaign schema {payload.get('schema')!r}; this "
+                f"unsupported campaign schema {payload.get('schema')!r}. This "
                 f"version reads schema 1"
             )
         campaign = cls(
@@ -268,8 +268,8 @@ class Campaign:
             domain = default_domain()
             if domain is None:
                 raise RuntimeError(
-                    "the campaign's domain constraint needs a built corpus; "
-                    "opt out with DomainConstraint(in_domain=None) or build it"
+                    "the campaign's domain constraint needs a built corpus. "
+                    "Opt out with DomainConstraint(in_domain=None) or build it"
                 )
 
         observed = {
@@ -331,7 +331,7 @@ class Campaign:
             Unknown strategy, or an empty candidate pool.
         """
         if strategy not in ("ei", "ucb"):
-            raise ValueError(f"unknown strategy {strategy!r}; expected 'ei' or 'ucb'")
+            raise ValueError(f"unknown strategy {strategy!r}: expected 'ei' or 'ucb'")
 
         # The floor is checked before the optional dependency on purpose:
         # a user below it should hear about the data problem regardless of
@@ -340,7 +340,7 @@ class Campaign:
         if len(X) < COLD_START_FLOOR:
             raise ColdStartError(
                 f"{len(X)} informative rows is below the floor of "
-                f"{COLD_START_FLOOR}; below that the surrogate is close to "
+                f"{COLD_START_FLOOR}. Below that the surrogate is close to "
                 f"random and the loop refuses to pretend otherwise. Add "
                 f"observations (or use a palette covered by the warm start)."
             )

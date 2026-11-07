@@ -6,16 +6,16 @@ summed over element pairs:
 
 - the formation enthalpy of the ordered intermetallic compound
   (de Boer et al. 1988, Eqs. 3-6, with the composition-independent
-  size factor of Zhang et al. 2016);
+  size factor of Zhang et al. 2016)
 - the solid-solution enthalpy as the sum of a chemical term (Eq. 8a),
   an Eshelby-Friedel elastic-mismatch term (Eqs. 9-11) and a structural
-  term from the lattice stabilities of Niessen & Miedema (1983);
+  term from the lattice stabilities of Niessen & Miedema (1983)
 - the amorphous enthalpy as the chemical term plus the topological term
   of Loeff, Weeber & Miedema (1988), ``beta * sum(c_i Tm_i)`` with beta
   = 3.5 J/(mol K).
 
 Per-element parameters are the vendored matminer Miedema table
-(``data/miedema_parameters.csv``); the two qualitative fields it lacks,
+(``data/miedema_parameters.csv``). The two qualitative fields it lacks,
 the Miedema class and the equilibrium structure, are curated in
 :data:`MIEDEMA_CLASSES`, which also fixes which 37 elements have a row.
 The browser core's copy of this table is generated from these same
@@ -44,7 +44,7 @@ _CSV_PATH = Path(__file__).resolve().parent / "data" / "miedema_parameters.csv"
 #: and whether the hybridization R term applies) and the equilibrium
 #: crystal structure (CRC Handbook, the reference lattice-stability
 #: energy of the structural term). The keys define which elements have a
-#: decomposition row; everything quantitative comes from the CSV.
+#: decomposition row. Everything quantitative comes from the CSV.
 MIEDEMA_CLASSES = {
     "Ag": ("TM", "fcc"),
     "Al": ("NTM", "fcc"),
@@ -245,7 +245,7 @@ def miedema_decomposition(composition: Composition) -> dict:
     composition
         Mapping of element symbol to amount (normalized here). Pairs
         outside the 37-element Miedema table make the three totals
-        unavailable (None) with a warning naming the pairs; the core
+        unavailable (None) with a warning naming the pairs. The core
         descriptors are unaffected.
 
     Returns
@@ -283,7 +283,7 @@ def miedema_decomposition(composition: Composition) -> dict:
             f"Missing Miedema data for {missing[0]} compound enthalpy."
             if len(missing) == 1 else
             f"Miedema decomposition unavailable: {len(missing)} element pairs lack Miedema "
-            f"parameters ({', '.join(missing)}). Core descriptors are unaffected; see the Data "
+            f"parameters ({', '.join(missing)}). Core descriptors are unaffected. See the Data "
             f"view coverage matrix."
         )
         return {"compound": None, "solid_solution": None, "amorphous": None, "warnings": warnings}

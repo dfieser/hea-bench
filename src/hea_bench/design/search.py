@@ -1,17 +1,18 @@
 """Deterministic constrained composition search over a simplex lattice.
 
-Answers "what should I make" as a screening aid: enumerate element
-subsets of a palette, walk a fixed-step composition lattice inside
-each, filter by constraints, and return the Pareto front of the
-objectives with a full receipt on every candidate (descriptors, all
+Answers "what should I make" as a screening aid. The search enumerates
+element subsets of a palette, walks a fixed-step composition lattice
+inside each, filters by constraints, and returns the Pareto front of the
+objectives. Every candidate carries a full receipt: descriptors, all
 nine rule verdicts, property predictions with intervals, novelty,
-domain flag and the predicted phase). Exhaustive enumeration was chosen over a stochastic
-optimizer deliberately: it is reproducible by construction, debuggable
-row by row, and honest about its budget, refusing loudly when the
-lattice exceeds ``max_evaluations`` instead of sampling silently.
+domain flag and the predicted phase. Exhaustive enumeration was chosen
+over a stochastic optimizer deliberately. It is reproducible by
+construction, debuggable row by row, and honest about its budget,
+refusing loudly when the lattice exceeds ``max_evaluations`` instead of
+sampling silently.
 
 The front is only as good as the property models under it, which for
-tier B carry wide honest intervals; treat results as prioritization
+tier B carry wide honest intervals. Treat results as prioritization
 for synthesis, not answers. Because optimizers exploit model error
 where data runs out, the domain constraint is ON by default and
 ``optimize_bound="lower"`` ranks tier B objectives by the conservative
@@ -50,7 +51,7 @@ _RECEIPT_PROPERTY_KEYS = (
 
 
 def _rule_verdict(rule: str, comp: Composition):
-    """One canonical rule's verdict for one composition; None if not computable."""
+    """One canonical rule's verdict for one composition, or None if not computable."""
     try:
         return VERDICT_FUNCTIONS[rule](comp)
     except Exception:
@@ -148,7 +149,7 @@ def _validate_step(step: float) -> int:
     units = round(1.0 / step)
     if abs(units * step - 1.0) > 1e-9 or units < 2:
         raise ValueError(
-            f"step must divide 1 exactly (got {step!r}); try 0.05, 0.1, 0.2, 0.25"
+            f"step must divide 1 exactly (got {step!r}). Try 0.05, 0.1, 0.2 or 0.25"
         )
     return units
 
@@ -225,7 +226,7 @@ def search(
         Tuple of constraint objects from
         :mod:`hea_bench.design.constraints`. A
         ``DomainConstraint(in_domain=True)`` is added automatically
-        unless a DomainConstraint is already present; pass
+        unless a DomainConstraint is already present. Pass
         ``DomainConstraint(in_domain=None)`` to opt out explicitly.
     objectives
         ``Maximize``/``Minimize`` over property names. With no
@@ -236,10 +237,10 @@ def search(
         ``n_front`` so truncation is visible, never silent.
     seed
         Recorded in the result for provenance. The lattice enumeration
-        is deterministic and consumes no randomness; the parameter
+        is deterministic and consumes no randomness. The parameter
         exists so future stochastic refinement stays reproducible.
     step
-        Lattice resolution in mole fraction; 1/step must be an integer.
+        Lattice resolution in mole fraction, where 1/step must be an integer.
     max_evaluations
         Hard budget on lattice points. Exceeding it raises with
         guidance (larger step, smaller palette) rather than sampling
@@ -300,7 +301,7 @@ def search(
         name = objective_specs[-1][0]
         if name not in known_properties:
             raise ValueError(
-                f"unknown objective property {name!r}; available: {sorted(known_properties)}"
+                f"unknown objective property {name!r}. Available: {sorted(known_properties)}"
             )
     if optimize_bound not in ("point", "lower"):
         raise ValueError(f"optimize_bound must be 'point' or 'lower', got {optimize_bound!r}")
@@ -315,7 +316,7 @@ def search(
     for constraint in rule_constraints:
         if canonical_rule_name(constraint.rule) not in VERDICT_FUNCTIONS:
             raise ValueError(
-                f"unknown rule {constraint.rule!r}; available: {sorted(VERDICT_FUNCTIONS)}"
+                f"unknown rule {constraint.rule!r}. Available: {sorted(VERDICT_FUNCTIONS)}"
             )
     property_constraints = [c for c in constraints if isinstance(c, PropertyConstraint)]
     for constraint in property_constraints:
@@ -335,7 +336,7 @@ def search(
         raise ValueError(
             f"the lattice has {total} points, over the max_evaluations budget "
             f"of {max_evaluations}. Increase step, narrow n_elements, shrink "
-            f"the palette, or raise the budget deliberately; the search never "
+            f"the palette, or raise the budget deliberately. The search never "
             f"samples silently."
         )
 

@@ -8,7 +8,7 @@ script is the single command that closes that gap::
 
     python tools/preflight.py             # full preflight, run before any push
     python tools/preflight.py --metadata  # publish-metadata checks only (stdlib,
-                                          # seconds; CI and the release bot run this)
+                                          # seconds, CI and the release bot run this)
 
 Full mode runs, in order: the publish-metadata checks, the version
 consistency check, ruff over src and tests (the exact release-gate lint),
@@ -327,6 +327,51 @@ def _git(*args: str) -> subprocess.CompletedProcess:
     return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
 
 
+#: Marks no version log may carry (owner rule, 2026-11-07): a semicolon, an
+#: em dash, or a spaced double hyphen or en dash standing in for one.
+VERSION_LOG_MARKS = re.compile(r";|—| -- | – ")
+
+
+def _marked(line: str) -> bool:
+    """True when ``line`` carries a forbidden mark outside backtick code."""
+    return bool(VERSION_LOG_MARKS.search(re.sub(r"`[^`]*`", "", line)))
+
+
+def check_version_logs() -> list[str]:
+    """No semicolon or em dash in what becomes the release notes.
+
+    Commit subjects become the CHANGELOG bullets, the GitHub release notes
+    and the app's What's-new history, and hand-written notes under
+    ``## [Unreleased]`` are used as they stand. This checks the messages of
+    the commits being pushed and those notes.
+    """
+    problems = []
+    log = _git("log", "--format=%h%x00%B%x01", "origin/main..HEAD")
+    if log.returncode:
+        log = _git("log", "-1", "--format=%h%x00%B%x01")
+    for entry in log.stdout.split("\x01"):
+        sha, _, body = entry.strip().partition("\x00")
+        bad = [line for line in body.splitlines() if not line.startswith("#") and _marked(line)]
+        if sha and bad:
+            problems.append(
+                f"commit {sha} has a semicolon or an em dash in its message: {bad[0].strip()!r}. "
+                "Rewrite it as two sentences or with a comma (git commit --amend for the last "
+                "commit, git reset --soft origin/main then commit again for older ones), then push."
+            )
+    text = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    unreleased = re.search(r"^## \[Unreleased\]\s*?\n(.*?)(?=^## \[)", text, re.M | re.S)
+    fenced = False
+    for line in (unreleased.group(1) if unreleased else "").splitlines():
+        if line.lstrip().startswith("```"):
+            fenced = not fenced
+        elif not fenced and _marked(line):
+            problems.append(
+                f"CHANGELOG.md [Unreleased] has a semicolon or an em dash: {line.strip()!r}. "
+                "Rewrite it as two sentences or with a comma."
+            )
+    return problems
+
+
 def without_version_stamps(rel: str, text: str) -> str:
     """``text`` with every version that tools/version.py stamps into ``rel`` blanked."""
 
@@ -413,6 +458,7 @@ def main(argv: list[str]) -> int:
     ]
     if not args.metadata:
         static_checks.append((check_desktop_smoke, "desktop exe inputs smoke-tested on GitHub's runners"))
+        static_checks.append((check_version_logs, "version logs carry no semicolon or em dash"))
     for check, label in static_checks:
         problems = check()
         failures.extend(problems)

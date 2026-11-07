@@ -23,8 +23,8 @@ class AlloyRecord:
         Identifier of the upstream source (e.g., ``"borg2020"``,
         ``"pei2020"``, ``"peivaste"``).
     source_row_id
-        Stable identifier from the upstream row — index, Reference ID,
-        whatever the source uses to point back to its own records.
+        Stable identifier from the upstream row: the index, the Reference
+        ID, or whatever the source uses to point back to its own records.
     formula_raw
         The composition string as it appeared in the upstream CSV,
         verbatim. Useful for traceability.

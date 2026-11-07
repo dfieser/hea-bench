@@ -16,38 +16,38 @@ scored on chemistries it has never seen.
 of one system land on both sides, so the model can interpolate along a
 composition line it has already been fitted to. This is the protocol
 most published HEA phase-prediction numbers use, so it is the half of
-the pair that is comparable to the literature, and it answers a real
+the pair that is comparable to the literature. It also answers a real
 question: performance on new stoichiometries of known systems.
 
-Neither scheme is "correct" on its own. Reported together they say what
+Neither scheme is correct on its own. Reported together they say what
 a model does on new stoichiometries of a known system (random, the
 interpolative question) versus on an unseen element system (grouped,
 the extrapolative question), and the gap between them is the quantity
 this benchmark exists to measure. Grouped evaluation of materials
-models is established prior art (Meredig et al. 2018 LOCO-CV; Li et
-al., Commun. Mater. 2025); what this module adds is a frozen,
-digest-pinned instance for this corpus.
+models is established prior art, for example the LOCO-CV of Meredig et
+al. (2018) and Li et al., Commun. Mater. (2025). What this module adds
+is a frozen, digest-pinned instance for this corpus.
 
 Determinism
 -----------
 The grouped scheme uses no random number generator at all. Families are
-ordered by descending row count with ties broken alphabetically, then
-each is placed in whichever fold is currently least loaded, measured as
+ordered by descending row count, with ties broken alphabetically. Each
+is then placed in whichever fold is currently least loaded, measured as
 the sum over classes of the squared class count normalized by that
 class's corpus total. Ties break to the lowest fold index.
 
 The load comparison is done in exact integer arithmetic, not floats, so
 the assignment cannot depend on any float's last bit. Determinism of
-the whole chain was earned the expensive way: the first release attempt
-was blocked by the CI freeze gate because Python 3.12 computes builtin
-``sum`` with compensated (Neumaier) summation while 3.10 does not, and
-that last-bit difference in composition normalization totals moved a
-few mole fractions across a decimal rounding boundary, changed a
-handful of composition keys, and cascaded into different folds. The
-corpus build now uses exactly rounded ``math.fsum`` (see
-:func:`hea_bench.composition.normalize`), this module keeps every
-comparison in integers, and the CI ``benchmark-freeze`` job rebuilds
-the corpus and checks the digests on Linux to hold the guarantee
+the whole chain was earned the expensive way. The CI freeze gate
+blocked the first release attempt because Python 3.12 computes builtin
+``sum`` with compensated (Neumaier) summation while 3.10 does not. That
+last-bit difference in composition normalization totals moved a few
+mole fractions across a decimal rounding boundary, changed a handful of
+composition keys, and cascaded into different folds. The corpus build
+now uses exactly rounded ``math.fsum`` (see
+:func:`hea_bench.composition.normalize`), and this module keeps every
+comparison in integers. The CI ``benchmark-freeze`` job rebuilds the
+corpus and checks the digests on Linux to hold the guarantee
 mechanically.
 
 The random scheme is seeded and stratified by class, so it too is
@@ -55,7 +55,7 @@ reproducible, and it is fair to the grouped scheme in class balance.
 
 Both schemes carry a SHA-256 digest of their own fold assignment.
 :func:`freeze_digest` computes it and :mod:`hea_bench.benchmark.frozen` pins it, which
-is what makes a split "frozen" in a way a reader can check rather than
+is what makes a split frozen in a way a reader can check rather than
 trust.
 
 Why families cannot be balanced perfectly
@@ -80,7 +80,7 @@ lower bound.
 
 The obvious stricter rule, closing families under the subset relation so
 an alloy system and all its extensions travel together, was measured
-rather than guessed at: on corpus v0.1.0 it collapses 956 of the 1,259
+rather than guessed at. On corpus v0.1.0 it collapses 956 of the 1,259
 families into one connected component holding 7,260 of the 7,683
 labelled rows, 94.5 percent (:func:`subset_closure_components`, with the
 numbers pinned in the test suite). A five-fold split cannot be built
@@ -129,8 +129,8 @@ class SplitScheme:
     k
         Number of folds.
     seed
-        Seed used by the random scheme; ``None`` for the grouped scheme,
-        which uses no randomness.
+        Seed used by the random scheme, or ``None`` for the grouped
+        scheme, which uses no randomness.
     folds
         One :class:`Fold` per fold, in fold-index order.
     fold_of
@@ -232,8 +232,8 @@ def grouped_split(
         rows_by_family[family].append(row_index)
     if len(rows_by_family) < k:
         raise ValueError(
-            f"{len(rows_by_family)} families cannot fill {k} folds; "
-            f"use a smaller k or a finer grouping"
+            f"{len(rows_by_family)} families cannot fill {k} folds. "
+            f"Use a smaller k or a finer grouping"
         )
 
     corpus_totals = Counter(labels)
@@ -295,13 +295,14 @@ def random_split(
 ) -> SplitScheme:
     """Build the class-stratified random split, ignoring alloy families.
 
-    This is the leaky counterpart to :func:`grouped_split`. It exists to
-    be compared against, not to be reported alone.
+    This is the interpolative counterpart to :func:`grouped_split`. It
+    exists to be compared against, not to be reported alone.
 
     Rows are shuffled within their class and dealt round-robin into
-    folds, which keeps each class's per-fold counts within one of each
-    other and makes the comparison against the grouped scheme a
-    comparison of grouping alone rather than of class balance.
+    folds. The round-robin deal keeps each class's per-fold counts
+    within one of each other, which makes the comparison against the
+    grouped scheme a comparison of grouping alone rather than of class
+    balance.
     """
     if not labels:
         raise ValueError("cannot split an empty benchmark")

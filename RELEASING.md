@@ -13,7 +13,7 @@ either derives from it automatically or is stamped from it:
 
 | Surface | How it gets the version |
 | --- | --- |
-| `pyproject.toml` (PyPI) | Derived. `dynamic = ["version"]`; hatchling reads `__version__`. |
+| `pyproject.toml` (PyPI) | Derived. `dynamic = ["version"]`, so hatchling reads `__version__`. |
 | `src-tauri/tauri.conf.json` (desktop) | Derived. No `version` key, so Tauri inherits `src-tauri/Cargo.toml`. |
 | CLI, MCP server, tests | Derived. They `from . import __version__`. |
 | `src-tauri/Cargo.toml` | Stamped. |
@@ -33,27 +33,27 @@ python tools/version.py --set 2.1.0  # bump the canonical value + restamp + date
 CI runs `--check` on every push and pull request, so the files can never
 silently drift apart.
 
-The two append-only histories — the `## [x.y.z]` section in
+[`tools/autorelease.py`](tools/autorelease.py) writes the two append-only
+histories at release time: the `## [x.y.z]` section in
 [`CHANGELOG.md`](CHANGELOG.md) and the top row of the `VERSION_HISTORY` array
-in [`web/index.html`](web/index.html) — are written at release time by
-[`tools/autorelease.py`](tools/autorelease.py).
+in [`web/index.html`](web/index.html).
 
 ## Releases are automatic: push = release
 
-Any push to `main` that changes a shippable surface — `src/**`, `web/**`,
-`src-tauri/**`, `server.json`, or `pyproject.toml` — triggers
+Any push to `main` that changes a shippable surface (`src/**`, `web/**`,
+`src-tauri/**`, `server.json`, or `pyproject.toml`) triggers
 [`.github/workflows/auto-release.yml`](.github/workflows/auto-release.yml),
 which with no further input:
 
-1. runs `tools/autorelease.py --prepare`: bumps the patch version (or honors
+1. Runs `tools/autorelease.py --prepare`: bumps the patch version (or honors
    a pre-bumped tree, see below), stamps every surface, promotes the
    `## [Unreleased]` changelog section (or synthesizes notes from the pushed
-   commit subjects), and prepends the web `VERSION_HISTORY` entry;
-2. commits `Release vX.Y.Z`, pushes it, and pushes an annotated `vX.Y.Z` tag;
-3. dispatches `release.yml` on that tag (the full pipeline below) and
+   commit subjects), and prepends the web `VERSION_HISTORY` entry.
+2. Commits `Release vX.Y.Z`, pushes it, and pushes an annotated `vX.Y.Z` tag.
+3. Dispatches `release.yml` on that tag (the full pipeline below) and
    `pages.yml` on `main` (site redeploy), explicitly, because pushes made
-   with the workflow token never trigger other workflows on their own;
-4. then **verifies**: the run goes red if PyPI, the MCP registry or the
+   with the workflow token never trigger other workflows on their own.
+4. Then **verifies**: the run goes red if PyPI, the MCP registry or the
    GitHub Release fail, or if the live site, and its in-app engine
    (`engine/manifest.json`), are not serving the new version within 15
    minutes. It does not wait for the desktop exe (see below).
@@ -73,7 +73,7 @@ Controls, all optional:
   include that in your push. The bot detects the pre-bumped tree and releases
   exactly that version instead of a patch bump.
 - **Better release notes**: write them under `## [Unreleased]` in
-  `CHANGELOG.md` before pushing; the bot promotes them verbatim. Otherwise
+  `CHANGELOG.md` before pushing. The bot promotes them verbatim. Otherwise
   the commit subjects since the last tag become the notes.
 - **Docs, CI, tests, tools, manuscript**: pushes touching only those paths
   never release.
@@ -84,21 +84,21 @@ Whether cut by the bot or by hand, a `vX.Y.Z` tag drives
 [`.github/workflows/release.yml`](.github/workflows/release.yml), which runs
 with no further input:
 
-1. **gate** — the full pytest 3.10–3.14 matrix, the JS parity test, the
+1. **gate**: the full pytest 3.10–3.14 matrix, the JS parity test, the
    version-consistency check, the `package` job (the built wheel installed
    fresh, every MCP tool called over stdio, `tests/test_installed_package.py`)
    and the `web-engine` job (the in-app engine bundle assembled and checked
    against CPython, the four-part feature registry, and every tab of the
    built site used in headless Chrome) on the tagged commit.
-2. **pypi** — build the sdist and wheel and publish to PyPI over OIDC Trusted
+2. **pypi**: build the sdist and wheel and publish to PyPI over OIDC Trusted
    Publishing (no token).
-3. **mcp** — wait until PyPI serves the new version, then publish `server.json`
+3. **mcp**: wait until PyPI serves the new version, then publish `server.json`
    to the Model Context Protocol registry via GitHub OIDC.
-4. **release** — create the GitHub Release with the changelog section as its
+4. **release**: create the GitHub Release with the changelog section as its
    notes and the sdist/wheel attached. Publishing the Release fires the
    GitHub↔Zenodo integration, which archives the tag and mints the new version
    DOI under the concept DOI.
-5. **desktop** — assemble the in-app engine (`tools/build_web_engine.py`,
+5. **desktop**: assemble the in-app engine (`tools/build_web_engine.py`,
    gitignored `web/engine/`), build the portable `HEA-Bench.exe` around
    `web/`, use every tab inside it (`tests/test_desktop_smoke.py`), and
    attach it to the release.
@@ -119,12 +119,12 @@ git ls-remote --tags origin vX.Y.Z     # confirm it is really on the remote
 Two traps this recipe avoids, learned the hard way:
 
 - **Never rely on `git push --follow-tags`.** It only pushes *annotated*
-  tags; a plain `git tag vX.Y.Z` makes a lightweight tag, which
-  `--follow-tags` silently skips — the branch pushes, the tag stays local,
+  tags. A plain `git tag vX.Y.Z` makes a lightweight tag, which
+  `--follow-tags` silently skips: the branch pushes, the tag stays local,
   no release fires, and every surface silently stays on the old version.
   Always push the tag by name and confirm with `ls-remote`.
 - **A bare commit push is not a release.** Without a tag (or the bot), only
-  the Pages site redeploys; PyPI, the MCP registry, the desktop exe, the
+  the Pages site redeploys. PyPI, the MCP registry, the desktop exe, the
   GitHub Release, the Zenodo DOI, and the version badge all stay put.
 
 ## The desktop exe is not waited for
@@ -141,7 +141,7 @@ silent, so `release.yml` has a `desktop-failed` job that runs only when
 one of those two actually failed (not when they were skipped because
 an upstream surface failed first, which the watch already reports). It
 opens an issue titled "Desktop exe failed to ship for vX.Y.Z", labelled
-`desktop-build`, that mentions and assigns the owner; GitHub delivers
+`desktop-build`, that mentions and assigns the owner. GitHub delivers
 both as email. If an open `desktop-build` issue already exists it
 comments there instead, so a flaky runner cannot fan out into a pile of
 issues. The site's download link shows its update-in-progress notice
@@ -181,7 +181,7 @@ the tag reached the remote (the v2.7.0 shape: `main` carries the release
 commit, `git ls-remote --tags origin vX.Y.Z` prints nothing), do NOT
 re-run the `Auto release` run: it would promote the changelog and the
 version history a second time. Tag the release commit by name instead.
-The tag push fires `release.yml` by itself; then redeploy the site so it
+The tag push fires `release.yml` by itself. Then redeploy the site so it
 carries the version-history entry:
 
 ```bash
@@ -202,22 +202,22 @@ before the push and did not, or lived only inside an external publisher.
 
 | Date | Release | What failed | Root cause | Guard now in place |
 | --- | --- | --- | --- | --- |
-| 2026-07-06 | v2.0.3, v2.0.4 | manual tag flow | lightweight tag + `--follow-tags` silently pushed no tag; bare commit push released nothing | manual flow retired; push = release automation, and the manual recipe above pushes tags by name and verifies with `ls-remote` |
+| 2026-07-06 | v2.0.3, v2.0.4 | manual tag flow | lightweight tag + `--follow-tags` silently pushed no tag, and the bare commit push released nothing | manual flow retired and replaced by push = release automation. The manual recipe above pushes tags by name and verifies with `ls-remote` |
 | 2026-07-09 | landing-page push | every gate job cancelled | runner eviction, not a code fault | verify jobs distinguish cancelled from failed and re-dispatch once |
-| 2026-07-23 | v2.1.0 | release-gate ruff | new descriptors missing from `__all__`; lint never ran locally before the push | `tools/preflight.py` runs the exact gate lint pre-push |
+| 2026-07-23 | v2.1.0 | release-gate ruff | new descriptors missing from `__all__`, and lint never ran locally before the push | `tools/preflight.py` runs the exact gate lint pre-push |
 | 2026-07-24 | app-icon push | release-gate ruff | unpinned ruff minor release changed the rules mid-week | ruff pinned to the 0.15 series in `pyproject.toml` |
-| 2026-08-10 | v2.2.0 | benchmark-freeze gate | benchmark code changed without regenerating the frozen digests; the local suite silently skipped those tests because no corpus was built | `tools/preflight.py` reports every locally skipped test and names the benchmark-freeze gate as unverified when the corpus is absent |
+| 2026-08-10 | v2.2.0 | benchmark-freeze gate | benchmark code changed without regenerating the frozen digests, and the local suite silently skipped those tests because no corpus was built | `tools/preflight.py` reports every locally skipped test and names the benchmark-freeze gate as unverified when the corpus is absent |
 | 2026-08-11 | v2.4.0 watch | verify-release went red on a green release | one transient GitHub API timeout failed the whole watch | watcher treats unreadable status as "still running" and polls again |
-| 2026-08-16 | v2.5.0 | `mcp` publish, HTTP 422 | `server.json` description was 199 characters; the MCP registry caps it at 100, and nothing anywhere validated registry constraints | `tools/preflight.py --metadata` encodes the registry limits and runs in four places: the pre-push hook, by hand locally, in CI on every push, and in the release bot before it stamps or tags |
-| 2026-08-17 | no red run; found by inspection | the live site never showed a favicon in Google results | the icon was a `data:` URI, which Google cannot crawl, and no gate has ever opened a file under `web/` that is not code | `tools/preflight.py --metadata` checks the icon set, the 1200x630 social card, the manifest and the JSON-LD, and rejects a `data:` URI or a root-absolute icon path |
-| 2026-10-05 | v2.6.0 | `gate / interop`, two HEACalculator backend tests | HEACalculator released 2.1.0 and 2.2.0 with changed reference data; the `[interop]` pin `~=2.0` admitted any 2.x, so CI installed 2.2.0 while every local run still had the verified 2.0.1, and no commit here changed anything | the pin is `~=2.0.1`, and `tests/test_descriptor_backend.py` (run by the preflight and in CI) fails whenever the pin admits a minor series other than the one `docs/backend-agreement.md` was generated with |
-| 2026-10-05 | no red run; found by inspection | most library features (dataset, benchmark, phase sets, domain flag, properties, search, campaigns, ceramics) were unreachable in the app, where about 99% of users are | features were only ever finished in the library, and nothing compared the two surfaces | `tests/test_app_parity.py` (since 2.7.0 `tests/test_feature_parity.py`) maps every public name to working app evidence and fails CI otherwise; the CI `web-engine` job checks the in-app engine against CPython; `verify-live` requires the live engine to report the released version; `tests/test_app_smoke.py` uses every tab of the built site in headless Chrome in the same job |
-| 2026-10-06 | no red run; found by inspection | the MCP server lacked eleven of the package's features (dataset build and export, measured properties, phase sets, the benchmark, the coverage study, ceramics, element data), custom elements and the Miedema breakdown; nothing ever ran the published wheel or the built exe | parity was checked only between the library and the web app, always from a repository checkout | owner rule: every feature in all four parts. `tests/test_feature_parity.py` requires a library name, an MCP tool, app evidence and tests for every feature; the CI `package` job installs the built wheel fresh and calls every MCP tool over stdio (`tests/test_installed_package.py`, also run by the preflight); the release `desktop-build` job uses every tab inside the built exe before attaching it (`tests/test_desktop_smoke.py`) |
-| 2026-10-06 | no red run; caught before release | the MCP container image (`Dockerfile`, which directory listings such as Glama build) would have stopped building | the wheel started bundling files from `data/` and `docs/`, which the Dockerfile never copied and `.dockerignore` excluded | `tools/preflight.py`, in every mode (so also CI and the release bot), checks that every file the wheel force-includes reaches the image build stage (the Peivaste file was kept out of the image while it had no license; since its CC BY 4.0 license on 2026-10-08 the same check requires it) |
+| 2026-08-16 | v2.5.0 | `mcp` publish, HTTP 422 | `server.json` description was 199 characters. The MCP registry caps it at 100, and nothing anywhere validated registry constraints | `tools/preflight.py --metadata` encodes the registry limits and runs in four places: the pre-push hook, by hand locally, in CI on every push, and in the release bot before it stamps or tags |
+| 2026-08-17 | no red run, found by inspection | the live site never showed a favicon in Google results | the icon was a `data:` URI, which Google cannot crawl, and no gate has ever opened a file under `web/` that is not code | `tools/preflight.py --metadata` checks the icon set, the 1200x630 social card, the manifest and the JSON-LD, and rejects a `data:` URI or a root-absolute icon path |
+| 2026-10-05 | v2.6.0 | `gate / interop`, two HEACalculator backend tests | HEACalculator released 2.1.0 and 2.2.0 with changed reference data. The `[interop]` pin `~=2.0` admitted any 2.x, so CI installed 2.2.0 while every local run still had the verified 2.0.1, and no commit here changed anything | the pin is `~=2.0.1`, and `tests/test_descriptor_backend.py` (run by the preflight and in CI) fails whenever the pin admits a minor series other than the one `docs/backend-agreement.md` was generated with |
+| 2026-10-05 | no red run, found by inspection | most library features (dataset, benchmark, phase sets, domain flag, properties, search, campaigns, ceramics) were unreachable in the app, where about 99% of users are | features were only ever finished in the library, and nothing compared the two surfaces | `tests/test_app_parity.py` (since 2.7.0 `tests/test_feature_parity.py`) maps every public name to working app evidence and fails CI otherwise. The CI `web-engine` job checks the in-app engine against CPython. `verify-live` requires the live engine to report the released version. `tests/test_app_smoke.py` uses every tab of the built site in headless Chrome in the same job |
+| 2026-10-06 | no red run, found by inspection | the MCP server lacked eleven of the package's features (dataset build and export, measured properties, phase sets, the benchmark, the coverage study, ceramics, element data), custom elements and the Miedema breakdown. Nothing ever ran the published wheel or the built exe | parity was checked only between the library and the web app, always from a repository checkout | owner rule: every feature in all four parts. `tests/test_feature_parity.py` requires a library name, an MCP tool, app evidence and tests for every feature. The CI `package` job installs the built wheel fresh and calls every MCP tool over stdio (`tests/test_installed_package.py`, also run by the preflight). The release `desktop-build` job uses every tab inside the built exe before attaching it (`tests/test_desktop_smoke.py`) |
+| 2026-10-06 | no red run, caught before release | the MCP container image (`Dockerfile`, which directory listings such as Glama build) would have stopped building | the wheel started bundling files from `data/` and `docs/`, which the Dockerfile never copied and `.dockerignore` excluded | `tools/preflight.py`, in every mode (so also CI and the release bot), checks that every file the wheel force-includes reaches the image build stage (the Peivaste file was kept out of the image while it had no license, and since its CC BY 4.0 license on 2026-10-08 the same check requires it) |
 | 2026-10-06 | v2.7.0 | `Auto release` cut job, tag push | GitHub refused the tag push with a bare `remote rejected (failed)` after the release commit was already on `main`, and the tag push had no retry, so the release stopped with no tag | the tag push retries three times with a growing pause, and the recovery section above covers a stranded release commit (tag it by name, never re-run the cut) |
 | 2026-10-06 | v2.7.1, v2.7.2 | `desktop-build`, the exe smoke test, so neither release got an exe | the new test passed on a desktop but timed out on GitHub's runners waiting for WebView2's DevTools port. The runners run elevated, and WebView2 ignores `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS` and per-user policies for an elevated app. The test's first run on a runner was inside the release | the test also sets the machine-wide `AdditionalBrowserArguments` policy, which WebView2 honors, when it runs elevated. `tools/preflight.py` refuses a releasing push whose desktop inputs (`src-tauri/`, the test, `desktop-smoke.yml`) changed since the last release until a green `Desktop smoke` run covers them |
-| 2026-10-08 | no red run; caught before release | the pre-push preflight refused the 2.8.0 push twice with `FAIL pytest (full suite)` and no test output | `tools/preflight.py` kept the output of a failing check but printed only its label, so the failure could not be read from the hook. The failure was real: the new parallel forests also predicted on several threads, which add the trees' answers in the order the threads finish, so under load a hardness prediction changed in its last digit between calls | the preflight prints the last 2,000 characters of every failing check's output under its label. Forests fit on every core and predict on one (`hea_bench._model_cache.serial`), and `tests/test_properties_hardness.py` checks it |
-| 2026-10-08 | no red run; caught before release | the desktop-inputs check refused the 2.8.0 minor bump | `python tools/version.py --set X.Y.0`, the documented way to bump, rewrites the version line in `src-tauri/Cargo.toml` and `Cargo.lock`, and the check counted that as a new exe input although every patch release makes the same change in CI | the check blanks the version stamps that `tools/version.py` writes before comparing, and still refuses any other change under `src-tauri/`; `tests/test_version_sync.py` tests it |
+| 2026-10-08 | no red run, caught before release | the pre-push preflight refused the 2.8.0 push twice with `FAIL pytest (full suite)` and no test output | `tools/preflight.py` kept the output of a failing check but printed only its label, so the failure could not be read from the hook. The failure was real: the new parallel forests also predicted on several threads, which add the trees' answers in the order the threads finish, so under load a hardness prediction changed in its last digit between calls | the preflight prints the last 2,000 characters of every failing check's output under its label. Forests fit on every core and predict on one (`hea_bench._model_cache.serial`), and `tests/test_properties_hardness.py` checks it |
+| 2026-10-08 | no red run, caught before release | the desktop-inputs check refused the 2.8.0 minor bump | `python tools/version.py --set X.Y.0`, the documented way to bump, rewrites the version line in `src-tauri/Cargo.toml` and `Cargo.lock`, and the check counted that as a new exe input although every patch release makes the same change in CI | the check blanks the version stamps that `tools/version.py` writes before comparing, and still refuses any other change under `src-tauri/`. `tests/test_version_sync.py` tests it |
 
 The defense has four layers, in firing order:
 
@@ -225,8 +225,8 @@ The defense has four layers, in firing order:
    same one-per-clone `git config core.hooksPath tools/git-hooks` as
    the commit-msg hook) detects shippable paths (`src/**`, `web/**`,
    `src-tauri/**`, `server.json`, `pyproject.toml`) in the pushed range
-   and refuses the push until the preflight passes. Nobody — human or
-   agent — has to remember anything; forgetting is not possible, and
+   and refuses the push until the preflight passes. Nobody, human or
+   agent, has to remember anything. Forgetting is not possible, and
    `--no-verify` is never an acceptable answer to a red preflight.
    Non-shippable pushes (docs, tools, tests, CI) pass through silently.
 2. **`python tools/preflight.py` by hand**, while iterating on a
@@ -241,7 +241,7 @@ The defense has four layers, in firing order:
    are checked long before a release exists.
 4. **The release bot** runs the same metadata check before it stamps,
    commits, or tags, so invalid metadata fails the run cleanly instead
-   of half-releasing (tag cut, PyPI published, registry rejected — the
+   of half-releasing (tag cut, PyPI published, registry rejected: the
    v2.5.0 shape).
 
 **The ratchet rule.** When a release fails for a reason this table does

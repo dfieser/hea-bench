@@ -6,7 +6,7 @@ number would hide that.
 
 ``accuracy``
     Fraction of rows predicted correctly. Easy to read, and easy to
-    inflate by always predicting the majority class.
+    push up by always predicting the majority class.
 ``balanced_accuracy``
     Mean per-class recall. A majority-class predictor scores ``1/C`` on
     a ``C``-class task no matter how skewed the corpus is, which is why

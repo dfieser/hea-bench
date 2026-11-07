@@ -2,8 +2,8 @@
 
 The survey behind the rule found that annealed HEAs containing Cr
 and/or V form the σ phase when 6.88 ≤ VEC ≤ 7.84 and generally do not
-outside that window. The rule is silent about alloys without Cr or V;
-``applies`` is False there and the verdict is ``not_applicable``.
+outside that window. The rule is silent about alloys without Cr or V.
+For those, ``applies`` is False and the verdict is ``not_applicable``.
 
 References
 ----------
