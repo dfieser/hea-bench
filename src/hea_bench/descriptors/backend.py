@@ -32,7 +32,7 @@ from __future__ import annotations
 
 import math
 from functools import lru_cache
-from typing import Protocol, runtime_checkable
+from typing import Protocol
 
 from ..composition import Composition, accepts_formula, normalize
 from .elastic import h_elastic
@@ -120,7 +120,6 @@ UNITS.update(
 UNION_DESCRIPTOR_NAMES: tuple[str, ...] = tuple(_NATIVE) + _HEACALCULATOR_ONLY
 
 
-@runtime_checkable
 class DescriptorBackend(Protocol):
     """What a descriptor backend must provide."""
 
@@ -304,7 +303,7 @@ class HEACalculatorBackend:
             if raw is None:
                 continue
             value = float(raw)
-            values[name] = None if value != value else value
+            values[name] = None if math.isnan(value) else value
         return values
 
 

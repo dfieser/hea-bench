@@ -572,25 +572,10 @@ def corpus_query(
         version, elements, contains, excludes, n_elements_min, n_elements_max,
         phase, source, labelled, has_conflict, descriptor_ready,
     )
+    from .webapp import _row_payload
+
     capped = min(max(0, limit), _CORPUS_SAMPLE_CAP)
-    sample = [
-        {
-            "composition_key": row.composition_key,
-            "composition": dict(row.composition),
-            "n_elements": row.n_elements,
-            "family": row.family,
-            "canonical_phase": row.canonical_phase,
-            "has_conflict": row.has_conflict,
-            "sources": list(row.sources),
-            "labels": dict(row.labels),
-            "raw_labels": dict(row.raw_labels),
-            "processing": row.processing,
-            "doi": row.doi,
-            "source_row_ids": dict(row.source_row_ids),
-            "descriptor_ready": row.descriptor_ready,
-        }
-        for row in subset.rows[:capped]
-    ]
+    sample = [_row_payload(row) for row in subset.rows[:capped]]
     return _stamp(
         {
             "corpus_version": subset.version,
@@ -933,7 +918,7 @@ def campaign_suggest(
     and the domain flag. Below the 10-observation floor the loop refuses rather than
     guessing.
     """
-    from .design.campaign import Campaign, ColdStartError
+    from .design.campaign import Campaign
 
     if (campaign_path is None) == (campaign is None):
         raise ValueError(
@@ -944,41 +929,49 @@ def campaign_suggest(
         from .webapp import campaign_suggest as suggest_inline
 
         return _stamp(suggest_inline(campaign, n=n, strategy=strategy))
-    if n > _CAMPAIGN_MAX_BATCH:
-        raise ValueError(
-            f"batch of {n} exceeds the tool cap of {_CAMPAIGN_MAX_BATCH}"
-        )
+    _check_batch(n)
     path = pathlib.Path(campaign_path)
     if not path.exists():
         raise ValueError(f"no campaign file at {campaign_path!r}")
     try:
-        campaign = Campaign.load(path)
-        suggestions = campaign.suggest(n=n, strategy=strategy)
-    except (ColdStartError, RuntimeError, ValueError) as exc:
+        loaded = Campaign.load(path)
+    except (RuntimeError, ValueError) as exc:
         raise ValueError(str(exc)) from None
-    return _stamp(
-        {
-            "campaign_path": str(path),
-            "objective": campaign.objective,
-            "direction": campaign.direction,
-            "n_observations": len(campaign.observations),
-            "n_informative": campaign.n_informative(),
-            "strategy": strategy,
-            "suggestions": [
-                {
-                    "composition": dict(s.composition),
-                    "mean": json_safe(float(s.mean)),
-                    "interval": [
-                        json_safe(float(s.interval[0])),
-                        json_safe(float(s.interval[1])),
-                    ],
-                    "in_domain": s.in_domain,
-                    "acquisition": json_safe(float(s.acquisition)),
-                }
-                for s in suggestions
-            ],
-        }
-    )
+    return _stamp({"campaign_path": str(path), **_suggestions(loaded, n, strategy)})
+
+
+def _check_batch(n: int) -> None:
+    if n > _CAMPAIGN_MAX_BATCH:
+        raise ValueError(f"batch of {n} exceeds the tool cap of {_CAMPAIGN_MAX_BATCH}")
+
+
+def _suggestions(campaign, n: int, strategy: str) -> dict:
+    """A loaded campaign's next batch, capped, in the tool's payload shape."""
+    _check_batch(n)
+    try:
+        suggestions = campaign.suggest(n=n, strategy=strategy)
+    except (RuntimeError, ValueError) as exc:  # ColdStartError is a RuntimeError
+        raise ValueError(str(exc)) from None
+    return {
+        "objective": campaign.objective,
+        "direction": campaign.direction,
+        "n_observations": len(campaign.observations),
+        "n_informative": campaign.n_informative(),
+        "strategy": strategy,
+        "suggestions": [
+            {
+                "composition": dict(s.composition),
+                "mean": json_safe(float(s.mean)),
+                "interval": [
+                    json_safe(float(s.interval[0])),
+                    json_safe(float(s.interval[1])),
+                ],
+                "in_domain": s.in_domain,
+                "acquisition": json_safe(float(s.acquisition)),
+            }
+            for s in suggestions
+        ],
+    }
 
 
 # -- benchmark ----------------------------------------------------------------
@@ -1091,13 +1084,9 @@ def about() -> dict:
     """Version, provenance, license, capability availability, citations."""
     import importlib.util
 
-    from .benchmark.consolidate import SOURCES_BY_VERSION
-    from .corpus import corpus_location
+    from .webapp import dataset_status
 
-    built = {
-        version: (corpus_location(version) / "consolidated.csv").exists()
-        for version in SOURCES_BY_VERSION
-    }
+    built = dataset_status()["built"]
     sklearn_present = importlib.util.find_spec("sklearn") is not None
     heacalculator_present = importlib.util.find_spec("HEACalculator") is not None
     capabilities = {

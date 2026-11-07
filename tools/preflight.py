@@ -52,8 +52,7 @@ MCP_NAME_RE = re.compile(r"^[a-z0-9.-]+/[a-z0-9._-]+$")
 
 
 def _canonical_version() -> str:
-    sys.path.insert(0, str(ROOT / "tools"))
-    import version as version_tool  # tools/version.py, the stamping SSOT
+    import version as version_tool  # tools/version.py, the stamping SSOT (on sys.path above)
 
     return version_tool.canonical(ROOT)
 
@@ -406,42 +405,22 @@ def main(argv: list[str]) -> int:
     failures: list[str] = []
     warnings: list[str] = []
 
-    problems = check_metadata()
-    if problems:
-        failures.extend(problems)
-    print(("FAIL" if problems else "ok  ") + "  publish metadata (server.json)")
-    for problem in problems:
-        print(f"      {problem}")
-
-    problems = check_web_assets()
-    if problems:
-        failures.extend(problems)
-    print(("FAIL" if problems else "ok  ") + "  web assets (icons, social card)")
-    for problem in problems:
-        print(f"      {problem}")
-
-    problems = check_readme_assets()
-    if problems:
-        failures.extend(problems)
-    print(("FAIL" if problems else "ok  ") + "  README graphics (GitHub + PyPI)")
-    for problem in problems:
-        print(f"      {problem}")
-
-    problems = check_docker_context()
-    if problems:
-        failures.extend(problems)
-    print(("FAIL" if problems else "ok  ") + "  MCP container build context (Dockerfile)")
-    for problem in problems:
-        print(f"      {problem}")
-
+    static_checks = [
+        (check_metadata, "publish metadata (server.json)"),
+        (check_web_assets, "web assets (icons, social card)"),
+        (check_readme_assets, "README graphics (GitHub + PyPI)"),
+        (check_docker_context, "MCP container build context (Dockerfile)"),
+    ]
     if not args.metadata:
-        problems = check_desktop_smoke()
-        if problems:
-            failures.extend(problems)
-        print(("FAIL" if problems else "ok  ") + "  desktop exe inputs smoke-tested on GitHub's runners")
+        static_checks.append((check_desktop_smoke, "desktop exe inputs smoke-tested on GitHub's runners"))
+    for check, label in static_checks:
+        problems = check()
+        failures.extend(problems)
+        print(("FAIL" if problems else "ok  ") + f"  {label}")
         for problem in problems:
             print(f"      {problem}")
 
+    if not args.metadata:
         checks = [
             ("version consistency", [sys.executable, "tools/version.py", "--check"]),
             ("ruff (release-gate lint)", [sys.executable, "-m", "ruff", "check", "src", "tests"]),

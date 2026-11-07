@@ -22,8 +22,3 @@ with open(_DATA_PATH, encoding="utf-8") as _fh:
 #: element symbol -> {"chi", "common_oxidation_states",
 #: "icsd_oxidation_states", "shannon_radii"}
 OXIDE_ELEMENTS: dict[str, dict] = _PAYLOAD["elements"]
-
-
-def missing_oxide_elements(symbols: set[str]) -> set[str]:
-    """Subset of ``symbols`` absent from the vendored oxide element table."""
-    return {s for s in symbols if s not in OXIDE_ELEMENTS}

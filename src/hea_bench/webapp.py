@@ -17,8 +17,6 @@ from __future__ import annotations
 import csv
 import io
 import json
-import pathlib
-import tempfile
 from functools import lru_cache
 
 from . import __version__, _paths
@@ -316,22 +314,17 @@ def campaign_suggest(campaign: dict, n: int = 5, strategy: str = "ei") -> dict:
     what the app saves.
     """
     from .design.campaign import Campaign
-    from .mcp_server import campaign_suggest as suggest_from_file
+    from .mcp_server import _stamp, _suggestions
 
     payload = dict(campaign)
     payload["observations"] = [
         {**obs, "composition": _composition(obs["composition"])}
         for obs in payload.get("observations", [])
     ]
-    with tempfile.TemporaryDirectory() as folder:
-        path = pathlib.Path(folder) / "campaign.json"
-        path.write_text(json.dumps(payload), encoding="utf-8")
-        canonical = pathlib.Path(folder) / "canonical.json"
-        Campaign.load(path).save(canonical)
-        _report("fitting the campaign surrogate", 0.2)
-        result = suggest_from_file(str(path), n=n, strategy=strategy)
-        result["campaign"] = json.loads(canonical.read_text(encoding="utf-8"))
-    result.pop("campaign_path", None)
+    loaded = Campaign.from_dict(payload)
+    _report("fitting the campaign surrogate", 0.2)
+    result = _stamp(_suggestions(loaded, n, strategy))
+    result["campaign"] = loaded.to_dict()
     return result
 
 

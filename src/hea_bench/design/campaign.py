@@ -169,8 +169,9 @@ class Campaign:
             }
         )
 
-    def save(self, path: pathlib.Path | str) -> None:
-        payload = {
+    def to_dict(self) -> dict:
+        """The campaign file's contents (schema 1), as :meth:`save` writes them."""
+        return {
             "schema": 1,
             "hea_bench_version": __version__,
             "objective": self.objective,
@@ -183,13 +184,19 @@ class Campaign:
             "warm_start": self.warm_start,
             "observations": self.observations,
         }
+
+    def save(self, path: pathlib.Path | str) -> None:
         pathlib.Path(path).write_text(
-            json.dumps(payload, indent=2, sort_keys=False) + "\n", encoding="utf-8"
+            json.dumps(self.to_dict(), indent=2, sort_keys=False) + "\n", encoding="utf-8"
         )
 
     @classmethod
     def load(cls, path: pathlib.Path | str) -> "Campaign":
-        payload = json.loads(pathlib.Path(path).read_text(encoding="utf-8"))
+        return cls.from_dict(json.loads(pathlib.Path(path).read_text(encoding="utf-8")))
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "Campaign":
+        """A campaign from a campaign file's contents (schema 1)."""
         if payload.get("schema") != 1:
             raise ValueError(
                 f"unsupported campaign schema {payload.get('schema')!r}; this "
