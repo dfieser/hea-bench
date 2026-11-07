@@ -10,6 +10,12 @@ The format is loosely based on
 
 ## [Unreleased]
 
+## [2.9.2] — 2026-11-07
+
+### Changed
+
+- Drop five unused verdict thresholds from the browser core
+
 ## [2.9.1] — 2026-11-07
 
 ### Changed
