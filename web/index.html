@@ -4039,30 +4039,37 @@
           </aside>
           <div class="docs-main">
           <p class="theory-eyebrow">Experimental data</p>
-          <h2 class="theory-title" id="dataset-title">The consolidated alloy dataset</h2>
+          <h2 class="theory-title" id="dataset-title">The alloy dataset</h2>
           <p class="theory-lede">
-            Every experimentally reported phase label behind the benchmark, merged from published
-            datasets with each source's own label kept beside the consensus. This page builds the
-            dataset from the original files, so nothing is computed on a server.
+            Lab results for thousands of alloys. Each row shows which crystal structure (phase) the
+            alloy formed. Everything runs in this page, and nothing is sent to a server.
           </p>
+          <ol class="body-list">
+            <li>Press the button in the box below. The page loads the dataset.</li>
+            <li>To narrow the list, fill in any filter in section 02 and press <b>Apply filters</b>.</li>
+            <li>Click a row to see what each source reported.</li>
+          </ol>
           <div class="engine-gate" id="dataset-gate"></div>
 
           <h3 id="dataset-about"><span class="sec-num">01</span>What is in it</h3>
           <p>
-            The dataset opens on version 0.2.0, the largest. It merges Borg et al. (2020), Pei et
-            al. (2020), Peivaste et al. (2023) and the Chizhevskiy et al. (2026) database, whose
-            labels were extracted from papers by a language model and agree with the reference
-            labels on about 70 percent of shared alloys. Version 0.1.0 is the hand-curated reference
-            without that database, and every published benchmark number is measured on it. When
-            sources disagree about an alloy's phase, the row keeps every label and is marked as a
-            conflict instead of being decided by a vote.
+            The rows come from four published collections: Borg et al. (2020), Pei et al. (2020),
+            Peivaste et al. (2023) and Chizhevskiy et al. (2026). Choose a version below.
           </p>
+          <ol class="body-list">
+            <li><b>v0.2.0</b> (the default) holds all four and is the largest. An AI language
+              model read the Chizhevskiy labels from papers. They match the other sources for about
+              70 percent of the alloys they share.</li>
+            <li><b>v0.1.0</b> leaves out Chizhevskiy, so people compiled all of its labels. Every
+              published benchmark score uses this version.</li>
+          </ol>
           <p class="small-note">
-            All four sources are licensed CC BY 4.0 and ship with the app, so the dataset builds
-            without a network connection.
+            When sources disagree about an alloy, the page keeps every answer and marks the row as
+            a conflict. All four sources are free to reuse under the CC BY 4.0 license. Their files
+            come inside the app, so the page downloads nothing else.
           </p>
           <div class="feature-controls">
-            <label for="dataset-version">Corpus version</label>
+            <label for="dataset-version">Dataset version</label>
             <select id="dataset-version">
               <option value="0.2.0" selected>v0.2.0, the largest (default)</option>
               <option value="0.1.0">v0.1.0, the reference the benchmark uses</option>
@@ -4071,6 +4078,12 @@
           <div id="dataset-summary"></div>
 
           <h3 id="dataset-filter"><span class="sec-num">02</span>Filter</h3>
+          <p class="small-note">
+            Fill in only the boxes you need. Type element symbols with spaces between them, such
+            as <code>Al Co</code>. FCC, BCC and HCP are three crystal structures (face-centered
+            cubic, body-centered cubic and hexagonal close-packed). Each one means the alloy formed
+            only that structure. Multi-phase means it formed more than one.
+          </p>
           <form id="dataset-filters" class="feature-form" autocomplete="off">
             <label>Contains all of <input type="text" name="contains" placeholder="e.g. Al Co"></label>
             <label>Excludes <input type="text" name="excludes" placeholder="e.g. Cu"></label>
@@ -4109,7 +4122,11 @@
           </form>
 
           <h3 id="dataset-rows"><span class="sec-num">03</span>Alloys and their sources</h3>
-          <p class="small-note">Select a row to see every source's label as published, the processing route and the paper it came from.</p>
+          <p class="small-note">
+            Click a row to see each source's label, how the alloy was made and the paper it came
+            from. <b>Calculator</b> opens that alloy in the calculator. <b>Download these rows</b>
+            saves the filtered list as a CSV file.
+          </p>
           <div class="feature-controls">
             <span id="dataset-count" class="small-note"></span>
             <button type="button" class="ghost" id="dataset-prev">Previous</button>
@@ -4125,11 +4142,14 @@
 
           <h3 id="dataset-measured"><span class="sec-num">04</span>Measured hardness and density</h3>
           <p>
-            The measurements behind the property predictions, from Borg et al. (2020). Hardness rows
-            are the room-temperature Vickers values the hardness model learns from, one row per alloy
-            and processing route, with repeated measurements reduced to their median. Density rows are
-            the measured densities that the instant density estimate is checked against, shown next to
-            that estimate.
+            Lab measurements from Borg et al. (2020). The hardness prediction learns from the
+            hardness values. Each density row shows the measured value next to the quick density
+            estimate, so you can compare them.
+          </p>
+          <p class="small-note">
+            Hardness is room-temperature Vickers hardness (HV), with one row per alloy and per way
+            of making it. When an alloy was measured more than once, the row shows the median. Pick
+            what to show, type elements if you want, and press <b>Show measurements</b>.
           </p>
           <div class="engine-gate" id="measured-gate"></div>
           <form id="measured-filters" class="feature-controls" autocomplete="off">
@@ -4167,22 +4187,26 @@
           <p class="theory-eyebrow">Alloy design</p>
           <h2 class="theory-title" id="design-title">Search compositions and plan experiments</h2>
           <p class="theory-lede">
-            Screen every composition on a grid for the best trade-off between properties, then plan
-            which alloys to make next from your own measurements. Results are screening aids with
-            their uncertainty shown, not answers.
+            Two tools for choosing alloys. <b>Composition search</b> finds the best mixes of your
+            elements. <b>Experiment planning</b> suggests what to make next from your own results.
+            Every prediction comes with a range. Use them as a guide, not as final answers.
           </p>
           <div class="engine-gate" id="design-gate"></div>
 
           <h3 id="design-search"><span class="sec-num">01</span>Composition search</h3>
           <p>
-            The search walks a grid of compositions over your elements, applies your requirements,
-            and returns the Pareto front: the alloys no other candidate beats on every objective at
-            once. By default it keeps only alloys that resemble the experimental dataset, because
-            optimizers exploit model error hardest where data runs out.
+            The search tries every mix of your elements in fixed steps, such as 10 percent at a
+            time. It drops any mix that breaks your limits. Then it lists the best trade-offs: alloys
+            that no other mix beats on every goal at once (the Pareto front).
           </p>
+          <ol class="body-list">
+            <li>Press <b>Run the search</b> to try the example. It looks for the hardest, lightest
+              alloys of five elements.</li>
+            <li>Change the elements, goals (objectives) and limits to your own, and run it again.</li>
+          </ol>
           <p class="small-note">
-            To try it, keep the example (five elements, highest hardness at the lowest density) and
-            press <b>Run the search</b>. Then replace the elements, objectives and limits with your own.
+            By default the search shows only alloys like those in the dataset. Predictions are less
+            reliable far from real data.
           </p>
           <form id="search-form" class="feature-form" autocomplete="off">
             <label class="feature-form__wide">Elements (up to 10) <input type="text" name="palette" value="Al Co Cr Fe Ni"></label>
@@ -4234,17 +4258,23 @@
 
           <h3 id="design-campaign"><span class="sec-num">02</span>Experiment planning</h3>
           <p>
-            Record what you have made and measured, and get the next alloys worth making. A random
-            forest learns from your measurements (plus published hardness data when the target is
-            hardness) and ranks untried grid compositions by expected improvement or by an optimistic
-            upper bound. Everything stays in this page, and the campaign file you save opens in the
-            Python library unchanged.
+            Tell the page what you have made and measured. It suggests which alloys to make next.
           </p>
+          <ol class="body-list">
+            <li>Set the target property and whether you want it high or low.</li>
+            <li>Enter the alloys you have measured, one per row. For hardness you can skip this,
+              because the page starts from published hardness data. For any other property, enter
+              at least 10.</li>
+            <li>Press <b>Suggest next alloys</b>.</li>
+            <li>Make and measure one of the suggested alloys.</li>
+            <li>Press <b>Record result</b> on its row, then ask again.</li>
+            <li>Press <b>Save campaign file</b> to keep your work. <b>Open campaign file</b> loads it
+              later. The Python library opens the same file.</li>
+          </ol>
           <p class="small-note">
-            To try it, keep hardness as the target and press <b>Suggest next alloys</b>: the published
-            hardness data is enough to start. For any other property, first enter at least 10 alloys you
-            have measured, one per row. Save the campaign file to continue later, then add each new
-            result with <b>Record result</b> and ask again.
+            A random forest model learns from your results and ranks the mixes you have not tried.
+            <b>Expected improvement</b> picks alloys likely to beat your best result. <b>Optimistic
+            bound</b> favors alloys the model is unsure about. Your data stays in this page.
           </p>
           <form id="campaign-form" class="feature-form" autocomplete="off">
             <label>Target property <input type="text" name="objective" value="hardness" list="campaign-objectives"></label>
@@ -4311,18 +4341,26 @@
           </aside>
           <div class="docs-main">
           <p class="theory-eyebrow">Benchmark</p>
-          <h2 class="theory-title" id="benchmark-title">Interpolation and extrapolation on frozen splits</h2>
+          <h2 class="theory-title" id="benchmark-title">Score a phase-prediction model</h2>
           <p class="theory-lede">
-            The benchmark scores phase-prediction models under two frozen five-fold splits of the
-            same alloys. The random split mostly tests interpolation, because a test alloy usually
-            has close relatives from its own alloy system in training. The family-grouped split holds
-            out whole alloy systems, so it tests extrapolation to chemistries the model has not seen.
-            Every model gets both scores. Their difference, random minus grouped, is the gap: how much
-            harder extrapolation is for that model.
+            A phase-prediction model guesses which crystal structure an alloy forms. This page gives
+            each model two scores on the same alloys. Each split puts the alloys into five fixed
+            groups (folds). The model trains on four groups and predicts the fifth, once for each
+            group.
+          </p>
+          <ol class="body-list">
+            <li><b>Random split</b> (interpolation). A test alloy usually has close relatives in the
+              training data.</li>
+            <li><b>Family-grouped split</b> (extrapolation). The test holds out whole alloy systems,
+              so the model must predict chemistry it has not seen.</li>
+          </ol>
+          <p>
+            The <b>gap</b> is the random score minus the grouped score. A larger gap means new
+            chemistry is harder for that model. The splits never change, so scores stay comparable.
           </p>
           <p class="small-note">
-            Each section below works on its own: check that the splits match the published ones,
-            rerun a baseline, score your own model, or test the prediction sets.
+            Press the button in the box below first. Then pick a task and a dataset version. Each
+            section below works on its own.
           </p>
           <div class="engine-gate" id="benchmark-gate"></div>
           <div class="feature-controls">
@@ -4331,7 +4369,7 @@
               <option value="single_vs_multi">Single-phase solid solution or not</option>
               <option value="phase4">BCC, FCC, HCP or multi-phase</option>
             </select>
-            <label for="benchmark-version">Corpus</label>
+            <label for="benchmark-version">Dataset version</label>
             <select id="benchmark-version">
               <option value="0.1.0">v0.1.0 (published numbers)</option>
               <option value="0.2.0">v0.2.0</option>
@@ -4340,22 +4378,34 @@
 
           <h3 id="benchmark-baselines"><span class="sec-num">01</span>Baselines</h3>
           <p>
-            Published results for the reference corpus, each re-runnable here. The rules have no
-            fitted parameters, so their two scores agree by construction. Compare rules with fitted
-            models on the grouped column.
+            Published scores for standard models and rules on v0.1.0. Press <b>Run here</b> to
+            recompute any of them in this page. The rules learn nothing from data, so their two
+            scores are always equal. To compare a rule with a trained model, use the grouped score.
           </p>
           <div id="benchmark-baselines-body"></div>
 
           <h3 id="benchmark-splits"><span class="sec-num">02</span>The two splits</h3>
+          <p class="small-note">
+            The page rebuilds both splits and checks them against their published fingerprints
+            (SHA-256 digests). A match means your copy is identical.
+          </p>
           <div id="benchmark-splits-body"></div>
 
           <h3 id="benchmark-score"><span class="sec-num">03</span>Score your model</h3>
-          <p>
-            Download the fold assignment, train your model once per fold of each split on the rows
-            outside that fold, and predict the rows inside it. Then upload one CSV with the columns
-            composition_key, grouped and random, holding each alloy's predicted label under each
-            split. The page scores it exactly as the library does. To see the format first, download
-            the example file, which predicts the most common label for every alloy, and upload it.
+          <ol class="body-list">
+            <li>Press <b>Download the folds</b>. The file lists each alloy's fold under both
+              splits.</li>
+            <li>For each split and each fold, train your model on the alloys outside that fold.
+              Then predict the alloys inside it.</li>
+            <li>Save one CSV file with three columns: <code>composition_key</code>,
+              <code>grouped</code> and <code>random</code>. Each row holds one alloy's predicted
+              label under each split.</li>
+            <li>Press <b>Upload predictions</b>. The page scores it the same way the Python library
+              does.</li>
+          </ol>
+          <p class="small-note">
+            To see the format, download the example file and upload it. It predicts the most common
+            label for every alloy.
           </p>
           <div class="feature-controls">
             <button type="button" class="secondary" id="benchmark-folds">Download the folds (CSV)</button>
@@ -4367,10 +4417,10 @@
 
           <h3 id="benchmark-coverage"><span class="sec-num">04</span>Prediction-set coverage</h3>
           <p>
-            A conformal prediction set lists every phase the model cannot rule out at a chosen
-            confidence. This study checks how often the sets contain the true label when whole alloy
-            systems are unseen, overall and for alloys flagged as outside the dataset's range. It
-            takes a few minutes in the browser.
+            A prediction set lists every phase the model cannot rule out at a chosen confidence (a
+            conformal prediction set). This test checks how often the set holds the true phase when
+            whole alloy systems are new to the model. It reports this for all alloys and for alloys
+            outside the dataset's range. It takes a few minutes.
           </p>
           <div class="feature-controls">
             <button type="button" class="primary" id="benchmark-coverage-run">Run the coverage study</button>
@@ -4395,13 +4445,17 @@
           <p class="theory-eyebrow">Source data</p>
           <h2 class="theory-title" id="data-title">The numbers behind the calculator</h2>
           <p class="theory-lede">
-            Every per-element value the calculator consumes, with its source, its convention, and
-            the places where good compilations disagree. Nothing on this page feeds the
-            computation at display time. The page shows the same vendored, SHA-pinned data behind
-            the calculation core, so any result can be audited back to its inputs.
+            Every element value the calculator uses, with its source. Where good references
+            disagree, the table says so. This page only displays the data. It shows the same files
+            the calculator reads, so you can trace any result back to its inputs.
           </p>
 
           <h3 id="data-elements"><span class="sec-num">01</span>Element table (55 elements)</h3>
+          <p class="small-note">
+            Type a symbol to filter the table. Click a column heading to sort. Press <b>sources
+            &amp; flags</b> on a row to see where its values come from. Columns: atomic radius r,
+            melting point Tm, valence electron count VEC and electronegativity χ.
+          </p>
           <p class="data-colsrc" id="data-colsrc"></p>
           <div class="data-controls">
             <input type="text" id="data-filter" placeholder="Filter symbols, e.g. Dy or U" aria-label="Filter element table" />
@@ -4425,10 +4479,11 @@
 
           <h3 id="data-pairs"><span class="sec-num">02</span>Pair mixing enthalpies</h3>
           <p>
-            Miedema-model binary liquid mixing enthalpies, vendored from matminer's digitization
-            of de Boer et al. (1988), the same primary source behind Takeuchi &amp; Inoue (2005).
-            The table holds 1484 of the 1485 pairs over the 55 elements. The single gap (Th–U)
-            is reported as unavailable rather than silently zeroed.
+            This table gives the heat of mixing, in kJ/mol, for each pair of elements as liquids
+            (Miedema model). The values come from de Boer et al. (1988), as digitized by matminer. Takeuchi
+            and Inoue (2005) use the same source. The table covers 1,484 of the 1,485 pairs. The one
+            missing pair, Th and U, shows as unavailable instead of zero. Pick two elements to see
+            their value.
           </p>
           <div class="data-pairlookup">
             <select id="data-pair-a" aria-label="First element"></select>
@@ -4438,15 +4493,19 @@
           </div>
 
           <h3 id="data-files"><span class="sec-num">03</span>Data files &amp; integrity</h3>
+          <p class="small-note">
+            Each data file with its SHA-256 fingerprint. If a file changes, its fingerprint changes
+            too.
+          </p>
           <div id="data-files-list"></div>
 
           <h3 id="data-coverage"><span class="sec-num">04</span>Feature coverage by element</h3>
           <p>
-            Core descriptors (ΔS, δ, VEC, Tm, Δχ, ΔH mix, Ω, Λ, γ, Φ, φ, κ) cover all 55
-            elements. The Andreoli elastic-strain energy needs the bulk modulus and molar volume
-            (all 55 covered). The auxiliary Miedema decomposition panel (compound / solid-solution
-            / amorphous enthalpies) still runs on its original 37-element parameter set. Alloys
-            outside it show no decomposition rather than a guessed one.
+            Which calculations work for each element. The main descriptors (ΔS, δ, VEC, Tm, Δχ,
+            ΔH mix, Ω, Λ, γ, Φ, φ, κ) work for all 55. So does the Andreoli elastic-strain energy,
+            which needs each element's bulk modulus and molar volume. The Miedema decomposition
+            panel (compound, solid-solution and amorphous enthalpies) covers only its original 37
+            elements. For an alloy with any other element, it shows nothing instead of a guess.
           </p>
           <div class="table-wrap">
             <table class="data" id="data-coverage-table">

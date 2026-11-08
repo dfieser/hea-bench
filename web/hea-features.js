@@ -235,10 +235,10 @@
       text = "<b>" + esc(this.what) + "</b> Starting the engine, which ships inside the app…";
     } else if (status.state === "idle") {
       text =
-        "<b>" + esc(this.what) + "</b> This runs the hea-bench Python library inside the page. " +
-        "The first start downloads about 30 MB, which the browser then keeps." +
+        "<b>" + esc(this.what) + "</b> Press Start to run the hea-bench Python library in this page. " +
+        "The first start downloads about 30 MB, and your browser keeps it for next time." +
         (this.needsCorpus
-          ? " It also builds the alloy dataset once per release from the source files in that download."
+          ? " Then the page builds the alloy dataset from that download, once per release."
           : "");
       button = '<button type="button" class="primary" data-gate="start">Start</button>';
     } else if (status.state === "loading") {
@@ -867,7 +867,7 @@
 
   var dataset = { offset: 0, limit: 50, filters: {}, total: 0, loaded: null };
   var datasetGate = new Gate($("dataset-gate"), {
-    what: "The consolidated alloy dataset.",
+    what: "The alloy dataset.",
     needsCorpus: true,
     version: function () {
       return $("dataset-version").value;
