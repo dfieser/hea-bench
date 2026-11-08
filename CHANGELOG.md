@@ -10,6 +10,16 @@ The format loosely follows
 
 ## [Unreleased]
 
+## [2.9.4] - 2026-11-08
+
+### Changed
+
+- Keep the benchmark score labels naming both splits, and decode test output safely
+- Cut jargon and parentheses from the four tabs
+- Rewrite the Dataset, Design, Benchmark and Element data instructions simply
+- Correct three factual errors in the dataset cards and abstracts
+- Document the public-text rule for agents
+
 ## [2.9.3] - 2026-11-07
 
 ### Changed
