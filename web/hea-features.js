@@ -1311,8 +1311,8 @@
     $("benchmark-baselines-body").innerHTML =
       (lead
         ? stats([
-            [num(lead.random.balanced_accuracy_mean, 3), "random forest, random split"],
-            [num(lead.grouped.balanced_accuracy_mean, 3), "random forest, family-grouped split"],
+            [num(lead.random.balanced_accuracy_mean, 3), "random forest, random split: interpolation"],
+            [num(lead.grouped.balanced_accuracy_mean, 3), "random forest, family-grouped split: extrapolation"],
             [signed(lead.gap.balanced_accuracy), "gap, random minus grouped"],
           ])
         : "") +

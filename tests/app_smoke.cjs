@@ -271,7 +271,7 @@ const STEPS = [
       await S.waitFor("the frozen split digests", () => (view.textContent.match(/matches the frozen split/g) || []).length >= 2, 300000, view);
       if (/differs from the frozen split/.test(view.textContent)) throw new Error("a split differs from its frozen digest");
       const run = await S.waitFor("a rule baseline", () => S.$("benchmark-baselines-body").querySelector('[data-run^="rule:"]'), 60000, view);
-      if (!/random split \(interpolation\)/.test(S.$("benchmark-baselines-body").textContent)) throw new Error("the baselines do not lead with both scores");
+      if (!/random split: interpolation/.test(S.$("benchmark-baselines-body").textContent)) throw new Error("the baselines do not lead with both scores");
       const model = run.getAttribute("data-run");
       run.click();
       await S.waitFor(model + " rerun", () => /reproduced here/.test(S.$("benchmark-baselines-body").querySelector('[data-run="' + model + '"]').closest("tr").textContent), 300000, view);

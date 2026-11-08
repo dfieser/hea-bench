@@ -431,8 +431,10 @@ def check_desktop_smoke() -> list[str]:
 
 
 def _run(label: str, command: list[str]) -> tuple[str, int, str]:
+    # errors="replace": a child printing in the Windows code page (node's
+    # app smoke does) must not crash the reader and hide the failure text.
     completed = subprocess.run(
-        command, cwd=ROOT, capture_output=True, text=True, encoding="utf-8"
+        command, cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace"
     )
     output = (completed.stdout or "") + (completed.stderr or "")
     return label, completed.returncode, output
