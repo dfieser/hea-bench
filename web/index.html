@@ -4041,8 +4041,8 @@
           <p class="theory-eyebrow">Experimental data</p>
           <h2 class="theory-title" id="dataset-title">The alloy dataset</h2>
           <p class="theory-lede">
-            Lab results for thousands of alloys. Each row shows which crystal structure (phase) the
-            alloy formed. Everything runs in this page, and nothing is sent to a server.
+            Lab results for thousands of alloys. Each row shows the crystal structure an alloy
+            formed, called its phase. Everything runs in this page, and nothing is sent to a server.
           </p>
           <ol class="body-list">
             <li>Press the button in the box below. The page loads the dataset.</li>
@@ -4053,26 +4053,26 @@
 
           <h3 id="dataset-about"><span class="sec-num">01</span>What is in it</h3>
           <p>
-            The rows come from four published collections: Borg et al. (2020), Pei et al. (2020),
-            Peivaste et al. (2023) and Chizhevskiy et al. (2026). Choose a version below.
+            The rows come from four published collections: Borg 2020, Pei 2020, Peivaste 2023 and
+            Chizhevskiy 2026. Choose a version below.
           </p>
           <ol class="body-list">
-            <li><b>v0.2.0</b> (the default) holds all four and is the largest. An AI language
-              model read the Chizhevskiy labels from papers. They match the other sources for about
-              70 percent of the alloys they share.</li>
+            <li><b>v0.2.0</b> is the default. It holds all four and is the largest. An AI model
+              read the Chizhevskiy labels from papers. They match the other sources for about 70
+              percent of the alloys they share.</li>
             <li><b>v0.1.0</b> leaves out Chizhevskiy, so people compiled all of its labels. Every
               published benchmark score uses this version.</li>
           </ol>
           <p class="small-note">
             When sources disagree about an alloy, the page keeps every answer and marks the row as
-            a conflict. All four sources are free to reuse under the CC BY 4.0 license. Their files
-            come inside the app, so the page downloads nothing else.
+            a conflict. All four sources allow free reuse with credit. Their files come inside the
+            app, so the page downloads nothing else.
           </p>
           <div class="feature-controls">
             <label for="dataset-version">Dataset version</label>
             <select id="dataset-version">
-              <option value="0.2.0" selected>v0.2.0, the largest (default)</option>
-              <option value="0.1.0">v0.1.0, the reference the benchmark uses</option>
+              <option value="0.2.0" selected>v0.2.0, the largest</option>
+              <option value="0.1.0">v0.1.0, the one the benchmark uses</option>
             </select>
           </div>
           <div id="dataset-summary"></div>
@@ -4080,9 +4080,9 @@
           <h3 id="dataset-filter"><span class="sec-num">02</span>Filter</h3>
           <p class="small-note">
             Fill in only the boxes you need. Type element symbols with spaces between them, such
-            as <code>Al Co</code>. FCC, BCC and HCP are three crystal structures (face-centered
-            cubic, body-centered cubic and hexagonal close-packed). Each one means the alloy formed
-            only that structure. Multi-phase means it formed more than one.
+            as <code>Al Co</code>. FCC, BCC and HCP are three crystal structures: face-centered
+            cubic, body-centered cubic and hexagonal close-packed. An alloy marked with one of them
+            formed only that structure. Multi-phase means it formed more than one.
           </p>
           <form id="dataset-filters" class="feature-form" autocomplete="off">
             <label>Contains all of <input type="text" name="contains" placeholder="e.g. Al Co"></label>
@@ -4105,14 +4105,14 @@
                 <option value="borg2020">Borg 2020</option>
                 <option value="pei2020">Pei 2020</option>
                 <option value="peivaste">Peivaste 2023</option>
-                <option value="chizhevskiy2026">Chizhevskiy 2026 (v0.2.0)</option>
+                <option value="chizhevskiy2026">Chizhevskiy 2026, v0.2.0 only</option>
               </select>
             </label>
             <label>Source agreement
               <select name="has_conflict">
                 <option value="">any</option>
                 <option value="false">sources agree</option>
-                <option value="true">sources disagree (conflicts)</option>
+                <option value="true">sources disagree</option>
               </select>
             </label>
             <div class="feature-form__actions">
@@ -4125,13 +4125,13 @@
           <p class="small-note">
             Click a row to see each source's label, how the alloy was made and the paper it came
             from. <b>Calculator</b> opens that alloy in the calculator. <b>Download these rows</b>
-            saves the filtered list as a CSV file.
+            saves the filtered list as a file that opens in any spreadsheet program.
           </p>
           <div class="feature-controls">
             <span id="dataset-count" class="small-note"></span>
             <button type="button" class="ghost" id="dataset-prev">Previous</button>
             <button type="button" class="ghost" id="dataset-next">Next</button>
-            <button type="button" class="secondary" id="dataset-download">Download these rows (CSV)</button>
+            <button type="button" class="secondary" id="dataset-download">Download these rows</button>
           </div>
           <div class="table-wrap">
             <table class="data feature-table" id="dataset-table">
@@ -4142,14 +4142,14 @@
 
           <h3 id="dataset-measured"><span class="sec-num">04</span>Measured hardness and density</h3>
           <p>
-            Lab measurements from Borg et al. (2020). The hardness prediction learns from the
-            hardness values. Each density row shows the measured value next to the quick density
-            estimate, so you can compare them.
+            Lab measurements from Borg 2020. The hardness prediction learns from the hardness
+            values. Each density row shows the measured value next to the quick density estimate, so
+            you can compare them.
           </p>
           <p class="small-note">
-            Hardness is room-temperature Vickers hardness (HV), with one row per alloy and per way
-            of making it. When an alloy was measured more than once, the row shows the median. Pick
-            what to show, type elements if you want, and press <b>Show measurements</b>.
+            Hardness values are Vickers hardness measured at room temperature. Each row is one alloy
+            made one way. When an alloy was measured more than once, the row shows the middle value.
+            Pick what to show, type elements if you want, and press <b>Show measurements</b>.
           </p>
           <div class="engine-gate" id="measured-gate"></div>
           <form id="measured-filters" class="feature-controls" autocomplete="off">
@@ -4161,7 +4161,7 @@
             <label for="measured-contains">for alloys containing</label>
             <input type="text" id="measured-contains" class="feature-text-input" placeholder="any elements, e.g. Al Co">
             <button type="submit" class="primary">Show measurements</button>
-            <button type="button" class="secondary" id="measured-download">Download (CSV)</button>
+            <button type="button" class="secondary" id="measured-download">Download</button>
           </form>
           <div id="measured-summary"></div>
           <div class="table-wrap table-wrap--deferred">
@@ -4197,28 +4197,28 @@
           <p>
             The search tries every mix of your elements in fixed steps, such as 10 percent at a
             time. It drops any mix that breaks your limits. Then it lists the best trade-offs: alloys
-            that no other mix beats on every goal at once (the Pareto front).
+            that no other mix beats on every objective at once.
           </p>
           <ol class="body-list">
             <li>Press <b>Run the search</b> to try the example. It looks for the hardest, lightest
               alloys of five elements.</li>
-            <li>Change the elements, goals (objectives) and limits to your own, and run it again.</li>
+            <li>Change the elements, objectives and limits to your own, and run it again.</li>
           </ol>
           <p class="small-note">
             By default the search shows only alloys like those in the dataset. Predictions are less
             reliable far from real data.
           </p>
           <form id="search-form" class="feature-form" autocomplete="off">
-            <label class="feature-form__wide">Elements (up to 10) <input type="text" name="palette" value="Al Co Cr Fe Ni"></label>
+            <label class="feature-form__wide">Elements, up to 10 <input type="text" name="palette" value="Al Co Cr Fe Ni"></label>
             <label>Elements per alloy, from <input type="number" name="n_elements_min" min="1" max="10" value="4"></label>
             <label>to <input type="number" name="n_elements_max" min="1" max="10" value="5"></label>
-            <label>Grid step
+            <label>Step size
               <select name="step">
-                <option value="0.25">0.25 (25 at.% steps)</option>
-                <option value="0.2">0.2 (20 at.% steps)</option>
-                <option value="0.125">0.125 (12.5 at.% steps)</option>
-                <option value="0.1" selected>0.1 (10 at.% steps)</option>
-                <option value="0.05">0.05 (5 at.% steps, slowest)</option>
+                <option value="0.25">25 percent steps</option>
+                <option value="0.2">20 percent steps</option>
+                <option value="0.125">12.5 percent steps</option>
+                <option value="0.1" selected>10 percent steps</option>
+                <option value="0.05">5 percent steps, slowest</option>
               </select>
             </label>
             <fieldset class="feature-form__wide">
@@ -4241,15 +4241,15 @@
               <div class="feature-rules" id="search-rules"></div>
             </fieldset>
             <label>Results to return <input type="number" name="max_candidates" min="1" max="20" value="10"></label>
-            <label>Interval confidence
+            <label>Range confidence
               <select name="alpha">
                 <option value="0.2">80%</option>
                 <option value="0.1" selected>90%</option>
                 <option value="0.05">95%</option>
               </select>
             </label>
-            <label class="feature-check"><input type="checkbox" name="conservative" checked> Rank fitted properties by the cautious end of their interval</label>
-            <label class="feature-check"><input type="checkbox" name="include_out_of_domain"> Include alloys outside the dataset's range</label>
+            <label class="feature-check"><input type="checkbox" name="conservative" checked> Rank predicted properties by the cautious end of their range</label>
+            <label class="feature-check"><input type="checkbox" name="include_out_of_domain"> Include alloys unlike those in the dataset</label>
             <div class="feature-form__actions">
               <button type="submit" class="primary">Run the search</button>
             </div>
@@ -4272,9 +4272,8 @@
               later. The Python library opens the same file.</li>
           </ol>
           <p class="small-note">
-            A random forest model learns from your results and ranks the mixes you have not tried.
-            <b>Expected improvement</b> picks alloys likely to beat your best result. <b>Optimistic
-            bound</b> favors alloys the model is unsure about. Your data stays in this page.
+            A machine-learning model learns from your results and ranks the mixes you have not
+            tried. Your data stays in this page.
           </p>
           <form id="campaign-form" class="feature-form" autocomplete="off">
             <label>Target property <input type="text" name="objective" value="hardness" list="campaign-objectives"></label>
@@ -4288,22 +4287,22 @@
             <label class="feature-form__wide">Elements <input type="text" name="palette" value="Al Co Cr Fe Ni"></label>
             <label>Elements per alloy, from <input type="number" name="n_min" min="1" max="10" value="3"></label>
             <label>to <input type="number" name="n_max" min="1" max="10" value="5"></label>
-            <label>Grid step
+            <label>Step size
               <select name="step">
-                <option value="0.25">0.25 (25 at.% steps)</option>
-                <option value="0.2">0.2 (20 at.% steps)</option>
-                <option value="0.125">0.125 (12.5 at.% steps)</option>
-                <option value="0.1" selected>0.1 (10 at.% steps)</option>
-                <option value="0.05">0.05 (5 at.% steps, slowest)</option>
+                <option value="0.25">25 percent steps</option>
+                <option value="0.2">20 percent steps</option>
+                <option value="0.125">12.5 percent steps</option>
+                <option value="0.1" selected>10 percent steps</option>
+                <option value="0.05">5 percent steps, slowest</option>
               </select>
             </label>
-            <label class="feature-check"><input type="checkbox" name="warm_start" checked> Start from published hardness data (hardness only)</label>
-            <label class="feature-check"><input type="checkbox" name="in_domain" checked> Suggest only alloys inside the dataset's range</label>
+            <label class="feature-check"><input type="checkbox" name="warm_start" checked> Start from published hardness data, for hardness only</label>
+            <label class="feature-check"><input type="checkbox" name="in_domain" checked> Suggest only alloys like those in the dataset</label>
           </form>
           <h4>Measurements</h4>
           <div class="table-wrap">
             <table class="data feature-table" id="campaign-observations">
-              <thead><tr><th>Composition</th><th>Measured value</th><th>Processing (optional)</th><th></th></tr></thead>
+              <thead><tr><th>Composition</th><th>Measured value</th><th>Processing, optional</th><th></th></tr></thead>
               <tbody id="campaign-obs-tbody"></tbody>
             </table>
           </div>
@@ -4318,8 +4317,8 @@
             <input type="number" id="campaign-n" min="1" max="10" value="5">
             <label for="campaign-strategy">Strategy</label>
             <select id="campaign-strategy">
-              <option value="ei">Expected improvement: likeliest to beat your best result</option>
-              <option value="ucb">Optimistic bound: favors alloys the model is unsure about</option>
+              <option value="ei">Likeliest to beat your best result</option>
+              <option value="ucb">Explore alloys the model is unsure about</option>
             </select>
             <button type="button" class="primary" id="campaign-suggest">Suggest next alloys</button>
           </div>
@@ -4344,15 +4343,17 @@
           <h2 class="theory-title" id="benchmark-title">Score a phase-prediction model</h2>
           <p class="theory-lede">
             A phase-prediction model guesses which crystal structure an alloy forms. This page gives
-            each model two scores on the same alloys. Each split puts the alloys into five fixed
-            groups (folds). The model trains on four groups and predicts the fifth, once for each
-            group.
+            each model two scores on the same alloys. Each score puts the alloys into five fixed
+            groups, called folds. The model learns from four folds and predicts the fifth, once for
+            each fold.
           </p>
           <ol class="body-list">
-            <li><b>Random split</b> (interpolation). A test alloy usually has close relatives in the
-              training data.</li>
-            <li><b>Family-grouped split</b> (extrapolation). The test holds out whole alloy systems,
-              so the model must predict chemistry it has not seen.</li>
+            <li><b>Random split.</b> A test alloy usually has close relatives in the training data.
+              This score shows how well the model fills in between alloys it knows, called
+              interpolation.</li>
+            <li><b>Family-grouped split.</b> Each alloy family stays together in one fold. This score
+              shows how well the model handles chemistry it has never seen, called
+              extrapolation.</li>
           </ol>
           <p>
             The <b>gap</b> is the random score minus the grouped score. A larger gap means new
@@ -4371,7 +4372,7 @@
             </select>
             <label for="benchmark-version">Dataset version</label>
             <select id="benchmark-version">
-              <option value="0.1.0">v0.1.0 (published numbers)</option>
+              <option value="0.1.0">v0.1.0, used for published scores</option>
               <option value="0.2.0">v0.2.0</option>
             </select>
           </div>
@@ -4386,8 +4387,8 @@
 
           <h3 id="benchmark-splits"><span class="sec-num">02</span>The two splits</h3>
           <p class="small-note">
-            The page rebuilds both splits and checks them against their published fingerprints
-            (SHA-256 digests). A match means your copy is identical.
+            The page rebuilds both splits and checks each one against its published fingerprint. A
+            match means your copy is identical.
           </p>
           <div id="benchmark-splits-body"></div>
 
@@ -4408,19 +4409,19 @@
             label for every alloy.
           </p>
           <div class="feature-controls">
-            <button type="button" class="secondary" id="benchmark-folds">Download the folds (CSV)</button>
+            <button type="button" class="secondary" id="benchmark-folds">Download the folds</button>
             <button type="button" class="ghost" id="benchmark-example">Download an example predictions file</button>
-            <button type="button" class="primary" id="benchmark-upload">Upload predictions (CSV)</button>
+            <button type="button" class="primary" id="benchmark-upload">Upload predictions</button>
             <input type="file" id="benchmark-upload-file" accept=".csv,text/csv" hidden>
           </div>
           <div id="benchmark-score-body"></div>
 
           <h3 id="benchmark-coverage"><span class="sec-num">04</span>Prediction-set coverage</h3>
           <p>
-            A prediction set lists every phase the model cannot rule out at a chosen confidence (a
-            conformal prediction set). This test checks how often the set holds the true phase when
-            whole alloy systems are new to the model. It reports this for all alloys and for alloys
-            outside the dataset's range. It takes a few minutes.
+            A prediction set lists every phase the model cannot rule out, at a chosen confidence
+            level. This test checks how often the set holds the true phase when whole alloy
+            families are new to the model. It reports this for all alloys, and for alloys unlike
+            those in the dataset. It takes a few minutes.
           </p>
           <div class="feature-controls">
             <button type="button" class="primary" id="benchmark-coverage-run">Run the coverage study</button>
@@ -4450,7 +4451,7 @@
             the calculator reads, so you can trace any result back to its inputs.
           </p>
 
-          <h3 id="data-elements"><span class="sec-num">01</span>Element table (55 elements)</h3>
+          <h3 id="data-elements"><span class="sec-num">01</span>Element table</h3>
           <p class="small-note">
             Type a symbol to filter the table. Click a column heading to sort. Press <b>sources
             &amp; flags</b> on a row to see where its values come from. Columns: atomic radius r,
@@ -4479,11 +4480,11 @@
 
           <h3 id="data-pairs"><span class="sec-num">02</span>Pair mixing enthalpies</h3>
           <p>
-            This table gives the heat of mixing, in kJ/mol, for each pair of elements as liquids
-            (Miedema model). The values come from de Boer et al. (1988), as digitized by matminer. Takeuchi
-            and Inoue (2005) use the same source. The table covers 1,484 of the 1,485 pairs. The one
-            missing pair, Th and U, shows as unavailable instead of zero. Pick two elements to see
-            their value.
+            The heat released or absorbed when two elements mix as liquids, in kJ/mol. The values
+            come from the Miedema model, as published by de Boer and colleagues in 1988 and
+            digitized by matminer. Takeuchi and Inoue used the same source in 2005. The table covers
+            1,484 of the 1,485 pairs. The one missing pair, Th and U, shows as unavailable instead
+            of zero. Pick two elements to see their value.
           </p>
           <div class="data-pairlookup">
             <select id="data-pair-a" aria-label="First element"></select>
@@ -4494,18 +4495,18 @@
 
           <h3 id="data-files"><span class="sec-num">03</span>Data files &amp; integrity</h3>
           <p class="small-note">
-            Each data file with its SHA-256 fingerprint. If a file changes, its fingerprint changes
-            too.
+            Each data file with its fingerprint, a code that changes if the file changes.
           </p>
           <div id="data-files-list"></div>
 
           <h3 id="data-coverage"><span class="sec-num">04</span>Feature coverage by element</h3>
           <p>
-            Which calculations work for each element. The main descriptors (ΔS, δ, VEC, Tm, Δχ,
-            ΔH mix, Ω, Λ, γ, Φ, φ, κ) work for all 55. So does the Andreoli elastic-strain energy,
+            Which calculations work for each element. The main ones work for all 55 elements: ΔS,
+            δ, VEC, Tm, Δχ, ΔH mix, Ω, Λ, γ, Φ, φ and κ. So does the Andreoli elastic-strain energy,
             which needs each element's bulk modulus and molar volume. The Miedema decomposition
-            panel (compound, solid-solution and amorphous enthalpies) covers only its original 37
-            elements. For an alloy with any other element, it shows nothing instead of a guess.
+            shows three heats of formation: compound, solid solution and amorphous. It covers only
+            37 elements.
+            For an alloy with any other element, it shows nothing instead of a guess.
           </p>
           <div class="table-wrap">
             <table class="data" id="data-coverage-table">

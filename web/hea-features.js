@@ -235,10 +235,10 @@
       text = "<b>" + esc(this.what) + "</b> Starting the engine, which ships inside the app…";
     } else if (status.state === "idle") {
       text =
-        "<b>" + esc(this.what) + "</b> Press Start to run the hea-bench Python library in this page. " +
+        "<b>" + esc(this.what) + "</b> Press Start to load the calculation engine into this page. " +
         "The first start downloads about 30 MB, and your browser keeps it for next time." +
         (this.needsCorpus
-          ? " Then the page builds the alloy dataset from that download, once per release."
+          ? " Then the page builds the alloy dataset, once for each new version of the app."
           : "");
       button = '<button type="button" class="primary" data-gate="start">Start</button>';
     } else if (status.state === "loading") {
@@ -1272,7 +1272,7 @@
       "<p>Under the random split, " + int(o.random_straddling_families) + " alloy systems appear on both sides of a fold boundary, covering " +
       int(o.random_rows_in_straddling_families) + " rows. Under the family-grouped split, that number is " + int(o.grouped_straddling_families) + " by construction.</p>" +
       '<div class="table-wrap"><table class="data feature-table"><caption>This page recomputed the fold assignment below and checked it against the published digest.</caption>' +
-      "<thead><tr><th>Split</th><th>Digest (SHA-256)</th><th>Check</th><th>Rows per fold</th></tr></thead><tbody>" +
+      "<thead><tr><th>Split</th><th>Fingerprint</th><th>Check</th><th>Rows per fold</th></tr></thead><tbody>" +
       digest("grouped") + digest("random") + "</tbody></table></div>";
   }
 
@@ -1311,8 +1311,8 @@
     $("benchmark-baselines-body").innerHTML =
       (lead
         ? stats([
-            [num(lead.random.balanced_accuracy_mean, 3), "random forest, random split (interpolation)"],
-            [num(lead.grouped.balanced_accuracy_mean, 3), "random forest, family-grouped split (extrapolation)"],
+            [num(lead.random.balanced_accuracy_mean, 3), "random forest, random split"],
+            [num(lead.grouped.balanced_accuracy_mean, 3), "random forest, family-grouped split"],
             [signed(lead.gap.balanced_accuracy), "gap, random minus grouped"],
           ])
         : "") +
