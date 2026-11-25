@@ -176,6 +176,11 @@ gh workflow run pages.yml --ref main       # the site, if it is stale too
 The `verify-release` and `verify-live` jobs already do this once
 automatically when they see a *cancelled* (as opposed to failed) run.
 
+A failed site deploy is fixed with a fresh `gh workflow run pages.yml
+--ref main`, never with `gh run rerun`. A rerun adds a second
+`github-pages` artifact to the same run, and the deploy then fails on
+"Multiple artifacts".
+
 If the run died after it pushed the `Release vX.Y.Z` commit but before
 the tag reached the remote (the v2.7.0 shape: `main` carries the release
 commit, `git ls-remote --tags origin vX.Y.Z` prints nothing), do NOT
@@ -218,6 +223,7 @@ before the push and did not, or lived only inside an external publisher.
 | 2026-10-06 | v2.7.1, v2.7.2 | `desktop-build`, the exe smoke test, so neither release got an exe | the new test passed on a desktop but timed out on GitHub's runners waiting for WebView2's DevTools port. The runners run elevated, and WebView2 ignores `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS` and per-user policies for an elevated app. The test's first run on a runner was inside the release | the test also sets the machine-wide `AdditionalBrowserArguments` policy, which WebView2 honors, when it runs elevated. `tools/preflight.py` refuses a releasing push whose desktop inputs (`src-tauri/`, the test, `desktop-smoke.yml`) changed since the last release until a green `Desktop smoke` run covers them |
 | 2026-10-08 | no red run, caught before release | the pre-push preflight refused the 2.8.0 push twice with `FAIL pytest (full suite)` and no test output | `tools/preflight.py` kept the output of a failing check but printed only its label, so the failure could not be read from the hook. The failure was real: the new parallel forests also predicted on several threads, which add the trees' answers in the order the threads finish, so under load a hardness prediction changed in its last digit between calls | the preflight prints the last 2,000 characters of every failing check's output under its label. Forests fit on every core and predict on one (`hea_bench._model_cache.serial`), and `tests/test_properties_hardness.py` checks it |
 | 2026-10-08 | no red run, caught before release | the desktop-inputs check refused the 2.8.0 minor bump | `python tools/version.py --set X.Y.0`, the documented way to bump, rewrites the version line in `src-tauri/Cargo.toml` and `Cargo.lock`, and the check counted that as a new exe input although every patch release makes the same change in CI | the check blanks the version stamps that `tools/version.py` writes before comparing, and still refuses any other change under `src-tauri/`. `tests/test_version_sync.py` tests it |
+| 2026-11-25 | v2.9.5 | the site deploy, four runs in a row, so `verify-live` went green only after a fifth deploy by hand | for about 20 minutes GitHub listed a new artifact late. `deploy-pages` looked a fraction of a second after the upload, found 0 artifacts and failed, and `verify-live` re-dispatches only once. A rerun of a failed run cannot help, since it adds a second artifact | `pages.yml` waits up to 5 minutes for GitHub to list the run's artifact before it deploys, and its error names the fresh-dispatch fix. The recovery section above says never to rerun a failed deploy |
 
 The defense has four layers, in firing order:
 

@@ -12,6 +12,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
   pages: write
   id-token: write
@@ -67,6 +68,24 @@ jobs:
         uses: actions/upload-pages-artifact@v5
         with:
           path: ./web
+      # GitHub can list a new artifact late. On 2026-11-25 (v2.9.5) four
+      # deploys in a row failed because deploy-pages looked a fraction of a
+      # second after the upload and found nothing ("Found 0 artifact(s)").
+      # Wait until this run's artifact is listed before deploying. Never
+      # rerun a failed deploy run, since a rerun adds a second artifact and
+      # fails on that. Dispatch a fresh run instead.
+      - name: Wait until GitHub lists the Pages artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for i in $(seq 1 60); do
+            n=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts?name=github-pages" --jq '.total_count' 2>/dev/null) || n=0
+            if [ "${n:-0}" -ge 1 ]; then echo "artifact listed after ${i} check(s)"; exit 0; fi
+            echo "check ${i}: artifact not listed yet"
+            sleep 5
+          done
+          echo "::error::GitHub did not list the github-pages artifact within 5 minutes. Fix: gh workflow run pages.yml --ref main (a fresh run, not a rerun of this one)."
+          exit 1
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
