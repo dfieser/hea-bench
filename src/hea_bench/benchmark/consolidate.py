@@ -38,6 +38,10 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 
 from .. import _paths
+# The per-source CSV column prefixes live in _paths, which the reader in
+# hea_bench.corpus also imports, so build and read cannot drift apart.
+from .._paths import SOURCE_COLUMN_PREFIX as _SOURCE_COLUMN_PREFIX
+from .._paths import corpus_location
 from ..composition import Composition
 from .loaders import AlloyRecord, borg2020, chizhevskiy2026, pei2020, peivaste
 from .taxonomy import PhaseClass
@@ -147,12 +151,9 @@ def consolidate(records: Iterable[AlloyRecord], precision: int = 4) -> list[Cons
 
 # ---- Output writers -------------------------------------------------------
 
-# Short column-name prefix per source. The CSV schema is derived from the
-# version's source list, so v0.1.0 keeps its exact original 14 columns and
-# a version that adds a source grows label columns for it without touching
-# the older recipe's output. The table itself lives in hea_bench.corpus,
-# the reader of this schema, so build and read cannot drift apart.
-from ..corpus import SOURCE_COLUMN_PREFIX as _SOURCE_COLUMN_PREFIX  # noqa: E402
+# The CSV schema is derived from the version's source list, so v0.1.0 keeps
+# its exact original 14 columns and a version that adds a source grows label
+# columns for it without touching the older recipe's output.
 
 
 def _csv_columns(source_names: Sequence[str]) -> list[str]:
@@ -308,8 +309,6 @@ def build(version: str = DEFAULT_VERSION, out_dir: pathlib.Path | None = None) -
 
     Returns the manifest dict (also written to disk).
     """
-    from ..corpus import corpus_location
-
     source_names = SOURCES_BY_VERSION[version]
     out_dir = out_dir or corpus_location(version)
 

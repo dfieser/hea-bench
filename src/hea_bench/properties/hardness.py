@@ -59,12 +59,16 @@ def _require_random_forest():
 
 
 @lru_cache(maxsize=8)
-def _fitted(processing: str | None):
+def fitted_model(processing: str | None):
     """(model, conformal, domain, n), fitted once per processing filter."""
     from .._model_cache import cached
 
     random_forest_cls = _require_random_forest()
     return cached(f"hardness-{processing or 'pooled'}", lambda: _fit(processing, random_forest_cls))
+
+
+# The old private name, which tests still use.
+_fitted = fitted_model
 
 
 def _fit(processing: str | None, random_forest_cls):
@@ -124,7 +128,7 @@ def predict_hardness(
 ):
     """(value, interval, novelty, n_training, warnings) for one composition."""
     comp = normalize(composition)
-    model, conformal, domain, n_training = _fitted(processing)
+    model, conformal, domain, n_training = fitted_model(processing)
 
     vector = matrix_vector(comp)
     if vector is None:
@@ -150,7 +154,7 @@ def predict_hardness_batch(
     are identical, because a forest averages its trees per row in the
     same order either way.
     """
-    model, conformal, domain, n_training = _fitted(processing)
+    model, conformal, domain, n_training = fitted_model(processing)
     comps = [normalize(composition) for composition in compositions]
     vectors = [matrix_vector(comp) for comp in comps]
     scorable = [vector for vector in vectors if vector is not None]

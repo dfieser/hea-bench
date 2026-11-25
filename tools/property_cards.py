@@ -53,7 +53,7 @@ def _hardness_study() -> dict:
     from sklearn.ensemble import RandomForestRegressor
 
     from hea_bench._model_cache import serial
-    from hea_bench.properties.hardness import _fitted
+    from hea_bench.properties.hardness import fitted_model
     from hea_bench.uncertainty.conformal import cross_val_scores
 
     records = hardness_records()
@@ -101,7 +101,7 @@ def _hardness_study() -> dict:
         key = record.processing or "(unrecorded)"
         processing_mix[key] = processing_mix.get(key, 0) + 1
 
-    _model, released, _domain, _n = _fitted(None)
+    _model, released, _domain, _n = fitted_model(None)
     return {
         "n_records": len(records),
         "n_usable": len(usable),

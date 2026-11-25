@@ -200,6 +200,156 @@ def _lattice_compositions(palette, low: int, high: int, units: int):
                 yield {el: n / units for el, n in zip(subset, point)}
 
 
+def _objective_specs(objectives, known_properties) -> list[tuple[str, bool]]:
+    """(property, maximize) for each objective, validated against the known properties."""
+    objective_specs: list[tuple[str, bool]] = []
+    for objective in objectives:
+        if isinstance(objective, Maximize):
+            objective_specs.append((objective.name, True))
+        elif isinstance(objective, Minimize):
+            objective_specs.append((objective.name, False))
+        else:
+            raise ValueError(f"objectives must be Maximize/Minimize, got {objective!r}")
+        name = objective_specs[-1][0]
+        if name not in known_properties:
+            raise ValueError(
+                f"unknown objective property {name!r}. Available: {sorted(known_properties)}"
+            )
+    return objective_specs
+
+
+def _screen_lattice(palette, low, high, units, bounds, rule_constraints, domain, domain_required):
+    """Walk the lattice and keep the points that pass the cheap filters.
+
+    Returns (points evaluated, survivors), each survivor as
+    (composition, constrained-rule verdicts, novelty, in_domain).
+    Filters run cheapest-first (bounds, then only the constrained
+    rules, then the domain flag). Fitted properties come later, and the
+    full receipt, every rule verdict plus all descriptors, is computed
+    only for candidates that survive them all. The surviving set is
+    identical to filtering in any other order.
+    """
+    constrained_rules = tuple(
+        dict.fromkeys(canonical_rule_name(c.rule) for c in rule_constraints)
+    )
+    n_evaluated = 0
+    survivors: list[tuple[Composition, dict, dict | None, bool | None]] = []
+    for comp in _lattice_compositions(palette, low, high, units):
+        n_evaluated += 1
+        if not _within_bounds(comp, bounds):
+            continue
+
+        verdicts = {name: _rule_verdict(name, comp) for name in constrained_rules}
+        if not all(
+            c.matches(verdicts[canonical_rule_name(c.rule)]) for c in rule_constraints
+        ):
+            continue
+
+        novelty = domain.novelty(comp) if domain is not None else None
+        in_domain = novelty["in_domain"] if novelty is not None else None
+        if domain_required is not None and in_domain != domain_required:
+            continue
+        survivors.append((comp, verdicts, novelty, in_domain))
+    return n_evaluated, survivors
+
+
+def _feasible_candidates(
+    survivors, needed_properties, property_constraints, objective_specs,
+    optimize_bound, alpha, backend,
+) -> list[Candidate]:
+    """The survivors that meet the property constraints, each with its full receipt."""
+    from ..properties import PropertyUnavailableError, predict_property_batch
+
+    # Properties for every survivor at once: a fitted model scores the
+    # whole batch in one call instead of one call per lattice point,
+    # with identical numbers (see predict_property_batch).
+    batches = {
+        name: predict_property_batch([entry[0] for entry in survivors], name, alpha=alpha)
+        for name in needed_properties
+    }
+
+    feasible: list[Candidate] = []
+    for position, (comp, verdicts, novelty, in_domain) in enumerate(survivors):
+        predictions = {name: batches[name][position] for name in needed_properties}
+        if any(isinstance(p, PropertyUnavailableError) for p in predictions.values()):
+            continue
+        if not passes_property_constraints(predictions, property_constraints):
+            continue
+
+        objective_values = {}
+        for name, maximize in objective_specs:
+            prediction = predictions[name]
+            if prediction.interval is not None and optimize_bound == "lower":
+                value = prediction.interval[0] if maximize else prediction.interval[1]
+            else:
+                value = prediction.value
+            objective_values[name] = value
+
+        feasible.append(
+            Candidate(
+                composition=comp,
+                descriptors=backend.compute(comp),
+                rules={
+                    name: (
+                        verdicts[name]
+                        if name in verdicts
+                        else _rule_verdict(name, comp)
+                    )
+                    for name in VERDICT_FUNCTIONS
+                },
+                properties=predictions,
+                novelty=novelty,
+                in_domain=in_domain,
+                objective_values=objective_values,
+            )
+        )
+    return feasible
+
+
+def _minimized(candidate: Candidate, objective_specs) -> tuple:
+    """The objective vector with every objective turned into one to minimize."""
+    out = []
+    for name, maximize in objective_specs:
+        value = candidate.objective_values[name]
+        out.append(-value if maximize else value)
+    return tuple(out)
+
+
+def _pareto_front(feasible: list[Candidate], objective_specs) -> list[Candidate]:
+    """The non-dominated candidates, best first, or every candidate without objectives."""
+    if objective_specs:
+        # Simple cull against the running front instead of all pairs.
+        # Equal vectors never dominate each other, so exact ties are all
+        # kept; the surviving set is the same non-dominated set the
+        # all-pairs comparison produced.
+        front_pairs: list[tuple[Candidate, tuple]] = []
+        for candidate in feasible:
+            vector = _minimized(candidate, objective_specs)
+            if any(
+                all(o <= v for o, v in zip(other, vector)) and other != vector
+                for _c, other in front_pairs
+            ):
+                continue
+            front_pairs = [
+                (c, other)
+                for c, other in front_pairs
+                if not (all(v <= o for v, o in zip(vector, other)) and vector != other)
+            ]
+            front_pairs.append((candidate, vector))
+        front = [candidate for candidate, _vector in front_pairs]
+    else:
+        front = list(feasible)
+
+    def sort_key(candidate: Candidate):
+        return (
+            _minimized(candidate, objective_specs),
+            tuple(sorted(candidate.composition.items())),
+        )
+
+    front.sort(key=sort_key)
+    return front
+
+
 def search(
     elements,
     n_elements: tuple[int, int] = (3, 5),
@@ -261,11 +411,7 @@ def search(
     RuntimeError
         A domain constraint was requested but no corpus is built.
     """
-    from ..properties import (
-        PropertyUnavailableError,
-        available_properties,
-        predict_property_batch,
-    )
+    from ..properties import available_properties
     from ..uncertainty import default_domain
 
     palette = sorted(dict.fromkeys(elements))
@@ -290,19 +436,7 @@ def search(
         )
 
     known_properties = available_properties()
-    objective_specs: list[tuple[str, bool]] = []
-    for objective in objectives:
-        if isinstance(objective, Maximize):
-            objective_specs.append((objective.name, True))
-        elif isinstance(objective, Minimize):
-            objective_specs.append((objective.name, False))
-        else:
-            raise ValueError(f"objectives must be Maximize/Minimize, got {objective!r}")
-        name = objective_specs[-1][0]
-        if name not in known_properties:
-            raise ValueError(
-                f"unknown objective property {name!r}. Available: {sorted(known_properties)}"
-            )
+    objective_specs = _objective_specs(objectives, known_properties)
     if optimize_bound not in ("point", "lower"):
         raise ValueError(f"optimize_bound must be 'point' or 'lower', got {optimize_bound!r}")
 
@@ -348,114 +482,15 @@ def search(
             "card) or opt out explicitly with DomainConstraint(in_domain=None)."
         )
 
-    # Filters run cheapest-first (bounds, then only the constrained
-    # rules, then the domain flag, then fitted properties); the full
-    # receipt, every rule verdict plus all descriptors, is computed only
-    # for candidates that survive them all. The surviving set is
-    # identical to filtering in any other order.
-    constrained_rules = tuple(
-        dict.fromkeys(canonical_rule_name(c.rule) for c in rule_constraints)
+    n_evaluated, survivors = _screen_lattice(
+        palette, low, high, units, bounds, rule_constraints, domain, domain_required
     )
-    n_evaluated = 0
-    survivors: list[tuple[Composition, dict, dict | None, bool | None]] = []
-    for comp in _lattice_compositions(palette, low, high, units):
-        n_evaluated += 1
-        if not _within_bounds(comp, bounds):
-            continue
+    feasible = _feasible_candidates(
+        survivors, needed_properties, property_constraints, objective_specs,
+        optimize_bound, alpha, backend,
+    )
 
-        verdicts = {name: _rule_verdict(name, comp) for name in constrained_rules}
-        if not all(
-            c.matches(verdicts[canonical_rule_name(c.rule)]) for c in rule_constraints
-        ):
-            continue
-
-        novelty = domain.novelty(comp) if domain is not None else None
-        in_domain = novelty["in_domain"] if novelty is not None else None
-        if domain_required is not None and in_domain != domain_required:
-            continue
-        survivors.append((comp, verdicts, novelty, in_domain))
-
-    # Properties for every survivor at once: a fitted model scores the
-    # whole batch in one call instead of one call per lattice point,
-    # with identical numbers (see predict_property_batch).
-    batches = {
-        name: predict_property_batch([entry[0] for entry in survivors], name, alpha=alpha)
-        for name in needed_properties
-    }
-
-    feasible: list[Candidate] = []
-    for position, (comp, verdicts, novelty, in_domain) in enumerate(survivors):
-        predictions = {name: batches[name][position] for name in needed_properties}
-        if any(isinstance(p, PropertyUnavailableError) for p in predictions.values()):
-            continue
-        if not passes_property_constraints(predictions, property_constraints):
-            continue
-
-        objective_values = {}
-        for name, maximize in objective_specs:
-            prediction = predictions[name]
-            if prediction.interval is not None and optimize_bound == "lower":
-                value = prediction.interval[0] if maximize else prediction.interval[1]
-            else:
-                value = prediction.value
-            objective_values[name] = value
-
-        feasible.append(
-            Candidate(
-                composition=comp,
-                descriptors=backend.compute(comp),
-                rules={
-                    name: (
-                        verdicts[name]
-                        if name in verdicts
-                        else _rule_verdict(name, comp)
-                    )
-                    for name in VERDICT_FUNCTIONS
-                },
-                properties=predictions,
-                novelty=novelty,
-                in_domain=in_domain,
-                objective_values=objective_values,
-            )
-        )
-
-    def minimized(candidate: Candidate) -> tuple:
-        out = []
-        for name, maximize in objective_specs:
-            value = candidate.objective_values[name]
-            out.append(-value if maximize else value)
-        return tuple(out)
-
-    if objective_specs:
-        # Simple cull against the running front instead of all pairs.
-        # Equal vectors never dominate each other, so exact ties are all
-        # kept; the surviving set is the same non-dominated set the
-        # all-pairs comparison produced.
-        front_pairs: list[tuple[Candidate, tuple]] = []
-        for candidate in feasible:
-            vector = minimized(candidate)
-            if any(
-                all(o <= v for o, v in zip(other, vector)) and other != vector
-                for _c, other in front_pairs
-            ):
-                continue
-            front_pairs = [
-                (c, other)
-                for c, other in front_pairs
-                if not (all(v <= o for v, o in zip(vector, other)) and vector != other)
-            ]
-            front_pairs.append((candidate, vector))
-        front = [candidate for candidate, _vector in front_pairs]
-    else:
-        front = list(feasible)
-
-    def sort_key(candidate: Candidate):
-        return (
-            minimized(candidate),
-            tuple(sorted(candidate.composition.items())),
-        )
-
-    front.sort(key=sort_key)
+    front = _pareto_front(feasible, objective_specs)
     settings = {
         "palette": palette,
         "n_elements": list(n_elements),

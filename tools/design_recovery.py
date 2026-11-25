@@ -81,12 +81,12 @@ def _palette_held_out(palette_set: set):
     _hardness.hardness_records = lambda: [
         record for record in original() if not _in_palette(record, palette_set)
     ]
-    _hardness._fitted.cache_clear()
+    _hardness.fitted_model.cache_clear()
     try:
         yield
     finally:
         _hardness.hardness_records = original
-        _hardness._fitted.cache_clear()
+        _hardness.fitted_model.cache_clear()
         if cache is not None:
             os.environ["HEA_BENCH_MODEL_CACHE"] = cache
 

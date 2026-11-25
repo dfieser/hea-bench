@@ -58,7 +58,7 @@ class BackendUnavailableError(RuntimeError):
 #: Native descriptor set: Python-API name -> (callable, unit). The names
 #: are the library's public function names, which is also the vocabulary
 #: the benchmark feature matrix uses.
-_NATIVE = {
+NATIVE_DESCRIPTORS = {
     "smix": (smix, "J/(mol K)"),
     "delta": (delta, "%"),
     "vec": (vec, "electrons/atom"),
@@ -79,7 +79,7 @@ _NATIVE = {
 
 #: Python-API descriptor name -> unit string, for any surface that wants
 #: to print units without reimplementing the table.
-UNITS = {name: unit for name, (_func, unit) in _NATIVE.items()}
+UNITS = {name: unit for name, (_func, unit) in NATIVE_DESCRIPTORS.items()}
 
 #: The all-float subset used for feature matrices, in the frozen order
 #: the benchmark baselines were computed with. singh_lambda is excluded
@@ -117,7 +117,7 @@ UNITS.update(
 
 #: Every descriptor name any backend knows. compute() answers for all of
 #: them, with None where the active backend has nothing to say.
-UNION_DESCRIPTOR_NAMES: tuple[str, ...] = tuple(_NATIVE) + _HEACALCULATOR_ONLY
+UNION_DESCRIPTOR_NAMES: tuple[str, ...] = tuple(NATIVE_DESCRIPTORS) + _HEACALCULATOR_ONLY
 
 
 class DescriptorBackend(Protocol):
@@ -144,7 +144,7 @@ class NativeBackend:
     name = "native"
 
     def descriptor_names(self) -> tuple[str, ...]:
-        return tuple(_NATIVE)
+        return tuple(NATIVE_DESCRIPTORS)
 
     def matrix_names(self) -> tuple[str, ...]:
         return _MATRIX_NAMES
@@ -162,7 +162,7 @@ class NativeBackend:
         bit-identical to the direct function call.
         """
         values: dict[str, float | None] = dict.fromkeys(UNION_DESCRIPTOR_NAMES)
-        for name, (func, _unit) in _NATIVE.items():
+        for name, (func, _unit) in NATIVE_DESCRIPTORS.items():
             try:
                 values[name] = func(composition)
             except Exception:

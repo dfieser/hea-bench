@@ -7,6 +7,12 @@
   fix. A fresh agent session that has read nothing should still be
   forced into the right behavior.
 
+- **Read `ARCHITECTURE.md` before adding code.** It says which layer
+  each kind of code belongs in, which way imports may point, and where
+  a new descriptor, rule, dataset, property or feature goes.
+  `tests/test_architecture.py` enforces the import rules, and each
+  failure names the fix.
+
 - **FOUR-PART PARITY IS MANDATORY (owner rule, 2026-10-06, widening
   the 2026-10-05 app-parity rule).** hea-bench ships as four parts, and
   a person should only ever need ONE of them: the Python package
@@ -32,11 +38,15 @@
   (release `desktop-build` job). Adding a public feature, mechanically:
 
   1. The library function, public in some `__all__`.
-  2. Its MCP tool in `_TOOLS` in `src/hea_bench/mcp_server.py`, a thin
-     wrapper with a `_PARAM_DOCS` entry, and a call to it in
+  2. One function for the operation in `src/hea_bench/service/` (plain
+     values in, a JSON-ready dict out, the shared caps from
+     `service/_payload.py`). Then its MCP tool in `_TOOLS` in
+     `src/hea_bench/mcp_server.py`, a thin wrapper that calls the service
+     function, with a `_PARAM_DOCS` entry, and a call to it in
      `TOOL_CALLS` in `tests/package_smoke.py`.
   3. Its app surface in `web/` (`hea-features.js`, plus a
-     `hea_bench.webapp` bridge method if it needs Python, added to
+     `hea_bench.webapp` bridge method that calls the same service
+     function if it needs Python, added to
      `tests/data/web_engine_calls.json`).
   4. Its names under one feature in `tests/data/feature_parity.json`.
   5. If it uses the engine, a step in `STEPS` in `tests/app_smoke.cjs`

@@ -52,3 +52,37 @@ def baselines_json() -> pathlib.Path:
     if installed():
         return _BUNDLED / "benchmark-baselines.json"
     return REPO_ROOT / "docs" / "benchmark-baselines.json"
+
+
+#: Points corpus reads and builds at another folder, with ``v<version>`` appended.
+CORPUS_DIR_ENV = "HEA_BENCH_BENCHMARK_DIR"
+
+#: Source name -> short CSV column prefix. The consolidated CSV schema
+#: derives its per-source label columns from this table (the build in
+#: hea_bench.benchmark.consolidate and the reader in hea_bench.corpus
+#: both import it from here).
+SOURCE_COLUMN_PREFIX = {
+    "borg2020": "borg",
+    "pei2020": "pei",
+    "peivaste": "peivaste",
+    "chizhevskiy2026": "chizhevskiy",
+}
+
+
+def corpus_location(version: str, corpus_dir: pathlib.Path | None = None) -> pathlib.Path:
+    """Resolve the directory a corpus version is read from.
+
+    Explicit ``corpus_dir`` wins, then the ``HEA_BENCH_BENCHMARK_DIR``
+    environment variable (with ``v<version>`` appended), then the
+    default: ``data/consolidated/v<version>`` in a repository checkout,
+    and ``consolidated/v<version>`` in the per-user hea-bench folder for
+    an installed package (``%LOCALAPPDATA%\\hea-bench`` on Windows,
+    ``~/.local/share/hea-bench`` on Linux and
+    ``~/Library/Application Support/hea-bench`` on macOS).
+    """
+    if corpus_dir is not None:
+        return pathlib.Path(corpus_dir)
+    override = os.environ.get(CORPUS_DIR_ENV)
+    if override:
+        return pathlib.Path(override) / f"v{version}"
+    return consolidated_dir() / f"v{version}"

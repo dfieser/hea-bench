@@ -29,10 +29,10 @@ from functools import lru_cache
 
 from .. import _paths
 from ..benchmark.loaders.borg2020 import (
-    _COL_DOI,
-    _COL_FORMULA,
-    _COL_PROCESSING,
-    _COL_REF_ID,
+    COL_DOI,
+    COL_FORMULA,
+    COL_PROCESSING,
+    COL_REF_ID,
 )
 from ..composition import Composition, parse_formula
 
@@ -87,21 +87,21 @@ def _load_column(
                 continue
             if room_temperature_only and not _near_room_temperature(record):
                 continue
-            formula = (record.get(_COL_FORMULA) or "").strip()
+            formula = (record.get(COL_FORMULA) or "").strip()
             try:
                 composition = parse_formula(formula)
                 value = float(text)
             except ValueError:
                 continue
-            processing = (record.get(_COL_PROCESSING) or "").strip() or None
+            processing = (record.get(COL_PROCESSING) or "").strip() or None
             key = (formula, processing)
             grouped.setdefault(key, []).append(value)
             if key not in meta:
                 year_text = (record.get(_COL_YEAR) or "").strip()
                 meta[key] = {
                     "composition": composition,
-                    "doi": (record.get(_COL_DOI) or "").strip() or None,
-                    "reference_id": (record.get(_COL_REF_ID) or "").strip(),
+                    "doi": (record.get(COL_DOI) or "").strip() or None,
+                    "reference_id": (record.get(COL_REF_ID) or "").strip(),
                     "year": int(float(year_text)) if year_text else None,
                 }
     records = []

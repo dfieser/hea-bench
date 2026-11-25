@@ -320,13 +320,13 @@ def descriptor_matrix(
         first.
     """
     if backend is None:
-        from ..descriptors.backend import _NATIVE, NativeBackend
+        from ..descriptors.backend import NATIVE_DESCRIPTORS, NativeBackend
 
         # The same function objects the backend registry holds, in the
         # frozen matrix order; exceptions propagate exactly as the
         # direct calls did.
         functions = tuple(
-            _NATIVE[name][0] for name in NativeBackend().matrix_names()
+            NATIVE_DESCRIPTORS[name][0] for name in NativeBackend().matrix_names()
         )
         return [[float(function(comp)) for function in functions] for comp in compositions]
 

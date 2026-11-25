@@ -64,6 +64,12 @@ works in only some of them is not finished. `CLAUDE.md` lists the steps
 in order, and `python -m pytest tests/test_feature_parity.py` names
 whatever part is still missing and the exact fix.
 
+Read `ARCHITECTURE.md` before adding code. It says which layer each kind
+of code belongs in and which way imports may point. The MCP server and
+the app's engine both call one function in `src/hea_bench/service/` for
+each operation, so they cannot drift apart.
+`python -m pytest tests/test_architecture.py` checks the import rules.
+
 ## Documentation and writing style
 
 Write so a reader understands the document on the **first read**, in

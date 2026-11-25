@@ -41,7 +41,11 @@ REL = "tests/data/feature_parity.json"
 REGISTRY = json.loads((ROOT / REL).read_text(encoding="utf-8"))
 WEB = ROOT / "web"
 INDEX = (WEB / "index.html").read_text(encoding="utf-8")
-FRONT_END = INDEX + (WEB / "hea-features.js").read_text(encoding="utf-8")
+#: The page's own scripts: every web/*.js but the calculator core and the engine
+#: (its page handle and its worker), found by glob so a new page script counts.
+NOT_PAGE_SCRIPTS = {"hea-calculator-core.js", "hea-engine.js", "hea-engine-worker.js"}
+PAGE_SCRIPTS = sorted(path for path in WEB.glob("*.js") if path.name not in NOT_PAGE_SCRIPTS)
+FRONT_END = INDEX + "".join(path.read_text(encoding="utf-8") for path in PAGE_SCRIPTS)
 WORKER = (WEB / "hea-engine-worker.js").read_text(encoding="utf-8")
 CORE = (WEB / "hea-calculator-core.js").read_text(encoding="utf-8")
 SMOKE = (ROOT / "tests" / "app_smoke.cjs").read_text(encoding="utf-8")
@@ -174,8 +178,9 @@ def test_every_feature_is_in_the_library_and_the_mcp_server() -> None:
         if not any(key.startswith("mcp:") for key in covers):
             problems.append(
                 f"{feature_id}: no MCP tool. Fix: add a tool for it to _TOOLS in "
-                "src/hea_bench/mcp_server.py (a thin wrapper over the library or hea_bench.webapp, "
-                f"with a _PARAM_DOCS entry), list it as mcp:<name> under 'covers' in {REL}, and "
+                "src/hea_bench/mcp_server.py (a thin wrapper over a function in hea_bench.service, "
+                "which hea_bench.webapp calls too, with a _PARAM_DOCS entry), list it as "
+                f"mcp:<name> under 'covers' in {REL}, and "
                 "call it in tests/package_smoke.py."
             )
     assert not problems, "\n".join(problems)

@@ -12,6 +12,10 @@ code.
 > explain any necessary term inline in plain language, and always state
 > what a number is and its units. Don't defer to a glossary.
 
+> **Changing this repo's code?** Read [ARCHITECTURE.md](./ARCHITECTURE.md)
+> first. It says which layer each kind of code belongs in and which way
+> imports may point, and `tests/test_architecture.py` enforces it.
+
 ## What this is
 
 `hea-bench` is an open, interpretable **calculator** of the standard

@@ -10,6 +10,21 @@ The format loosely follows
 
 ## [Unreleased]
 
+### Changed
+
+- The code now sits in layers, so a new feature lands in one obvious
+  place. The MCP server and the app's engine call the same function for
+  each operation. Those functions live in the new internal
+  `hea_bench.service` package, so the two surfaces cannot drift apart.
+  No result, tool or parameter changed. A snapshot of 132 responses from
+  every MCP tool, engine method and CLI command, taken before the
+  change, still matches exactly.
+- `ARCHITECTURE.md` describes the layers and which way imports may
+  point. `tests/test_architecture.py` enforces those rules in CI.
+- The web page's calculator code and base styles moved out of
+  `index.html` into `hea-calculator-ui.js` and `hea-app.css`. The page
+  looks and works the same.
+
 ## [2.9.4] - 2026-11-08
 
 ### Changed

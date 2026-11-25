@@ -8,8 +8,13 @@ provenance in-band. Every numeric result carries its unit, the citation
 key of its parametrization and the library version, so an agent's
 reasoning trace holds auditable receipts rather than bare floats.
 
-The tool bodies below are plain functions with no MCP dependency, so CI
-unit-tests them like the rest of the library. Only :func:`build_server`
+Each tool below is a thin wrapper over one function in
+:mod:`hea_bench.service`, which the app's engine bridge
+(:mod:`hea_bench.webapp`) calls too, so the two return the same numbers.
+The wrappers keep the signatures and docstrings, because those are the
+tool schemas and descriptions. The tool bodies are plain functions with
+no MCP dependency, so CI unit-tests them like the rest of the library.
+Only :func:`build_server`
 and :func:`main` import the ``mcp`` package
 (``pip install hea-bench[mcp]``), and they import it lazily.
 
@@ -31,139 +36,8 @@ or register it with an MCP client (Claude Desktop, Cursor, ...)::
 
 import pathlib
 
-import hea_bench as hb
-from . import __version__
-from ._json import json_safe, strict_json
-from .ceramics import describe_diboride, describe_rock_salt_carbide, describe_rock_salt_nitride
-from .descriptors.backend import UNITS
-from .descriptors.miedema_decomposition import miedema_decomposition
-from .oxides import (
-    describe_fluorite,
-    describe_perovskite,
-    describe_pyrochlore,
-    describe_rock_salt,
-)
-from .rules import (
-    guo_vec,
-    king_phi,
-    senkov_kappa,
-    sheikh_ductility,
-    tsai_sigma,
-    yang_omega,
-    ye_phi,
-    yeh_smix,
-    zhang_delta,
-)
-
-#: Citation keys -> short reference strings, returned by ``about()`` and
-#: referenced by the per-value ``source`` fields.
-SOURCES = {
-    "Boltzmann": "Classical ideal configurational entropy, -R sum(c ln c).",
-    "Zhang2008": "Zhang et al. (2008). Adv. Eng. Mater. 10, 534. delta rule.",
-    "Guo2011": "Guo & Liu (2011). Prog. Nat. Sci. 21, 433. VEC rule.",
-    "Yang2012": "Yang & Zhang (2012). Mater. Chem. Phys. 132, 233. Omega rule.",
-    "Yeh2004": "Yeh et al. (2004). Adv. Eng. Mater. 6, 299. Entropy classes.",
-    "King2016": "King et al. (2016). Acta Mater. 104, 172. Phi criterion.",
-    "Ye2015": "Ye et al. (2015). Scripta Mater. 104, 53. phi criterion.",
-    "Mansoori1971": "Mansoori et al. (1971). J. Chem. Phys. 54, 1523. Hard-sphere excess entropy.",
-    "deBoer1988": "de Boer et al. (1988). Cohesion in Metals. Miedema parametrization.",
-    "Takeuchi2005": "Takeuchi & Inoue (2005). Mater. Trans. 46, 2817. Pair-enthalpy table.",
-    "Pauling": "Pauling electronegativities from the vendored element table.",
-    "CRC": "Melting points (CRC Handbook) from the curated 55-element table.",
-    "LA4003": "Teatum, Gschneidner & Waber (1968). LA-4003. CN12 metallic radii.",
-    "MS2017": "Miracle & Senkov (2017). Acta Mater. 122, 448. Review. Table 3 cross-checks.",
-    "Singh2014": "Singh et al. (2014). Intermetallics 53, 112. Lambda = S_mix/delta^2.",
-    "Wang2015": "Wang et al. (2015). Scripta Mater. 94, 28. Solid-angle gamma.",
-    "SenkovMiracle2016": "Senkov & Miracle (2016). J. Alloys Compd. 658, 603. k1 vs k1_cr(T).",
-    "Andreoli2019": "Andreoli et al. (2019). Materialia 5, 100222. Elastic-strain energy.",
-    "Tsai2013": "Tsai et al. (2013). Mater. Res. Lett. 1, 207. Sigma-phase VEC window.",
-    "Sheikh2016": "Sheikh et al. (2016). J. Appl. Phys. 120, 164902. RHEA ductility VEC.",
-    "Shannon1976": "Shannon (1976). Acta Cryst. A32, 751. Effective ionic radii.",
-    "Goldschmidt1926": "Goldschmidt (1926). Naturwissenschaften 14, 477. Tolerance factor.",
-    "Bartel2019": "Bartel et al. (2019). Sci. Adv. 5, eaav0693. tau factor.",
-    "Spiridigliozzi2021": "Spiridigliozzi et al. (2021). Acta Mater. 202, 181. Fluorite sigma rule.",
-    "Subramanian1983": "Subramanian et al. (1983). Prog. Solid State Chem. 15, 55. Pyrochlore window.",
-    "ManchonGordon2025": "Manchon-Gordon et al. (2025). Materials 18, 3862. HEO descriptor windows.",
-    "Rost2015": "Rost et al. (2015). Nat. Commun. 6, 8485. Entropy-stabilized oxides.",
-}
-
-#: MCP descriptor name -> (native descriptor name, citation key). Only
-#: the MCP-facing aliases and citation keys live here; the callable and
-#: unit string are pulled from the descriptor backend registry below, so
-#: the two surfaces cannot drift apart.
-_DESCRIPTOR_TABLE = {
-    "s_mix": ("smix", "Boltzmann"),
-    "delta": ("delta", "Zhang2008"),
-    "vec": ("vec", "Guo2011"),
-    "t_melt_mean": ("melting_temperature", "CRC"),
-    "h_mix": ("mixing_enthalpy", "Takeuchi2005"),
-    "omega": ("omega", "Yang2012"),
-    "delta_chi": ("delta_chi", "Pauling"),
-    "chi_mean": ("mean_electronegativity", "Pauling"),
-    "s_excess": ("s_excess", "Mansoori1971"),
-    "delta_g_ss": ("delta_g_ss", "King2016"),
-    "delta_g_max": ("delta_g_max", "King2016"),
-    "phi_king": ("phi_king", "King2016"),
-    "phi_ye": ("phi_ye", "Ye2015"),
-    "lambda_singh": ("singh_lambda", "Singh2014"),
-    "gamma_wang": ("wang_gamma", "Wang2015"),
-    "h_elastic": ("h_elastic", "Andreoli2019"),
-}
-
-#: descriptor name -> (callable, unit, source key). The callables all take
-#: a normalized composition mapping.
-_DESCRIPTORS = {
-    name: (getattr(hb, native), UNITS[native], source)
-    for name, (native, source) in _DESCRIPTOR_TABLE.items()
-}
-
-#: Why a value can be legitimately non-finite, keyed by MCP descriptor
-#: name; used to explain nulled values in warnings. Names absent here
-#: get the King-family reason: their divergence comes from the same
-#: no-competing-intermetallic denominator.
-_DIVERGENCE_REASONS = {
-    "lambda_singh": (
-        "all constituents share the same tabulated radius, so "
-        "delta = 0 and Lambda is unbounded, trivially inside the "
-        "single-solid-solution band"
-    ),
-    "omega": (
-        "the mixing enthalpy is zero, so Omega diverges for this "
-        "near-ideal mixture, and omega_sensitivity tests how stable that is"
-    ),
-}
-_DEFAULT_DIVERGENCE = "no competing intermetallic, which leaves the verdict unaffected"
-
-_OXIDE_FAMILIES = {
-    "rock_salt": (describe_rock_salt, ["Rost2015", "Shannon1976", "ManchonGordon2025"]),
-    "perovskite": (describe_perovskite, ["Goldschmidt1926", "Bartel2019", "Shannon1976", "ManchonGordon2025"]),
-    "fluorite": (describe_fluorite, ["Spiridigliozzi2021", "Shannon1976"]),
-    "pyrochlore": (describe_pyrochlore, ["Subramanian1983", "Shannon1976"]),
-}
-
-_CERAMIC_STRUCTURES = {
-    "rock_salt_carbide": describe_rock_salt_carbide,
-    "rock_salt_nitride": describe_rock_salt_nitride,
-    "diboride": describe_diboride,
-}
-
-
-def _stamp(payload: dict) -> dict:
-    """Attach the library version to a tool response, as strict JSON."""
-    payload["hea_bench_version"] = __version__
-    return strict_json(payload)
-
-
-def _parse(formula: str) -> dict[str, float]:
-    """Parse a composition string (already normalized), with a structured error."""
-    try:
-        return dict(hb.parse_formula(formula))
-    except Exception as exc:
-        raise ValueError(
-            f"could not parse composition {formula!r}: {exc}. Use element "
-            f"symbols with optional amounts, e.g. 'CoCrFeMnNi' or "
-            f"'Co20Cu20Fe5Mn35Ni20' or 'Al0.3CoCrFeNi'."
-        ) from None
+from . import __version__, service
+from .service._payload import SOURCES, needs_corpus, stamp
 
 
 def parse_composition(formula: str) -> dict:
@@ -173,8 +47,7 @@ def parse_composition(formula: str) -> dict:
     ``Co20Cu20Fe5Mn35Ni20`` (percent-style amounts). Amounts are
     normalized to fractions that sum to 1.
     """
-    comp = _parse(formula)
-    return _stamp({"input": formula, "composition": comp})
+    return stamp(service.alloys.parse_composition(formula))
 
 
 def alloy_descriptors(
@@ -199,44 +72,9 @@ def alloy_descriptors(
     ``pair_enthalpies`` add elements and pair values for this call only,
     like the app's custom-element and pair editors.
     """
-    results = []
-    with hb.custom_data(elements=custom_elements, pair_enthalpies=pair_enthalpies):
-        for formula in compositions:
-            comp = _parse(formula)
-            descriptors: dict[str, dict] = {}
-            warnings: list[str] = []
-            for name, (func, unit, source) in _DESCRIPTORS.items():
-                try:
-                    if name == "phi_king" and king_temperature is not None:
-                        value = func(comp, temperature=king_temperature)
-                    else:
-                        value = func(comp)
-                except Exception as exc:
-                    descriptors[name] = {"value": None, "unit": unit, "source": source}
-                    warnings.append(f"{name}: not computable for {formula!r} ({exc})")
-                    continue
-                safe = json_safe(value)
-                descriptors[name] = {"value": safe, "unit": unit, "source": source}
-                if safe is None and value is not None:
-                    reason = _DIVERGENCE_REASONS.get(name, _DEFAULT_DIVERGENCE)
-                    warnings.append(f"{name}: value is unbounded for {formula!r} ({reason})")
-                elif value is None:
-                    warnings.append(
-                        f"{name}: not computable for {formula!r} "
-                        f"(an element lacks the required per-element data)"
-                    )
-            miedema = miedema_decomposition(comp)
-            warnings.extend(miedema.pop("warnings"))
-            results.append(
-                {
-                    "input": formula,
-                    "composition": comp,
-                    "descriptors": descriptors,
-                    "miedema_enthalpies": {**miedema, "unit": "kJ/mol", "source": "deBoer1988"},
-                    "warnings": warnings,
-                }
-            )
-    return _stamp({"results": results})
+    return stamp(service.alloys.alloy_descriptors(
+        compositions, king_temperature, custom_elements, pair_enthalpies
+    ))
 
 
 def alloy_rules(
@@ -259,109 +97,9 @@ def alloy_rules(
     is null when there is nothing to say. ``custom_elements`` and
     ``pair_enthalpies`` work as in ``alloy_descriptors``.
     """
-    with hb.custom_data(elements=custom_elements, pair_enthalpies=pair_enthalpies):
-        return _alloy_rules(compositions, king_temperature)
-
-
-def _alloy_rules(compositions: list[str], king_temperature: float | None) -> dict:
-    def fixed(module, value_func, **predict_kw):
-        """Rule whose verdict comes with a descriptor value and static threshold."""
-        def evaluate(comp):
-            return module.predict(comp, **predict_kw), value_func(comp), {}
-        return evaluate
-
-    def guo_evaluate(comp):
-        return guo_vec.predict(comp), hb.vec(comp), {"note": guo_vec.boundary_note(comp)}
-
-    def senkov_evaluate(comp):
-        kp = senkov_kappa.predict(comp, temperature=king_temperature)
-        return kp.verdict, kp.k1, {
-            "threshold": json_safe(kp.k1_cr),
-            "temperature_K": kp.temperature_K,
-            "im_pair": list(kp.im_pair) if kp.im_pair else None,
-            "note": kp.note,
-        }
-
-    def tsai_evaluate(comp):
-        sp = tsai_sigma.predict(comp)
-        return sp.verdict, sp.vec, {}
-
-    def sheikh_evaluate(comp):
-        dp = sheikh_ductility.predict(comp)
-        return dp.verdict, dp.vec, {}
-
-    if king_temperature is not None:
-        king_evaluate = fixed(
-            king_phi,
-            lambda c: hb.phi_king(c, temperature=king_temperature),
-            temperature_policy=king_temperature,
-        )
-    else:
-        king_evaluate = fixed(king_phi, hb.phi_king)
-
-    # (payload name, citation key, static threshold, evaluate, divergence
-    # reason). evaluate(comp) -> (verdict, raw value, payload overrides);
-    # the overrides carry dynamic thresholds and rule-specific extras.
-    # The payload name for the entropy rule is "yeh_entropy"; the library
-    # registry accepts it as an alias of yeh_smix wherever rules are
-    # named (see hea_bench.rules.RULE_ALIASES).
-    rule_specs = (
-        ("yeh_entropy", "Yeh2004", "1.0R / 1.5R class bounds",
-         fixed(yeh_smix, hb.smix), None),
-        ("zhang_delta", "Zhang2008", zhang_delta.DEFAULT_THRESHOLD,
-         fixed(zhang_delta, hb.delta), None),
-        ("guo_vec", "Guo2011", "FCC >= 8.0, BCC < 6.87",
-         guo_evaluate, None),
-        ("yang_omega", "Yang2012", yang_omega.DEFAULT_THRESHOLD,
-         fixed(yang_omega, hb.omega), _DIVERGENCE_REASONS["omega"]),
-        ("king_phi", "King2016", king_phi.DEFAULT_THRESHOLD,
-         king_evaluate, None),
-        ("ye_phi", "Ye2015", ye_phi.DEFAULT_THRESHOLD,
-         fixed(ye_phi, hb.phi_ye), None),
-        ("senkov_kappa", "SenkovMiracle2016", None, senkov_evaluate, None),
-        ("tsai_sigma", "Tsai2013", "Cr/V present and 6.88 <= VEC <= 7.84",
-         tsai_evaluate, None),
-        ("sheikh_ductility", "Sheikh2016",
-         "VEC < 4.5 ductile, >= 4.6 brittle (bcc RHEAs of Ti, Zr, Hf, V, Nb, Ta, Cr, Mo, W only)",
-         sheikh_evaluate, None),
-    )
-
-    results = []
-    for formula in compositions:
-        comp = _parse(formula)
-        rules: dict[str, dict] = {}
-        warnings: list[str] = []
-        for name, source, threshold, evaluate, divergence in rule_specs:
-            try:
-                verdict, raw, overrides = evaluate(comp)
-            except Exception as exc:
-                rules[name] = {
-                    "verdict": None,
-                    "value": None,
-                    "threshold": threshold,
-                    "source": source,
-                }
-                warnings.append(f"{name}: not computable for {formula!r} ({exc})")
-                continue
-            value = json_safe(raw)
-            entry = {
-                "verdict": verdict,
-                "value": value,
-                "threshold": threshold,
-                "source": source,
-            }
-            entry.update(overrides)
-            rules[name] = entry
-            if value is None and raw is not None:
-                reason = divergence or "no competing intermetallic"
-                warnings.append(
-                    f"{name}: value is unbounded for {formula!r} "
-                    f"({reason}), which leaves the verdict unaffected"
-                )
-        results.append(
-            {"input": formula, "composition": comp, "rules": rules, "warnings": warnings}
-        )
-    return _stamp({"results": results})
+    return stamp(service.alloys.alloy_rules(
+        compositions, king_temperature, custom_elements, pair_enthalpies
+    ))
 
 
 def omega_sensitivity(
@@ -382,9 +120,9 @@ def omega_sensitivity(
     compilations). A wide Omega range means the verdict, not the number,
     is what to trust.
     """
-    with hb.custom_data(elements=custom_elements, pair_enthalpies=pair_enthalpies):
-        report = hb.omega_sensitivity(_parse(composition), perturbation_kj_mol)
-    return _stamp({"input": composition, **report})
+    return stamp(service.alloys.omega_sensitivity(
+        composition, perturbation_kj_mol, custom_elements, pair_enthalpies
+    ))
 
 
 def oxide_report(
@@ -409,28 +147,9 @@ def oxide_report(
     every warning raised along the way. The screens are weak empirical
     criteria calibrated on small datasets, so treat verdicts as hints.
     """
-    if family not in _OXIDE_FAMILIES:
-        raise ValueError(
-            f"unknown family {family!r}: expected one of {sorted(_OXIDE_FAMILIES)}"
-        )
-    describe, sources = _OXIDE_FAMILIES[family]
-    site_a = _parse(cations)
-
-    if family in ("perovskite", "pyrochlore"):
-        if not b_site_cations:
-            raise ValueError(f"{family} requires b_site_cations (the B sublattice)")
-        report = describe(site_a, _parse(b_site_cations), spin=spin)
-    elif family == "fluorite":
-        if oxygen_per_formula_unit is not None:
-            report = describe(site_a, oxygen=oxygen_per_formula_unit, spin=spin)
-        else:
-            report = describe(site_a, spin=spin)
-    else:
-        report = describe(site_a, spin=spin)
-
-    report = dict(report)
-    report["sources"] = sources
-    return _stamp(report)
+    return stamp(service.alloys.oxide_report(
+        family, cations, b_site_cations, oxygen_per_formula_unit, spin
+    ))
 
 
 def ceramic_report(structure: str, metals: str) -> dict:
@@ -444,11 +163,7 @@ def ceramic_report(structure: str, metals: str) -> dict:
     deliberately gives no formability verdict, because no single
     published window exists.
     """
-    if structure not in _CERAMIC_STRUCTURES:
-        raise ValueError(
-            f"unknown structure {structure!r}: expected one of {sorted(_CERAMIC_STRUCTURES)}"
-        )
-    return _stamp(dict(_CERAMIC_STRUCTURES[structure](_parse(metals))))
+    return stamp(service.alloys.ceramic_report(structure, metals))
 
 
 def element_data(elements: list[str] | None = None) -> dict:
@@ -460,9 +175,7 @@ def element_data(elements: list[str] | None = None) -> dict:
     element supports, the cited references and the SHA-256 of every
     data file. Omitting ``elements`` returns all 55 elements.
     """
-    from .descriptors.elements import element_data as tabulated
-
-    return _stamp(tabulated(elements))
+    return stamp(service.alloys.element_data(elements))
 
 
 def element_coverage() -> dict:
@@ -472,19 +185,7 @@ def element_coverage() -> dict:
     produce warnings rather than numbers, and oxide cations outside the
     Shannon table raise structured errors.
     """
-    from .descriptors.data.elemental import ELEMENTAL_DATA
-    from .oxides._data import OXIDE_ELEMENTS
-
-    return _stamp({
-        "alloy_descriptors_and_rules": sorted(ELEMENTAL_DATA),
-        "alloy_count": len(ELEMENTAL_DATA),
-        "miedema_pair_table_note": (
-            "The vendored Miedema pair-enthalpy table extends mixing-enthalpy "
-            "estimates to 75 elements in total."
-        ),
-        "oxide_shannon_table": sorted(OXIDE_ELEMENTS),
-        "oxide_count": len(OXIDE_ELEMENTS),
-    })
+    return stamp(service.alloys.element_coverage())
 
 
 # -- corpus, properties, applicability, design, campaigns -------------------
@@ -496,53 +197,6 @@ def element_coverage() -> dict:
 # optional extras or missing local data surface as ValueError with the
 # exact fix in the message, not a traceback; and the expensive calls
 # carry hard caps because agents call tools carelessly.
-
-_CORPUS_SAMPLE_CAP = 50
-_DESIGN_MAX_PALETTE = 10
-_DESIGN_MAX_CANDIDATES = 20
-_DESIGN_MIN_STEP = 0.05
-_DESIGN_BUDGET = 50_000
-_CAMPAIGN_MAX_BATCH = 10
-
-
-def _needs_corpus(exc: FileNotFoundError) -> ValueError:
-    return ValueError(f"{exc}\nFrom an MCP client, call the corpus_build tool once instead.")
-
-
-def _corpus_slice(
-    version: str,
-    elements: list[str] | None,
-    contains: list[str] | None,
-    excludes: list[str] | None,
-    n_elements_min: int | None,
-    n_elements_max: int | None,
-    phase: str | None,
-    source: str | None,
-    labelled: bool | None,
-    has_conflict: bool | None,
-    descriptor_ready: bool | None,
-):
-    from .corpus import load_corpus
-
-    try:
-        corpus = load_corpus(version=version)
-    except FileNotFoundError as exc:
-        raise _needs_corpus(exc) from None
-    n_range = None
-    if n_elements_min is not None or n_elements_max is not None:
-        n_range = (n_elements_min or 1, n_elements_max or 99)
-    return corpus.query(
-        elements=elements,
-        contains=contains,
-        excludes=excludes,
-        n_elements=n_range,
-        phase=phase,
-        source=source,
-        labelled=labelled,
-        has_conflict=has_conflict,
-        descriptor_ready=descriptor_ready,
-    )
-
 
 def corpus_query(
     elements: list[str] | None = None,
@@ -570,22 +224,11 @@ def corpus_query(
     for the licensing reasons in the corpus card. ``corpus_build`` builds
     it once.
     """
-    subset = _corpus_slice(
+    subset = service.dataset.tool_slice(
         version, elements, contains, excludes, n_elements_min, n_elements_max,
         phase, source, labelled, has_conflict, descriptor_ready,
     )
-    from .webapp import _row_payload
-
-    capped = min(max(0, limit), _CORPUS_SAMPLE_CAP)
-    sample = [_row_payload(row) for row in subset.rows[:capped]]
-    return _stamp(
-        {
-            "corpus_version": subset.version,
-            "n_matching": len(subset),
-            "sample": sample,
-            "sample_capped_at": _CORPUS_SAMPLE_CAP,
-        }
-    )
+    return stamp(service.dataset.sample(subset, limit))
 
 
 def corpus_describe(
@@ -607,11 +250,11 @@ def corpus_describe(
     multi-source agreement rate (its complement is the conflict
     quarantine). Same filters as ``corpus_query``.
     """
-    subset = _corpus_slice(
+    subset = service.dataset.tool_slice(
         version, elements, contains, excludes, n_elements_min, n_elements_max,
         phase, source, labelled, has_conflict, descriptor_ready,
     )
-    return _stamp(subset.describe())
+    return stamp(subset.describe())
 
 
 def corpus_export(
@@ -635,12 +278,12 @@ def corpus_export(
     file.
     """
     target = _new_file(path)
-    subset = _corpus_slice(
+    subset = service.dataset.tool_slice(
         version, elements, contains, excludes, n_elements_min, n_elements_max,
         phase, source, labelled, has_conflict, descriptor_ready,
     )
     n_rows = subset.to_csv(target)
-    return _stamp({"path": str(target.resolve()), "n_rows": n_rows, "corpus_version": subset.version})
+    return stamp({"path": str(target.resolve()), "n_rows": n_rows, "corpus_version": subset.version})
 
 
 def corpus_build(versions: list[str] | None = None) -> dict:
@@ -650,22 +293,7 @@ def corpus_build(versions: list[str] | None = None) -> dict:
     network. Builds every version by default. Rebuilding reproduces the
     same corpus, so calling it again is harmless.
     """
-    from .corpus import build_corpus
-    from .webapp import _clear_caches
-
-    try:
-        built = build_corpus(*(versions or ()))
-    except OSError as exc:
-        raise ValueError(str(exc)) from None
-    _clear_caches()
-    return _stamp(
-        {
-            "built": {
-                version: {"location": manifest["location"], "totals": manifest["totals"]}
-                for version, manifest in built.items()
-            }
-        }
-    )
+    return stamp(service.dataset.build_all(versions))
 
 
 def predict_properties(
@@ -684,32 +312,7 @@ def predict_properties(
     payload. Missing optional installs come back as a clear error
     naming the pip command.
     """
-    from .properties import (
-        PropertyUnavailableError,
-        available_properties,
-        predict_property,
-    )
-
-    known = available_properties()
-    wanted = properties or sorted(known)
-    for name in wanted:
-        if name not in known:
-            raise ValueError(
-                f"unknown property {name!r}: expected one of {sorted(known)}"
-            )
-
-    results = []
-    for formula in compositions:
-        comp = _parse(formula)
-        entry: dict = {"input": formula, "composition": comp, "properties": {}}
-        for name in wanted:
-            try:
-                prediction = predict_property(comp, name, alpha=alpha, processing=processing)
-            except PropertyUnavailableError as exc:
-                raise ValueError(str(exc)) from None
-            entry["properties"][name] = prediction.to_dict()
-        results.append(entry)
-    return _stamp({"results": results})
+    return stamp(service.predictions.predict_properties(compositions, properties, alpha, processing))
 
 
 def measured_properties(
@@ -723,12 +326,7 @@ def measured_properties(
     The result gives the exact match count and a sample capped at 50
     rows.
     """
-    from .webapp import measured_properties as records
-
-    payload = records(prop, contains)
-    payload["rows"] = payload["rows"][: min(max(0, limit), _CORPUS_SAMPLE_CAP)]
-    payload["sample_capped_at"] = _CORPUS_SAMPLE_CAP
-    return _stamp(payload)
+    return stamp(service.dataset.measured_sample(prop, contains, limit))
 
 
 def check_applicability(composition: str) -> dict:
@@ -740,19 +338,7 @@ def check_applicability(composition: str) -> dict:
     ``in_domain`` flag. Needs a built corpus. The components describe
     how well this package's corpus covers your query, nothing else.
     """
-    from .uncertainty import default_domain
-
-    comp = _parse(composition)
-    domain = default_domain()
-    if domain is None:
-        raise ValueError(
-            "the corpus is not built on this machine, so applicability cannot be "
-            "assessed. Call the corpus_build tool once, then try again."
-        )
-    payload = domain.novelty(comp)
-    payload["input"] = composition
-    payload["corpus_version"] = domain.corpus_version
-    return _stamp(payload)
+    return stamp(service.predictions.check_applicability(composition))
 
 
 def predict_phase_set(
@@ -772,24 +358,7 @@ def predict_phase_set(
     novelty measures, and plain-language warnings. The first call per
     task fits the model (several seconds).
     """
-    from .benchmark.corpus import TASKS
-    from .uncertainty.phase import predict_phase_set as predict
-
-    if task not in TASKS:
-        raise ValueError(f"unknown task {task!r}: expected one of {sorted(TASKS)}")
-    results = []
-    for formula in compositions:
-        comp = _parse(formula)
-        try:
-            entry = predict(comp, task=task, alpha=alpha, version=version)
-        except FileNotFoundError as exc:
-            raise _needs_corpus(exc) from None
-        except ImportError:
-            raise ValueError('phase prediction needs scikit-learn: pip install "hea-bench[mcp]"') from None
-        except ValueError as exc:
-            entry = {"error": str(exc)}
-        results.append({"input": formula, "composition": comp, **entry})
-    return _stamp({"task": task, "alpha": alpha, "corpus_version": version, "results": results})
+    return stamp(service.predictions.predict_phase_set(compositions, task, alpha, version))
 
 
 def design_search(
@@ -823,85 +392,22 @@ def design_search(
     Results are a screening aid, not answers. See
     docs/design-recovery.md.
     """
-    from .design import (
-        CompositionConstraint,
-        DomainConstraint,
-        Maximize,
-        Minimize,
-        PropertyConstraint,
-        RuleConstraint,
-        search,
-    )
-
-    if len(elements) > _DESIGN_MAX_PALETTE:
-        raise ValueError(
-            f"palette of {len(elements)} exceeds the tool cap of "
-            f"{_DESIGN_MAX_PALETTE} elements. Screen a narrower palette."
-        )
-    if max_candidates > _DESIGN_MAX_CANDIDATES:
-        raise ValueError(
-            f"max_candidates {max_candidates} exceeds the tool cap of "
-            f"{_DESIGN_MAX_CANDIDATES}"
-        )
-    if step < _DESIGN_MIN_STEP:
-        raise ValueError(
-            f"step {step} is below the tool floor of {_DESIGN_MIN_STEP}. "
-            f"Finer lattices belong in the Python API with an explicit budget."
-        )
-
-    objective_objects = []
-    for pair in objectives or []:
-        direction, name = pair
-        if direction == "maximize":
-            objective_objects.append(Maximize(name))
-        elif direction == "minimize":
-            objective_objects.append(Minimize(name))
-        else:
-            raise ValueError(f"objective direction must be maximize or minimize, got {direction!r}")
-
-    constraints: list = []
-    for entry in composition_constraints or []:
-        constraints.append(
-            CompositionConstraint(
-                entry["element"], min=entry.get("min", 0.0), max=entry.get("max", 1.0)
-            )
-        )
-    for entry in rule_constraints or []:
-        satisfied = entry["satisfied"]
-        constraints.append(
-            RuleConstraint(
-                entry["rule"],
-                tuple(satisfied) if isinstance(satisfied, list) else satisfied,
-            )
-        )
-    for entry in property_constraints or []:
-        constraints.append(
-            PropertyConstraint(
-                entry["prop"],
-                min=entry.get("min"),
-                max=entry.get("max"),
-                bound=entry.get("bound", "point"),
-            )
-        )
-    if include_out_of_domain:
-        constraints.append(DomainConstraint(in_domain=None))
-
-    try:
-        result = search(
+    return stamp(
+        service.design.design_search(
             elements,
-            n_elements=(n_elements_min, n_elements_max),
-            constraints=tuple(constraints),
-            objectives=tuple(objective_objects),
-            n_candidates=max_candidates,
+            n_elements_min=n_elements_min,
+            n_elements_max=n_elements_max,
             step=step,
-            max_evaluations=_DESIGN_BUDGET,
+            objectives=objectives,
+            composition_constraints=composition_constraints,
+            rule_constraints=rule_constraints,
+            property_constraints=property_constraints,
+            include_out_of_domain=include_out_of_domain,
             optimize_bound=optimize_bound,
+            max_candidates=max_candidates,
             alpha=alpha,
         )
-    except (RuntimeError, ValueError) as exc:
-        raise ValueError(str(exc)) from None
-
-    return _stamp(result.to_dict())
+    )
 
 
 def campaign_suggest(
@@ -930,10 +436,8 @@ def campaign_suggest(
             "(the file's contents)"
         )
     if campaign is not None:
-        from .webapp import campaign_suggest as suggest_inline
-
-        return _stamp(suggest_inline(campaign, n=n, strategy=strategy))
-    _check_batch(n)
+        return stamp(service.design.suggest_inline(campaign, n=n, strategy=strategy))
+    service.design.check_batch(n)
     path = pathlib.Path(campaign_path)
     if not path.exists():
         raise ValueError(f"no campaign file at {campaign_path!r}")
@@ -941,54 +445,20 @@ def campaign_suggest(
         loaded = Campaign.load(path)
     except (RuntimeError, ValueError) as exc:
         raise ValueError(str(exc)) from None
-    return _stamp({"campaign_path": str(path), **_suggestions(loaded, n, strategy)})
-
-
-def _check_batch(n: int) -> None:
-    if n > _CAMPAIGN_MAX_BATCH:
-        raise ValueError(f"batch of {n} exceeds the tool cap of {_CAMPAIGN_MAX_BATCH}")
-
-
-def _suggestions(campaign, n: int, strategy: str) -> dict:
-    """A loaded campaign's next batch, capped, in the tool's payload shape."""
-    _check_batch(n)
-    try:
-        suggestions = campaign.suggest(n=n, strategy=strategy)
-    except (RuntimeError, ValueError) as exc:  # ColdStartError is a RuntimeError
-        raise ValueError(str(exc)) from None
-    return {
-        "objective": campaign.objective,
-        "direction": campaign.direction,
-        "n_observations": len(campaign.observations),
-        "n_informative": campaign.n_informative(),
-        "strategy": strategy,
-        "suggestions": [
-            {
-                "composition": dict(s.composition),
-                "mean": json_safe(float(s.mean)),
-                "interval": [
-                    json_safe(float(s.interval[0])),
-                    json_safe(float(s.interval[1])),
-                ],
-                "in_domain": s.in_domain,
-                "acquisition": json_safe(float(s.acquisition)),
-            }
-            for s in suggestions
-        ],
-    }
+    return stamp({"campaign_path": str(path), **service.design.suggestions(loaded, n, strategy)})
 
 
 # -- benchmark ----------------------------------------------------------------
 #
-# Thin wrappers over the app's own bridge methods (hea_bench.webapp), so
-# the Benchmark tab and these tools return the same numbers.
+# Thin wrappers over hea_bench.service.benchmark, which the app's Benchmark
+# tab also calls, so the two return the same numbers.
 
 
 def _bench(method, *args, **kwargs) -> dict:
     try:
         return method(*args, **kwargs)
     except FileNotFoundError as exc:
-        raise _needs_corpus(exc) from None
+        raise needs_corpus(exc) from None
     except ImportError:
         raise ValueError(
             'the fitted baselines need scikit-learn: pip install "hea-bench[mcp]"'
@@ -1013,9 +483,7 @@ def benchmark_summary(task: str = "single_vs_multi", version: str = "0.1.0") -> 
     frozen SHA-256 digests, the baselines you can score live with
     ``benchmark_run``, and the published results table for v0.1.0.
     """
-    from .webapp import benchmark_summary as summary
-
-    return _stamp(_bench(summary, task, version))
+    return stamp(_bench(service.benchmark.summary, task, version))
 
 
 def benchmark_run(model: str, task: str = "single_vs_multi", version: str = "0.1.0") -> dict:
@@ -1027,9 +495,7 @@ def benchmark_run(model: str, task: str = "single_vs_multi", version: str = "0.1
     which measures how much harder extrapolation is than interpolation.
     The fitted baselines take tens of seconds.
     """
-    from .webapp import benchmark_run as run
-
-    return _stamp(_bench(run, model, task, version))
+    return stamp(_bench(service.benchmark.run, model, task, version))
 
 
 def benchmark_folds(path: str, task: str = "single_vs_multi", version: str = "0.1.0") -> dict:
@@ -1040,12 +506,10 @@ def benchmark_folds(path: str, task: str = "single_vs_multi", version: str = "0.
     ``n_elements`` and ``descriptors_finite``. Score the predictions
     with ``benchmark_score``. Refuses to overwrite an existing file.
     """
-    from .webapp import benchmark_folds_csv
-
     target = _new_file(path)
-    folds = _bench(benchmark_folds_csv, task, version)
+    folds = _bench(service.benchmark.folds_csv, task, version)
     target.write_text(folds["text"], encoding="utf-8", newline="")
-    return _stamp({"path": str(target.resolve()), "n_rows": folds["n_rows"], "task": task})
+    return stamp({"path": str(target.resolve()), "n_rows": folds["n_rows"], "task": task})
 
 
 def benchmark_score(
@@ -1062,13 +526,11 @@ def benchmark_score(
     scheme's test fold. The folds come from ``benchmark_folds``. Returns
     the same report as ``benchmark_run``, including the ``gap``.
     """
-    from .webapp import benchmark_score as score
-
     source = pathlib.Path(predictions_path).expanduser()
     if not source.exists():
         raise ValueError(f"no predictions file at {predictions_path!r}")
     text = source.read_text(encoding="utf-8-sig")
-    return _stamp(_bench(score, text, task, version, model_name))
+    return stamp(_bench(service.benchmark.score_csv, text, task, version, model_name))
 
 
 def coverage_study(task: str = "single_vs_multi", version: str = "0.1.0") -> dict:
@@ -1079,18 +541,14 @@ def coverage_study(task: str = "single_vs_multi", version: str = "0.1.0") -> dic
     several miscoverage levels, for all test alloys and separately for
     the in-domain and out-of-domain groups. Takes a minute or more.
     """
-    from .webapp import coverage
-
-    return _stamp(_bench(coverage, task, version))
+    return stamp(_bench(service.benchmark.coverage, task, version))
 
 
 def about() -> dict:
     """Version, provenance, license, capability availability, citations."""
     import importlib.util
 
-    from .webapp import dataset_status
-
-    built = dataset_status()["built"]
+    built = service.dataset.status()["built"]
     sklearn_present = importlib.util.find_spec("sklearn") is not None
     heacalculator_present = importlib.util.find_spec("HEACalculator") is not None
     capabilities = {
@@ -1103,7 +561,7 @@ def about() -> dict:
         "campaigns": sklearn_present,
         "interop": heacalculator_present,
     }
-    return _stamp({
+    return stamp({
         "capabilities": capabilities,
         "corpus_versions_built": built,
         "capability_notes": {

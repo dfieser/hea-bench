@@ -35,51 +35,19 @@ from __future__ import annotations
 
 import csv
 import json
-import os
 import pathlib
 from collections import Counter
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass, field, replace
 
-from .. import _paths
+from .._paths import CORPUS_DIR_ENV as _ENV_VAR
+from .._paths import SOURCE_COLUMN_PREFIX, corpus_location
 from ..composition import Composition, family_of, parse_formula
 
 #: The version :func:`load_corpus` and the dataset browsers open by default:
 #: the largest. The benchmark and the predictions stay on the reference
 #: corpus "0.1.0" (``hea_bench.benchmark.corpus.DEFAULT_CORPUS_VERSION``).
 DEFAULT_CORPUS_VERSION = "0.2.0"
-
-#: Source name -> short CSV column prefix. The consolidated CSV schema
-#: derives its per-source label columns from this table (the build in
-#: hea_bench.benchmark.consolidate imports it from here).
-SOURCE_COLUMN_PREFIX = {
-    "borg2020": "borg",
-    "pei2020": "pei",
-    "peivaste": "peivaste",
-    "chizhevskiy2026": "chizhevskiy",
-}
-
-_ENV_VAR = "HEA_BENCH_BENCHMARK_DIR"
-
-
-def corpus_location(version: str, corpus_dir: pathlib.Path | None = None) -> pathlib.Path:
-    """Resolve the directory a corpus version is read from.
-
-    Explicit ``corpus_dir`` wins, then the ``HEA_BENCH_BENCHMARK_DIR``
-    environment variable (with ``v<version>`` appended), then the
-    default: ``data/consolidated/v<version>`` in a repository checkout,
-    and ``consolidated/v<version>`` in the per-user hea-bench folder for
-    an installed package (``%LOCALAPPDATA%\\hea-bench`` on Windows,
-    ``~/.local/share/hea-bench`` on Linux and
-    ``~/Library/Application Support/hea-bench`` on macOS).
-    """
-    if corpus_dir is not None:
-        return pathlib.Path(corpus_dir)
-    override = os.environ.get(_ENV_VAR)
-    if override:
-        return pathlib.Path(override) / f"v{version}"
-    return _paths.consolidated_dir() / f"v{version}"
-
 
 def missing_corpus_error(path: pathlib.Path) -> FileNotFoundError:
     """The corpus is built, not shipped, so the error must say how to build it."""

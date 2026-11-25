@@ -74,6 +74,28 @@ built exe before it is attached to a release.
 - `hea-features.js` and `hea-features.css` hold the Dataset, Design and
   Benchmark tabs, the predictions panel, the Ω check and Ceramics mode.
 
+## The page files
+
+- `index.html` holds the markup of the landing page and every tab. It
+  also keeps one inline script with the constants that tools rewrite in
+  place. `tools/version.py` and `tools/autorelease.py` write `VERSION`,
+  `VERSION_DATE` and `VERSION_HISTORY`, and
+  `tests/data/_sync_js_provenance.py` writes the provenance tables
+  between the `GENERATED: PROVENANCE_TABLES` markers. The same script
+  holds the page's copy of the element table. The landing page keeps its
+  own inline `<style id="landing-styles">`, which the page switches by id.
+- `hea-calculator-ui.js` is the Calculator tab's page code: the form and
+  results, the maps, saved results, custom elements and the
+  pair-enthalpy editor, oxide mode, the provenance drawer, receipts and
+  citations, the element data view and the theme. It loads as a classic
+  script right after the inline block, so it reads those constants as
+  globals.
+- `hea-app.css` holds the base styles every tab uses, and
+  `hea-features.css` loads after it.
+
+The text, parity and parser checks find every `web/*.js` file by glob,
+so they check a new page script from its first commit.
+
 ## web/engine/ (gitignored, built at deploy time)
 
 `python tools/build_web_engine.py` writes `web/engine/`: the pinned
@@ -89,9 +111,10 @@ reports a stale or missing bundle and the exact fix.
 
 ## Asset URLs
 
-The four scripts and the stylesheet load as `name?v=<version>`, stamped
-by `tools/version.py`, so a release never mixes a new page with cached
-old scripts. Do not edit those query strings by hand.
+The four page scripts and the two stylesheets load as
+`name?v=<version>`, stamped by `tools/version.py`, so a release never
+mixes a new page with cached old scripts. Do not edit those query
+strings by hand.
 
 ## Changing the app
 
@@ -105,5 +128,7 @@ old scripts. Do not edit those query strings by hand.
    anything missing and the exact fix.
 2. Descriptor, rule, oxide, ceramics or tier A change: update
    `hea-calculator-core.js` and run the parity suites listed above.
-3. Page-only UI work: edit `index.html` or
-   `hea-features.js` / `hea-features.css`.
+3. Page-only UI work: edit `index.html` for markup,
+   `hea-calculator-ui.js` / `hea-app.css` for the Calculator and the
+   shared styles, or `hea-features.js` / `hea-features.css` for the
+   other tabs.

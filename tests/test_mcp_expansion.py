@@ -147,6 +147,38 @@ def test_design_search_runs_and_stamps() -> None:
     assert "properties" in candidate
 
 
+def test_design_search_applies_composition_and_rule_constraints() -> None:
+    out = design_search(
+        ["Al", "Fe"],
+        n_elements_min=2,
+        n_elements_max=2,
+        step=0.25,
+        composition_constraints=[{"element": "Al", "max": 0.5}],
+        rule_constraints=[{"rule": "zhang_delta", "satisfied": ["single-phase", "multi-phase"]}],
+        include_out_of_domain=True,
+    )
+    assert out["n_evaluated"] == 3
+    assert [c["composition"] for c in out["candidates"]] == [
+        {"Al": 0.25, "Fe": 0.75},
+        {"Al": 0.5, "Fe": 0.5},
+    ]
+
+
+def test_design_search_rejects_an_unknown_objective_direction() -> None:
+    with pytest.raises(ValueError, match="maximize or minimize, got 'sideways'"):
+        design_search(["Al", "Fe"], objectives=[["sideways", "hardness"]])
+
+
+def test_design_search_reports_library_errors_as_value_errors() -> None:
+    with pytest.raises(ValueError, match="not covered by the descriptor tables: Zz"):
+        design_search(["Al", "Zz"], n_elements_min=2, include_out_of_domain=True)
+
+
+def test_predict_properties_refuses_processing_for_closed_form_properties() -> None:
+    with pytest.raises(ValueError, match="tier B"):
+        predict_properties(["CoCrFeMnNi"], properties=["density"], processing="CAST")
+
+
 def test_campaign_suggest_operates_on_a_user_file(tmp_path) -> None:
     pytest.importorskip("sklearn")
     from hea_bench.design import DomainConstraint

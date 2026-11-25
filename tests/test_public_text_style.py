@@ -313,8 +313,9 @@ def _script_hits(path: str, code: str, first_line: int = 1) -> list[str]:
 
 def test_web_scripts_have_no_em_dash_or_semicolon_in_strings() -> None:
     hits = []
-    for name in ("hea-features.js", "hea-calculator-core.js", "hea-engine.js", "hea-engine-worker.js"):
-        hits += _script_hits(f"web/{name}", (ROOT / "web" / name).read_text(encoding="utf-8"))
+    # Every script the app ships, found by glob so a new one is checked from its first commit.
+    for path in sorted((ROOT / "web").glob("*.js")):
+        hits += _script_hits(f"web/{path.name}", path.read_text(encoding="utf-8"))
     page = _PageText()
     page.feed((ROOT / "web" / "index.html").read_text(encoding="utf-8"))
     for line, code in page.scripts:

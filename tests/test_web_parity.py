@@ -209,7 +209,11 @@ def test_app_scripts_use_the_core_formula_parser() -> None:
     through HeaCalculatorCore.parseFormula; a second hand-rolled element
     tokenizer in a page script is how the app drifted from Python before."""
     tokenizer = re.compile(r"\[A-Z\]\[a-z\]\?")
-    for name in ("index.html", "hea-features.js"):
+    # The page and every script but the core itself, which holds the one parser.
+    pages = ["index.html"] + sorted(
+        path.name for path in (ROOT / "web").glob("*.js") if path.name != "hea-calculator-core.js"
+    )
+    for name in pages:
         text = (ROOT / "web" / name).read_text(encoding="utf-8")
         assert not tokenizer.search(text), (
             f"web/{name} tokenizes element symbols itself; call "

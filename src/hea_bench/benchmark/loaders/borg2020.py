@@ -21,12 +21,12 @@ from . import AlloyRecord
 SOURCE_NAME = "borg2020"
 
 # Column names — Borg's upstream headers, verbatim (including raw LaTeX).
-_COL_REF_ID         = "IDENTIFIER: Reference ID"
-_COL_FORMULA        = "FORMULA"
-_COL_MICROSTRUCTURE = "PROPERTY: Microstructure"
-_COL_PROCESSING     = "PROPERTY: Processing method"
-_COL_SIMPLE_PHASE   = "PROPERTY: BCC/FCC/other"
-_COL_DOI            = "REFERENCE: doi"
+COL_REF_ID         = "IDENTIFIER: Reference ID"
+COL_FORMULA        = "FORMULA"
+COL_MICROSTRUCTURE = "PROPERTY: Microstructure"
+COL_PROCESSING     = "PROPERTY: Processing method"
+COL_SIMPLE_PHASE   = "PROPERTY: BCC/FCC/other"
+COL_DOI            = "REFERENCE: doi"
 
 
 def load(csv_path: pathlib.Path) -> Iterator[AlloyRecord]:
@@ -51,10 +51,10 @@ def load(csv_path: pathlib.Path) -> Iterator[AlloyRecord]:
 
     with csv_path.open(newline="", encoding="utf-8-sig") as f:
         for raw in csv.DictReader(f):
-            formula = (raw.get(_COL_FORMULA) or "").strip()
-            processing = (raw.get(_COL_PROCESSING) or "").strip()
-            source_label = (raw.get(_COL_SIMPLE_PHASE) or "").strip()
-            full_microstructure = (raw.get(_COL_MICROSTRUCTURE) or "").strip()
+            formula = (raw.get(COL_FORMULA) or "").strip()
+            processing = (raw.get(COL_PROCESSING) or "").strip()
+            source_label = (raw.get(COL_SIMPLE_PHASE) or "").strip()
+            full_microstructure = (raw.get(COL_MICROSTRUCTURE) or "").strip()
 
             if not formula or not source_label:
                 continue
@@ -75,11 +75,11 @@ def load(csv_path: pathlib.Path) -> Iterator[AlloyRecord]:
             seen.add(key)
             yield AlloyRecord(
                 source=SOURCE_NAME,
-                source_row_id=(raw.get(_COL_REF_ID) or "").strip(),
+                source_row_id=(raw.get(COL_REF_ID) or "").strip(),
                 formula_raw=formula,
                 composition=composition,
                 canonical_phase=canonical,
                 source_label=full_microstructure or source_label,
                 processing=processing or None,
-                source_doi=(raw.get(_COL_DOI) or "").strip() or None,
+                source_doi=(raw.get(COL_DOI) or "").strip() or None,
             )

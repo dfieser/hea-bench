@@ -65,7 +65,7 @@ def system_fold_positions(bench, rows) -> list[tuple[list[int], list[int]]]:
 
 
 @lru_cache(maxsize=4)
-def _fitted(task: str, version: str):
+def fitted_model(task: str, version: str):
     """(model, conformal, n_training, n_calibration), fitted once per task and version."""
     from .._model_cache import cached
 
@@ -151,7 +151,7 @@ def predict_phase_set(
             f"computable for {family_of(comp)} (an element outside the descriptor tables, "
             f"or a singular descriptor such as Omega at zero mixing enthalpy)"
         )
-    model, conformal, n_training, n_calibration = _fitted(task, version)
+    model, conformal, n_training, n_calibration = fitted_model(task, version)
     probabilities = {
         str(label): float(p) for label, p in zip(model.classes_, model.predict_proba([vector])[0])
     }
@@ -159,7 +159,7 @@ def predict_phase_set(
     prediction_set = sorted(conformal.predict_set([vector], alpha=alpha, groups=[group])[0])
     most_likely = max(sorted(probabilities), key=lambda label: probabilities[label])
 
-    domain = _corpus_domain(version)
+    domain = corpus_domain(version)
     novelty = domain.novelty(comp)
 
     warnings: list[str] = []
@@ -218,7 +218,7 @@ def _domain_for(version: str):
     return cached(f"domain-v{version}", lambda: fit_domain(load_corpus(version=version)))
 
 
-def _corpus_domain(version: str):
+def corpus_domain(version: str):
     """The corpus domain model, the shared default for the reference corpus."""
     if version == "0.1.0":
         from .applicability import default_domain
@@ -227,6 +227,12 @@ def _corpus_domain(version: str):
         if domain is not None:
             return domain
     return _domain_for(version)
+
+
+def clear_caches() -> None:
+    """Forget the fitted phase models and domains, after a corpus rebuild."""
+    fitted_model.cache_clear()
+    _domain_for.cache_clear()
 
 
 __all__ = ["TASK_DESCRIPTIONS", "predict_phase_set"]

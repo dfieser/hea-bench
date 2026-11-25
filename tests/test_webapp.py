@@ -34,6 +34,14 @@ def test_unknown_method_is_an_envelope_not_a_traceback() -> None:
     assert "no_such_method" in envelope["error"]
 
 
+def test_unknown_dataset_filter_names_the_allowed_ones() -> None:
+    envelope = _call("dataset_query", filters={"colour": "red"})
+    assert envelope["ok"] is False
+    assert envelope["type"] == "ValueError"
+    assert "unknown dataset filters ['colour']" in envelope["error"]
+    assert "'descriptor_ready'" in envelope["error"]
+
+
 def test_bad_composition_error_names_the_fix() -> None:
     envelope = _call("properties", composition="Qq")
     assert envelope["ok"] is False

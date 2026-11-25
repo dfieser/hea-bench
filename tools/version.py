@@ -51,7 +51,7 @@ VERSION_TARGETS = {
 # silently over-stamped or under-checked.
 EXPECTED_HITS = {
     ("server.json", "version"): 2,
-    ("web/index.html", "asset ?v="): 4,
+    ("web/index.html", "asset ?v="): 6,
 }
 
 # release-date fields moved to today on every --set: (prefix)(date)(suffix).
