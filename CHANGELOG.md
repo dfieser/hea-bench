@@ -10,6 +10,8 @@ The format loosely follows
 
 ## [Unreleased]
 
+## [2.9.5] - 2026-11-25
+
 ### Changed
 
 - The code now sits in layers, so a new feature lands in one obvious
